@@ -6,9 +6,14 @@
   <component name="ChangeListManager">
     <list default="true" id="7a067012-059e-4508-a069-fd03f3b9d0bb" name="변경" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.VR_Baseball/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.VR_Baseball/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Baseball/Models/Sport_Balls/Baseball.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Res/Baseball/Models/Sport_Balls/Baseball.prefab" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scenes/Gameplay.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/Gameplay.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/TagManager.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/TagManager.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Script/Gameplay/DebugBaseball.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Script/Gameplay/DebugBaseball.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Script/Gameplay/DebugPlayer.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Script/Gameplay/DebugPlayer.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Packages/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/manifest.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Packages/packages-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/packages-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -19,7 +24,7 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/c3dca0e61d5249b79ac00f7b2c7a01ef176e00/9d/c60e18d9/Component.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/c3dca0e61d5249b79ac00f7b2c7a01ef176e00/9d/c60e18d9/Component.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/c3dca0e61d5249b79ac00f7b2c7a01ef176e00/d4/d48c825c/GameObject.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="ProjectColorInfo">{
@@ -98,6 +103,8 @@
       <updated>1752584861917</updated>
       <workItem from="1752584862293" duration="10052000" />
       <workItem from="1752787589365" duration="6156000" />
+      <workItem from="1752950590971" duration="143000" />
+      <workItem from="1752950756436" duration="365000" />
     </task>
     <servers />
   </component>
