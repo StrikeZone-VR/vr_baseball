@@ -21,12 +21,18 @@ void Start()
     private void Update()
     {
         if(_myBall)
-            _myBall.transform.position = transform.position + new Vector3(0, 0, -0.5f);
+            _myBall.transform.position = transform.position + new Vector3(0, 0, 0.5f);
 
         else
         {
-            nav.SetDestination(_ball.transform.position);
-            transform.LookAt(_ball.transform.position);
+
+            //nav.SetDestination(_ball.transform.position);
+            //transform.LookAt(new Vector3(_ball.transform.position.x, 1.0f, _ball.transform.position.z), Vector3.up);
+
+            Vector3 pos = new Vector3(-10, 2, -10);
+            nav.SetDestination(pos);
+            transform.LookAt(pos);
+
         }
     }
 
