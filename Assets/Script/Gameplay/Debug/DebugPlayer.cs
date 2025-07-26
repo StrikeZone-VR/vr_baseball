@@ -13,26 +13,27 @@ public class DebugPlayer : MonoBehaviour
 
 
     // Start is called before the first frame update
-void Start()
-{
-    nav = GetComponent<NavMeshAgent>();
-}
+    void Start()
+    {
+        nav = GetComponent<NavMeshAgent>();
+    }
 
     private void Update()
     {
-        if(_myBall)
+        if (_myBall)
+        {
             _myBall.transform.position = transform.position + new Vector3(0, 0, 0.5f);
+            transform.LookAt(_ball.transform, Vector3.up);
+            nav.ResetPath();
+        }
 
         else
         {
+            nav.SetDestination(_ball.transform.position);
+            transform.LookAt(_ball.transform, Vector3.up);
 
-            //nav.SetDestination(_ball.transform.position);
-            //transform.LookAt(new Vector3(_ball.transform.position.x, 1.0f, _ball.transform.position.z), Vector3.up);
-
-            Vector3 pos = new Vector3(-10, 2, -10);
-            nav.SetDestination(pos);
-            transform.LookAt(pos);
-
+            //x, z => zero because prevent superconductor phenomenon
+            transform.rotation = Quaternion.Euler(0.0f, transform.rotation.eulerAngles.y, 0.0f);
         }
     }
 
