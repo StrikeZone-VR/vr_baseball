@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour
     private int strike_count = 0;
     private int out_count = 0;
     
+    //공 받은 선수
     
     private bool [] isBaseStatus = { false, false, false };
     

@@ -7,7 +7,11 @@
     <list default="true" id="7a067012-059e-4508-a069-fd03f3b9d0bb" name="변경" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.VR_Baseball/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.VR_Baseball/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scenes/Gameplay.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/Gameplay.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Script/Gameplay/Debug/DebugPlayer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Script/Gameplay/Debug/DebugPlayer.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Script/Gameplay/Debug/DebugBaseball.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Script/Gameplay/Debug/Baseball.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Script/Gameplay/Debug/DebugBaseball.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Script/Gameplay/Debug/Baseball.cs.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Script/Gameplay/Debug/Player.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Script/Gameplay/Debug/Player.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Script/Gameplay/GameManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Script/Gameplay/GameManager.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -101,6 +105,7 @@
       <workItem from="1752950756436" duration="365000" />
       <workItem from="1753285447348" duration="1146000" />
       <workItem from="1753288595419" duration="1939000" />
+      <workItem from="1753623340742" duration="9519000" />
     </task>
     <servers />
   </component>

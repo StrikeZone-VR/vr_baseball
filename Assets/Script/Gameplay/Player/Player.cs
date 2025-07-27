@@ -7,21 +7,21 @@ using UnityEngine.AI;
 
 public class Player : MonoBehaviour
 {
-    private GameObject _myBall = null;
+    [SerializeField] protected GameObject _myBall = null;
 
-    [SerializeField] private GameObject _ball;
+    [SerializeField] protected Baseball _ball;
     [SerializeField] private VoidEventSO outEventSO;
-    
+
     private NavMeshAgent nav;
 
 
     // Start is called before the first frame update
-    void Start()
+    protected virtual void Start()
     {
         nav = GetComponent<NavMeshAgent>();
     }
 
-    private void Update()
+    protected virtual void Update()
     {
         if (_myBall)
         {
@@ -29,7 +29,6 @@ public class Player : MonoBehaviour
             transform.LookAt(_ball.transform, Vector3.up);
             nav.ResetPath();
         }
-
         else
         {
             nav.SetDestination(_ball.transform.position);
@@ -46,16 +45,22 @@ public class Player : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Ball"))
         {
+            Baseball baseball = _myBall.GetComponent<Baseball>();
             collision.rigidbody.velocity = Vector3.zero;
             _myBall = collision.gameObject;
 
-            bool isGroundball = _myBall.GetComponent<DebugBaseball>().IsGroundBall;
+            bool isGroundball = baseball.IsGroundBall;
+            baseball.MyPlayer = this;
 
             if (!isGroundball)
             {
-                Debug.Log("ÇÃ¶óÀ× ¾Æ¿ô");
                 outEventSO.Raised();
             }
         }
+    }
+
+    public void RemoveBall()
+    {
+        _myBall = null;
     }
 }
