@@ -5,10 +5,13 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class DebugPlayer : MonoBehaviour
+public class Player : MonoBehaviour
 {
     private GameObject _myBall = null;
+
     [SerializeField] private GameObject _ball;
+    [SerializeField] private VoidEventSO outEventSO;
+    
     private NavMeshAgent nav;
 
 
@@ -45,6 +48,14 @@ public class DebugPlayer : MonoBehaviour
         {
             collision.rigidbody.velocity = Vector3.zero;
             _myBall = collision.gameObject;
+
+            bool isGroundball = _myBall.GetComponent<DebugBaseball>().IsGroundBall;
+
+            if (!isGroundball)
+            {
+                Debug.Log("ÇÃ¶óÀ× ¾Æ¿ô");
+                outEventSO.Raised();
+            }
         }
     }
 }

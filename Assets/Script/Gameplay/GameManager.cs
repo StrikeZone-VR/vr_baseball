@@ -5,13 +5,13 @@ using UnityEngine;
 //게임 시작할때 실행되는 GameManager
 public class GameManager : MonoBehaviour
 {
+    [SerializeField] private VoidEventSO outEvent;
     //0 1 => 1이닝 공격 수비, => 0~17 => 짝수면 원정, 홀수면 홈 
     private int inning = 0;
 
     private int ball_count = 0;
     private int strike_count = 0;
     private int out_count = 0;
-
     
     
     private bool [] isBaseStatus = { false, false, false };
@@ -23,8 +23,16 @@ public class GameManager : MonoBehaviour
     private const int MAX_STRIKE_COUNT = 3; 
     private const int MAX_OUT_COUNT = 3; 
     private const int MAX_INNING_COUNT = 18; 
-    private const int MAX_BASE_COUNT = 3; 
+    private const int MAX_BASE_COUNT = 3;
 
+    private void OnEnable()
+    {
+        outEvent.onEventRaised += AddOut;
+    }
+    private void OnDisable()
+    {
+        outEvent.onEventRaised -= AddOut;
+    }
 
     //property
     public int OutCount
@@ -45,7 +53,7 @@ public class GameManager : MonoBehaviour
         }
     }
     
-    public void AddOut()
+    private void AddOut()
     {
         OutCount++;
     }
