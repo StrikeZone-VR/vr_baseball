@@ -13,7 +13,10 @@ public class GameManager : MonoBehaviour
     private int strike_count = 0;
     private int out_count = 0;
     
+    //1 2 3 포수
     //공 받은 선수
+    [SerializeField] private Defender[] defenders;
+    
     
     private bool [] isBaseStatus = { false, false, false };
     

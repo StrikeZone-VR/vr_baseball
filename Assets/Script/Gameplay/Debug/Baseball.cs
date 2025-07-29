@@ -8,11 +8,13 @@ public class Baseball : MonoBehaviour
     private Rigidbody _rigidbody;
     private Player myPlayer; //handling player
 
-    private const float ADDFORCE = 500.0f;
     bool isGroundBall = false; 
-    bool isBatTouch = false; 
+    bool isBatTouch = false;
 
-
+    private void Start()
+    {
+        _rigidbody = GetComponent<Rigidbody>();
+    }
 
     private void OnCollisionEnter(Collision collision)
     {
@@ -27,6 +29,8 @@ public class Baseball : MonoBehaviour
     {
         RemovePlayer();
         
+        
+        //-1 => cos180? 
         //_rigidbody.AddForce(new Vector3(transform.rotation.eulerAngles.x, ADDFORCE, transform.rotation.eulerAngles.z));
         _rigidbody.AddForce(force);
         

@@ -14,6 +14,7 @@ public class Player : MonoBehaviour
 
     private NavMeshAgent nav;
 
+    private const float BALL_DISTANCE = 0.5f;
 
     // Start is called before the first frame update
     protected virtual void Start()
@@ -23,19 +24,18 @@ public class Player : MonoBehaviour
 
     protected virtual void Update()
     {
-        if (_myBall)
+        if (!_myBall)
         {
-            _myBall.transform.position = transform.position + new Vector3(0, 0, 0.5f);
-            transform.LookAt(_ball.transform, Vector3.up);
-            nav.ResetPath();
+            nav.SetDestination(_ball.transform.position);
+            LookAtPlayer(_ball.transform.position);
         }
         else
         {
-            nav.SetDestination(_ball.transform.position);
-            transform.LookAt(_ball.transform, Vector3.up);
+            float x = Mathf.Sin(transform.rotation.eulerAngles.y * Mathf.PI / 180);
+            float z = Mathf.Cos(transform.rotation.eulerAngles.y * Mathf.PI / 180);
 
-            //x, z => zero because prevent superconductor phenomenon
-            transform.rotation = Quaternion.Euler(0.0f, transform.rotation.eulerAngles.y, 0.0f);
+            //player angle
+            _myBall.transform.position = transform.position + new Vector3(BALL_DISTANCE * x, 0, BALL_DISTANCE * z);
         }
     }
 
@@ -43,11 +43,12 @@ public class Player : MonoBehaviour
     //on
     void OnCollisionEnter(Collision collision)
     {
+        //touch ball
         if (collision.gameObject.CompareTag("Ball"))
         {
+            SetMyBall(collision.gameObject);
             Baseball baseball = _myBall.GetComponent<Baseball>();
             collision.rigidbody.velocity = Vector3.zero;
-            _myBall = collision.gameObject;
 
             bool isGroundball = baseball.IsGroundBall;
             baseball.MyPlayer = this;
@@ -57,6 +58,22 @@ public class Player : MonoBehaviour
                 outEventSO.Raised();
             }
         }
+    }
+
+    public void LookAtPlayer(Vector3 target)
+    {
+        transform.LookAt(target, Vector3.up);
+
+        //x, z => zero because prevent superconductor phenomenon
+        transform.rotation = Quaternion.Euler(0.0f, transform.rotation.eulerAngles.y, 0.0f);
+    }
+
+    public void SetMyBall(GameObject myBall)
+    {
+        _myBall = myBall;
+
+        transform.LookAt(_ball.transform, Vector3.up);
+        nav.ResetPath();
     }
 
     public void RemoveBall()

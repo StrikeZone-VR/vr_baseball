@@ -298,6 +298,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df8b8a61044eacd45803bc4d0fb674b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _myBall: {fileID: 0}
   _ball: {fileID: 683532152}
   outEventSO: {fileID: 11400000, guid: a4ae4af3ae32c9e4aa2da04a5f9ba97e, type: 2}
 --- !u!136 &203483858
@@ -581,7 +582,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df8b8a61044eacd45803bc4d0fb674b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _ball: {fileID: 683532145}
+  _myBall: {fileID: 0}
+  _ball: {fileID: 683532152}
   outEventSO: {fileID: 11400000, guid: a4ae4af3ae32c9e4aa2da04a5f9ba97e, type: 2}
 --- !u!136 &325279804
 CapsuleCollider:
@@ -744,6 +746,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df8b8a61044eacd45803bc4d0fb674b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _myBall: {fileID: 0}
   _ball: {fileID: 683532152}
   outEventSO: {fileID: 11400000, guid: a4ae4af3ae32c9e4aa2da04a5f9ba97e, type: 2}
 --- !u!136 &686334311
@@ -1095,7 +1098,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 8e26faf2e5be4914e940174e54626b61, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1349,7 +1352,7 @@ Transform:
   m_GameObject: {fileID: 1038151729}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalPosition: {x: -8.85, y: 1, z: -10.56}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1390,6 +1393,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 253178376e4fd574aa4d68a3cbe0d9e6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _myBall: {fileID: 0}
   _ball: {fileID: 683532152}
   outEventSO: {fileID: 11400000, guid: a4ae4af3ae32c9e4aa2da04a5f9ba97e, type: 2}
 --- !u!1 &1158629065
@@ -1404,15 +1408,15 @@ GameObject:
   - component: {fileID: 1158629071}
   - component: {fileID: 1158629070}
   - component: {fileID: 1158629069}
-  - component: {fileID: 1158629068}
   - component: {fileID: 1158629067}
+  - component: {fileID: 1158629072}
   m_Layer: 0
   m_Name: Player (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1158629066
 Transform:
   m_ObjectHideFlags: 0
@@ -1422,7 +1426,7 @@ Transform:
   m_GameObject: {fileID: 1158629065}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalPosition: {x: -19.82, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1451,20 +1455,6 @@ NavMeshAgent:
   m_BaseOffset: 1
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!114 &1158629068
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1158629065}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: df8b8a61044eacd45803bc4d0fb674b0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _ball: {fileID: 683532152}
-  outEventSO: {fileID: 11400000, guid: a4ae4af3ae32c9e4aa2da04a5f9ba97e, type: 2}
 --- !u!136 &1158629069
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -1538,6 +1528,21 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1158629065}
   m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1158629072
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1158629065}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6526810b7bc717147a60208124e6d28e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _myBall: {fileID: 0}
+  _ball: {fileID: 683532152}
+  outEventSO: {fileID: 11400000, guid: a4ae4af3ae32c9e4aa2da04a5f9ba97e, type: 2}
 --- !u!1 &1208688574
 GameObject:
   m_ObjectHideFlags: 0
@@ -1583,6 +1588,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   outEvent: {fileID: 11400000, guid: a4ae4af3ae32c9e4aa2da04a5f9ba97e, type: 2}
+  defenders:
+  - {fileID: 1158629072}
 --- !u!1 &1333702203
 GameObject:
   m_ObjectHideFlags: 0
@@ -1976,6 +1983,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df8b8a61044eacd45803bc4d0fb674b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _myBall: {fileID: 0}
   _ball: {fileID: 683532145}
   outEventSO: {fileID: 11400000, guid: a4ae4af3ae32c9e4aa2da04a5f9ba97e, type: 2}
 --- !u!136 &1446697304
@@ -2518,6 +2526,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df8b8a61044eacd45803bc4d0fb674b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _myBall: {fileID: 0}
   _ball: {fileID: 683532145}
   outEventSO: {fileID: 11400000, guid: a4ae4af3ae32c9e4aa2da04a5f9ba97e, type: 2}
 --- !u!136 &2003804811
@@ -2769,6 +2778,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df8b8a61044eacd45803bc4d0fb674b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _myBall: {fileID: 0}
   _ball: {fileID: 683532152}
   outEventSO: {fileID: 11400000, guid: a4ae4af3ae32c9e4aa2da04a5f9ba97e, type: 2}
 --- !u!136 &2080916152
@@ -2915,6 +2925,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df8b8a61044eacd45803bc4d0fb674b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _myBall: {fileID: 0}
   _ball: {fileID: 683532152}
   outEventSO: {fileID: 11400000, guid: a4ae4af3ae32c9e4aa2da04a5f9ba97e, type: 2}
 --- !u!136 &2081108755
