@@ -2,6 +2,13 @@
 #
 # Get latest from https://github.com/github/gitignore/blob/main/Unity.gitignore
 #
+
+# Unity Asset Store Packages
+# Asset Store 패키지들 (팀원과 공유 필요한 경우 주석 처리하세요)
+/[Aa]ssets/Asset Store/
+/[Aa]ssets/AssetStore/
+
+
 /[Aa]ssets/Adaptive Performance/
 /[Aa]ssets/AddressableAssetsData/
 /[Aa]ssets/ExternPackage/
