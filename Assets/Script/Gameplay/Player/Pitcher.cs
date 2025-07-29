@@ -17,13 +17,15 @@ public class Pitcher : Defender
         base.Update();
         if (Input.GetKeyDown(KeyCode.Space))
             PitchBall();
+        if (Input.GetKeyDown(KeyCode.V))
+            HaveBall();
     }
 
     private void HaveBall()
     {
         //ready handling ball
         _ball.RemovePlayer();
-        SetMyBall(_ball.gameObject);
+        SetMyBall(_ball);
     }
     
     //공 던지는 함수

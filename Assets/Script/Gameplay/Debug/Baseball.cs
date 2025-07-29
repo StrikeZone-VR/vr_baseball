@@ -6,7 +6,7 @@ using UnityEngine;
 public class Baseball : MonoBehaviour
 {
     private Rigidbody _rigidbody;
-    private Player myPlayer; //handling player
+    private Defender myDefender; //handling player
 
     bool isGroundBall = false; 
     bool isBatTouch = false;
@@ -29,34 +29,46 @@ public class Baseball : MonoBehaviour
     {
         RemovePlayer();
         
+        //rotation zero
+        //_rigidbody.useGravity = false;
+        _rigidbody.velocity = Vector3.zero;
+        // _rigidbody.angularVelocity = Vector3.zero;
+        // _rigidbody.constraints = RigidbodyConstraints.FreezeRotation;
+        //_rigidbody.AddForce(force, ForceMode.Impulse);
         
-        //-1 => cos180? 
-        //_rigidbody.AddForce(new Vector3(transform.rotation.eulerAngles.x, ADDFORCE, transform.rotation.eulerAngles.z));
-        _rigidbody.AddForce(force);
+        _rigidbody.velocity = force;
+        //_rigidbody.constraints = RigidbodyConstraints.None;
+        //_rigidbody.AddTorque(force * 1000f, ForceMode.Impulse);
         
         isBatTouch = false;
         isGroundBall = false;
     }
+
 
     public bool IsGroundBall 
     {
         get => isGroundBall;
         set => isGroundBall = value;
     }
-
-    public Player MyPlayer
+    public bool IsBatTouch 
     {
-        get => myPlayer;
-        set => myPlayer = value;
+        get => isBatTouch;
+        set => isBatTouch = value;
+    }
+
+    public Defender MyDefender
+    {
+        get => myDefender;
+        set => myDefender = value;
     }
 
     public void RemovePlayer()
     {
-        if (!myPlayer)
+        if (!myDefender)
         {
             return;
         }
-        myPlayer.RemoveBall();
-        myPlayer = null;
+        myDefender.RemoveBall();
+        myDefender = null;
     }
 }
