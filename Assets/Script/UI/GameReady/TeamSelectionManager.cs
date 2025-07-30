@@ -44,16 +44,20 @@ public class TeamSelectionManager : MonoBehaviour
     [Header("애니메이션 설정")]
     [SerializeField] private float scrollAnimationDuration = 0.3f;
     [SerializeField] private AnimationCurve scrollAnimationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+    [SerializeField] private float scrollThreshold = 0.1f; // 스크롤 감지 민감도
 
     private int currentComputerTeamIndex = 0;
     private int currentPlayerTeamIndex = 1;
     private bool isAnimating = false;
+    private float lastComputerScrollValue = 1f;
+    private float lastPlayerScrollValue = 1f;
 
     void Start()
     {
         InitializeTeams();
         SetupButtonEvents();
         SetupScrollEvents();
+        SetupScrollRects();
         UpdateTeamDisplays();
     }
 
@@ -118,6 +122,42 @@ public class TeamSelectionManager : MonoBehaviour
         }
     }
 
+    void SetupScrollRects()
+    {
+        // 컴퓨터 팀 스크롤 설정
+        if (computerScrollRect != null)
+        {
+            SetupScrollRect(computerScrollRect);
+            computerScrollRect.verticalNormalizedPosition = 0.5f; // 중앙부터 시작
+            lastComputerScrollValue = 0.5f;
+        }
+
+        // 플레이어 팀 스크롤 설정
+        if (playerScrollRect != null)
+        {
+            SetupScrollRect(playerScrollRect);
+            playerScrollRect.verticalNormalizedPosition = 0.5f; // 중앙부터 시작  
+            lastPlayerScrollValue = 0.5f;
+        }
+    }
+
+    void SetupScrollRect(ScrollRect scrollRect)
+    {
+        // 스크롤바 숨기기
+        if (scrollRect.verticalScrollbar != null)
+            scrollRect.verticalScrollbar.gameObject.SetActive(false);
+        if (scrollRect.horizontalScrollbar != null)
+            scrollRect.horizontalScrollbar.gameObject.SetActive(false);
+
+        // 스크롤 설정 - 무한 스크롤을 위해 Unrestricted 사용
+        scrollRect.horizontal = false;
+        scrollRect.vertical = true;
+        scrollRect.movementType = ScrollRect.MovementType.Unrestricted; // 무한 스크롤 허용
+        scrollRect.inertia = true;
+        scrollRect.decelerationRate = 0.135f;
+        scrollRect.scrollSensitivity = 1f;
+    }
+
     void ChangeTeam(bool isComputer, int direction)
     {
         if (isAnimating) return;
@@ -132,26 +172,75 @@ public class TeamSelectionManager : MonoBehaviour
         }
 
         StartCoroutine(AnimateTeamChange(isComputer));
+        // 무한 스크롤에서는 스크롤 애니메이션 불필요
+        // StartCoroutine(AnimateScrollToTeam(isComputer));
     }
 
     void OnScrollValueChanged(bool isComputer, Vector2 scrollValue)
     {
         if (isAnimating) return;
 
-        // 스크롤 값에 따라 팀 변경
-        float normalizedScroll = isComputer ? computerScrollRect.verticalNormalizedPosition : playerScrollRect.verticalNormalizedPosition;
+        ScrollRect targetScrollRect = isComputer ? computerScrollRect : playerScrollRect;
+        if (targetScrollRect == null) return;
 
-        int newIndex = Mathf.RoundToInt(normalizedScroll * (teams.Count - 1));
+        float currentScrollValue = targetScrollRect.verticalNormalizedPosition;
+        float lastScrollValue = isComputer ? lastComputerScrollValue : lastPlayerScrollValue;
 
-        if (isComputer && newIndex != currentComputerTeamIndex)
+        // 스크롤 변화가 임계값보다 클 때만 처리
+        if (Mathf.Abs(currentScrollValue - lastScrollValue) < scrollThreshold) return;
+
+        int currentIndex = isComputer ? currentComputerTeamIndex : currentPlayerTeamIndex;
+
+        // 스크롤 방향 감지
+        float scrollDelta = currentScrollValue - lastScrollValue;
+
+        if (scrollDelta > scrollThreshold) // 위로 스크롤 (이전 팀)
         {
-            currentComputerTeamIndex = newIndex;
+            int newIndex = (currentIndex - 1 + teams.Count) % teams.Count;
+            if (isComputer)
+            {
+                currentComputerTeamIndex = newIndex;
+                lastComputerScrollValue = currentScrollValue;
+            }
+            else
+            {
+                currentPlayerTeamIndex = newIndex;
+                lastPlayerScrollValue = currentScrollValue;
+            }
             UpdateTeamDisplays();
         }
-        else if (!isComputer && newIndex != currentPlayerTeamIndex)
+        else if (scrollDelta < -scrollThreshold) // 아래로 스크롤 (다음 팀)
         {
-            currentPlayerTeamIndex = newIndex;
+            int newIndex = (currentIndex + 1) % teams.Count;
+            if (isComputer)
+            {
+                currentComputerTeamIndex = newIndex;
+                lastComputerScrollValue = currentScrollValue;
+            }
+            else
+            {
+                currentPlayerTeamIndex = newIndex;
+                lastPlayerScrollValue = currentScrollValue;
+            }
             UpdateTeamDisplays();
+        }
+
+        // 스크롤 위치 리셋 (무한 스크롤 효과)
+        if (currentScrollValue > 1.5f)
+        {
+            targetScrollRect.verticalNormalizedPosition = 0.5f;
+            if (isComputer)
+                lastComputerScrollValue = 0.5f;
+            else
+                lastPlayerScrollValue = 0.5f;
+        }
+        else if (currentScrollValue < -0.5f)
+        {
+            targetScrollRect.verticalNormalizedPosition = 0.5f;
+            if (isComputer)
+                lastComputerScrollValue = 0.5f;
+            else
+                lastPlayerScrollValue = 0.5f;
         }
     }
 
@@ -221,6 +310,31 @@ public class TeamSelectionManager : MonoBehaviour
         isAnimating = false;
     }
 
+    IEnumerator AnimateScrollToTeam(bool isComputer)
+    {
+        ScrollRect targetScrollRect = isComputer ? computerScrollRect : playerScrollRect;
+        if (targetScrollRect == null) yield break;
+
+        int targetIndex = isComputer ? currentComputerTeamIndex : currentPlayerTeamIndex;
+        float targetScrollValue = 1f - (float)targetIndex / (teams.Count - 1);
+
+        float startScrollValue = targetScrollRect.verticalNormalizedPosition;
+        float animationTime = 0f;
+
+        while (animationTime < scrollAnimationDuration)
+        {
+            animationTime += Time.deltaTime;
+            float normalizedTime = animationTime / scrollAnimationDuration;
+            float evaluatedTime = scrollAnimationCurve.Evaluate(normalizedTime);
+
+            targetScrollRect.verticalNormalizedPosition = Mathf.Lerp(startScrollValue, targetScrollValue, evaluatedTime);
+
+            yield return null;
+        }
+
+        targetScrollRect.verticalNormalizedPosition = targetScrollValue;
+    }
+
     void SetImageAlpha(Image image, float alpha)
     {
         if (image != null)
@@ -243,6 +357,10 @@ public class TeamSelectionManager : MonoBehaviour
         // 양쪽 모두 애니메이션으로 업데이트
         StartCoroutine(AnimateTeamChange(true));
         StartCoroutine(AnimateTeamChange(false));
+
+        // 무한 스크롤에서는 스크롤 애니메이션 불필요
+        // StartCoroutine(AnimateScrollToTeam(true));
+        // StartCoroutine(AnimateScrollToTeam(false));
     }
 
     void UpdateTeamDisplays()
