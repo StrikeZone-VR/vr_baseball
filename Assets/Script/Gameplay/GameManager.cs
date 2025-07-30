@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 //게임 시작할때 실행되는 GameManager
 public class GameManager : MonoBehaviour
@@ -16,7 +17,7 @@ public class GameManager : MonoBehaviour
     
     //1 2 3 포수
     //공 받은 선수
-    [SerializeField] private Defender[] defenders;
+    [SerializeField] private Transform[] bases;
     [SerializeField] private Baseball ball;
     
     private bool [] isBaseStatus = { false, false, false };
@@ -42,13 +43,13 @@ public class GameManager : MonoBehaviour
     private void Update()
     {
         if(Input.GetKeyDown(KeyCode.Alpha1))
-            DebugBaseman(0);
+            DebugBase(0);
         else if (Input.GetKeyDown(KeyCode.Alpha2))
-            DebugBaseman(1);
+            DebugBase(1);
         else if(Input.GetKeyDown(KeyCode.Alpha3))
-            DebugBaseman(2);
+            DebugBase(2);
         else if(Input.GetKeyDown(KeyCode.Alpha4))
-            DebugBaseman(3);
+            DebugBase(3);
     }
 
     //property
@@ -148,10 +149,10 @@ public class GameManager : MonoBehaviour
 
     }
 
-    public void DebugBaseman(int index)
+    public void DebugBase(int index)
     {
         if(ball.MyDefender)
-            ball.MyDefender.ThrowBall(defenders[index].transform.position);
+            ball.MyDefender.ThrowBall(bases[index].position + new Vector3(0,0.5f,0));
     }
 
 }
