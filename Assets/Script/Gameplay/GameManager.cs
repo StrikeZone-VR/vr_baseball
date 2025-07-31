@@ -1,18 +1,24 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 //게임 시작할때 실행되는 GameManager
 public class GameManager : MonoBehaviour
 {
+    [SerializeField] private VoidEventSO outEvent;
     //0 1 => 1이닝 공격 수비, => 0~17 => 짝수면 원정, 홀수면 홈 
     private int inning = 0;
 
     private int ball_count = 0;
     private int strike_count = 0;
     private int out_count = 0;
-
     
+    //1 2 3 포수
+    //공 받은 선수
+    [SerializeField] private Transform[] bases;
+    [SerializeField] private Baseball ball;
     
     private bool [] isBaseStatus = { false, false, false };
     
@@ -23,8 +29,28 @@ public class GameManager : MonoBehaviour
     private const int MAX_STRIKE_COUNT = 3; 
     private const int MAX_OUT_COUNT = 3; 
     private const int MAX_INNING_COUNT = 18; 
-    private const int MAX_BASE_COUNT = 3; 
+    private const int MAX_BASE_COUNT = 3;
 
+    private void OnEnable()
+    {
+        outEvent.onEventRaised += AddOut;
+    }
+    private void OnDisable()
+    {
+        outEvent.onEventRaised -= AddOut;
+    }
+
+    private void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.Alpha1))
+            DebugBase(0);
+        else if (Input.GetKeyDown(KeyCode.Alpha2))
+            DebugBase(1);
+        else if(Input.GetKeyDown(KeyCode.Alpha3))
+            DebugBase(2);
+        else if(Input.GetKeyDown(KeyCode.Alpha4))
+            DebugBase(3);
+    }
 
     //property
     public int OutCount
@@ -45,7 +71,7 @@ public class GameManager : MonoBehaviour
         }
     }
     
-    public void AddOut()
+    private void AddOut()
     {
         OutCount++;
     }
@@ -121,6 +147,12 @@ public class GameManager : MonoBehaviour
             _teamStatus[inning % 2].score++;
         }
 
+    }
+
+    public void DebugBase(int index)
+    {
+        if(ball.MyDefender)
+            ball.MyDefender.ThrowBall(bases[index].position + new Vector3(0,0.5f,0));
     }
 
 }
