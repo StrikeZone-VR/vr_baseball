@@ -6,14 +6,13 @@ using UnityEngine;
 public class Defender : Player
 {
     [SerializeField] private VoidEventSO outEventSO;
-    private bool isTracking = false;
 
     private const float BALL_DISTANCE = 0.5f;
 
     protected virtual void Update()
     {
         //follow ball
-        if (isTracking && !_myBall)
+        if (!_myBall)
         {
             //Ball이 누군가의 소속이 없다면 => MyPlayer
             if (_ball.MyDefender)
@@ -28,7 +27,7 @@ public class Defender : Player
             nav.SetDestination(_ball.transform.position);
             LookAtPlayer(_ball.transform.position);
         }
-        else //have ball
+        else//have ball
         {
             float x = Mathf.Sin(transform.rotation.eulerAngles.y * Mathf.PI / 180);
             float z = Mathf.Cos(transform.rotation.eulerAngles.y * Mathf.PI / 180);
@@ -118,9 +117,9 @@ public class Defender : Player
         nav.ResetPath();
     }
 
-    public bool IsTracking
-    {
-        get => isTracking;
-        set => isTracking = value;
-    }
+    //public bool IsTracking
+    //{
+    //    get => isTracking;
+    //    set => isTracking = value;
+    //}
 }
