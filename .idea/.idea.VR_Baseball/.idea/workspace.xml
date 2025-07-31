@@ -7,13 +7,11 @@
     <list default="true" id="7a067012-059e-4508-a069-fd03f3b9d0bb" name="변경" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.VR_Baseball/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.VR_Baseball/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scenes/Gameplay.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/Gameplay.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Script/Gameplay/DebugBaseball.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Script/Gameplay/DebugBaseball.cs.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Script/Gameplay/DebugPlayer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Script/Gameplay/DebugPlayer.cs.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Packages/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/manifest.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Packages/packages-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/packages-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Script/Gameplay/Debug/Baseball.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Script/Gameplay/Debug/Baseball.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Script/Gameplay/GameManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Script/Gameplay/GameManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Script/Gameplay/Player/Defender.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Script/Gameplay/Player/Defender.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Script/Gameplay/Player/Pitcher.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Script/Gameplay/Player/Pitcher.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Script/Gameplay/Player/Player.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Script/Gameplay/Player/Player.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -24,6 +22,7 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/7de0f9f4a2134c3b921f57cc38c5700f1fe00/81/c27d5ff2/Rigidbody.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/c3dca0e61d5249b79ac00f7b2c7a01ef176e00/9d/c60e18d9/Component.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/c3dca0e61d5249b79ac00f7b2c7a01ef176e00/d4/d48c825c/GameObject.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
@@ -35,20 +34,20 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;gameplay&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "gameplay",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "CodeLensConfigurable",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager" selected="Unity 에디터에 연결.Unity 에디터에 연결">
     <configuration name="유닛 테스트(배치 모드)" type="RunUnityExe" factoryName="Unity Executable">
       <option name="EXE_PATH" value="C:\Program Files\Unity\Hub\Editor\2022.3.56f1\Editor\Unity.exe" />
@@ -105,6 +104,12 @@
       <workItem from="1752787589365" duration="6156000" />
       <workItem from="1752950590971" duration="143000" />
       <workItem from="1752950756436" duration="365000" />
+      <workItem from="1753285447348" duration="1146000" />
+      <workItem from="1753288595419" duration="1939000" />
+      <workItem from="1753623340742" duration="9670000" />
+      <workItem from="1753687791304" duration="3064000" />
+      <workItem from="1753735608431" duration="2749000" />
+      <workItem from="1753799521831" duration="11478000" />
     </task>
     <servers />
   </component>
