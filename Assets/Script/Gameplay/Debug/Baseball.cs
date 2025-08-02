@@ -35,7 +35,6 @@ public class Baseball : MonoBehaviour
         // _rigidbody.angularVelocity = Vector3.zero;
         // _rigidbody.constraints = RigidbodyConstraints.FreezeRotation;
         //_rigidbody.AddForce(force, ForceMode.Impulse);
-        
         _rigidbody.velocity = force;
         //_rigidbody.constraints = RigidbodyConstraints.None;
         //_rigidbody.AddTorque(force * 1000f, ForceMode.Impulse);

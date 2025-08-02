@@ -7,7 +7,6 @@ public class Defender : Player
 {
     [SerializeField] private VoidEventSO outEventSO;
 
-    private const float BALL_DISTANCE = 0.5f;
 
     protected virtual void Update()
     {
@@ -29,11 +28,7 @@ public class Defender : Player
         }
         else//have ball
         {
-            float x = Mathf.Sin(transform.rotation.eulerAngles.y * Mathf.PI / 180);
-            float z = Mathf.Cos(transform.rotation.eulerAngles.y * Mathf.PI / 180);
-
-            //player angle
-            _myBall.transform.position = transform.position + new Vector3(BALL_DISTANCE * x, 0, BALL_DISTANCE * z);
+            FrontBall();
         }
     }
     
@@ -62,7 +57,7 @@ public class Defender : Player
     public void ThrowBall(Vector3 position)
     {
         LookAtPlayer(position);
-        
+
         // float x = Mathf.Sin(transform.rotation.eulerAngles.y * Mathf.PI / 180);
         // float z = Mathf.Cos(transform.rotation.eulerAngles.y * Mathf.PI / 180);
         //
@@ -117,6 +112,7 @@ public class Defender : Player
         nav.ResetPath();
     }
 
+    
     //public bool IsTracking
     //{
     //    get => isTracking;
