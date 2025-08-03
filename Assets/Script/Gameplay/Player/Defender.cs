@@ -7,27 +7,33 @@ public class Defender : Player
 {
     [SerializeField] private VoidEventSO outEventSO;
 
+    [SerializeField] private bool isTracking = false;
 
     protected virtual void Update()
     {
         //follow ball
-        if (!_myBall)
+        if (isTracking)
         {
             //Ball이 누군가의 소속이 없다면 => MyPlayer
             if (_ball.MyDefender)
             {
                 return;
             }
+
             //if bat is not touching
             if (!_ball.IsBatTouch)
             {
                 return;
             }
+
             nav.SetDestination(_ball.transform.position);
             LookAtPlayer(_ball.transform.position);
         }
         else//have ball
         {
+            //false =>
+            nav.ResetPath();
+
             FrontBall();
         }
     }
@@ -42,6 +48,8 @@ public class Defender : Player
             Baseball baseball = _myBall.GetComponent<Baseball>();
             collision.rigidbody.velocity = Vector3.zero;
 
+            isTracking = false;
+            
             bool isGroundball = baseball.IsGroundBall;
             baseball.MyDefender = this;
 
@@ -107,15 +115,22 @@ public class Defender : Player
     {
         _myBall = myBall;
         _myBall.MyDefender = this;
+        IsTracking = false;
 
         transform.LookAt(_ball.transform, Vector3.up);
-        nav.ResetPath();
     }
 
     
-    //public bool IsTracking
-    //{
-    //    get => isTracking;
-    //    set => isTracking = value;
-    //}
+    public bool IsTracking
+    {
+        get => isTracking;
+        set
+        {
+            isTracking = value;
+            if (!isTracking && nav)
+            {
+                nav.ResetPath();
+            }
+        }
+    }
 }

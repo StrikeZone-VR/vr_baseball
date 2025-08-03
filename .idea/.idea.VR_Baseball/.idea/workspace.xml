@@ -5,12 +5,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7a067012-059e-4508-a069-fd03f3b9d0bb" name="변경" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.VR_Baseball/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.VR_Baseball/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scenes/Gameplay.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/Gameplay.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/Gameplay/NavMesh-infrastructure-building-stadium.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/Gameplay/NavMesh-infrastructure-building-stadium.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/Gameplay/NavMesh-infrastructure-building-stadium.asset.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/Gameplay/NavMesh-infrastructure-building-stadium.asset.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Script/Gameplay/Debug/Baseball.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Script/Gameplay/Debug/Baseball.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Script/Gameplay/GameManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Script/Gameplay/GameManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Script/Gameplay/Player/Baseman.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Script/Gameplay/Player/Baseman.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Script/Gameplay/Player/Defender.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Script/Gameplay/Player/Defender.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Script/Gameplay/Player/Outfielder.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Script/Gameplay/Player/Outfielder.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Script/Gameplay/Player/Pitcher.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Script/Gameplay/Player/Pitcher.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Script/Gameplay/Player/Player.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Script/Gameplay/Player/Player.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/TagManager.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/TagManager.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -22,8 +28,10 @@
   </component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/7de0f9f4a2134c3b921f57cc38c5700f1fe00/81/c27d5ff2/Rigidbody.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/c3dca0e61d5249b79ac00f7b2c7a01ef176e00/40/9c68d080/Transform.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/c3dca0e61d5249b79ac00f7b2c7a01ef176e00/9d/c60e18d9/Component.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/c3dca0e61d5249b79ac00f7b2c7a01ef176e00/d4/d48c825c/GameObject.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.xr.oculus@4.4.0/Runtime/OculusLoader.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 6
@@ -110,7 +118,8 @@
       <workItem from="1753735608431" duration="2749000" />
       <workItem from="1753799521831" duration="11478000" />
       <workItem from="1754106758360" duration="596000" />
-      <workItem from="1754152658021" duration="1738000" />
+      <workItem from="1754152658021" duration="2003000" />
+      <workItem from="1754227376306" duration="12461000" />
     </task>
     <servers />
   </component>

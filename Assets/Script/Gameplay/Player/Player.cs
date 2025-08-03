@@ -7,8 +7,7 @@ using UnityEngine.AI;
 
 public class Player : MonoBehaviour
 {
-    [Tooltip("null")]
-    [SerializeField] protected Baseball _myBall = null;
+    protected Baseball _myBall = null;
 
     [SerializeField] protected Baseball _ball;
 

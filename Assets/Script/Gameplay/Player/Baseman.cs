@@ -10,8 +10,10 @@ public class Baseman : Defender
     {
         base.Update();
 
-        nav.SetDestination(myBase.position);
-        LookAtPlayer(myBase.position);
+        if (!IsTracking)
+        {
+            nav.SetDestination(myBase.position);
+            LookAtPlayer(myBase.position);
+        }
     }
-
 }

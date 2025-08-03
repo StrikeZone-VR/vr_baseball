@@ -134,7 +134,7 @@ GameObject:
   - component: {fileID: 13498968}
   - component: {fileID: 13498967}
   - component: {fileID: 13498966}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: eye
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -270,7 +270,7 @@ GameObject:
   - component: {fileID: 118611116}
   - component: {fileID: 118611115}
   - component: {fileID: 118611114}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: eye
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -374,7 +374,7 @@ GameObject:
   - component: {fileID: 250918255}
   m_Layer: 0
   m_Name: Batter
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -545,9 +545,9 @@ GameObject:
   - component: {fileID: 325279804}
   - component: {fileID: 325279802}
   - component: {fileID: 325279807}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Player (4)
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -675,9 +675,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3aff389ca2ee2974b834cdd2e5bba4dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _myBall: {fileID: 0}
   _ball: {fileID: 683532152}
   outEventSO: {fileID: 11400000, guid: a4ae4af3ae32c9e4aa2da04a5f9ba97e, type: 2}
+  isTracking: 0
   myBase: {fileID: 21339321}
 --- !u!1 &564270422
 GameObject:
@@ -727,6 +727,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da16bbf45d769d64a83046e0ce1c89ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isGroundBall: 0
+  isBatTouch: 0
+  allTrackingOffEvent: {fileID: 11400000, guid: eb943823faaa14e4b87ec836d9d214f4, type: 2}
 --- !u!1 &759204550
 GameObject:
   m_ObjectHideFlags: 0
@@ -739,7 +742,7 @@ GameObject:
   - component: {fileID: 759204554}
   - component: {fileID: 759204553}
   - component: {fileID: 759204552}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: eye
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -920,7 +923,7 @@ GameObject:
   - component: {fileID: 815962642}
   - component: {fileID: 815962641}
   - component: {fileID: 815962640}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: eye
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1063,9 +1066,9 @@ GameObject:
   - component: {fileID: 839025626}
   - component: {fileID: 839025625}
   - component: {fileID: 839025629}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Player (8)
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1193,9 +1196,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6257573e08951ed4f94055e0a7fe303f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _myBall: {fileID: 0}
   _ball: {fileID: 683532152}
   outEventSO: {fileID: 11400000, guid: a4ae4af3ae32c9e4aa2da04a5f9ba97e, type: 2}
+  isTracking: 0
 --- !u!1001 &897966065
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1211,6 +1214,10 @@ PrefabInstance:
     - target: {fileID: 8517345459731736007, guid: 666cdc8fed727489cbe5cfa8af0664a9, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8517345459731736007, guid: 666cdc8fed727489cbe5cfa8af0664a9, type: 3}
+      propertyPath: m_TagString
+      value: Ground
       objectReference: {fileID: 0}
     - target: {fileID: 9041082067158892413, guid: 666cdc8fed727489cbe5cfa8af0664a9, type: 3}
       propertyPath: m_LocalScale.x
@@ -1289,9 +1296,9 @@ GameObject:
   - component: {fileID: 1038151730}
   - component: {fileID: 1038151735}
   - component: {fileID: 1038151736}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Pitcher
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1419,9 +1426,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 253178376e4fd574aa4d68a3cbe0d9e6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _myBall: {fileID: 0}
   _ball: {fileID: 683532152}
   outEventSO: {fileID: 11400000, guid: a4ae4af3ae32c9e4aa2da04a5f9ba97e, type: 2}
+  isTracking: 0
 --- !u!1 &1087344700
 GameObject:
   m_ObjectHideFlags: 0
@@ -1436,9 +1443,9 @@ GameObject:
   - component: {fileID: 1087344704}
   - component: {fileID: 1087344703}
   - component: {fileID: 1087344707}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: ShortStop
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1566,9 +1573,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6257573e08951ed4f94055e0a7fe303f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _myBall: {fileID: 0}
   _ball: {fileID: 683532152}
   outEventSO: {fileID: 11400000, guid: a4ae4af3ae32c9e4aa2da04a5f9ba97e, type: 2}
+  isTracking: 0
 --- !u!1 &1123857502
 GameObject:
   m_ObjectHideFlags: 0
@@ -1614,9 +1621,9 @@ GameObject:
   - component: {fileID: 1158629069}
   - component: {fileID: 1158629067}
   - component: {fileID: 1158629072}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Player (1)
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1744,9 +1751,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3aff389ca2ee2974b834cdd2e5bba4dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _myBall: {fileID: 0}
   _ball: {fileID: 683532152}
   outEventSO: {fileID: 11400000, guid: a4ae4af3ae32c9e4aa2da04a5f9ba97e, type: 2}
+  isTracking: 0
   myBase: {fileID: 1123857503}
 --- !u!1 &1208688574
 GameObject:
@@ -1797,6 +1804,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   outEvent: {fileID: 11400000, guid: a4ae4af3ae32c9e4aa2da04a5f9ba97e, type: 2}
+  allTrackingOffEvent: {fileID: 11400000, guid: eb943823faaa14e4b87ec836d9d214f4, type: 2}
+  defenders:
+  - {fileID: 1038151736}
+  - {fileID: 1158629072}
+  - {fileID: 1446697307}
+  - {fileID: 2003804814}
+  - {fileID: 325279807}
+  - {fileID: 1087344707}
+  - {fileID: 1607648513}
+  - {fileID: 1968224686}
+  - {fileID: 839025629}
   bases:
   - {fileID: 1123857503}
   - {fileID: 564270423}
@@ -1815,7 +1833,7 @@ GameObject:
   - component: {fileID: 1333702207}
   - component: {fileID: 1333702206}
   - component: {fileID: 1333702205}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: eye
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1961,7 +1979,7 @@ GameObject:
   - component: {fileID: 1381589132}
   - component: {fileID: 1381589131}
   - component: {fileID: 1381589130}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: eye
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2077,8 +2095,8 @@ MonoBehaviour:
   m_Center: {x: 0, y: 2, z: 0}
   m_LayerMask:
     serializedVersion: 2
-    m_Bits: 4294967295
-  m_UseGeometry: 0
+    m_Bits: 55
+  m_UseGeometry: 1
   m_DefaultArea: 0
   m_GenerateLinks: 0
   m_IgnoreNavMeshAgent: 1
@@ -2110,7 +2128,7 @@ BoxCollider:
   m_Enabled: 1
   serializedVersion: 3
   m_Size: {x: 50.610077, y: 1, z: 55.43194}
-  m_Center: {x: -0.0000009536743, y: -0.25, z: -0.0000009536743}
+  m_Center: {x: -0.0000009536743, y: -0.5, z: -0.0000009536743}
 --- !u!1001 &1434486799
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2201,9 +2219,9 @@ GameObject:
   - component: {fileID: 1446697304}
   - component: {fileID: 1446697302}
   - component: {fileID: 1446697307}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Player (2)
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2331,9 +2349,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3aff389ca2ee2974b834cdd2e5bba4dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _myBall: {fileID: 0}
   _ball: {fileID: 683532152}
   outEventSO: {fileID: 11400000, guid: a4ae4af3ae32c9e4aa2da04a5f9ba97e, type: 2}
+  isTracking: 0
   myBase: {fileID: 564270423}
 --- !u!1 &1539566008
 GameObject:
@@ -2441,7 +2459,7 @@ GameObject:
   - component: {fileID: 1590689818}
   - component: {fileID: 1590689817}
   - component: {fileID: 1590689816}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: eye
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2548,9 +2566,9 @@ GameObject:
   - component: {fileID: 1607648510}
   - component: {fileID: 1607648509}
   - component: {fileID: 1607648513}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Player (6)
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2678,9 +2696,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6257573e08951ed4f94055e0a7fe303f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _myBall: {fileID: 0}
   _ball: {fileID: 683532152}
   outEventSO: {fileID: 11400000, guid: a4ae4af3ae32c9e4aa2da04a5f9ba97e, type: 2}
+  isTracking: 0
 --- !u!1001 &1812215994
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2707,7 +2725,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2829082859659949981, guid: c29b2a2237a554d85824576df5d4f23e, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.3
+      value: 0.05
       objectReference: {fileID: 0}
     - target: {fileID: 2829082859659949981, guid: c29b2a2237a554d85824576df5d4f23e, type: 3}
       propertyPath: m_LocalPosition.z
@@ -2747,7 +2765,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3173132780529593639, guid: c29b2a2237a554d85824576df5d4f23e, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3173132780529593639, guid: c29b2a2237a554d85824576df5d4f23e, type: 3}
+      propertyPath: m_TagString
+      value: Ground
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2860,9 +2882,9 @@ GameObject:
   - component: {fileID: 1968224683}
   - component: {fileID: 1968224682}
   - component: {fileID: 1968224686}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Player (7)
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2990,9 +3012,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6257573e08951ed4f94055e0a7fe303f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _myBall: {fileID: 0}
   _ball: {fileID: 683532152}
   outEventSO: {fileID: 11400000, guid: a4ae4af3ae32c9e4aa2da04a5f9ba97e, type: 2}
+  isTracking: 0
 --- !u!1 &2003804807
 GameObject:
   m_ObjectHideFlags: 0
@@ -3007,9 +3029,9 @@ GameObject:
   - component: {fileID: 2003804811}
   - component: {fileID: 2003804809}
   - component: {fileID: 2003804814}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Player (3)
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3137,9 +3159,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3aff389ca2ee2974b834cdd2e5bba4dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _myBall: {fileID: 0}
   _ball: {fileID: 683532152}
   outEventSO: {fileID: 11400000, guid: a4ae4af3ae32c9e4aa2da04a5f9ba97e, type: 2}
+  isTracking: 0
   myBase: {fileID: 2029007883}
 --- !u!1 &2029007882
 GameObject:
@@ -3184,7 +3206,7 @@ GameObject:
   - component: {fileID: 2039396188}
   - component: {fileID: 2039396187}
   - component: {fileID: 2039396186}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: eye
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3289,7 +3311,7 @@ GameObject:
   - component: {fileID: 2045309990}
   - component: {fileID: 2045309989}
   - component: {fileID: 2045309988}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: eye
   m_TagString: Untagged
   m_Icon: {fileID: 0}

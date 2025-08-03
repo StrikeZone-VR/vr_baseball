@@ -12,6 +12,8 @@
 /[Aa]ssets/GeneratedLocalRepo/
 /[Aa]ssets/Plugins/
 /[Aa]ssets/StreamingAssets/
+/.idea
+/.vscode
 
 /.utmp
 
