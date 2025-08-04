@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 //수비수
 public class Defender : Player
@@ -35,6 +36,12 @@ public class Defender : Player
             nav.ResetPath();
 
             FrontBall();
+        }
+
+        //debug => batting
+        if (Input.GetKeyDown(KeyCode.Space) && _myBall)
+        {
+            DebugHitting();
         }
     }
     
@@ -120,7 +127,23 @@ public class Defender : Player
         transform.LookAt(_ball.transform, Vector3.up);
     }
 
-    
+    private void DebugHitting()
+    {
+        Vector3 view = new Vector3(-1, 1, -1).normalized;
+
+        _ball.IsBatTouch = true;
+        _ball.IsGroundBall = false;
+        _ball.IsPassing = false;
+
+        _ball.RemovePlayer();
+        Quaternion rotateValue = Quaternion.LookRotation(view);
+        this.transform.rotation = rotateValue;
+
+        view *= 10.0f;
+        _ball.GetComponent<Rigidbody>().AddForce(view, ForceMode.Impulse);
+    }
+
+    #region PROPERTIES
     public bool IsTracking
     {
         get => isTracking;
@@ -133,4 +156,5 @@ public class Defender : Player
             }
         }
     }
+    #endregion
 }

@@ -729,6 +729,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isGroundBall: 0
   isBatTouch: 0
+  isPassing: 0
   allTrackingOffEvent: {fileID: 11400000, guid: eb943823faaa14e4b87ec836d9d214f4, type: 2}
 --- !u!1 &759204550
 GameObject:
@@ -1820,7 +1821,7 @@ MonoBehaviour:
   - {fileID: 564270423}
   - {fileID: 2029007883}
   - {fileID: 21339321}
-  ball: {fileID: 683532152}
+  _ball: {fileID: 683532152}
 --- !u!1 &1333702203
 GameObject:
   m_ObjectHideFlags: 0

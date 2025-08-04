@@ -21,7 +21,7 @@ public class GameManager : MonoBehaviour
     
     [SerializeField] private Defender[] defenders;
     [SerializeField] private Transform[] bases;
-    [SerializeField] private Baseball ball;
+    [SerializeField] private Baseball _ball;
     
     private bool [] isBaseStatus = { false, false, false };
     
@@ -55,26 +55,21 @@ public class GameManager : MonoBehaviour
             DebugBase(2);
         else if(Input.GetKeyDown(KeyCode.Alpha4))
             DebugBase(3);
-        else if (Input.GetKeyDown(KeyCode.C))
-        {
-            ball.IsBatTouch = true;
-            Debug.Log("엄준식");
-        }
 
         if (Input.GetKeyDown(KeyCode.V))
         {
-            ball.RemovePlayer();
+            _ball.RemovePlayer();
             AllTrackingOff();
-            ball.IsGroundBall = false;
-            ball.IsPassing = false;
-            defenders[0].SetMyBall(ball);
+            _ball.IsGroundBall = false;
+            _ball.IsPassing = false;
+            defenders[0].SetMyBall(_ball);
         }
-        if (ball.MyDefender)
+        if (_ball.MyDefender)
         {
             return;
         }
         //tracking
-        if (!ball.IsPassing && ball.IsGroundBall)
+        if (!_ball.IsPassing && _ball.IsGroundBall)
         {
             int index = FindClosestDefenderIndex();
             AllTrackingOff();
@@ -182,8 +177,8 @@ public class GameManager : MonoBehaviour
 
     public void DebugBase(int index)
     {
-        if(ball.MyDefender)
-            ball.MyDefender.ThrowBall(bases[index].position + new Vector3(0,0.5f,0));
+        if(_ball.MyDefender)
+            _ball.MyDefender.ThrowBall(bases[index].position + new Vector3(0,0.5f,0));
     }
 
     public int FindClosestDefenderIndex()
@@ -192,7 +187,7 @@ public class GameManager : MonoBehaviour
         int index = -1;
         for (int i = 0; i < defenders.Length; i++)
         {
-            float dis = GetDistanceBetween(ball.transform.position, defenders[i].transform.position);
+            float dis = GetDistanceBetween(_ball.transform.position, defenders[i].transform.position);
             if (min > dis)
             {
                 min = dis;

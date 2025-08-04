@@ -12,8 +12,12 @@ public class Baseman : Defender
 
         if (!IsTracking)
         {
-            nav.SetDestination(myBase.position);
-            LookAtPlayer(myBase.position);
+            //dis >= 0.1f => go to base
+            if (Vector3.Distance(myBase.position, transform.position) >= 0.2f)
+            {
+                nav.SetDestination(myBase.position);
+                LookAtPlayer(myBase.position);
+            }
         }
     }
 }

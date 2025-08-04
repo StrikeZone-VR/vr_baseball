@@ -12,12 +12,12 @@ public class Pitcher : Defender
         HaveBall();
     }
     
-    protected override void Update()
-    {
-        base.Update();
-        if (Input.GetKeyDown(KeyCode.Space))
-            PitchBall();
-    }
+    //protected override void Update()
+    //{
+    //    base.Update();
+    //    if (Input.GetKeyDown(KeyCode.Space))
+    //        PitchBall();
+    //}
 
     public void HaveBall()
     {
