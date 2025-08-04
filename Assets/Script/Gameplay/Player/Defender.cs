@@ -12,31 +12,34 @@ public class Defender : Player
 
     protected virtual void Update()
     {
-        //follow ball
-        if (isTracking)
+        if (_myBall)
         {
-            //Ball이 누군가의 소속이 없다면 => MyPlayer
-            if (_ball.MyDefender)
-            {
-                return;
-            }
-
-            //if bat is not touching
-            if (!_ball.IsBatTouch)
-            {
-                return;
-            }
-
-            nav.SetDestination(_ball.transform.position);
-            LookAtPlayer(_ball.transform.position);
-        }
-        else//have ball
-        {
-            //false =>
-            nav.ResetPath();
-
             FrontBall();
         }
+        // //follow ball
+        // if (isTracking)
+        // {
+        //     //Ball이 누군가의 소속이 없다면 => MyPlayer
+        //     if (_ball.MyDefender)
+        //     {
+        //         return;
+        //     }
+        //
+        //     //if bat is not touching
+        //     if (!_ball.IsBatTouch)
+        //     {
+        //         return;
+        //     }
+        //
+        //     nav.SetDestination(_ball.transform.position);
+        //     LookAtPlayer(_ball.transform.position);
+        // }
+        // else//have ball
+        // {
+        //     //false =>
+        //     nav.ResetPath();
+        //
+        // }
 
         //debug => batting
         if (Input.GetKeyDown(KeyCode.Space) && _myBall)
@@ -150,10 +153,19 @@ public class Defender : Player
         set
         {
             isTracking = value;
-            if (!isTracking && nav)
+            if (!nav)
+            {
+                return;
+            }
+            if (!isTracking )
             {
                 nav.ResetPath();
             }
+            else
+            {
+                nav.SetDestination(_ball.transform.position);
+            }
+            
         }
     }
     #endregion

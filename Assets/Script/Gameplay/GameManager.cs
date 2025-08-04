@@ -74,7 +74,7 @@ public class GameManager : MonoBehaviour
             int index = FindClosestDefenderIndex();
             AllTrackingOff();
             //closestDefender set tracking
-            defenders[FindClosestDefenderIndex()].IsTracking = true;
+            defenders[index].IsTracking = true;
         }
     }
 
@@ -209,7 +209,7 @@ public class GameManager : MonoBehaviour
     {
         for (int i = 0; i < defenders.Length; i++)
         {
-            defenders[FindClosestDefenderIndex()].IsTracking = false;
+            defenders[i].IsTracking = false;
         }
     }
 }
