@@ -1,39 +1,50 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 //수비수
 public class Defender : Player
 {
     [SerializeField] private VoidEventSO outEventSO;
 
-    private const float BALL_DISTANCE = 0.5f;
+    [SerializeField] private bool isTracking = false;
 
     protected virtual void Update()
     {
-        //follow ball
-        if (!_myBall)
+        if (_myBall)
         {
-            //Ball이 누군가의 소속이 없다면 => MyPlayer
-            if (_ball.MyDefender)
-            {
-                return;
-            }
-            //if bat is not touching
-            if (!_ball.IsBatTouch)
-            {
-                return;
-            }
-            nav.SetDestination(_ball.transform.position);
-            LookAtPlayer(_ball.transform.position);
+            FrontBall();
         }
-        else//have ball
-        {
-            float x = Mathf.Sin(transform.rotation.eulerAngles.y * Mathf.PI / 180);
-            float z = Mathf.Cos(transform.rotation.eulerAngles.y * Mathf.PI / 180);
+        // //follow ball
+        // if (isTracking)
+        // {
+        //     //Ball이 누군가의 소속이 없다면 => MyPlayer
+        //     if (_ball.MyDefender)
+        //     {
+        //         return;
+        //     }
+        //
+        //     //if bat is not touching
+        //     if (!_ball.IsBatTouch)
+        //     {
+        //         return;
+        //     }
+        //
+        //     nav.SetDestination(_ball.transform.position);
+        //     LookAtPlayer(_ball.transform.position);
+        // }
+        // else//have ball
+        // {
+        //     //false =>
+        //     nav.ResetPath();
+        //
+        // }
 
-            //player angle
-            _myBall.transform.position = transform.position + new Vector3(BALL_DISTANCE * x, 0, BALL_DISTANCE * z);
+        //debug => batting
+        if (Input.GetKeyDown(KeyCode.Space) && _myBall)
+        {
+            DebugHitting();
         }
     }
     
@@ -47,6 +58,8 @@ public class Defender : Player
             Baseball baseball = _myBall.GetComponent<Baseball>();
             collision.rigidbody.velocity = Vector3.zero;
 
+            isTracking = false;
+            
             bool isGroundball = baseball.IsGroundBall;
             baseball.MyDefender = this;
 
@@ -62,7 +75,7 @@ public class Defender : Player
     public void ThrowBall(Vector3 position)
     {
         LookAtPlayer(position);
-        
+
         // float x = Mathf.Sin(transform.rotation.eulerAngles.y * Mathf.PI / 180);
         // float z = Mathf.Cos(transform.rotation.eulerAngles.y * Mathf.PI / 180);
         //
@@ -112,14 +125,48 @@ public class Defender : Player
     {
         _myBall = myBall;
         _myBall.MyDefender = this;
+        IsTracking = false;
 
         transform.LookAt(_ball.transform, Vector3.up);
-        nav.ResetPath();
     }
 
-    //public bool IsTracking
-    //{
-    //    get => isTracking;
-    //    set => isTracking = value;
-    //}
+    private void DebugHitting()
+    {
+        Vector3 view = new Vector3(-1, 1, -1).normalized;
+
+        _ball.IsBatTouch = true;
+        _ball.IsGroundBall = false;
+        _ball.IsPassing = false;
+
+        _ball.RemovePlayer();
+        Quaternion rotateValue = Quaternion.LookRotation(view);
+        this.transform.rotation = rotateValue;
+
+        view *= 10.0f;
+        _ball.GetComponent<Rigidbody>().AddForce(view, ForceMode.Impulse);
+    }
+
+    #region PROPERTIES
+    public bool IsTracking
+    {
+        get => isTracking;
+        set
+        {
+            isTracking = value;
+            if (!nav)
+            {
+                return;
+            }
+            if (!isTracking )
+            {
+                nav.ResetPath();
+            }
+            else
+            {
+                nav.SetDestination(_ball.transform.position);
+            }
+            
+        }
+    }
+    #endregion
 }
