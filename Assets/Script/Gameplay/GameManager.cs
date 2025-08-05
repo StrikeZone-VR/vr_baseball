@@ -23,7 +23,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Transform[] bases;
     [SerializeField] private Baseball _ball;
     
-    private bool [] isBaseStatus = { false, false, false };
+    private int isBaseStatus = 0; //bit mask
+    private Batter[] runners = new Batter[4]; // 빠따든 주자는 [0]
     
     private TeamStatus []_teamStatus = new TeamStatus[2];
 
@@ -48,13 +49,13 @@ public class GameManager : MonoBehaviour
     private void Update()
     {
         if(Input.GetKeyDown(KeyCode.Alpha1))
-            DebugBase(0);
+            ThrowToBase(0);
         else if (Input.GetKeyDown(KeyCode.Alpha2))
-            DebugBase(1);
+            ThrowToBase(1);
         else if(Input.GetKeyDown(KeyCode.Alpha3))
-            DebugBase(2);
+            ThrowToBase(2);
         else if(Input.GetKeyDown(KeyCode.Alpha4))
-            DebugBase(3);
+            ThrowToBase(3);
 
         if (Input.GetKeyDown(KeyCode.V))
         {
@@ -157,11 +158,13 @@ public class GameManager : MonoBehaviour
     public void AddBaseStatus()
     {
         int i;
-        for (i = 0; i < MAX_BASE_COUNT; i++)
+        for (i = 1; i < 8; i <<= 2)
         {
-            if (!isBaseStatus[i])
+            int num = i & isBaseStatus;
+            //is Empty 
+            if (num == 0)
             {
-                isBaseStatus[i] = true;
+                isBaseStatus |= i;
                 return;
             }
             //밀어내기
@@ -175,7 +178,7 @@ public class GameManager : MonoBehaviour
 
     }
 
-    public void DebugBase(int index)
+    public void ThrowToBase(int index)
     {
         if(_ball.MyDefender)
             _ball.MyDefender.ThrowBall(bases[index].position + new Vector3(0,0.5f,0));
@@ -212,6 +215,22 @@ public class GameManager : MonoBehaviour
             defenders[i].IsTracking = false;
         }
     }
+
+    #region ALGORITHM
+    private void ThrowBallAlgorithm() //SO
+    {
+        //주자가 없는데 타자가 있다면 => 1루
+        if(isBaseStatus == 0)
+        {
+            ThrowToBase(0);
+        }
+    }
+    private void isOut()
+    {
+
+    }
+
+    #endregion
 }
 
 struct TeamStatus

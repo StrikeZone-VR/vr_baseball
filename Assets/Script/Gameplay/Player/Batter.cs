@@ -45,9 +45,12 @@ public class Batter : Player
         {
             return;
         }
-        if (Vector3.Distance(bases[base_index].position, transform.position) <= 0.3f)
+        Vector3 base_pos = new Vector3(bases[base_index].position.x, 1f, bases[base_index].position.z);
+        float dis = Vector3.Distance(base_pos, transform.position);
+        Debug.Log(dis);
+        if (dis <= 0.5f)
         {
-            base_index++;
+            BaseIndex++;
             MoveBase();
         }
     }
@@ -62,6 +65,20 @@ public class Batter : Player
             {
                 MoveBase();
             }
+        }
+    }
+
+    public int BaseIndex
+    {
+        get => base_index;
+        set
+        {
+            if (value < 0 || value >= bases.Length)
+            {
+                return;
+            }
+            base_index = value;
+            MoveBase();
         }
     }
 
