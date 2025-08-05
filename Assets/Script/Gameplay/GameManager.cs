@@ -8,6 +8,7 @@ using UnityEngine.UIElements;
 public class GameManager : MonoBehaviour
 {
     [SerializeField] private VoidEventSO outEvent;
+    [SerializeField] private VoidEventSO allTrackingOffEvent; //to baseball
     //0 1 => 1이닝 공격 수비, => 0~17 => 짝수면 원정, 홀수면 홈 
     private int inning = 0;
 
@@ -16,9 +17,11 @@ public class GameManager : MonoBehaviour
     private int out_count = 0;
     
     //1 2 3 포수
-    //공 받은 선수
+    
+    
+    [SerializeField] private Defender[] defenders;
     [SerializeField] private Transform[] bases;
-    [SerializeField] private Baseball ball;
+    [SerializeField] private Baseball _ball;
     
     private bool [] isBaseStatus = { false, false, false };
     
@@ -34,10 +37,12 @@ public class GameManager : MonoBehaviour
     private void OnEnable()
     {
         outEvent.onEventRaised += AddOut;
+        allTrackingOffEvent.onEventRaised += AllTrackingOff;
     }
     private void OnDisable()
     {
         outEvent.onEventRaised -= AddOut;
+        allTrackingOffEvent.onEventRaised -= AllTrackingOff;
     }
 
     private void Update()
@@ -50,6 +55,27 @@ public class GameManager : MonoBehaviour
             DebugBase(2);
         else if(Input.GetKeyDown(KeyCode.Alpha4))
             DebugBase(3);
+
+        if (Input.GetKeyDown(KeyCode.V))
+        {
+            _ball.RemovePlayer();
+            AllTrackingOff();
+            _ball.IsGroundBall = false;
+            _ball.IsPassing = false;
+            defenders[0].SetMyBall(_ball);
+        }
+        if (_ball.MyDefender)
+        {
+            return;
+        }
+        //tracking
+        if (!_ball.IsPassing && _ball.IsGroundBall)
+        {
+            int index = FindClosestDefenderIndex();
+            AllTrackingOff();
+            //closestDefender set tracking
+            defenders[index].IsTracking = true;
+        }
     }
 
     //property
@@ -151,10 +177,41 @@ public class GameManager : MonoBehaviour
 
     public void DebugBase(int index)
     {
-        if(ball.MyDefender)
-            ball.MyDefender.ThrowBall(bases[index].position + new Vector3(0,0.5f,0));
+        if(_ball.MyDefender)
+            _ball.MyDefender.ThrowBall(bases[index].position + new Vector3(0,0.5f,0));
     }
 
+    public int FindClosestDefenderIndex()
+    {
+        float min = float.MaxValue;
+        int index = -1;
+        for (int i = 0; i < defenders.Length; i++)
+        {
+            float dis = GetDistanceBetween(_ball.transform.position, defenders[i].transform.position);
+            if (min > dis)
+            {
+                min = dis;
+                index = i;
+            }
+        }
+
+        return index;
+    }
+
+
+    private float GetDistanceBetween(Vector3 a, Vector3 b)
+    {
+        float result = Vector3.Distance(a, b);
+        return result;
+    }
+
+    private void AllTrackingOff()
+    {
+        for (int i = 0; i < defenders.Length; i++)
+        {
+            defenders[i].IsTracking = false;
+        }
+    }
 }
 
 struct TeamStatus

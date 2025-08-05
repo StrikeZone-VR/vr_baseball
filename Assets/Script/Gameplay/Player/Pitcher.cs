@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class Pitcher : Defender
 {
-    private const float ADDFORCE = 500.0f;
+    private const float ADDFORCE = 10.0f;
 
     //_myBall
 
@@ -12,16 +12,14 @@ public class Pitcher : Defender
         HaveBall();
     }
     
-    protected override void Update()
-    {
-        base.Update();
-        if (Input.GetKeyDown(KeyCode.Space))
-            PitchBall();
-        if (Input.GetKeyDown(KeyCode.V))
-            HaveBall();
-    }
+    //protected override void Update()
+    //{
+    //    base.Update();
+    //    if (Input.GetKeyDown(KeyCode.Space))
+    //        PitchBall();
+    //}
 
-    private void HaveBall()
+    public void HaveBall()
     {
         //ready handling ball
         _ball.RemovePlayer();
