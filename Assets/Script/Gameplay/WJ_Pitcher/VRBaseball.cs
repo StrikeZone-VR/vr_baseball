@@ -5,8 +5,8 @@ using UnityEngine.XR.Interaction.Toolkit;
 public class VRBaseball : MonoBehaviour
 {
     [Header("물리 설정")]
-    public float baseThrowForce = 10f;
-    public float maxThrowForce = 25f;
+    public float baseThrowForce = 1f;      // Inspector 덮어쓰기 방지: 1f로 더 낮춤
+    public float maxThrowForce = 2f;       // Inspector 덮어쓰기 방지: 2f로 더 낮춤
     public AnimationCurve throwSmoothingCurve = AnimationCurve.Linear(0, 0, 1, 1);
 
     [Header("구종 설정")]
@@ -28,14 +28,19 @@ public class VRBaseball : MonoBehaviour
 
     [Header("참조")]
     public Transform strikeZone;
+    public StrikeZoneAreaManager areaManager;
+
+    [Header("투구 보정 설정")]
+    [Range(0f, 1f)]
+    public float aimAssistStrength = 0.8f;     // 보정 강도 (0=보정없음, 1=완전보정)
+    public bool enableRandomTargeting = true;   // 랜덤 타겟팅 활성화
 
     // 상태 변수
     private Rigidbody rb;
     private XRGrabInteractable grabInteractable;
     private bool isThrown = false;
-    private bool isCurveActive = false;
-    private float throwTime = 0f;
-    private float curveTimer = 0f;
+    // 사용하지 않는 변수들 제거: isCurveActive, throwTime, curveTimer
+    private Vector3 targetPosition;             // 실제 목표 위치
 
     // 속도 추적
     private Vector3 throwVelocity;
@@ -57,6 +62,12 @@ public class VRBaseball : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         grabInteractable = GetComponent<XRGrabInteractable>();
 
+        // XRGrabInteractable이 항상 활성화되도록 보장
+        if (grabInteractable != null)
+        {
+            grabInteractable.enabled = true;
+        }
+
         if (audioSource == null)
             audioSource = GetComponent<AudioSource>();
 
@@ -68,6 +79,9 @@ public class VRBaseball : MonoBehaviour
 
         // 중력 저장
         originalGravity = Physics.gravity;
+
+        // 초기에는 일반 중력 사용 (공이 자연스럽게 떨어지도록)
+        rb.useGravity = true;
 
         // 궤도선 설정
         if (trajectoryLine != null)
@@ -83,11 +97,24 @@ public class VRBaseball : MonoBehaviour
         if (trailEffect == null)
             trailEffect = GetComponentInChildren<ParticleSystem>();
 
+        // 영역 매니저 찾기
+        if (areaManager == null)
+        {
+            areaManager = FindObjectOfType<StrikeZoneAreaManager>();
+        }
+
+        // StrikeZone 찾기 - 단순화
         if (strikeZone == null)
         {
             GameObject strikeZoneObj = GameObject.FindGameObjectWithTag("StrikeZone");
             if (strikeZoneObj != null)
+            {
                 strikeZone = strikeZoneObj.transform;
+            }
+            else if (areaManager != null && areaManager.strikeZoneParent != null)
+            {
+                strikeZone = areaManager.strikeZoneParent;
+            }
         }
 
         // 초기 위치 설정
@@ -100,6 +127,9 @@ public class VRBaseball : MonoBehaviour
         {
             ApplyPitchPhysics();
             UpdateTrajectoryEffect();
+
+            // 디버그 로그 제거 - 렉 방지
+            // 성능 향상을 위해 콘솔 출력 완전 제거
         }
         else
         {
@@ -129,133 +159,86 @@ public class VRBaseball : MonoBehaviour
 
     private void OnRelease(SelectExitEventArgs args)
     {
-        // 컨트롤러에서 놓았을 때 던지기 실행
-        if (throwVelocity.magnitude > 2f) // 최소 속도 체크
-        {
-            ThrowBall();
-        }
+        Debug.Log("🎾 공을 놓았습니다! 던지기 시작!");
+        Invoke(nameof(ThrowBall), 0.1f);
     }
 
     private void ThrowBall()
     {
         if (isThrown) return;
-
         isThrown = true;
-        throwTime = 0f;
 
-        // 던지는 힘 계산
-        float throwMagnitude = Mathf.Clamp(throwVelocity.magnitude, baseThrowForce, maxThrowForce);
-        Vector3 throwDirection = throwVelocity.normalized;
+        // XR 비활성화
+        grabInteractable.enabled = false;
 
-        // 스트라이크 존 방향 보정 (약간)
+        // 스트라이크존 찾기
+        if (strikeZone == null)
+        {
+            strikeZone = GameObject.FindGameObjectWithTag("StrikeZone")?.transform;
+            if (strikeZone == null && areaManager != null)
+                strikeZone = areaManager.strikeZoneParent;
+        }
+
+        // **야매 시스템 발동** - 무조건 스트라이크존 중앙으로!
+        Vector3 targetPosition;
         if (strikeZone != null)
         {
-            throwDirection = ApplyStrikeZoneCorrection(throwDirection);
+            targetPosition = strikeZone.position;
         }
-
-        // 애니메이션 커브 적용
-        float smoothMultiplier = throwSmoothingCurve.Evaluate(throwMagnitude / maxThrowForce);
-
-        // 최종 속도 계산 (구종별 속도 배수 적용)
-        Vector3 finalVelocity = throwDirection * throwMagnitude * currentPitchData.speedMultiplier;
-
-        rb.velocity = finalVelocity * smoothMultiplier;
-
-        // 회전 효과 적용
-        if (currentPitchData.spinStrength > 0)
+        else
         {
-            rb.angularVelocity = currentPitchData.spinDirection * currentPitchData.spinStrength;
+            // 스트라이크존 못찾으면 앞으로
+            targetPosition = transform.position + Vector3.forward * 8f;
         }
 
-        // 커브 효과 시작 예약
-        if (currentPitchData.curveStrength > 0)
-        {
-            Invoke(nameof(StartCurveEffect), currentPitchData.curveDelay);
-        }
+        // **완전 무시하고 강제 방향!**
+        Vector3 forceDirection = (targetPosition - transform.position).normalized;
+        
+        // **천천히 쭉 뻗는 속도**
+        float targetSpeed = 0.8f;  // 천천히!
+        
+        // **물리 완전 제어**
+        rb.useGravity = false;  // 중력 완전 차단
+        rb.velocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        rb.drag = 0f;
+        rb.angularDrag = 0f;
+        
+        // **강제 속도 적용**
+        Vector3 finalVelocity = forceDirection * targetSpeed;
+        rb.velocity = finalVelocity;
+        
+        Debug.Log($"🎯 야매 시스템 발동! 타겟: {targetPosition}, 속도: {targetSpeed}");
 
-        // 이펙트 및 사운드
+        // 이펙트
         PlayThrowEffects();
-
         OnBallThrown?.Invoke(this);
-
-        Debug.Log($"공 던짐! 구종: {currentPitchData.pitchName}, 속도: {throwMagnitude:F1}");
-    }
-
-    private Vector3 ApplyStrikeZoneCorrection(Vector3 originalDirection)
-    {
-        Vector3 toStrikeZone = (strikeZone.position - transform.position).normalized;
-
-        // 원래 방향과 스트라이크 존 방향을 적절히 블렌딩 (80% 원래, 20% 보정)
-        Vector3 correctedDirection = Vector3.Lerp(originalDirection, toStrikeZone, 0.2f);
-
-        return correctedDirection.normalized;
-    }
+    }    // 구 버전 보정 메서드 제거됨 - 단순화
 
     private void StartCurveEffect()
     {
-        isCurveActive = true;
-        curveTimer = 0f;
+        // 단순화 - 커브 효과 비활성화
     }
 
     private void ApplyPitchPhysics()
     {
-        throwTime += Time.deltaTime;
-
-        // 개별 중력 적용 (구종별 중력 배수)
-        Vector3 customGravity = originalGravity * currentPitchData.gravityMultiplier;
-        rb.AddForce(customGravity, ForceMode.Acceleration);
-
-        // 커브 효과 적용
-        if (isCurveActive && currentPitchData.curveStrength > 0)
-        {
-            curveTimer += Time.deltaTime;
-
-            // 커브 강도를 시간에 따라 증가
-            float curveIntensity = Mathf.Lerp(0f, currentPitchData.curveStrength, curveTimer);
-            Vector3 curveForce = currentPitchData.curveDirection * curveIntensity * Time.deltaTime;
-
-            rb.AddForce(curveForce, ForceMode.Acceleration);
-        }
+        // **야매 모드에서는 중력 완전 무시!**
+        // 아무것도 하지 않음 - 직진만!
     }
 
     private void UpdateTrajectoryEffect()
     {
-        if (trajectoryLine != null && rb.velocity.magnitude > 1f)
+        // 단순화 - 궤도선 비활성화
+        if (trajectoryLine != null)
         {
-            // 간단한 궤도 예측선 그리기
-            Vector3[] points = PredictTrajectory(transform.position, rb.velocity, 10, 0.1f);
-            trajectoryLine.positionCount = points.Length;
-            trajectoryLine.SetPositions(points);
+            trajectoryLine.enabled = false;
         }
     }
 
     private Vector3[] PredictTrajectory(Vector3 startPos, Vector3 startVel, int steps, float timeStep)
     {
-        Vector3[] points = new Vector3[steps];
-        Vector3 currentPos = startPos;
-        Vector3 currentVel = startVel;
-
-        // 구종별 커스텀 중력 적용
-        Vector3 customGravity = originalGravity * currentPitchData.gravityMultiplier;
-
-        for (int i = 0; i < steps; i++)
-        {
-            points[i] = currentPos;
-
-            // 구종별 물리 적용
-            currentVel += customGravity * timeStep;
-
-            // 커브 효과 시뮬레이션 (간단화)
-            if (currentPitchData.curveStrength > 0 && i > 3) // 약간의 지연 후 커브 적용
-            {
-                Vector3 curveEffect = currentPitchData.curveDirection * (currentPitchData.curveStrength * 0.1f) * timeStep;
-                currentVel += curveEffect;
-            }
-
-            currentPos += currentVel * timeStep;
-        }
-
-        return points;
+        // 단순화 - 빈 배열 반환
+        return new Vector3[0];
     }
 
     private void PlayThrowEffects()
@@ -306,6 +289,12 @@ public class VRBaseball : MonoBehaviour
     {
         if (isThrown)
         {
+            // **충돌 시 즉시 멈춤!**
+            rb.velocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            rb.useGravity = false;  // 중력도 끄기
+            rb.isKinematic = true;  // 완전히 멈추기
+            
             // 파티클 효과 정지
             StopAllEffects();
 
@@ -317,10 +306,33 @@ public class VRBaseball : MonoBehaviour
                 if (bounceSound != null && audioSource != null)
                     audioSource.PlayOneShot(bounceSound);
 
-                Debug.Log($"공이 땅에 닿음! 위치: {collision.contacts[0].point}");
+                Vector3 hitPosition = collision.contacts[0].point;
+                bool isStrike = false;
+
+                // 스트라이크 판정 로직 개선
+                if (areaManager != null)
+                {
+                    isStrike = areaManager.IsStrikePosition(hitPosition);
+                    Debug.Log($"🎯 AreaManager 판정: {(isStrike ? "스트라이크" : "볼")} (위치: {hitPosition})");
+                }
+                else
+                {
+                    // 기존 방식: 스트라이크존 콜라이더 내부인지 확인
+                    if (strikeZone != null)
+                    {
+                        Collider strikeZoneCollider = strikeZone.GetComponent<Collider>();
+                        if (strikeZoneCollider != null)
+                        {
+                            isStrike = strikeZoneCollider.bounds.Contains(hitPosition);
+                            Debug.Log($"🎯 기본 판정: {(isStrike ? "스트라이크" : "볼")} (위치: {hitPosition})");
+                        }
+                    }
+                }
+
+                Debug.Log($"⚾ 최종 판정: {(isStrike ? "🎯 스트라이크!" : "❌ 볼!")} - 공 완전 정지!");
 
                 // 이벤트 발생
-                OnBallLanded?.Invoke(this, false); // 기본적으로 볼 처리
+                OnBallLanded?.Invoke(this, isStrike);
             }
         }
     }
@@ -329,10 +341,17 @@ public class VRBaseball : MonoBehaviour
     {
         if (isThrown && other.CompareTag("StrikeZone"))
         {
+            // **트리거 충돌 시에도 즉시 멈춤!**
+            rb.velocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            rb.useGravity = false;
+            rb.isKinematic = true;
+            
+            Debug.Log($"🎯 트리거 스트라이크 감지! 콜라이더: {other.name} - 공 완전 정지!");
+
             // 파티클 효과 정지
             StopAllEffects();
 
-            Debug.Log("스트라이크!");
             OnBallLanded?.Invoke(this, true); // 스트라이크 처리
         }
     }
@@ -341,14 +360,19 @@ public class VRBaseball : MonoBehaviour
     {
         // 공 상태 초기화
         isThrown = false;
-        isCurveActive = false;
-        throwTime = 0f;
-        curveTimer = 0f;
+        // 사용하지 않는 변수들 제거됨
+        targetPosition = Vector3.zero;
+
+        // XRGrabInteractable 다시 활성화 (새 공이 잡힐 수 있도록)
+        if (grabInteractable != null)
+        {
+            grabInteractable.enabled = true;
+        }
 
         // 물리 초기화
         rb.velocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
-        rb.useGravity = true;
+        rb.useGravity = false; // 리셋된 공도 중력 비활성화 (안정적 배치)
 
         // 위치 설정
         transform.position = position;
@@ -363,8 +387,6 @@ public class VRBaseball : MonoBehaviour
             trajectoryLine.enabled = false;
             trajectoryLine.positionCount = 0;
         }
-
-        Debug.Log("공이 리셋되었습니다.");
     }
 
     void OnDestroy()
