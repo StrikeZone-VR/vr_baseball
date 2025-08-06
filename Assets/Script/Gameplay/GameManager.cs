@@ -2,13 +2,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UIElements;
 
 //게임 시작할때 실행되는 GameManager
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] private VoidEventSO outEvent;
-    [SerializeField] private VoidEventSO allTrackingOffEvent; //to baseball
     //0 1 => 1이닝 공격 수비, => 0~17 => 짝수면 원정, 홀수면 홈 
     private int inning = 0;
 
@@ -24,10 +23,15 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Baseball _ball;
     
     private int isBaseStatus = 0; //bit mask
-    private Batter[] runners = new Batter[4]; // 빠따든 주자는 [0]
+    [SerializeField]private Batter[] runners = new Batter[4]; // 빠따든 주자는 [0]
     
     private TeamStatus []_teamStatus = new TeamStatus[2];
 
+    [Header("Broadcasting on EventChannels")]
+    [SerializeField] private IntEventSO outBatterEvent; //Defender, Baseman
+    [SerializeField] private VoidEventSO allTrackingOffEvent; //to baseball
+    //[SerializeField] private GetGameObjectSetIntEventSO getBaseRunnerEvent; //to baseman
+    
     //Define
     private const int MAX_BALL_COUNT = 4; 
     private const int MAX_STRIKE_COUNT = 3; 
@@ -37,12 +41,12 @@ public class GameManager : MonoBehaviour
 
     private void OnEnable()
     {
-        outEvent.onEventRaised += AddOut;
+        outBatterEvent.onEventRaised += OutBatter;
         allTrackingOffEvent.onEventRaised += AllTrackingOff;
     }
     private void OnDisable()
     {
-        outEvent.onEventRaised -= AddOut;
+        outBatterEvent.onEventRaised -= OutBatter;
         allTrackingOffEvent.onEventRaised -= AllTrackingOff;
     }
 
@@ -79,7 +83,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    //property
+    #region PROPERTY
     public int OutCount
     {
         get
@@ -89,6 +93,7 @@ public class GameManager : MonoBehaviour
         set
         {
             out_count = value;
+            Debug.Log("아웃 : " + out_count);
             
             if (out_count >= MAX_OUT_COUNT)
             {
@@ -177,6 +182,7 @@ public class GameManager : MonoBehaviour
         }
 
     }
+    #endregion
 
     public void ThrowToBase(int index)
     {
@@ -225,9 +231,18 @@ public class GameManager : MonoBehaviour
             ThrowToBase(0);
         }
     }
-    private void isOut()
+    private void OutBatter(int index) 
     {
-
+        if (runners[index].BaseIndex != 0 || !runners[index].IsMove)
+        {
+            return;
+        }
+        
+        //init
+        runners[index].IsMove = false;
+        AddOut();
+        runners[index].transform.position = bases[3].position;
+        runners[index].transform.rotation = Quaternion.LookRotation(bases[2].position);
     }
 
     #endregion

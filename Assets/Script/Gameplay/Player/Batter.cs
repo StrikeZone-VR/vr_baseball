@@ -15,7 +15,6 @@ public class Batter : Player
     {
         if (Input.GetKeyDown(KeyCode.C))
         {
-            Debug.Log("잉잉");
             IsMove = !IsMove;
         }
         InBase();
@@ -47,7 +46,6 @@ public class Batter : Player
         }
         Vector3 base_pos = new Vector3(bases[base_index].position.x, 1f, bases[base_index].position.z);
         float dis = Vector3.Distance(base_pos, transform.position);
-        Debug.Log(dis);
         if (dis <= 0.5f)
         {
             BaseIndex++;
