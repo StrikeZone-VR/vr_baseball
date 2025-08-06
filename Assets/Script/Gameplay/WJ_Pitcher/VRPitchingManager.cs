@@ -84,14 +84,14 @@ public class VRPitchingManager : MonoBehaviour
         Vector3 spawnPosition = GetBallSpawnPosition();
         currentBall = Instantiate(baseballPrefab, spawnPosition, Quaternion.identity);
 
-        // 물리 설정 - 중력 떨어짐 방지
+        // 물리 설정 - **스폰 시 완전 고정!**
         Rigidbody ballRb = currentBall.GetComponent<Rigidbody>();
         if (ballRb != null)
         {
-            ballRb.useGravity = false;  // 생성 시 중력 비활성화
+            ballRb.useGravity = false;  // 중력 비활성화
             ballRb.velocity = Vector3.zero;
             ballRb.angularVelocity = Vector3.zero;
-            ballRb.isKinematic = false;
+            ballRb.isKinematic = true;  // **완전히 고정! 떨어지지 않음!**
         }
 
         // XR Grab Interactable 강제 활성화 (새 공이 잡힐 수 있도록)
@@ -119,14 +119,12 @@ public class VRPitchingManager : MonoBehaviour
 
     private Vector3 GetBallSpawnPosition()
     {
-        // 투수 마운드 앞쪽 적당한 높이에 공 생성
-        Vector3 basePosition = pitcherMound != null ? pitcherMound.position : transform.position;
-
-        // 적당한 높이로 - 너무 높지도 낮지도 않게
-        Vector3 properSpawnOffset = new Vector3(0, 1.5f, 0.8f); // Y 1.5f로 적당히
-        Vector3 spawnPos = basePosition + properSpawnOffset;
-
-        return spawnPos;
+        // **절대 좌표로 고정!** basePosition 문제 해결
+        Vector3 fixedSpawnPosition = new Vector3(0f, 0.3f, -5.49f); // 완전 고정 위치
+        
+        Debug.Log($"고정 스폰 위치 설정: {fixedSpawnPosition}");
+        
+        return fixedSpawnPosition;
     }
 
     private void OnPitchTypeSelected(PitchType pitchType)

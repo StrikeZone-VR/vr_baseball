@@ -76,6 +76,7 @@ public class VRBaseball : MonoBehaviour
 
         // XR 이벤트 연결
         grabInteractable.selectExited.AddListener(OnRelease);
+        grabInteractable.selectEntered.AddListener(OnGrab);  // **잡을 때 이벤트 추가!**
 
         // 중력 저장
         originalGravity = Physics.gravity;
@@ -163,6 +164,20 @@ public class VRBaseball : MonoBehaviour
         Invoke(nameof(ThrowBall), 0.1f);
     }
 
+    private void OnGrab(SelectEnterEventArgs args)
+    {
+        Debug.Log("✋ 공을 잡았습니다! 물리 활성화!");
+        
+        // **공을 잡는 순간 물리 활성화!**
+        if (rb != null)
+        {
+            rb.isKinematic = false;  // kinematic 해제
+            rb.useGravity = true;    // 중력 활성화 (자연스러운 느낌)
+            rb.velocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        }
+    }
+
     private void ThrowBall()
     {
         if (isThrown) return;
@@ -193,21 +208,22 @@ public class VRBaseball : MonoBehaviour
 
         // **완전 무시하고 강제 방향!**
         Vector3 forceDirection = (targetPosition - transform.position).normalized;
-        
+
         // **천천히 쭉 뻗는 속도**
         float targetSpeed = 0.8f;  // 천천히!
-        
+
         // **물리 완전 제어**
+        rb.isKinematic = false;  // **먼저 kinematic 해제!**
         rb.useGravity = false;  // 중력 완전 차단
         rb.velocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
         rb.drag = 0f;
         rb.angularDrag = 0f;
-        
-        // **강제 속도 적용**
+
+        // **강제 속도 적용** (kinematic 해제 후)
         Vector3 finalVelocity = forceDirection * targetSpeed;
         rb.velocity = finalVelocity;
-        
+
         Debug.Log($"🎯 야매 시스템 발동! 타겟: {targetPosition}, 속도: {targetSpeed}");
 
         // 이펙트
@@ -294,7 +310,7 @@ public class VRBaseball : MonoBehaviour
             rb.angularVelocity = Vector3.zero;
             rb.useGravity = false;  // 중력도 끄기
             rb.isKinematic = true;  // 완전히 멈추기
-            
+
             // 파티클 효과 정지
             StopAllEffects();
 
@@ -346,7 +362,7 @@ public class VRBaseball : MonoBehaviour
             rb.angularVelocity = Vector3.zero;
             rb.useGravity = false;
             rb.isKinematic = true;
-            
+
             Debug.Log($"🎯 트리거 스트라이크 감지! 콜라이더: {other.name} - 공 완전 정지!");
 
             // 파티클 효과 정지
@@ -394,6 +410,7 @@ public class VRBaseball : MonoBehaviour
         if (grabInteractable != null)
         {
             grabInteractable.selectExited.RemoveListener(OnRelease);
+            grabInteractable.selectEntered.RemoveListener(OnGrab);  // **잡기 이벤트도 해제**
         }
     }
 }
