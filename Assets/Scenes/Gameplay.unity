@@ -649,6 +649,7 @@ MonoBehaviour:
   isTracking: 0
   myBase: {fileID: 21339321}
   base_index: 0
+  isInbase: 0
 --- !u!1 &564270422
 GameObject:
   m_ObjectHideFlags: 0
@@ -1982,6 +1983,7 @@ MonoBehaviour:
   isTracking: 0
   myBase: {fileID: 1123857503}
   base_index: 0
+  isInbase: 0
 --- !u!1 &1208688574
 GameObject:
   m_ObjectHideFlags: 0
@@ -2046,6 +2048,11 @@ MonoBehaviour:
   - {fileID: 2029007883}
   - {fileID: 21339321}
   _ball: {fileID: 683532152}
+  runners:
+  - {fileID: 604118077}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   outBatterEvent: {fileID: 11400000, guid: a7e00550afa182d4594b424474b58e00, type: 2}
   allTrackingOffEvent: {fileID: 11400000, guid: eb943823faaa14e4b87ec836d9d214f4, type: 2}
 --- !u!1 &1333702203
@@ -2581,6 +2588,7 @@ MonoBehaviour:
   isTracking: 0
   myBase: {fileID: 564270423}
   base_index: 0
+  isInbase: 0
 --- !u!1 &1539566008
 GameObject:
   m_ObjectHideFlags: 0
@@ -3392,6 +3400,7 @@ MonoBehaviour:
   isTracking: 0
   myBase: {fileID: 2029007883}
   base_index: 0
+  isInbase: 0
 --- !u!1 &2029007882
 GameObject:
   m_ObjectHideFlags: 0
