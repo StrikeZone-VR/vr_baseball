@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using Unity.XR.CoreUtils;
 using System.Collections;
+using System.Collections.Generic;
 
 public class VRPitchingManager : MonoBehaviour
 {
@@ -30,6 +31,8 @@ public class VRPitchingManager : MonoBehaviour
     private AudioSource audioSource;
     private VRBaseball currentBall;
     private int ballsThrown = 0;
+    private GameObject originalBall;  // 원본 공 레퍼런스 추가 (스폰용)
+    private List<GameObject> thrownBalls = new List<GameObject>();  // 던진 공들 관리
 
     // 통계
     private int strikes = 0;
@@ -84,45 +87,34 @@ public class VRPitchingManager : MonoBehaviour
     {
         try
         {
-            Debug.Log($"SpawnNewBall 호출됨! 현재 공 개수: {ballsThrown}/{maxBalls}");
+            Debug.Log($"SpawnNewBall 호출됨! 현재 공 개수: {ballsThrown}/무제한");
 
-            if (ballsThrown >= maxBalls)
-            {
-                Debug.Log("최대 공 개수에 도달하여 새 공을 생성하지 않습니다.");
-                return;
-            }
+            // 무제한 공 생성 허용 - maxBalls 제한 제거
 
-            // 이전 공의 이벤트 구독 해제 및 완전 제거
+            // 이전 공의 이벤트 구독 해제 (하지만 파괴하지 않음)
             if (currentBall != null)
             {
-                Debug.Log("기존 공에 연결된 이벤트 리스너 제거 및 공 파괴");
+                Debug.Log("기존 공에 연결된 이벤트 리스너 제거");
 
                 // 이벤트 리스너 제거
                 currentBall.OnBallThrown -= OnBallThrown;
                 currentBall.OnBallLanded -= OnBallLanded;
 
-                // 공 파괴 전에 참조 저장
-                GameObject ballToDestroy = currentBall.gameObject;
-
-                // 참조 해제 (메모리 누수 방지)
+                // 공 파괴하지 않고 그대로 둠 (야구장에 남겨둠)
                 currentBall = null;
-
-                // 이제 안전하게 파괴
-                Destroy(ballToDestroy);
+                currentBall = null;
             }
 
             // 새 공 생성 - 전략 선택
             Vector3 spawnPosition = GetBallSpawnPosition();
             Debug.Log($"새 공 생성 위치: {spawnPosition}");
 
-            // 프리팹 또는 씬의 공 사용
-            GameObject originalBall = GameObject.Find("VRBaseball");
             VRBaseball newBall = null;
 
             if (originalBall != null && originalBall.GetComponent<VRBaseball>() != null)
             {
-                Debug.Log("씬의 기존 공을 템플릿으로 사용하여 새 공 생성");
-                // 씬의 첫 번째 공을 복제 (프리팹 대신)
+                Debug.Log("원본 공을 템플릿으로 사용하여 새 공 생성");
+                // 원본 공을 복제
                 newBall = Instantiate(originalBall.GetComponent<VRBaseball>(), spawnPosition, Quaternion.identity);
                 newBall.name = "VRBaseball_Clone_" + ballsThrown;
             }
@@ -168,21 +160,19 @@ public class VRPitchingManager : MonoBehaviour
         if (grabComponent != null)
         {
             grabComponent.enabled = true;
-            // 충돌 방지를 위해 throwOnDetach 비활성화 (중요!)
+            // kinematic 충돌 방지를 위해 throwOnDetach 비활성화
             grabComponent.throwOnDetach = false;
 
             // Rigidbody 설정도 바로 적용
             Rigidbody ballRb = currentBall.GetComponent<Rigidbody>();
             if (ballRb != null)
             {
-                // 복제된 공은 non-kinematic으로 시작하도록 설정
-                ballRb.isKinematic = false;
-                ballRb.useGravity = false;  // 그랩 전까지는 중력 영향을 받지 않게
+                // 그랩하기 전까지는 Kinematic=true로 설정 (자리 고정)
+                ballRb.isKinematic = true;
+                ballRb.useGravity = false;  // 중력도 끄기
                 Debug.Log($"Rigidbody 설정: isKinematic={ballRb.isKinematic}, useGravity={ballRb.useGravity}");
             }
-        }
-
-        // AudioSource가 있는지 확인하고 필요하면 추가
+        }        // AudioSource가 있는지 확인하고 필요하면 추가
         AudioSource audioSrc = currentBall.GetComponent<AudioSource>();
         if (audioSrc == null)
         {
@@ -359,6 +349,24 @@ public class VRPitchingManager : MonoBehaviour
         // 이미 예약된 SpawnNewBall 함수 호출이 있다면 취소
         CancelInvoke(nameof(SpawnNewBall));
 
+        // 중요! 처음 공이면 원본으로 저장 (복제용)
+        if (originalBall == null && !ball.name.Contains("Clone"))
+        {
+            // 중요! 원본 공을 스폰 전에 백업
+            Debug.Log("🔄 원본 공을 복제용으로 백업합니다!");
+            originalBall = ball.gameObject;
+        }
+
+        // 던진 공을 관리 리스트에 추가
+        if (ball.gameObject != originalBall && !thrownBalls.Contains(ball.gameObject))
+        {
+            thrownBalls.Add(ball.gameObject);
+            Debug.Log($"🗂️ 던진 공 리스트에 추가: {ball.name}, 총 {thrownBalls.Count}개");
+        }
+
+        // **즉시 이전 공들 정리 - 충돌 방지를 위해!**
+        CleanupOldBalls();
+
         // 현재 공 저장 (안전하게)
         VRBaseball throwBall = currentBall;
 
@@ -462,6 +470,26 @@ public class VRPitchingManager : MonoBehaviour
             SpawnNewBall();
 #endif
     }
+
+    // 던진 공들 정리 메서드
+    private void CleanupOldBalls()
+    {
+        // **모든 이전 공들을 즉시 제거!** (충돌 방지)
+        for (int i = thrownBalls.Count - 1; i >= 0; i--)
+        {
+            if (thrownBalls[i] != null)
+            {
+                Debug.Log($"🗑️ 이전 공 제거: {thrownBalls[i].name}");
+                Destroy(thrownBalls[i]);
+            }
+        }
+        
+        // 리스트 완전히 비우기
+        thrownBalls.Clear();
+        Debug.Log($"🧹 모든 이전 공 제거 완료! 남은 공: {thrownBalls.Count}개");
+    }
+
+    // 공은 제거하지 않습니다 - 모두 보존
 
     // 게임 정보 반환
     public int GetStrikeCount() => strikes;
