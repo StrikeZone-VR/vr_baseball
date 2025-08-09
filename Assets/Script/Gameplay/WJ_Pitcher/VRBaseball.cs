@@ -334,8 +334,8 @@ public class VRBaseball : MonoBehaviour
         // **완전 무시하고 강제 방향!**
         Vector3 forceDirection = (targetPosition - transform.position).normalized;
 
-        // **속도 설정 - 현실적인 야구 속도**
-        float targetSpeed = 12.0f;  // 약 43km/h (현실적인 투구 속도)
+        // **속도 설정 - 느린 투구 속도로 조정**
+        float targetSpeed = 8.0f;  // 12.0f에서 8.0f로 감소 (약 29km/h, 더 여유있게)
 
         // **물리 완전 제어 - 야구 게임다운 설정**
         rb.isKinematic = false;  // kinematic 해제

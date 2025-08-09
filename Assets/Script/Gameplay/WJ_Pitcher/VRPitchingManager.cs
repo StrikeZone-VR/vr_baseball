@@ -21,7 +21,7 @@ public class VRPitchingManager : MonoBehaviour
     [Header("게임 설정")]
     public Vector3 ballSpawnOffset = new Vector3(0, 1.5f, 0.5f); // 공 생성 위치 오프셋
     public int maxBalls = 10;               // 최대 공 개수 (5에서 10으로 증가)
-    public float ballResetDelay = 1.5f;     // 공 리셋 딜레이 (3f에서 1.5f로 단축)
+    public float ballResetDelay = 3.0f;     // 공 리셋 딜레이 (착지 후 3초간 보여줌)
 
     [Header("오디오")]
     public AudioClip gameStartSound;
@@ -196,6 +196,9 @@ public class VRPitchingManager : MonoBehaviour
         currentBall.transform.position = finalPosition;
 
         Debug.Log($"새 공 생성 완료! 위치: {finalPosition}, 공 번호: {ballsThrown}");
+        
+        // **새 공 생성 후 이전 공들 정리** (딜레이 후 충돌 방지)
+        Invoke(nameof(CleanupOldBalls), 1.0f); // 1초 후 정리
     }
 
     private System.Collections.IEnumerator SetupBallAfterFrame()
@@ -364,8 +367,7 @@ public class VRPitchingManager : MonoBehaviour
             Debug.Log($"🗂️ 던진 공 리스트에 추가: {ball.name}, 총 {thrownBalls.Count}개");
         }
 
-        // **즉시 이전 공들 정리 - 충돌 방지를 위해!**
-        CleanupOldBalls();
+        // **이전 공들은 새 공 스폰 후에 정리** (착지 상태 확인 시간 제공)
 
         // 현재 공 저장 (안전하게)
         VRBaseball throwBall = currentBall;
