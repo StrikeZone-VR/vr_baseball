@@ -53,6 +53,11 @@ public class VRBaseball : MonoBehaviour
 
     void Start()
     {
+        // 강제 활성화
+        this.enabled = true;
+
+        Debug.Log("VRBaseball Start() 메서드 호출됨! 활성화 상태: " + this.enabled);
+
         InitializeComponents();
         UpdatePitchData();
     }
@@ -62,10 +67,21 @@ public class VRBaseball : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         grabInteractable = GetComponent<XRGrabInteractable>();
 
-        // XRGrabInteractable이 항상 활성화되도록 보장
+        // XRGrabInteractable 설정 확인
         if (grabInteractable != null)
         {
             grabInteractable.enabled = true;
+
+            // ThrowOnDetach와 isKinematic이 충돌하는지 확인
+            if (rb != null && rb.isKinematic && grabInteractable.throwOnDetach)
+            {
+                Debug.LogWarning($"⚠️ 경고: Kinematic Rigidbody ({rb.isKinematic})와 ThrowOnDetach ({grabInteractable.throwOnDetach})가 충돌합니다! 이 문제를 해결하려면 둘 중 하나를 변경해야 합니다.");
+                // 해결 방법 1: throwOnDetach 비활성화
+                // grabInteractable.throwOnDetach = false;
+
+                // 해결 방법 2: 그랩 시점에 물리 활성화 (OnGrab에서 처리)
+                Debug.Log("👉 그랩 시점에서 Kinematic 상태를 해제하여 해결할 예정입니다.");
+            }
         }
 
         if (audioSource == null)
@@ -82,12 +98,21 @@ public class VRBaseball : MonoBehaviour
         originalGravity = Physics.gravity;
 
         // **기본 물리 설정 - 순서 중요! velocity 먼저, kinematic 나중에!**
-        rb.velocity = Vector3.zero;         // 먼저 velocity 설정
-        rb.angularVelocity = Vector3.zero;  // 먼저 angular velocity 설정
-        rb.useGravity = false;              // 중력 끄기 (떨어지지 않게)
-        rb.isKinematic = true;              // 마지막에 kinematic 설정
+        // Kinematic 상태 확인 후 안전하게 처리
+        if (rb.isKinematic)
+        {
+            // 이미 Kinematic인 경우 velocity 설정하지 않음 (경고 회피)
+            Debug.Log("🔒 Rigidbody가 이미 Kinematic 상태입니다. velocity는 설정하지 않습니다.");
+        }
+        else
+        {
+            rb.velocity = Vector3.zero;         // 먼저 velocity 설정
+            rb.angularVelocity = Vector3.zero;  // 먼저 angular velocity 설정
+            rb.useGravity = false;              // 중력 끄기 (떨어지지 않게)
+            rb.isKinematic = true;              // 마지막에 kinematic 설정
+        }
 
-        Debug.Log($"⚙️ VRBaseball 초기화 완료! Kinematic: {rb.isKinematic} (그랩할 때까지 고정)");
+        Debug.Log($"⚙️ VRBaseball 초기화 완료! Kinematic: {rb.isKinematic}, ThrowOnDetach: {grabInteractable?.throwOnDetach} (그랩할 때까지 고정)");
 
         // 궤도선 설정
         if (trajectoryLine != null)
@@ -173,13 +198,33 @@ public class VRBaseball : MonoBehaviour
     {
         Debug.Log("✋ 공을 잡았습니다! 물리 활성화!");
 
-        // **공을 잡는 순간 물리 활성화! velocity는 kinematic 해제 후 설정**
+        // **공을 잡는 순간 물리 활성화!**
         if (rb != null)
         {
-            rb.isKinematic = false;  // kinematic 먼저 해제
+            // 강제로 스크립트 활성화
+            this.enabled = true;
+
+            // XRGrabInteractable 설정 확인 및 수정
+            XRGrabInteractable grabInteractable = GetComponent<XRGrabInteractable>();
+            if (grabInteractable != null)
+            {
+                // 확실히 활성화 및 설정
+                grabInteractable.enabled = true;
+                grabInteractable.throwOnDetach = true;
+
+                Debug.Log($"XRGrabInteractable 설정 확인: enabled={grabInteractable.enabled}, throwOnDetach={grabInteractable.throwOnDetach}");
+            }
+
+            // 핵심: 물리 설정을 명확하게
+            rb.isKinematic = false;  // 반드시 kinematic을 false로 설정
             rb.useGravity = true;    // 중력 활성화 (자연스러운 느낌)
-            rb.velocity = Vector3.zero;      // 이제 안전하게 velocity 설정
-            rb.angularVelocity = Vector3.zero; // 이제 안전하게 angular velocity 설정
+            rb.velocity = Vector3.zero;      // velocity 초기화
+            rb.angularVelocity = Vector3.zero; // angular velocity 초기화
+
+            Debug.Log($"[중요] 물리 설정 완료! Kinematic: {rb.isKinematic}, UseGravity: {rb.useGravity}");
+
+            // 위치 업데이트를 위한 lastPosition 설정
+            lastPosition = transform.position;
         }
     }
 
@@ -214,20 +259,25 @@ public class VRBaseball : MonoBehaviour
         // **완전 무시하고 강제 방향!**
         Vector3 forceDirection = (targetPosition - transform.position).normalized;
 
-        // **천천히 쭉 뻗는 속도**
-        float targetSpeed = 0.8f;  // 천천히!
+        // **속도 설정 - 개선된 버전**
+        float targetSpeed = 5f;  // 더 빠르게! (0.8f → 5f)
 
-        // **물리 완전 제어**
+        // **물리 완전 제어 - 개선된 버전**
+        // 강제로 비키네마틱 상태로 만들고 물리 설정 모두 초기화
         rb.isKinematic = false;  // **먼저 kinematic 해제!**
-        rb.useGravity = false;  // 중력 완전 차단
+        rb.useGravity = false;   // 중력 완전 차단 (직선으로 날아가도록)
         rb.velocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
-        rb.drag = 0f;
-        rb.angularDrag = 0f;
+        rb.drag = 0f;            // 공기 저항 제거
+        rb.angularDrag = 0f;     // 회전 저항 제거
+        rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic; // 충돌 감지 개선
 
-        // **강제 속도 적용** (kinematic 해제 후)
+        // **강제 속도 적용**
         Vector3 finalVelocity = forceDirection * targetSpeed;
         rb.velocity = finalVelocity;
+
+        // 확실히 던져지게 추가 힘도 가함
+        rb.AddForce(forceDirection * targetSpeed * 2f, ForceMode.Impulse);
 
         Debug.Log($"🎯 야매 시스템 발동! 타겟: {targetPosition}, 속도: {targetSpeed}");
 
@@ -264,36 +314,55 @@ public class VRBaseball : MonoBehaviour
 
     private void PlayThrowEffects()
     {
-        // 메인 트레일 항상 실행
-        if (trailEffect != null)
-            trailEffect.Play();
-
-        // 구종별 추가 이펙트 실행
-        switch (selectedPitchType)
+        try
         {
-            case PitchType.FastBall:
-                if (fastBallSpeedLines != null)
-                    fastBallSpeedLines.Play();
-                break;
+            // 메인 트레일 항상 실행
+            if (trailEffect != null)
+                trailEffect.Play();
 
-            case PitchType.Curve:
-                if (curveSpinEffect != null)
-                    curveSpinEffect.Play();
-                break;
+            // 구종별 추가 이펙트 실행
+            switch (selectedPitchType)
+            {
+                case PitchType.FastBall:
+                    if (fastBallSpeedLines != null)
+                        fastBallSpeedLines.Play();
+                    break;
 
-            case PitchType.Slider:
-                if (sliderSideEffect != null)
-                    sliderSideEffect.Play();
-                break;
+                case PitchType.Curve:
+                    if (curveSpinEffect != null)
+                        curveSpinEffect.Play();
+                    break;
 
-            case PitchType.ForkBall:
-                if (forkDropEffect != null)
-                    forkDropEffect.Play();
-                break;
+                case PitchType.Slider:
+                    if (sliderSideEffect != null)
+                        sliderSideEffect.Play();
+                    break;
+
+                case PitchType.ForkBall:
+                    if (forkDropEffect != null)
+                        forkDropEffect.Play();
+                    break;
+            }
+
+            // 안전하게 오디오 실행
+            if (throwSound != null && audioSource != null)
+            {
+                if (audioSource.enabled)
+                {
+                    audioSource.PlayOneShot(throwSound);
+                }
+                else
+                {
+                    Debug.Log("오디오 소스가 비활성화 상태입니다. 강제 활성화 시도.");
+                    audioSource.enabled = true;
+                    audioSource.PlayOneShot(throwSound);
+                }
+            }
         }
-
-        if (throwSound != null && audioSource != null)
-            audioSource.PlayOneShot(throwSound);
+        catch (System.Exception e)
+        {
+            Debug.LogWarning($"이펙트 재생 중 오류 발생: {e.Message}");
+        }
     }
 
     private void StopAllEffects()
@@ -378,28 +447,48 @@ public class VRBaseball : MonoBehaviour
         }
     }
 
+    // 이벤트 한 번만 발생시키기 위한 플래그
+    private bool eventFired = false;
+
     void OnTriggerEnter(Collider other)
     {
-        Debug.Log($"🎯 트리거 감지! 공 던진 상태: {isThrown}, 트리거 객체: {other.name}");
+        Debug.Log($"🎯 트리거 감지! 공 던진 상태: {isThrown}, 트리거 객체: {other.name}, 이벤트 발생 여부: {eventFired}");
 
-        if (isThrown && other.CompareTag("StrikeZone"))
+        // 이벤트가 이미 발생했거나 공이 던져지지 않았으면 무시
+        if (!isThrown || eventFired) return;
+
+        if (other.CompareTag("StrikeZone"))
         {
-            // **트리거 충돌 시에도 즉시 멈춤!**
-            rb.velocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
-            rb.useGravity = false;
-            rb.isKinematic = true;
+            // 이벤트 플래그 설정 (중복 호출 방지)
+            eventFired = true;
 
-            Debug.Log($"🎯 트리거 스트라이크 감지! 콜라이더: {other.name} - 공 완전 정지!");
+            try
+            {
+                // **트리거 충돌 시에도 즉시 멈춤!**
+                if (rb != null)
+                {
+                    rb.velocity = Vector3.zero;
+                    rb.angularVelocity = Vector3.zero;
+                    rb.useGravity = false;
+                    rb.isKinematic = true;
+                }
 
-            // 파티클 효과 정지
-            StopAllEffects();
+                Debug.Log($"🎯 트리거 스트라이크 감지! 콜라이더: {other.name} - 공 완전 정지!");
 
-            // 이벤트 발생 - 트리거에서도 둘 다 발생!
-            Debug.Log($"🚀 OnBallThrown 이벤트 발생 시도! (트리거)");
-            OnBallThrown?.Invoke(this);   // 이제 여기서 새 공 스폰
-            Debug.Log($"📊 OnBallLanded 이벤트 발생 시도! (트리거)");
-            OnBallLanded?.Invoke(this, true); // 스트라이크 처리
+                // 파티클 효과 정지
+                StopAllEffects();
+
+                // 이벤트 발생 - 한 번만 발생!
+                Debug.Log($"🚀 OnBallThrown 이벤트 발생! (트리거)");
+                if (OnBallThrown != null) OnBallThrown(this);
+
+                Debug.Log($"📊 OnBallLanded 이벤트 발생! (트리거)");
+                if (OnBallLanded != null) OnBallLanded(this, true);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"OnTriggerEnter 오류 발생: {e.Message}");
+            }
         }
     }
 

@@ -82,20 +82,83 @@ public class VRPitchingManager : MonoBehaviour
 
     private void SpawnNewBall()
     {
-        if (ballsThrown >= maxBalls)
+        try
         {
+            Debug.Log($"SpawnNewBall 호출됨! 현재 공 개수: {ballsThrown}/{maxBalls}");
+
+            if (ballsThrown >= maxBalls)
+            {
+                Debug.Log("최대 공 개수에 도달하여 새 공을 생성하지 않습니다.");
+                return;
+            }
+
+            // 이전 공의 이벤트 구독 해제 및 완전 제거
+            if (currentBall != null)
+            {
+                Debug.Log("기존 공에 연결된 이벤트 리스너 제거 및 공 파괴");
+
+                // 이벤트 리스너 제거
+                currentBall.OnBallThrown -= OnBallThrown;
+                currentBall.OnBallLanded -= OnBallLanded;
+
+                // 공 파괴 전에 참조 저장
+                GameObject ballToDestroy = currentBall.gameObject;
+
+                // 참조 해제 (메모리 누수 방지)
+                currentBall = null;
+
+                // 이제 안전하게 파괴
+                Destroy(ballToDestroy);
+            }
+
+            // 새 공 생성 - 전략 선택
+            Vector3 spawnPosition = GetBallSpawnPosition();
+            Debug.Log($"새 공 생성 위치: {spawnPosition}");
+
+            // 프리팹 또는 씬의 공 사용
+            GameObject originalBall = GameObject.Find("VRBaseball");
+            VRBaseball newBall = null;
+
+            if (originalBall != null && originalBall.GetComponent<VRBaseball>() != null)
+            {
+                Debug.Log("씬의 기존 공을 템플릿으로 사용하여 새 공 생성");
+                // 씬의 첫 번째 공을 복제 (프리팹 대신)
+                newBall = Instantiate(originalBall.GetComponent<VRBaseball>(), spawnPosition, Quaternion.identity);
+                newBall.name = "VRBaseball_Clone_" + ballsThrown;
+            }
+            else if (baseballPrefab != null)
+            {
+                Debug.Log("프리팹에서 새 공 생성");
+                // 프리팹에서 공 생성
+                newBall = Instantiate(baseballPrefab, spawnPosition, Quaternion.identity);
+                newBall.name = "VRBaseball_Prefab_" + ballsThrown;
+            }
+            else
+            {
+                Debug.LogError("생성할 공이 없습니다! 원본 공도, 프리팹도 없음.");
+                return;
+            }
+
+            // 현재 공으로 설정
+            currentBall = newBall;
+
+            // 복제된 공의 컴포넌트가 비활성화되지 않도록 강제 활성화
+            if (currentBall != null)
+            {
+                currentBall.enabled = true;
+                Debug.Log($"VRBaseball 스크립트 강제 활성화: {currentBall.enabled}");
+            }
+            else
+            {
+                Debug.LogError("새 공 생성 실패!");
+                return;
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"SpawnNewBall 오류: {e.Message}\n{e.StackTrace}");
             return;
         }
-
-        // 기존 공 제거
-        if (currentBall != null)
-        {
-            Destroy(currentBall.gameObject);
-        }
-
-        // 새 공 생성
-        Vector3 spawnPosition = GetBallSpawnPosition();
-        currentBall = Instantiate(baseballPrefab, spawnPosition, Quaternion.identity);
 
         // **한 프레임 뒤에 물리 설정 - VRBaseball Start() 후에 실행되도록!**
         StartCoroutine(SetupBallAfterFrame());
@@ -105,7 +168,28 @@ public class VRPitchingManager : MonoBehaviour
         if (grabComponent != null)
         {
             grabComponent.enabled = true;
+            // 충돌 방지를 위해 throwOnDetach 비활성화 (중요!)
+            grabComponent.throwOnDetach = false;
+
+            // Rigidbody 설정도 바로 적용
+            Rigidbody ballRb = currentBall.GetComponent<Rigidbody>();
+            if (ballRb != null)
+            {
+                // 복제된 공은 non-kinematic으로 시작하도록 설정
+                ballRb.isKinematic = false;
+                ballRb.useGravity = false;  // 그랩 전까지는 중력 영향을 받지 않게
+                Debug.Log($"Rigidbody 설정: isKinematic={ballRb.isKinematic}, useGravity={ballRb.useGravity}");
+            }
         }
+
+        // AudioSource가 있는지 확인하고 필요하면 추가
+        AudioSource audioSrc = currentBall.GetComponent<AudioSource>();
+        if (audioSrc == null)
+        {
+            audioSrc = currentBall.gameObject.AddComponent<AudioSource>();
+            Debug.Log("AudioSource 컴포넌트 추가됨");
+        }
+        audioSrc.enabled = true;
 
         // 공 이벤트 등록
         currentBall.OnBallThrown += OnBallThrown;
@@ -118,29 +202,97 @@ public class VRPitchingManager : MonoBehaviour
         ballsThrown++;
 
         // 공이 확실히 보이도록 위치 강제 설정
-        currentBall.transform.position = spawnPosition;
+        Vector3 finalPosition = GetBallSpawnPosition();
+        currentBall.transform.position = finalPosition;
 
-        Debug.Log($"새 공 생성 완료! 위치: {spawnPosition}");
+        Debug.Log($"새 공 생성 완료! 위치: {finalPosition}, 공 번호: {ballsThrown}");
     }
 
     private System.Collections.IEnumerator SetupBallAfterFrame()
     {
         yield return null; // 한 프레임 대기
-        
-        if (currentBall != null)
+        yield return null; // 한 프레임 더 대기 (안정성 추가)
+
+        try
         {
+            // 공이 아직 유효한지 확인
+            if (currentBall == null)
+            {
+                Debug.LogWarning("SetupBallAfterFrame: currentBall이 null 상태입니다!");
+                yield break;
+            }
+
+            // 컴포넌트 얻기
             Rigidbody ballRb = currentBall.GetComponent<Rigidbody>();
+            XRGrabInteractable grabInteractable = currentBall.GetComponent<XRGrabInteractable>();
+            VRBaseball vrBallScript = currentBall.GetComponent<VRBaseball>();
+
+            // VRBaseball 스크립트가 활성화되어 있는지 확인
+            if (vrBallScript != null)
+            {
+                vrBallScript.enabled = true;
+                Debug.Log($"VRBaseball 스크립트 상태: {vrBallScript.enabled} (한 프레임 후 확인)");
+            }
+            else
+            {
+                Debug.LogError("VRBaseball 스크립트가 없습니다! 공 생성에 문제가 있습니다.");
+            }
+
+            // Rigidbody 설정
             if (ballRb != null)
             {
-                // **kinematic 상태에서는 velocity를 아예 설정하지 않는 방식으로 변경!**
-                ballRb.isKinematic = false;  // 먼저 non-kinematic 상태로
+                // 중요: throwOnDetach 비활성화 (isKinematic과의 충돌 방지)
+                if (grabInteractable != null)
+                {
+                    grabInteractable.throwOnDetach = false;
+                }
+
+                // 초기 물리 설정
+                ballRb.isKinematic = false;  // non-kinematic으로 유지
                 ballRb.velocity = Vector3.zero;         // velocity 초기화
                 ballRb.angularVelocity = Vector3.zero;  // angular velocity 초기화  
-                ballRb.useGravity = false;              // 중력 끄기
-                ballRb.isKinematic = true;              // 다시 kinematic으로 설정
-                
-                Debug.Log($"🔧 한 프레임 후 물리 설정 완료! Kinematic: {ballRb.isKinematic} (그랩할 때까지 고정)");
+                ballRb.useGravity = false;              // 중력 비활성화 (그랩 전까지는 떨어지지 않게)
+                ballRb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic; // 충돌 감지 개선
+
+                Debug.Log($"🔧 한 프레임 후 물리 설정 완료! Kinematic: {ballRb.isKinematic}, UseGravity: {ballRb.useGravity}");
             }
+            else
+            {
+                Debug.LogError("Rigidbody 컴포넌트가 없습니다!");
+                // 필요하다면 여기서 Rigidbody 추가
+                ballRb = currentBall.gameObject.AddComponent<Rigidbody>();
+                ballRb.isKinematic = false;
+                ballRb.useGravity = false;
+            }
+
+            // XRGrabInteractable 설정
+            if (grabInteractable != null)
+            {
+                grabInteractable.throwOnDetach = false;  // 중요: Kinematic과 충돌 방지를 위해 비활성화
+                grabInteractable.enabled = true;        // 확실히 활성화
+
+                Debug.Log($"🔧 XRGrabInteractable 설정 완료! throwOnDetach: {grabInteractable.throwOnDetach}, enabled: {grabInteractable.enabled}");
+            }
+            else
+            {
+                Debug.LogError("XRGrabInteractable 컴포넌트가 없습니다!");
+            }
+
+            // AudioSource 확인
+            AudioSource audioSrc = currentBall.GetComponent<AudioSource>();
+            if (audioSrc != null)
+            {
+                audioSrc.enabled = true;
+                Debug.Log("AudioSource 활성화됨");
+            }
+
+            // 위치 재확인
+            Vector3 finalPosition = GetBallSpawnPosition();
+            currentBall.transform.position = finalPosition;
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"SetupBallAfterFrame 오류: {e.Message}\n{e.StackTrace}");
         }
     }
 
@@ -157,18 +309,20 @@ public class VRPitchingManager : MonoBehaviour
             {
                 ballRb.isKinematic = false;  // 먼저 kinematic 해제
             }
-            
+
             ballRb.velocity = Vector3.zero;         // 이제 안전하게 velocity 설정
             ballRb.angularVelocity = Vector3.zero;  // 이제 안전하게 angular velocity 설정
             ballRb.useGravity = false;              // 중력 끄기
             ballRb.isKinematic = true;              // 다시 kinematic 설정
         }
 
-        // XR Grab Interactable 강제 활성화
+        // XR Grab Interactable 강제 활성화 및 설정
         XRGrabInteractable grabComponent = currentBall.GetComponent<XRGrabInteractable>();
         if (grabComponent != null)
         {
             grabComponent.enabled = true;
+            // 첫 번째 공은 제대로 동작하므로 기본 설정 유지
+            // 씬에 있는 초기 공은 throwOnDetach가 올바르게 설정되어 있을 것임
         }
 
         // 공 이벤트 등록
@@ -201,6 +355,16 @@ public class VRPitchingManager : MonoBehaviour
     private void OnBallThrown(VRBaseball ball)
     {
         Debug.Log($"🎾 VRPitchingManager: OnBallThrown 이벤트 수신됨! 딜레이 후 새 공 생성 시작!");
+
+        // 이미 예약된 SpawnNewBall 함수 호출이 있다면 취소
+        CancelInvoke(nameof(SpawnNewBall));
+
+        // 현재 공 저장 (안전하게)
+        VRBaseball throwBall = currentBall;
+
+        // 참조를 끊어 GC 대상이 되지 않게
+        currentBall = null;
+
         // 딜레이 후 새 공 생성
         Invoke(nameof(SpawnNewBall), ballResetDelay);
     }
