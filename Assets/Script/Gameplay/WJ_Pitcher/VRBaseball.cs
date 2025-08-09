@@ -81,8 +81,13 @@ public class VRBaseball : MonoBehaviour
         // 중력 저장
         originalGravity = Physics.gravity;
 
-        // 초기에는 일반 중력 사용 (공이 자연스럽게 떨어지도록)
-        rb.useGravity = true;
+        // **기본 물리 설정 - 순서 중요! velocity 먼저, kinematic 나중에!**
+        rb.velocity = Vector3.zero;         // 먼저 velocity 설정
+        rb.angularVelocity = Vector3.zero;  // 먼저 angular velocity 설정
+        rb.useGravity = false;              // 중력 끄기 (떨어지지 않게)
+        rb.isKinematic = true;              // 마지막에 kinematic 설정
+
+        Debug.Log($"⚙️ VRBaseball 초기화 완료! Kinematic: {rb.isKinematic} (그랩할 때까지 고정)");
 
         // 궤도선 설정
         if (trajectoryLine != null)
@@ -167,14 +172,14 @@ public class VRBaseball : MonoBehaviour
     private void OnGrab(SelectEnterEventArgs args)
     {
         Debug.Log("✋ 공을 잡았습니다! 물리 활성화!");
-        
-        // **공을 잡는 순간 물리 활성화!**
+
+        // **공을 잡는 순간 물리 활성화! velocity는 kinematic 해제 후 설정**
         if (rb != null)
         {
-            rb.isKinematic = false;  // kinematic 해제
+            rb.isKinematic = false;  // kinematic 먼저 해제
             rb.useGravity = true;    // 중력 활성화 (자연스러운 느낌)
-            rb.velocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
+            rb.velocity = Vector3.zero;      // 이제 안전하게 velocity 설정
+            rb.angularVelocity = Vector3.zero; // 이제 안전하게 angular velocity 설정
         }
     }
 
@@ -228,7 +233,7 @@ public class VRBaseball : MonoBehaviour
 
         // 이펙트
         PlayThrowEffects();
-        OnBallThrown?.Invoke(this);
+        // OnBallThrown 이벤트는 충돌 시에만 발생하도록 수정!
     }    // 구 버전 보정 메서드 제거됨 - 단순화
 
     private void StartCurveEffect()
@@ -303,6 +308,8 @@ public class VRBaseball : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
+        Debug.Log($"🔥 충돌 감지! 공 던진 상태: {isThrown}, 충돌 객체: {collision.gameObject.name}");
+
         if (isThrown)
         {
             // **충돌 시 즉시 멈춤!**
@@ -317,8 +324,12 @@ public class VRBaseball : MonoBehaviour
             // 충돌 처리
             if (collision.gameObject.CompareTag("Ground") ||
                 collision.gameObject.CompareTag("StrikeZone") ||
-                collision.gameObject.name.Contains("Ground"))
+                collision.gameObject.name.Contains("Ground") ||
+                collision.gameObject.name.Contains("MainZone") ||  // MainZoneVisual 추가!
+                collision.gameObject.name.Contains("Zone"))        // 기타 Zone 객체들
             {
+                Debug.Log($"✅ 유효한 충돌 객체 확인: {collision.gameObject.name}");
+
                 if (bounceSound != null && audioSource != null)
                     audioSource.PlayOneShot(bounceSound);
 
@@ -347,14 +358,30 @@ public class VRBaseball : MonoBehaviour
 
                 Debug.Log($"⚾ 최종 판정: {(isStrike ? "🎯 스트라이크!" : "❌ 볼!")} - 공 완전 정지!");
 
-                // 이벤트 발생
+                // 이벤트 발생 - 공이 착지했을 때 둘 다 발생!
+                Debug.Log($"🚀 OnBallThrown 이벤트 발생 시도!");
+                OnBallThrown?.Invoke(this);   // 이제 여기서 새 공 스폰
+                Debug.Log($"📊 OnBallLanded 이벤트 발생 시도!");
                 OnBallLanded?.Invoke(this, isStrike);
+            }
+            else
+            {
+                // **조건에 맞지 않는 충돌 객체라도 이벤트는 발생시키기!**
+                Debug.Log($"❓ 알 수 없는 충돌 객체: {collision.gameObject.name}, 하지만 이벤트는 발생!");
+
+                // 스트라이크/볼 판정은 안 되지만 새 공은 스폰해야 함
+                Debug.Log($"🚀 OnBallThrown 이벤트 발생 시도! (알 수 없는 충돌)");
+                OnBallThrown?.Invoke(this);   // 새 공 스폰
+                Debug.Log($"📊 OnBallLanded 이벤트 발생 시도! (기본 볼 처리)");
+                OnBallLanded?.Invoke(this, false); // 일단 볼로 처리
             }
         }
     }
 
     void OnTriggerEnter(Collider other)
     {
+        Debug.Log($"🎯 트리거 감지! 공 던진 상태: {isThrown}, 트리거 객체: {other.name}");
+
         if (isThrown && other.CompareTag("StrikeZone"))
         {
             // **트리거 충돌 시에도 즉시 멈춤!**
@@ -368,6 +395,10 @@ public class VRBaseball : MonoBehaviour
             // 파티클 효과 정지
             StopAllEffects();
 
+            // 이벤트 발생 - 트리거에서도 둘 다 발생!
+            Debug.Log($"🚀 OnBallThrown 이벤트 발생 시도! (트리거)");
+            OnBallThrown?.Invoke(this);   // 이제 여기서 새 공 스폰
+            Debug.Log($"📊 OnBallLanded 이벤트 발생 시도! (트리거)");
             OnBallLanded?.Invoke(this, true); // 스트라이크 처리
         }
     }

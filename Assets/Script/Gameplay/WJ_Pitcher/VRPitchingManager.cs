@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using Unity.XR.CoreUtils;
+using System.Collections;
 
 public class VRPitchingManager : MonoBehaviour
 {
@@ -52,8 +53,20 @@ public class VRPitchingManager : MonoBehaviour
         if (strikeZone != null)
             strikeZone.gameObject.tag = "StrikeZone";
 
-        // 첫 번째 공 생성
-        SpawnNewBall();
+        // **씬에 이미 있는 VRBaseball 찾기**
+        VRBaseball existingBall = FindObjectOfType<VRBaseball>();
+        if (existingBall != null)
+        {
+            Debug.Log("씬에서 기존 VRBaseball을 찾았습니다. 이것을 첫 번째 공으로 사용합니다.");
+            currentBall = existingBall;
+            SetupExistingBall();
+            ballsThrown = 0; // 기존 공은 카운트하지 않음
+        }
+        else
+        {
+            // 기존 공이 없으면 새로 생성
+            SpawnNewBall();
+        }
 
         // UI 초기화
         if (pitchSelectionUI != null)
@@ -84,15 +97,8 @@ public class VRPitchingManager : MonoBehaviour
         Vector3 spawnPosition = GetBallSpawnPosition();
         currentBall = Instantiate(baseballPrefab, spawnPosition, Quaternion.identity);
 
-        // 물리 설정 - **스폰 시 완전 고정!**
-        Rigidbody ballRb = currentBall.GetComponent<Rigidbody>();
-        if (ballRb != null)
-        {
-            ballRb.useGravity = false;  // 중력 비활성화
-            ballRb.velocity = Vector3.zero;
-            ballRb.angularVelocity = Vector3.zero;
-            ballRb.isKinematic = true;  // **완전히 고정! 떨어지지 않음!**
-        }
+        // **한 프레임 뒤에 물리 설정 - VRBaseball Start() 후에 실행되도록!**
+        StartCoroutine(SetupBallAfterFrame());
 
         // XR Grab Interactable 강제 활성화 (새 공이 잡힐 수 있도록)
         XRGrabInteractable grabComponent = currentBall.GetComponent<XRGrabInteractable>();
@@ -114,16 +120,75 @@ public class VRPitchingManager : MonoBehaviour
         // 공이 확실히 보이도록 위치 강제 설정
         currentBall.transform.position = spawnPosition;
 
-        Debug.Log($"새 공 생성 완료! 위치: {spawnPosition}, 중력: {ballRb?.useGravity}");
+        Debug.Log($"새 공 생성 완료! 위치: {spawnPosition}");
+    }
+
+    private System.Collections.IEnumerator SetupBallAfterFrame()
+    {
+        yield return null; // 한 프레임 대기
+        
+        if (currentBall != null)
+        {
+            Rigidbody ballRb = currentBall.GetComponent<Rigidbody>();
+            if (ballRb != null)
+            {
+                // **kinematic 상태에서는 velocity를 아예 설정하지 않는 방식으로 변경!**
+                ballRb.isKinematic = false;  // 먼저 non-kinematic 상태로
+                ballRb.velocity = Vector3.zero;         // velocity 초기화
+                ballRb.angularVelocity = Vector3.zero;  // angular velocity 초기화  
+                ballRb.useGravity = false;              // 중력 끄기
+                ballRb.isKinematic = true;              // 다시 kinematic으로 설정
+                
+                Debug.Log($"🔧 한 프레임 후 물리 설정 완료! Kinematic: {ballRb.isKinematic} (그랩할 때까지 고정)");
+            }
+        }
+    }
+
+    private void SetupExistingBall()
+    {
+        if (currentBall == null) return;
+
+        // **물리 설정 - kinematic 상태 확인 후 안전하게 설정!**
+        Rigidbody ballRb = currentBall.GetComponent<Rigidbody>();
+        if (ballRb != null)
+        {
+            // **이미 kinematic이면 먼저 해제하고 velocity 설정!**
+            if (ballRb.isKinematic)
+            {
+                ballRb.isKinematic = false;  // 먼저 kinematic 해제
+            }
+            
+            ballRb.velocity = Vector3.zero;         // 이제 안전하게 velocity 설정
+            ballRb.angularVelocity = Vector3.zero;  // 이제 안전하게 angular velocity 설정
+            ballRb.useGravity = false;              // 중력 끄기
+            ballRb.isKinematic = true;              // 다시 kinematic 설정
+        }
+
+        // XR Grab Interactable 강제 활성화
+        XRGrabInteractable grabComponent = currentBall.GetComponent<XRGrabInteractable>();
+        if (grabComponent != null)
+        {
+            grabComponent.enabled = true;
+        }
+
+        // 공 이벤트 등록
+        currentBall.OnBallThrown += OnBallThrown;
+        currentBall.OnBallLanded += OnBallLanded;
+
+        // UI에 공 등록
+        if (pitchSelectionUI != null)
+            pitchSelectionUI.RegisterBaseball(currentBall);
+
+        Debug.Log($"기존 공 설정 완료! 위치: {currentBall.transform.position}, Kinematic: {ballRb?.isKinematic}");
     }
 
     private Vector3 GetBallSpawnPosition()
     {
         // **절대 좌표로 고정!** basePosition 문제 해결
         Vector3 fixedSpawnPosition = new Vector3(0f, 0.3f, -5.49f); // 완전 고정 위치
-        
+
         Debug.Log($"고정 스폰 위치 설정: {fixedSpawnPosition}");
-        
+
         return fixedSpawnPosition;
     }
 
@@ -135,6 +200,7 @@ public class VRPitchingManager : MonoBehaviour
 
     private void OnBallThrown(VRBaseball ball)
     {
+        Debug.Log($"🎾 VRPitchingManager: OnBallThrown 이벤트 수신됨! 딜레이 후 새 공 생성 시작!");
         // 딜레이 후 새 공 생성
         Invoke(nameof(SpawnNewBall), ballResetDelay);
     }
