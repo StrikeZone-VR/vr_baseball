@@ -398,16 +398,35 @@ public class VRBaseball : MonoBehaviour
     {
         try
         {
-            // 메인 트레일 항상 실행
-            if (trailEffect != null)
-                trailEffect.Play();
+            // **직구일 때만 빨간색 이펙트, 메인 트레일은 비활성화**
+            if (selectedPitchType == PitchType.FastBall)
+            {
+                // 메인 트레일 비활성화 (흰색 제거)
+                if (trailEffect != null)
+                {
+                    trailEffect.Stop();
+                    Debug.Log("🎨 MainTrailEffect(흰색) 비활성화");
+                }
+                
+                // 빨간색 직구 이펙트만 활성화
+                if (fastBallSpeedLines != null)
+                {
+                    fastBallSpeedLines.Play();
+                    Debug.Log("🔥 FastBallSpeedEffect(빨간색)만 활성화");
+                }
+            }
+            else
+            {
+                // 다른 구종일 때는 메인 트레일 실행
+                if (trailEffect != null)
+                    trailEffect.Play();
+            }
 
-            // 구종별 추가 이펙트 실행
+            // 구종별 추가 이펙트 실행 (직구 제외)
             switch (selectedPitchType)
             {
                 case PitchType.FastBall:
-                    if (fastBallSpeedLines != null)
-                        fastBallSpeedLines.Play();
+                    // 이미 위에서 처리됨
                     break;
 
                 case PitchType.Curve:
