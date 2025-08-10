@@ -2,13 +2,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UIElements;
 
 //게임 시작할때 실행되는 GameManager
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] private VoidEventSO outEvent;
-    [SerializeField] private VoidEventSO allTrackingOffEvent; //to baseball
     //0 1 => 1이닝 공격 수비, => 0~17 => 짝수면 원정, 홀수면 홈 
     private int inning = 0;
 
@@ -23,10 +22,16 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Transform[] bases;
     [SerializeField] private Baseball _ball;
     
-    private bool [] isBaseStatus = { false, false, false };
+    private int isBaseStatus = 0; //bit mask
+    [SerializeField]private Batter[] runners = new Batter[4]; // 빠따든 주자는 [0]
     
     private TeamStatus []_teamStatus = new TeamStatus[2];
 
+    [Header("Broadcasting on EventChannels")]
+    [SerializeField] private IntEventSO outBatterEvent; //Defender, Baseman
+    [SerializeField] private VoidEventSO allTrackingOffEvent; //to baseball
+    //[SerializeField] private GetGameObjectSetIntEventSO getBaseRunnerEvent; //to baseman
+    
     //Define
     private const int MAX_BALL_COUNT = 4; 
     private const int MAX_STRIKE_COUNT = 3; 
@@ -36,25 +41,25 @@ public class GameManager : MonoBehaviour
 
     private void OnEnable()
     {
-        outEvent.onEventRaised += AddOut;
+        outBatterEvent.onEventRaised += OutBatter;
         allTrackingOffEvent.onEventRaised += AllTrackingOff;
     }
     private void OnDisable()
     {
-        outEvent.onEventRaised -= AddOut;
+        outBatterEvent.onEventRaised -= OutBatter;
         allTrackingOffEvent.onEventRaised -= AllTrackingOff;
     }
 
     private void Update()
     {
         if(Input.GetKeyDown(KeyCode.Alpha1))
-            DebugBase(0);
+            ThrowToBase(0);
         else if (Input.GetKeyDown(KeyCode.Alpha2))
-            DebugBase(1);
+            ThrowToBase(1);
         else if(Input.GetKeyDown(KeyCode.Alpha3))
-            DebugBase(2);
+            ThrowToBase(2);
         else if(Input.GetKeyDown(KeyCode.Alpha4))
-            DebugBase(3);
+            ThrowToBase(3);
 
         if (Input.GetKeyDown(KeyCode.V))
         {
@@ -78,7 +83,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    //property
+    #region PROPERTY
     public int OutCount
     {
         get
@@ -88,6 +93,7 @@ public class GameManager : MonoBehaviour
         set
         {
             out_count = value;
+            Debug.Log("아웃 : " + out_count);
             
             if (out_count >= MAX_OUT_COUNT)
             {
@@ -157,11 +163,13 @@ public class GameManager : MonoBehaviour
     public void AddBaseStatus()
     {
         int i;
-        for (i = 0; i < MAX_BASE_COUNT; i++)
+        for (i = 1; i < 8; i <<= 2)
         {
-            if (!isBaseStatus[i])
+            int num = i & isBaseStatus;
+            //is Empty 
+            if (num == 0)
             {
-                isBaseStatus[i] = true;
+                isBaseStatus |= i;
                 return;
             }
             //밀어내기
@@ -174,8 +182,9 @@ public class GameManager : MonoBehaviour
         }
 
     }
+    #endregion
 
-    public void DebugBase(int index)
+    public void ThrowToBase(int index)
     {
         if(_ball.MyDefender)
             _ball.MyDefender.ThrowBall(bases[index].position + new Vector3(0,0.5f,0));
@@ -212,6 +221,31 @@ public class GameManager : MonoBehaviour
             defenders[i].IsTracking = false;
         }
     }
+
+    #region ALGORITHM
+    private void ThrowBallAlgorithm() //SO
+    {
+        //주자가 없는데 타자가 있다면 => 1루
+        if(isBaseStatus == 0)
+        {
+            ThrowToBase(0);
+        }
+    }
+    private void OutBatter(int index) 
+    {
+        if (runners[index].BaseIndex != 0 || !runners[index].IsMove)
+        {
+            return;
+        }
+        
+        //init
+        runners[index].IsMove = false;
+        AddOut();
+        runners[index].transform.position = bases[3].position;
+        runners[index].transform.rotation = Quaternion.LookRotation(bases[2].position);
+    }
+
+    #endregion
 }
 
 struct TeamStatus

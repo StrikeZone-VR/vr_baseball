@@ -1,12 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UIElements;
 
 //수비수
 public class Defender : Player
 {
-    [SerializeField] private VoidEventSO outEventSO;
+    [SerializeField] protected IntEventSO outBatterEventSO; //gamemanager
 
     [SerializeField] private bool isTracking = false;
 
@@ -48,25 +49,20 @@ public class Defender : Player
         }
     }
     
-    //on
+    //touch ball
     void OnCollisionEnter(Collision collision)
     {
-        //touch ball
         if (collision.gameObject.CompareTag("Ball"))
         {
+            //owner ball
             SetMyBall(collision.gameObject.GetComponent<Baseball>());
-            Baseball baseball = _myBall.GetComponent<Baseball>();
+            Baseball baseball = _myBall;
             collision.rigidbody.velocity = Vector3.zero;
 
             isTracking = false;
-            
-            bool isGroundball = baseball.IsGroundBall;
             baseball.MyDefender = this;
-
-            if (!isGroundball)
-            {
-                outEventSO.Raised();
-            }
+            
+            OutRunner();
         }
     }
     
@@ -144,6 +140,19 @@ public class Defender : Player
 
         view *= 10.0f;
         _ball.GetComponent<Rigidbody>().AddForce(view, ForceMode.Impulse);
+    }
+
+    //out decision
+    protected virtual void OutRunner()
+    {
+        bool isGroundball = _myBall.IsGroundBall;
+        bool isBatTouch = _myBall.IsBatTouch;
+
+        //flying out
+        if (isBatTouch && !isGroundball)
+        {
+            outBatterEventSO.RaiseEvent(0);
+        }
     }
 
     #region PROPERTIES
