@@ -9991,6 +9991,9 @@ MonoBehaviour:
   throwSound: {fileID: 8300000, guid: c266be4e2c80ce84281b80d8981c176e, type: 3}
   bounceSound: {fileID: 8300000, guid: e9a10b23298f4424996e1811171b6fee, type: 3}
   strikeZone: {fileID: 0}
+  areaManager: {fileID: 0}
+  aimAssistStrength: 0.8
+  enableRandomTargeting: 1
 --- !u!135 &446670788630271396
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -10128,7 +10131,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 0.8
+  m_Volume: 0.4
   m_Pitch: 1
   Loop: 0
   Mute: 0
