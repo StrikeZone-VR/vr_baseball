@@ -32,7 +32,8 @@ public class Baseman : Defender
 
     protected override void OutRunner()
     {
-        base.OutRunner(); //isFlying out?
+        base.OutRunner(); //isFlying out
+        
         if (!_ball.IsBatTouch && !isInbase)
         {
             return;

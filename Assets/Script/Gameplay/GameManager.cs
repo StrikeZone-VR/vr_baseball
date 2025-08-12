@@ -33,7 +33,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] private IntEventSO outBatterEvent; //Defender, Baseman
     [SerializeField] private VoidEventSO allTrackingOffEvent; //to baseball
     [SerializeField] private VoidEventSO addScore; //to Batter
-    //[SerializeField] private GetGameObjectSetIntEventSO getBaseRunnerEvent; //to baseman
     
     //Define
     private const int MAX_BALL_COUNT = 4; 
@@ -86,6 +85,22 @@ public class GameManager : MonoBehaviour
             _ball.IsPassing = false;
             defenders[0].SetMyBall(_ball);
         }
+        //batter run
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            if (!runners[0].gameObject.activeSelf)
+            {
+                runners[0].gameObject.SetActive(true);
+
+                runners[0].BaseIndex = 0;
+                runners[0].transform.position = bases[3].position;
+                //runners[0].transform.rotation = Quaternion.LookRotation(bases[2].position);
+            }
+            runners[0].IsMove = !runners[0].IsMove;
+            
+            
+        }
+        
         if (_ball.MyDefender)
         {
             return;
@@ -111,7 +126,6 @@ public class GameManager : MonoBehaviour
         set
         {
             out_count = value;
-            Debug.Log("아웃 : " + out_count);
             
             if (out_count >= MAX_OUT_COUNT)
             {
@@ -275,19 +289,22 @@ public class GameManager : MonoBehaviour
     }
     private void OutBatter(int index) 
     {
-        if (runners[index].BaseIndex != 0 || !runners[index].IsMove)
+        
+        //don't run
+        if (!runners[index].IsMove)
         {
+            Debug.Log("b" + runners[index].BaseIndex);
+            Debug.Log("아웃");
+
             return;
         }
-        
+
         //init
         runners[index].IsMove = false;
         AddOut();
         
         
         runners[index].gameObject.SetActive(false);
-        // runners[index].transform.position = bases[3].position;
-        // runners[index].transform.rotation = Quaternion.LookRotation(bases[2].position);
     }
 
     #endregion

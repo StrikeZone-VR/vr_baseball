@@ -13,7 +13,6 @@ public class UIGameStatus : MonoBehaviour
         int i;
         for (i = 0; i < index; i++)
         {
-            Debug.Log("엄준식");
             elements[i].color = _color;
         }
 

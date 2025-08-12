@@ -17,11 +17,6 @@ public class Batter : Player
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.C))
-        {
-            IsMove = !IsMove;
-        }
-        GoToBase();
     }
 
     public void DebugHitting()
@@ -38,22 +33,18 @@ public class Batter : Player
         LookAtPlayer(bases[base_index].position);
     }
 
-    private void GoToBase()
-    {
-        if (!isMove)
-        {
-            return;
-        }
-        
-        Vector3 base_pos = new Vector3(bases[base_index].position.x, 1f, bases[base_index].position.z);
-    }
-
     private void OnTriggerEnter(Collider collision)
     {
+        
         if (collision.gameObject.CompareTag("Base"))
         {
-            Debug.Log("BaseIndex : " + BaseIndex);
-            BaseIndex++;
+            string s = collision.name; 
+            int a = Convert.ToInt32(s[s.Length - 1]);
+            //is same going to the base index
+            if (a - '0' == base_index)
+            {
+                BaseIndex++;
+            }
         }
     }
 
@@ -68,6 +59,10 @@ public class Batter : Player
             {
                 MoveBase();
             }
+            else
+            {
+                nav.ResetPath();
+            }
         }
     }
 
@@ -80,6 +75,7 @@ public class Batter : Player
             {
                 return;
             }
+
             //arrive home
             if (value >= bases.Length)
             {
