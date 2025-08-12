@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Batter : Player
@@ -10,14 +11,17 @@ public class Batter : Player
     [SerializeField] private Transform[] bases;
 
     private bool isMove = false;
+    private bool isInBase = false;
     
+    [SerializeField] private VoidEventSO addScore; //From GameManager
+
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.C))
         {
             IsMove = !IsMove;
         }
-        InBase();
+        GoToBase();
     }
 
     public void DebugHitting()
@@ -34,24 +38,25 @@ public class Batter : Player
         LookAtPlayer(bases[base_index].position);
     }
 
-    private void InBase()
+    private void GoToBase()
     {
         if (!isMove)
         {
             return;
         }
-        if (base_index >= bases.Length)
-        {
-            return;
-        }
+        
         Vector3 base_pos = new Vector3(bases[base_index].position.x, 1f, bases[base_index].position.z);
-        float dis = Vector3.Distance(base_pos, transform.position);
-        if (dis <= 0.5f)
+    }
+
+    private void OnTriggerEnter(Collider collision)
+    {
+        if (collision.gameObject.CompareTag("Base"))
         {
+            Debug.Log("BaseIndex : " + BaseIndex);
             BaseIndex++;
-            MoveBase();
         }
     }
+
 
     public bool IsMove
     {
@@ -71,8 +76,16 @@ public class Batter : Player
         get => base_index;
         set
         {
-            if (value < 0 || value >= bases.Length)
+            if (value < 0 )
             {
+                return;
+            }
+            //arrive home
+            if (value >= bases.Length)
+            {
+                addScore.Raised();
+                IsMove = false;
+                
                 return;
             }
             base_index = value;

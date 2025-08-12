@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UIElements;
@@ -15,8 +16,9 @@ public class GameManager : MonoBehaviour
     private int strike_count = 0;
     private int out_count = 0;
     
-    //1 2 3 포수
-    
+    [SerializeField] private UIGameStatus[] _UIGameStatusElements;
+    [SerializeField] private TextMeshProUGUI [] _scoreTexts ;
+    [SerializeField] private TextMeshProUGUI _inningText ;
     
     [SerializeField] private Defender[] defenders;
     [SerializeField] private Transform[] bases;
@@ -30,6 +32,7 @@ public class GameManager : MonoBehaviour
     [Header("Broadcasting on EventChannels")]
     [SerializeField] private IntEventSO outBatterEvent; //Defender, Baseman
     [SerializeField] private VoidEventSO allTrackingOffEvent; //to baseball
+    [SerializeField] private VoidEventSO addScore; //to Batter
     //[SerializeField] private GetGameObjectSetIntEventSO getBaseRunnerEvent; //to baseman
     
     //Define
@@ -43,11 +46,25 @@ public class GameManager : MonoBehaviour
     {
         outBatterEvent.onEventRaised += OutBatter;
         allTrackingOffEvent.onEventRaised += AllTrackingOff;
+        addScore.onEventRaised += AddScore;
     }
     private void OnDisable()
     {
         outBatterEvent.onEventRaised -= OutBatter;
         allTrackingOffEvent.onEventRaised -= AllTrackingOff;
+        addScore.onEventRaised -= AddScore;
+
+    }
+
+    private void Start()
+    {
+        BallCount = 0;
+        Strike = 0;
+        OutCount = 0;
+
+        SetScore(0, 0);
+        SetScore(1, 0);
+        Inning = 0;
     }
 
     private void Update()
@@ -84,6 +101,7 @@ public class GameManager : MonoBehaviour
     }
 
     #region PROPERTY
+    //*************************************************************************************** property
     public int OutCount
     {
         get
@@ -100,6 +118,7 @@ public class GameManager : MonoBehaviour
                 out_count = 0;
                 Inning++;
             }
+            _UIGameStatusElements[2].SetIndex(out_count);
         }
     }
     
@@ -117,11 +136,14 @@ public class GameManager : MonoBehaviour
         set
         {
             inning = value;
-            
+
+            string t = inning % 2 == 0 ? "▲" : "▼";
+            t += " " + inning / 2 + "이닝";
             if (inning >= MAX_INNING_COUNT)
             {
-                //게임 종료
+                //GameEnd
             }
+            _inningText.text = t;
         }
     }
 
@@ -139,6 +161,9 @@ public class GameManager : MonoBehaviour
                 strike_count = 0;
                 OutCount++;
             }
+            
+            //ui
+            _UIGameStatusElements[1].SetIndex(strike_count);
         }
     }
 
@@ -157,7 +182,22 @@ public class GameManager : MonoBehaviour
                 AddBaseStatus();
                 
             }
+            _UIGameStatusElements[0].SetIndex(ball_count);
         }
+    }
+
+    private void AddScore()
+    {
+        runners[0].gameObject.SetActive(false);
+        SetScore(inning % 2, ++_teamStatus[inning % 2].Score);
+    }
+
+    public void SetScore(int teamIndex, int score)
+    {
+        _teamStatus[teamIndex].Score = score;
+        _scoreTexts[teamIndex].text = (_teamStatus[teamIndex].Score).ToString();
+        
+        
     }
 
     public void AddBaseStatus()
@@ -178,10 +218,12 @@ public class GameManager : MonoBehaviour
         //밀어내기 득점
         if (i == MAX_BASE_COUNT)
         {
-            _teamStatus[inning % 2].score++;
+            AddScore();
         }
 
     }
+    
+    // *************************************************************end
     #endregion
 
     public void ThrowToBase(int index)
@@ -241,8 +283,11 @@ public class GameManager : MonoBehaviour
         //init
         runners[index].IsMove = false;
         AddOut();
-        runners[index].transform.position = bases[3].position;
-        runners[index].transform.rotation = Quaternion.LookRotation(bases[2].position);
+        
+        
+        runners[index].gameObject.SetActive(false);
+        // runners[index].transform.position = bases[3].position;
+        // runners[index].transform.rotation = Quaternion.LookRotation(bases[2].position);
     }
 
     #endregion
@@ -250,7 +295,7 @@ public class GameManager : MonoBehaviour
 
 struct TeamStatus
 {
-    public int score;
+    private int score;
     
     //타순 0 ~ 8
     public int batting_order;
@@ -268,6 +313,18 @@ struct TeamStatus
             {
                 batting_order = 0;
             }
+        }
+    }
+
+    public int Score
+    {
+        get => score;
+        
+        //only AddScore function
+        set
+        {
+            score = value;
+            
         }
     }
 

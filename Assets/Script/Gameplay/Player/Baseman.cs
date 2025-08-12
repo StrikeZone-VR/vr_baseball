@@ -14,8 +14,8 @@ public class Baseman : Defender
         if (!IsTracking)
         {
             float dis = Vector3.Distance(myBase.position, transform.position);
-            //long base dis => go to the base
 
+            //long base dis => go to the base
             if (dis >= 1f)
             {
                 nav.SetDestination(myBase.position);
