@@ -72,7 +72,7 @@ public class Baseball : MonoBehaviour
             if (myDefender)
             {
                 isPassing = false;
-                allTrackingOffEvent.Raised();
+                allTrackingOffEvent.RaiseEvent();
             }
         }
     }

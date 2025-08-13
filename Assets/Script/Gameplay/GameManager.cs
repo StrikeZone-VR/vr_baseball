@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UIElements;
+using Random = UnityEngine.Random;
 
 //게임 시작할때 실행되는 GameManager
 public class GameManager : MonoBehaviour
@@ -23,9 +24,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Defender[] defenders;
     [SerializeField] private Transform[] bases;
     [SerializeField] private Baseball _ball;
-    
-    private int isBaseStatus = 0; //bit mask
-    [SerializeField]private Batter[] runners = new Batter[4]; // 빠따든 주자는 [0]
+
+    private bool[] isBaseStatus = new bool[MAX_BASE_COUNT];
+    [SerializeField] private Batter[] runners = new Batter[4]; // 빠따든 주자는 [0]
+    [SerializeField] private Batter batterPrefab; 
     
     private TeamStatus []_teamStatus = new TeamStatus[2];
 
@@ -33,7 +35,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private IntEventSO outBatterEvent; //Defender, Baseman
     [SerializeField] private VoidEventSO allTrackingOffEvent; //to baseball
     [SerializeField] private VoidEventSO addScore; //to Batter
-    
+    [SerializeField] private IntEventSO addIsBaseStatus; //to Batter
+
     //Define
     private const int MAX_BALL_COUNT = 4; 
     private const int MAX_STRIKE_COUNT = 3; 
@@ -46,6 +49,8 @@ public class GameManager : MonoBehaviour
         outBatterEvent.onEventRaised += OutBatter;
         allTrackingOffEvent.onEventRaised += AllTrackingOff;
         addScore.onEventRaised += AddScore;
+        
+        addIsBaseStatus.onEventRaised += AddIsBaseStatus;
     }
     private void OnDisable()
     {
@@ -53,6 +58,7 @@ public class GameManager : MonoBehaviour
         allTrackingOffEvent.onEventRaised -= AllTrackingOff;
         addScore.onEventRaised -= AddScore;
 
+        addIsBaseStatus.onEventRaised -= AddIsBaseStatus;
     }
 
     private void Start()
@@ -60,6 +66,11 @@ public class GameManager : MonoBehaviour
         BallCount = 0;
         Strike = 0;
         OutCount = 0;
+
+        for (int i = 0; i < MAX_BASE_COUNT; i++)
+        {
+            isBaseStatus[i] = false;
+        }
 
         SetScore(0, 0);
         SetScore(1, 0);
@@ -77,6 +88,11 @@ public class GameManager : MonoBehaviour
         else if(Input.GetKeyDown(KeyCode.Alpha4))
             ThrowToBase(3);
 
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            DebugBatting();
+        }
+        
         if (Input.GetKeyDown(KeyCode.V))
         {
             _ball.RemovePlayer();
@@ -88,17 +104,11 @@ public class GameManager : MonoBehaviour
         //batter run
         if (Input.GetKeyDown(KeyCode.C))
         {
-            if (!runners[0].gameObject.activeSelf)
+            if (!runners[0])
             {
-                runners[0].gameObject.SetActive(true);
-
-                runners[0].BaseIndex = 0;
-                runners[0].transform.position = bases[3].position;
-                //runners[0].transform.rotation = Quaternion.LookRotation(bases[2].position);
+                CreateBatter();
             }
-            runners[0].IsMove = !runners[0].IsMove;
-            
-            
+            runners[0].IsMove = true;
         }
         
         if (_ball.MyDefender)
@@ -113,6 +123,7 @@ public class GameManager : MonoBehaviour
             //closestDefender set tracking
             defenders[index].IsTracking = true;
         }
+        
     }
 
     #region PROPERTY
@@ -200,6 +211,22 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void AddIsBaseStatus(int index)
+    {
+        //0 1 2
+        if (index == 0)
+        {
+            isBaseStatus[index] = true;
+        }
+        else
+        {
+            isBaseStatus[index - 1] = false;
+            isBaseStatus[index] = true;
+        }
+        runners[index + 1] = runners[index];
+        runners[index] = null;
+    }
+
     private void AddScore()
     {
         runners[0].gameObject.SetActive(false);
@@ -210,23 +237,21 @@ public class GameManager : MonoBehaviour
     {
         _teamStatus[teamIndex].Score = score;
         _scoreTexts[teamIndex].text = (_teamStatus[teamIndex].Score).ToString();
-        
-        
     }
 
     public void AddBaseStatus()
     {
         int i;
-        for (i = 1; i < 8; i <<= 2)
+        
+        for (i = 0; i < 3; i++)
         {
-            int num = i & isBaseStatus;
             //is Empty 
-            if (num == 0)
+            if (isBaseStatus[i] == false)
             {
-                isBaseStatus |= i;
+                isBaseStatus[i] = true;
                 return;
             }
-            //밀어내기
+            //push base
         }
 
         //밀어내기 득점
@@ -278,33 +303,63 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void CreateBatter()
+    {
+        runners[0] = Instantiate(batterPrefab, transform);
+
+        runners[0].SetBall(_ball);
+
+        runners[0].SetBases(bases);
+        runners[0].transform.position = bases[3].position;
+        runners[0].BaseIndex = 0;
+        //runners[0].transform.rotation = Quaternion.LookRotation(bases[2].position);
+    }
+
+    private void DebugBatting()
+    {
+        Vector3 view = new Vector3(-1, 1, -1).normalized;
+
+        _ball.IsBatTouch = true;
+        _ball.IsGroundBall = false;
+        _ball.IsPassing = false;
+
+        _ball.RemovePlayer();
+
+        float r = Random.Range(0.0f, 100.0f);
+        Debug.Log(r);
+        view *= r;
+        _ball.transform.position = Vector3.zero;
+        _ball.GetComponent<Rigidbody>().AddForce(view, ForceMode.Impulse);
+        
+    }
+
     #region ALGORITHM
     private void ThrowBallAlgorithm() //SO
     {
         //주자가 없는데 타자가 있다면 => 1루
-        if(isBaseStatus == 0)
+        if(isBaseStatus[0] == false)
         {
             ThrowToBase(0);
         }
     }
-    private void OutBatter(int index) 
+    private void OutBatter(int index)
     {
-        
-        //don't run
-        if (!runners[index].IsMove)
-        {
-            Debug.Log("b" + runners[index].BaseIndex);
-            Debug.Log("아웃");
+        Debug.Log(index);
 
+        if (!runners[index])
+        {
             return;
         }
-
-        //init
-        runners[index].IsMove = false;
+        
+        //has runner and don't run
+        if (!runners[index].IsMove)
+        {
+            return;
+        }
+        
         AddOut();
         
-        
-        runners[index].gameObject.SetActive(false);
+        Destroy(runners[index].gameObject);
     }
 
     #endregion

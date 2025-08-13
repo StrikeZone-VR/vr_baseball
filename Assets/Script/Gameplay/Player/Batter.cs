@@ -8,16 +8,13 @@ public class Batter : Player
 {
     //[SerializeField] private Baseball _ball;
     private int base_index = 0;
-    [SerializeField] private Transform[] bases;
+    private Transform[] bases;
 
     private bool isMove = false;
     private bool isInBase = false;
     
     [SerializeField] private VoidEventSO addScore; //From GameManager
-
-    private void Update()
-    {
-    }
+    [SerializeField] private IntEventSO addIsBaseStatus; //From GameManager
 
     public void DebugHitting()
     {
@@ -35,7 +32,6 @@ public class Batter : Player
 
     private void OnTriggerEnter(Collider collision)
     {
-        
         if (collision.gameObject.CompareTag("Base"))
         {
             string s = collision.name; 
@@ -76,10 +72,15 @@ public class Batter : Player
                 return;
             }
 
+            //change base status
+            if (0 < value)
+            {
+                addIsBaseStatus.RaiseEvent(value - 1);
+            }
             //arrive home
             if (value >= bases.Length)
             {
-                addScore.Raised();
+                addScore.RaiseEvent();
                 IsMove = false;
                 
                 return;
@@ -89,4 +90,8 @@ public class Batter : Player
         }
     }
 
+    public void SetBases(Transform[] bases)
+    {
+        this.bases = bases;
+    }
 }

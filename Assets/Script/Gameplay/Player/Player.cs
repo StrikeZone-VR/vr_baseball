@@ -16,7 +16,7 @@ public class Player : MonoBehaviour
 
 
     // Start is called before the first frame update
-    protected virtual void Start()
+    protected void Awake()
     {
         nav = GetComponent<NavMeshAgent>();
     }
@@ -50,5 +50,10 @@ public class Player : MonoBehaviour
     public void RemoveBall()
     {
         _myBall = null;
+    }
+
+    public void SetBall(Baseball ball)
+    {
+        _myBall = ball;
     }
 }

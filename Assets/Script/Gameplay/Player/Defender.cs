@@ -7,9 +7,12 @@ using UnityEngine.UIElements;
 //수비수
 public class Defender : Player
 {
+    [SerializeField] protected Transform defenderTransform;
+
     [SerializeField] protected IntEventSO outBatterEventSO; //gamemanager
 
     [SerializeField] private bool isTracking = false;
+    protected bool isInPosition = false;
 
     protected virtual void Update()
     {
@@ -17,36 +20,19 @@ public class Defender : Player
         {
             FrontBall();
         }
-        // //follow ball
-        // if (isTracking)
-        // {
-        //     //Ball이 누군가의 소속이 없다면 => MyPlayer
-        //     if (_ball.MyDefender)
-        //     {
-        //         return;
-        //     }
-        //
-        //     //if bat is not touching
-        //     if (!_ball.IsBatTouch)
-        //     {
-        //         return;
-        //     }
-        //
-        //     nav.SetDestination(_ball.transform.position);
-        //     LookAtPlayer(_ball.transform.position);
-        // }
-        // else//have ball
-        // {
-        //     //false =>
-        //     nav.ResetPath();
-        //
-        // }
 
-        //debug => batting
-        if (Input.GetKeyDown(KeyCode.Space) && _myBall)
+        //defend my position
+        if (!IsTracking)
         {
-            DebugHitting();
+            //long base dis => go to the base
+            if (!isInPosition)
+            {
+                nav.SetDestination(defenderTransform.position);
+                LookAtPlayer(defenderTransform.position);
+            }
+            //defend pos
         }
+        
     }
     
     //touch ball
@@ -126,21 +112,6 @@ public class Defender : Player
         transform.LookAt(_ball.transform, Vector3.up);
     }
 
-    private void DebugHitting()
-    {
-        Vector3 view = new Vector3(-1, 1, -1).normalized;
-
-        _ball.IsBatTouch = true;
-        _ball.IsGroundBall = false;
-        _ball.IsPassing = false;
-
-        _ball.RemovePlayer();
-        Quaternion rotateValue = Quaternion.LookRotation(view);
-        this.transform.rotation = rotateValue;
-
-        view *= 10.0f;
-        _ball.GetComponent<Rigidbody>().AddForce(view, ForceMode.Impulse);
-    }
 
     //out decision
     protected virtual void OutRunner()
