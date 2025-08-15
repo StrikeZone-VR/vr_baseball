@@ -12,7 +12,7 @@ public class Defender : Player
     [SerializeField] protected IntEventSO outBatterEventSO; //gamemanager
 
     [SerializeField] private bool isTracking = false;
-    protected bool isInPosition = false;
+    [SerializeField] protected bool isInPosition = false;
 
     protected virtual void Update()
     {
@@ -32,7 +32,6 @@ public class Defender : Player
             }
             //defend pos
         }
-        
     }
     
     //touch ball

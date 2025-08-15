@@ -79,6 +79,7 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
+        //debug
         if(Input.GetKeyDown(KeyCode.Alpha1))
             ThrowToBase(0);
         else if (Input.GetKeyDown(KeyCode.Alpha2))
@@ -87,6 +88,13 @@ public class GameManager : MonoBehaviour
             ThrowToBase(2);
         else if(Input.GetKeyDown(KeyCode.Alpha4))
             ThrowToBase(3);
+
+        //has ball and ball batting
+        if (_ball.MyDefender && _ball.IsBatTouch)
+        {
+            ThrowBallAlgorithm();
+        }
+        
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
@@ -108,7 +116,6 @@ public class GameManager : MonoBehaviour
             {
                 CreateBatter();
             }
-            runners[0].IsMove = true;
         }
         
         if (_ball.MyDefender)
@@ -221,7 +228,8 @@ public class GameManager : MonoBehaviour
         else
         {
             isBaseStatus[index - 1] = false;
-            isBaseStatus[index] = true;
+            if(index != 3)
+                isBaseStatus[index] = true;
         }
         runners[index + 1] = runners[index];
         runners[index] = null;
@@ -233,13 +241,13 @@ public class GameManager : MonoBehaviour
         SetScore(inning % 2, ++_teamStatus[inning % 2].Score);
     }
 
-    public void SetScore(int teamIndex, int score)
+    private void SetScore(int teamIndex, int score)
     {
         _teamStatus[teamIndex].Score = score;
         _scoreTexts[teamIndex].text = (_teamStatus[teamIndex].Score).ToString();
     }
 
-    public void AddBaseStatus()
+    private void AddBaseStatus()
     {
         int i;
         
@@ -265,7 +273,7 @@ public class GameManager : MonoBehaviour
     // *************************************************************end
     #endregion
 
-    public void ThrowToBase(int index)
+    private void ThrowToBase(int index)
     {
         if(_ball.MyDefender)
             _ball.MyDefender.ThrowBall(bases[index].position + new Vector3(0,0.5f,0));
@@ -285,6 +293,7 @@ public class GameManager : MonoBehaviour
             }
         }
 
+        _ball.DefenderDis = min;
         return index;
     }
 
@@ -306,18 +315,22 @@ public class GameManager : MonoBehaviour
     private void CreateBatter()
     {
         runners[0] = Instantiate(batterPrefab, transform);
-
         runners[0].SetBall(_ball);
-
         runners[0].SetBases(bases);
+        
         runners[0].transform.position = bases[3].position;
         runners[0].BaseIndex = 0;
+        runners[0].IsMove = true;
+        
         //runners[0].transform.rotation = Quaternion.LookRotation(bases[2].position);
+
     }
 
     private void DebugBatting()
     {
-        Vector3 view = new Vector3(-1, 1, -1).normalized;
+        float x = Random.Range(-1.0f, 0f);
+        float z = Random.Range(-1.0f, 0f);
+        Vector3 view = new Vector3(x, 1, z).normalized;
 
         _ball.IsBatTouch = true;
         _ball.IsGroundBall = false;
@@ -325,27 +338,28 @@ public class GameManager : MonoBehaviour
 
         _ball.RemovePlayer();
 
-        float r = Random.Range(0.0f, 100.0f);
-        Debug.Log(r);
+        float r = Random.Range(15.0f, 25.0f);
+        
         view *= r;
         _ball.transform.position = Vector3.zero;
+        _ball.GetComponent<Rigidbody>().velocity = Vector3.zero;
         _ball.GetComponent<Rigidbody>().AddForce(view, ForceMode.Impulse);
-        
     }
 
     #region ALGORITHM
     private void ThrowBallAlgorithm() //SO
     {
-        //주자가 없는데 타자가 있다면 => 1루
-        if(isBaseStatus[0] == false)
+        for (int i = 0; i < runners.Length; i++)
         {
-            ThrowToBase(0);
+            //has runner and run
+            if (runners[i] && runners[i].IsMove)
+            {
+                ThrowToBase(i);
+            }
         }
     }
     private void OutBatter(int index)
     {
-        Debug.Log(index);
-
         if (!runners[index])
         {
             return;

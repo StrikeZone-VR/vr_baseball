@@ -11,7 +11,7 @@ public class Batter : Player
     private Transform[] bases;
 
     private bool isMove = false;
-    private bool isInBase = false;
+    //private bool isInBase = false;
     
     [SerializeField] private VoidEventSO addScore; //From GameManager
     [SerializeField] private IntEventSO addIsBaseStatus; //From GameManager
@@ -36,9 +36,19 @@ public class Batter : Player
         {
             string s = collision.name; 
             int a = Convert.ToInt32(s[s.Length - 1]);
-            //is same going to the base index
+
+            //is same going to the next base index
             if (a - '0' == base_index)
             {
+                if (_ball == null)
+                {
+                    Debug.Log("안돼잉");
+                }
+                if (_ball.DefenderDis <= 20.0f)
+                {
+                    isMove = false;
+                    return;
+                }
                 BaseIndex++;
             }
         }
@@ -88,6 +98,11 @@ public class Batter : Player
             base_index = value;
             MoveBase();
         }
+    }
+
+    protected override void FrontBall()
+    {
+        //don't play
     }
 
     public void SetBases(Transform[] bases)

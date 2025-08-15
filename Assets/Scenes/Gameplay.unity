@@ -834,6 +834,7 @@ MonoBehaviour:
   defenderTransform: {fileID: 21339321}
   outBatterEventSO: {fileID: 11400000, guid: a7e00550afa182d4594b424474b58e00, type: 2}
   isTracking: 0
+  isInPosition: 0
   base_index: 3
 --- !u!1 &359019896
 GameObject:
@@ -1731,7 +1732,7 @@ Transform:
   m_GameObject: {fileID: 668052072}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.02, y: 0.1, z: 0.99}
+  m_LocalPosition: {x: 1, y: 0.1, z: 1}
   m_LocalScale: {x: 1.5, y: 0.1, z: 1.5}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1853,9 +1854,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da16bbf45d769d64a83046e0ce1c89ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isGroundBall: 0
-  isBatTouch: 0
-  isPassing: 0
   allTrackingOffEvent: {fileID: 11400000, guid: eb943823faaa14e4b87ec836d9d214f4, type: 2}
 --- !u!4 &683532158 stripped
 Transform:
@@ -2225,7 +2223,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 3.5
+  m_Speed: 4.5
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
@@ -2326,6 +2324,7 @@ MonoBehaviour:
   defenderTransform: {fileID: 750645097}
   outBatterEventSO: {fileID: 11400000, guid: a7e00550afa182d4594b424474b58e00, type: 2}
   isTracking: 0
+  isInPosition: 0
 --- !u!1001 &897966065
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2557,6 +2556,7 @@ MonoBehaviour:
   defenderTransform: {fileID: 178865289}
   outBatterEventSO: {fileID: 11400000, guid: a7e00550afa182d4594b424474b58e00, type: 2}
   isTracking: 0
+  isInPosition: 0
 --- !u!1 &1086991456
 GameObject:
   m_ObjectHideFlags: 0
@@ -2839,6 +2839,7 @@ MonoBehaviour:
   defenderTransform: {fileID: 1236018299}
   outBatterEventSO: {fileID: 11400000, guid: a7e00550afa182d4594b424474b58e00, type: 2}
   isTracking: 0
+  isInPosition: 0
 --- !u!1 &1123857502
 GameObject:
   m_ObjectHideFlags: 0
@@ -3052,6 +3053,7 @@ MonoBehaviour:
   defenderTransform: {fileID: 1123857503}
   outBatterEventSO: {fileID: 11400000, guid: a7e00550afa182d4594b424474b58e00, type: 2}
   isTracking: 0
+  isInPosition: 0
   base_index: 0
 --- !u!1 &1173924582
 GameObject:
@@ -3859,6 +3861,7 @@ MonoBehaviour:
   defenderTransform: {fileID: 564270423}
   outBatterEventSO: {fileID: 11400000, guid: a7e00550afa182d4594b424474b58e00, type: 2}
   isTracking: 0
+  isInPosition: 0
   base_index: 1
 --- !u!1 &1452048632
 GameObject:
@@ -4390,7 +4393,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 3.5
+  m_Speed: 4.5
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
@@ -4491,6 +4494,7 @@ MonoBehaviour:
   defenderTransform: {fileID: 2059259900}
   outBatterEventSO: {fileID: 11400000, guid: a7e00550afa182d4594b424474b58e00, type: 2}
   isTracking: 0
+  isInPosition: 0
 --- !u!1 &1788083611
 GameObject:
   m_ObjectHideFlags: 0
@@ -5043,7 +5047,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 3.5
+  m_Speed: 4.5
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
@@ -5144,6 +5148,7 @@ MonoBehaviour:
   defenderTransform: {fileID: 359019897}
   outBatterEventSO: {fileID: 11400000, guid: a7e00550afa182d4594b424474b58e00, type: 2}
   isTracking: 0
+  isInPosition: 0
 --- !u!1 &2003804807
 GameObject:
   m_ObjectHideFlags: 0
@@ -5292,6 +5297,7 @@ MonoBehaviour:
   defenderTransform: {fileID: 2029007883}
   outBatterEventSO: {fileID: 11400000, guid: a7e00550afa182d4594b424474b58e00, type: 2}
   isTracking: 0
+  isInPosition: 0
   base_index: 2
 --- !u!1 &2025948738
 GameObject:

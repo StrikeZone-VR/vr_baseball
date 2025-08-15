@@ -14,14 +14,11 @@ public class Player : MonoBehaviour
     protected NavMeshAgent nav;
     private const float BALL_DISTANCE = 0.5f;
 
-
     // Start is called before the first frame update
     protected void Awake()
     {
         nav = GetComponent<NavMeshAgent>();
     }
-
-
 
 
     public void LookAtPlayer(Vector3 target)
@@ -34,7 +31,7 @@ public class Player : MonoBehaviour
         FrontBall();
     }
 
-    protected void FrontBall()
+    protected virtual void FrontBall()
     {
         if (!_myBall)
         {
@@ -54,6 +51,6 @@ public class Player : MonoBehaviour
 
     public void SetBall(Baseball ball)
     {
-        _myBall = ball;
+        _ball = ball;
     }
 }
