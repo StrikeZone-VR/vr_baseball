@@ -82,7 +82,7 @@ public class Batter : Player
             Debug.Log(gameObject.name + "'s baseIndex: " + value);
 
             //change base status => else, goto 1base 
-            if (0 < value)
+            if (0 < value && value < bases.Length)
                 addIsBaseStatus.RaiseEvent(value - 1);
             //arrive home
             if (value >= bases.Length)
