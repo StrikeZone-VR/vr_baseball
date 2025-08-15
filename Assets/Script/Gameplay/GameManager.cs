@@ -112,6 +112,15 @@ public class GameManager : MonoBehaviour
         //batter run
         if (Input.GetKeyDown(KeyCode.C))
         {
+            for (int i = 0; i < runners.Length - 1; i++)
+            {
+                //move
+                if (runners[i])
+                {
+                    runners[i].IsMove = true;
+                }
+            }
+            
             if (!runners[0])
             {
                 CreateBatter();
@@ -228,9 +237,12 @@ public class GameManager : MonoBehaviour
         else
         {
             isBaseStatus[index - 1] = false;
+            
+            
             if(index != 3)
                 isBaseStatus[index] = true;
         }
+        
         runners[index + 1] = runners[index];
         runners[index] = null;
     }
@@ -374,6 +386,7 @@ public class GameManager : MonoBehaviour
         AddOut();
         
         Destroy(runners[index].gameObject);
+        runners[index] = null;
     }
 
     #endregion

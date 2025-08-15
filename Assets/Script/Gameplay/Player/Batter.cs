@@ -40,16 +40,12 @@ public class Batter : Player
             //is same going to the next base index
             if (a - '0' == base_index)
             {
-                if (_ball == null)
-                {
-                    Debug.Log("안돼잉");
-                }
-                if (_ball.DefenderDis <= 20.0f)
+                BaseIndex++; 
+                if (_ball.DefenderDis <= 10.0f)
                 {
                     isMove = false;
                     return;
                 }
-                BaseIndex++;
             }
         }
     }
@@ -72,6 +68,7 @@ public class Batter : Player
         }
     }
 
+    // want to go base index
     public int BaseIndex
     {
         get => base_index;
@@ -82,11 +79,11 @@ public class Batter : Player
                 return;
             }
 
-            //change base status
+            Debug.Log(gameObject.name + "'s baseIndex: " + value);
+
+            //change base status => else, goto 1base 
             if (0 < value)
-            {
                 addIsBaseStatus.RaiseEvent(value - 1);
-            }
             //arrive home
             if (value >= bases.Length)
             {
@@ -96,7 +93,6 @@ public class Batter : Player
                 return;
             }
             base_index = value;
-            MoveBase();
         }
     }
 
