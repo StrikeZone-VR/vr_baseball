@@ -110,29 +110,20 @@ public class GameManager : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.B))
         {
-            for (int i = 0; i < runners.Length; i++)
-            {
-                Debug.Log(i  + " : "+runners[i].Count);
-            }
+            BallCount++;
         }
         //batter run
         if (Input.GetKeyDown(KeyCode.C))
         {
-
-            for (int i = 0; i < runners.Length; i++)
-            {
-                //HasRunner
-                if (runners[i].Count > 0)
-                {
-                    runners[i].Peek().IsMove = true;
-                }
-            }
-            
-            //don't have Runner
-            if (runners[0].Count == 0)
-            {
-                CreateBatter();
-            }
+            MoveOneBase();
+        }
+        // if (Input.GetKeyDown(KeyCode.D))
+        // {
+        //     DebugBaseStatus();
+        // }
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            AddOut();
         }
         
         if (_ball.MyDefender)
@@ -184,14 +175,17 @@ public class GameManager : MonoBehaviour
         }
         set
         {
+            if (value >= MAX_INNING_COUNT)
+            {
+                Debug.Log("Game Over, back to the menu...");
+                //GameEnd
+                return;
+            }
             inning = value;
+            ClearRunners();
 
             string t = inning % 2 == 0 ? "▲" : "▼";
-            t += " " + inning / 2 + "이닝";
-            if (inning >= MAX_INNING_COUNT)
-            {
-                //GameEnd
-            }
+            t += " " + (inning / 2 + 1) + "이닝";
             _inningText.text = t;
         }
     }
@@ -228,8 +222,10 @@ public class GameManager : MonoBehaviour
             if (ball_count >= MAX_BALL_COUNT)
             {
                 ball_count = 0;
-                AddBaseStatus();
+                _ball.IsBatTouch = false;
                 
+                //AddBaseStatus();
+                MoveOneBase();
             }
             _UIGameStatusElements[0].SetIndex(ball_count);
         }
@@ -243,8 +239,8 @@ public class GameManager : MonoBehaviour
 
     private void AddScore()
     {
-        Batter batter = runners[3].Peek();
-        batter.gameObject.SetActive(false);
+        Batter batter = runners[3].Dequeue();
+        Destroy(batter.gameObject);
         
         SetScore(inning % 2, ++_teamStatus[inning % 2].Score);
     }
@@ -255,22 +251,16 @@ public class GameManager : MonoBehaviour
         _scoreTexts[teamIndex].text = (_teamStatus[teamIndex].Score).ToString();
     }
 
-    //four ball
-    private void AddBaseStatus()
+    private void ClearRunners()
     {
-        int i;
-        
-        for (i = 0; i < MAX_BASE_COUNT; i++)
+        for (int i = 0; i < runners.Length; i++)
         {
-            AddIsBaseStatus(i);
+            while (runners[i].Count > 0)
+            {
+                Batter batter = runners[i].Dequeue();
+                Destroy(batter.gameObject);
+            }
         }
-
-        //밀어내기 득점
-        if (i == MAX_BASE_COUNT)
-        {
-            AddScore();
-        }
-
     }
     
     // *************************************************************end
@@ -336,7 +326,7 @@ public class GameManager : MonoBehaviour
     {
         float x = Random.Range(-1.0f, 0f);
         float z = Random.Range(-1.0f, 0f);
-        Vector3 view = new Vector3(x, 1, z).normalized;
+        Vector3 view = new Vector3(-1, 1, -1).normalized;
 
         _ball.IsBatTouch = true;
         _ball.IsGroundBall = false;
@@ -346,21 +336,24 @@ public class GameManager : MonoBehaviour
 
         float r = Random.Range(15.0f, 25.0f);
         
-        view *= r;
+        view *= 19;
         _ball.transform.position = Vector3.zero;
         _ball.GetComponent<Rigidbody>().velocity = Vector3.zero;
         _ball.GetComponent<Rigidbody>().AddForce(view, ForceMode.Impulse);
+        
+        MoveBase();
     }
 
     #region ALGORITHM
     private void ThrowBallAlgorithm() //SO
     {
-        for (int i = 0; i < runners.Length; i++)
+        for (int i = runners.Length - 1; i >= 0; i--)
         {
             //has runner and run
             if (runners[i].Count > 0 && runners[i].Peek().IsMove)
             {
                 ThrowToBase(i);
+                break;
             }
         }
     }
@@ -385,6 +378,40 @@ public class GameManager : MonoBehaviour
         runners[index].Dequeue();
     }
 
+    //move one base
+    void MoveOneBase()
+    {
+        MoveBase();
+            
+        //don't have Runner
+        if (runners[0].Count == 0)
+        {
+            CreateBatter();
+        }
+    }
+
+    void MoveBase()
+    {
+        for (int i = 0; i < runners.Length; i++)
+        {
+            //HasRunner
+            if (runners[i].Count > 0)
+            {
+                runners[i].Peek().IsMove = true;
+            }
+        }
+    }
+    #endregion
+
+    #region DEBUG
+
+    void DebugBaseStatus()
+    {
+        for (int i = 0; i < runners.Length; i++)
+        {
+            Debug.Log(i + " : " + runners[i].Count);
+        }
+    }
     #endregion
 }
 

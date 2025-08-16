@@ -33,7 +33,7 @@ public class Baseman : Defender
     {
         base.OutRunner(); //isFlying out
         
-        if (!_ball.IsBatTouch && !isInPosition)
+        if (!_ball.IsBatTouch || !isInPosition)
         {
             return;
         }
