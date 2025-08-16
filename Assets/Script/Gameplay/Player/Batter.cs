@@ -1,24 +1,20 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Batter : Player
 {
     //[SerializeField] private Baseball _ball;
     private int base_index = 0;
-    [SerializeField] private Transform[] bases;
+    private Transform[] bases;
 
     private bool isMove = false;
+    //private bool isInBase = false;
     
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.C))
-        {
-            IsMove = !IsMove;
-        }
-        InBase();
-    }
+    [SerializeField] private VoidEventSO addScore; //From GameManager
+    [SerializeField] private IntEventSO addIsBaseStatus; //From GameManager
 
     public void DebugHitting()
     {
@@ -34,24 +30,26 @@ public class Batter : Player
         LookAtPlayer(bases[base_index].position);
     }
 
-    private void InBase()
+    private void OnTriggerEnter(Collider collision)
     {
-        if (!isMove)
+        if (collision.gameObject.CompareTag("Base"))
         {
-            return;
-        }
-        if (base_index >= bases.Length)
-        {
-            return;
-        }
-        Vector3 base_pos = new Vector3(bases[base_index].position.x, 1f, bases[base_index].position.z);
-        float dis = Vector3.Distance(base_pos, transform.position);
-        if (dis <= 0.5f)
-        {
-            BaseIndex++;
-            MoveBase();
+            string s = collision.name; 
+            int a = Convert.ToInt32(s[s.Length - 1]);
+
+            //is same going to the next base index
+            if (a - '0' == base_index)
+            {
+                BaseIndex++; 
+                if (_ball.DefenderDis <= 10.0f)
+                {
+                    isMove = false;
+                    return;
+                }
+            }
         }
     }
+
 
     public bool IsMove
     {
@@ -63,21 +61,47 @@ public class Batter : Player
             {
                 MoveBase();
             }
+            else
+            {
+                //stop moving
+                nav.ResetPath();
+            }
         }
     }
 
+    // want to go base index
     public int BaseIndex
     {
         get => base_index;
         set
         {
-            if (value < 0 || value >= bases.Length)
+            if (value < 0 )
             {
                 return;
             }
+
+            //change base status => else, goto 1base 
+            if (0 < value && value < bases.Length)
+                addIsBaseStatus.RaiseEvent(value - 1);
+            //arrive home
+            if (value >= bases.Length)
+            {
+                addScore.RaiseEvent(); 
+                //IsMove = false; => this will be null
+                
+                return;
+            }
             base_index = value;
-            MoveBase();
         }
     }
 
+    protected override void FrontBall()
+    {
+        //don't play
+    }
+
+    public void SetBases(Transform[] bases)
+    {
+        this.bases = bases;
+    }
 }

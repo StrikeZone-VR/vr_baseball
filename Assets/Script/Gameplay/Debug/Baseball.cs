@@ -9,9 +9,10 @@ public class Baseball : MonoBehaviour
     private Rigidbody _rigidbody;
     private Defender myDefender; //handling player
 
-    [SerializeField] bool isGroundBall = false; 
-    [SerializeField] bool isBatTouch = false;
-    [SerializeField] bool isPassing = false;
+    bool isGroundBall = false; 
+    bool isBatTouch = false;
+    bool isPassing = false;
+    private float defenderDis = 0.0f;
     [SerializeField] private VoidEventSO allTrackingOffEvent;
 
     private void Start()
@@ -71,10 +72,17 @@ public class Baseball : MonoBehaviour
             myDefender = value;
             if (myDefender)
             {
+                DefenderDis = 0;
                 isPassing = false;
-                allTrackingOffEvent.Raised();
+                allTrackingOffEvent.RaiseEvent();
             }
         }
+    }
+
+    public float DefenderDis
+    {
+        get => defenderDis;
+        set => defenderDis = value;
     }
 
     public void RemovePlayer()

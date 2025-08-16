@@ -8,7 +8,7 @@ public class VoidEventSO : ScriptableObject
 {
     public event UnityAction onEventRaised;
     
-    public void Raised()
+    public void RaiseEvent()
     {
         if(onEventRaised != null) onEventRaised.Invoke();
     }

@@ -6,10 +6,25 @@ public class Pitcher : Defender
 
     //_myBall
 
-    protected override void Start()
+    protected void Start()
     {
-        base.Start();
         HaveBall();
+    }
+
+    protected override void Update()
+    {
+        float dis = Vector3.Distance(defenderTransform.position, transform.position);
+            
+        if (dis <= 1.0f)
+        {
+            isInPosition = true;
+        }
+        else
+        {
+            isInPosition = false;
+        }
+
+        base.Update();
     }
     
     //protected override void Update()
