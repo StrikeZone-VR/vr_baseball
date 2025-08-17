@@ -1,3 +1,7 @@
+/// <summary>
+/// ⚾ VR 야구공 스크립트 - 물리, 구종, 타겟팅, 충돌 감지
+/// </summary>
+
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 
@@ -28,8 +32,7 @@ public class VRBaseball : MonoBehaviour
 
     [Header("참조")]
     public Transform strikeZone;
-    public PitchingZoneManager pitchingZoneManager; // 구버전 호환성
-    public UnifiedZoneManager unifiedZoneManager;    // 새로운 통합 매니저
+    public PitchingSystemManager pitchingSystemManager;    // 새로운 통합 시스템
 
     [Header("투구 보정 설정")]
     [Range(0f, 1f)]
@@ -140,27 +143,13 @@ public class VRBaseball : MonoBehaviour
         if (trailEffect == null)
             trailEffect = GetComponentInChildren<ParticleSystem>();
 
-        // 영역 매니저 찾기 (우선순위: UnifiedZoneManager > PitchingZoneManager > 구버전)
-        if (unifiedZoneManager == null)
+        // 시스템 매니저 찾기
+        if (pitchingSystemManager == null)
         {
-            unifiedZoneManager = FindObjectOfType<UnifiedZoneManager>();
-            if (unifiedZoneManager != null)
+            pitchingSystemManager = FindObjectOfType<PitchingSystemManager>();
+            if (pitchingSystemManager != null)
             {
-                Debug.Log("✅ UnifiedZoneManager 발견! 새로운 25구역 시스템 사용");
-            }
-        }
-
-        if (pitchingZoneManager == null && unifiedZoneManager == null)
-        {
-            pitchingZoneManager = FindObjectOfType<PitchingZoneManager>();
-            if (pitchingZoneManager == null)
-            {
-                // 기존 시스템 호환성을 위해 StrikeZoneAreaManager도 찾아봄
-                StrikeZoneAreaManager oldAreaManager = FindObjectOfType<StrikeZoneAreaManager>();
-                if (oldAreaManager != null)
-                {
-                    Debug.LogWarning("⚠️ 구버전 StrikeZoneAreaManager 발견. UnifiedZoneManager로 업그레이드하세요!");
-                }
+                Debug.Log("✅ PitchingSystemManager 발견! 새로운 25구역 시스템 사용");
             }
         }
 
@@ -173,10 +162,10 @@ public class VRBaseball : MonoBehaviour
                 Debug.Log($"✅ StrikeZone 태그로 발견: {strikeZoneObj.name}");
                 strikeZone = strikeZoneObj.transform;
             }
-            else if (pitchingZoneManager != null && pitchingZoneManager.strikeZoneParent != null)
+            else if (pitchingSystemManager != null && pitchingSystemManager.strikeZoneParent != null)
             {
-                Debug.Log($"✅ PitchingZoneManager에서 StrikeZone 발견: {pitchingZoneManager.strikeZoneParent.name}");
-                strikeZone = pitchingZoneManager.strikeZoneParent;
+                Debug.Log($"✅ PitchingSystemManager에서 StrikeZone 발견: {pitchingSystemManager.strikeZoneParent.name}");
+                strikeZone = pitchingSystemManager.strikeZoneParent;
             }
 
             // MiddleCenter 확인
@@ -313,24 +302,18 @@ public class VRBaseball : MonoBehaviour
         if (strikeZone == null)
         {
             strikeZone = GameObject.FindGameObjectWithTag("StrikeZone")?.transform;
-            if (strikeZone == null && pitchingZoneManager != null)
-                strikeZone = pitchingZoneManager.strikeZoneParent;
+            if (strikeZone == null && pitchingSystemManager != null)
+                strikeZone = pitchingSystemManager.strikeZoneParent;
         }
 
         // **새로운 통합 25구역 시스템 사용** - 랜덤 타겟 위치 가져오기
         Vector3 targetPosition;
 
-        if (enableRandomTargeting && unifiedZoneManager != null)
+        if (enableRandomTargeting && pitchingSystemManager != null)
         {
             // **🎯 새로운 통합 시스템 사용!**
-            targetPosition = unifiedZoneManager.GetRandomTargetPosition();
-            Debug.Log($"🎯 통합 25구역 시스템에서 랜덤 타겟 선택: {targetPosition}");
-        }
-        else if (enableRandomTargeting && pitchingZoneManager != null)
-        {
-            // **🎯 기존 시스템 사용**
-            targetPosition = pitchingZoneManager.GetRandomTargetPosition();
-            Debug.Log($"🎯 기존 25구역 시스템에서 랜덤 타겟 선택: {targetPosition}");
+            targetPosition = pitchingSystemManager.GetTargetPosition();
+            Debug.Log($"🎯 새로운 투수 시스템에서 랜덤 타겟 선택: {targetPosition}");
         }
         else if (strikeZone != null)
         {
@@ -539,9 +522,9 @@ public class VRBaseball : MonoBehaviour
                 bool isStrike = false;
 
                 // 스트라이크 판정 로직 개선 - 새로운 시스템 우선
-                if (pitchingZoneManager != null)
+                if (pitchingSystemManager != null)
                 {
-                    isStrike = pitchingZoneManager.IsStrikePosition(hitPosition);
+                    isStrike = pitchingSystemManager.IsStrikePosition(hitPosition);
                     Debug.Log($"🎯 새로운 25구역 시스템 판정: {(isStrike ? "⚾ Strike" : "❌ Ball")} (위치: {hitPosition})");
                 }
                 else
@@ -762,5 +745,31 @@ public class VRBaseball : MonoBehaviour
         Debug.Log($"🎯 포물선 계산: 거리={horizontalDistance:F2}m, 각도={angle * Mathf.Rad2Deg:F1}°, 최종속도={finalVelocity}");
 
         return finalVelocity;
+    }
+
+    /// <summary>
+    /// 공이 투구되었는지 확인
+    /// </summary>
+    /// <returns>투구 상태</returns>
+    public bool IsThrown()
+    {
+        return isThrown;
+    }
+
+    /// <summary>
+    /// 공이 특정 구역에 착지했을 때 호출되는 메서드
+    /// </summary>
+    /// <param name="isStrike">스트라이크 여부</param>
+    /// <param name="zoneName">구역 이름</param>
+    public void OnBallLandedInZone(bool isStrike, string zoneName)
+    {
+        Debug.Log($"⚾ 공이 {zoneName}에 착지! {(isStrike ? "Strike ⚾" : "Ball ❌")}");
+        
+        // VRPitchingManager에게 결과 전달
+        VRPitchingManager pitchingManager = FindObjectOfType<VRPitchingManager>();
+        if (pitchingManager != null)
+        {
+            pitchingManager.OnBallResult(isStrike, zoneName);
+        }
     }
 }

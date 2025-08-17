@@ -1,3 +1,7 @@
+/// <summary>
+/// 🎨 구종 선택 UI 관리자 - 직구, 커브, 슬라이더, 포크볼 선택 인터페이스
+/// </summary>
+
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
