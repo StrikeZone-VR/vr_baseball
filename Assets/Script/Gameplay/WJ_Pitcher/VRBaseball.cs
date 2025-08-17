@@ -28,7 +28,8 @@ public class VRBaseball : MonoBehaviour
 
     [Header("참조")]
     public Transform strikeZone;
-    public PitchingZoneManager pitchingZoneManager;
+    public PitchingZoneManager pitchingZoneManager; // 구버전 호환성
+    public UnifiedZoneManager unifiedZoneManager;    // 새로운 통합 매니저
 
     [Header("투구 보정 설정")]
     [Range(0f, 1f)]
@@ -139,8 +140,17 @@ public class VRBaseball : MonoBehaviour
         if (trailEffect == null)
             trailEffect = GetComponentInChildren<ParticleSystem>();
 
-        // 영역 매니저 찾기
-        if (pitchingZoneManager == null)
+        // 영역 매니저 찾기 (우선순위: UnifiedZoneManager > PitchingZoneManager > 구버전)
+        if (unifiedZoneManager == null)
+        {
+            unifiedZoneManager = FindObjectOfType<UnifiedZoneManager>();
+            if (unifiedZoneManager != null)
+            {
+                Debug.Log("✅ UnifiedZoneManager 발견! 새로운 25구역 시스템 사용");
+            }
+        }
+
+        if (pitchingZoneManager == null && unifiedZoneManager == null)
         {
             pitchingZoneManager = FindObjectOfType<PitchingZoneManager>();
             if (pitchingZoneManager == null)
@@ -149,7 +159,7 @@ public class VRBaseball : MonoBehaviour
                 StrikeZoneAreaManager oldAreaManager = FindObjectOfType<StrikeZoneAreaManager>();
                 if (oldAreaManager != null)
                 {
-                    Debug.LogWarning("⚠️ 구버전 StrikeZoneAreaManager 발견. PitchingZoneManager로 업그레이드하세요!");
+                    Debug.LogWarning("⚠️ 구버전 StrikeZoneAreaManager 발견. UnifiedZoneManager로 업그레이드하세요!");
                 }
             }
         }
@@ -307,14 +317,20 @@ public class VRBaseball : MonoBehaviour
                 strikeZone = pitchingZoneManager.strikeZoneParent;
         }
 
-        // **새로운 25구역 시스템 사용** - 랜덤 타겟 위치 가져오기
+        // **새로운 통합 25구역 시스템 사용** - 랜덤 타겟 위치 가져오기
         Vector3 targetPosition;
 
-        if (enableRandomTargeting && pitchingZoneManager != null)
+        if (enableRandomTargeting && unifiedZoneManager != null)
         {
-            // **🎯 새로운 확률 기반 시스템 사용!**
+            // **🎯 새로운 통합 시스템 사용!**
+            targetPosition = unifiedZoneManager.GetRandomTargetPosition();
+            Debug.Log($"🎯 통합 25구역 시스템에서 랜덤 타겟 선택: {targetPosition}");
+        }
+        else if (enableRandomTargeting && pitchingZoneManager != null)
+        {
+            // **🎯 기존 시스템 사용**
             targetPosition = pitchingZoneManager.GetRandomTargetPosition();
-            Debug.Log($"🎯 25구역 시스템에서 랜덤 타겟 선택: {targetPosition}");
+            Debug.Log($"🎯 기존 25구역 시스템에서 랜덤 타겟 선택: {targetPosition}");
         }
         else if (strikeZone != null)
         {
@@ -405,7 +421,7 @@ public class VRBaseball : MonoBehaviour
                     trailEffect.Stop();
                     Debug.Log("🎨 MainTrailEffect(흰색) 비활성화");
                 }
-                
+
                 // 빨간색 직구 이펙트만 활성화
                 if (fastBallSpeedLines != null)
                 {

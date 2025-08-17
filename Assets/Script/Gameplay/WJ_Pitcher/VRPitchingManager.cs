@@ -181,6 +181,14 @@ public class VRPitchingManager : MonoBehaviour
         }
         audioSrc.enabled = true;
 
+        // **UnifiedZoneManager 연결**
+        UnifiedZoneManager unifiedManager = FindObjectOfType<UnifiedZoneManager>();
+        if (unifiedManager != null)
+        {
+            currentBall.unifiedZoneManager = unifiedManager;
+            Debug.Log("✅ 새 공에 UnifiedZoneManager 연결 완료");
+        }
+
         // 공 이벤트 등록
         currentBall.OnBallThrown += OnBallThrown;
         currentBall.OnBallLanded += OnBallLanded;
@@ -196,7 +204,7 @@ public class VRPitchingManager : MonoBehaviour
         currentBall.transform.position = finalPosition;
 
         Debug.Log($"새 공 생성 완료! 위치: {finalPosition}, 공 번호: {ballsThrown}");
-        
+
         // **새 공 생성 후 이전 공들 정리** (딜레이 후 충돌 방지)
         Invoke(nameof(CleanupOldBalls), 1.0f); // 1초 후 정리
     }
@@ -485,7 +493,7 @@ public class VRPitchingManager : MonoBehaviour
                 Destroy(thrownBalls[i]);
             }
         }
-        
+
         // 리스트 완전히 비우기
         thrownBalls.Clear();
         Debug.Log($"🧹 모든 이전 공 제거 완료! 남은 공: {thrownBalls.Count}개");
