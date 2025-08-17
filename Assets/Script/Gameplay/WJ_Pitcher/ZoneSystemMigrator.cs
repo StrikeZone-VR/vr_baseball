@@ -20,8 +20,10 @@ public class ZoneSystemMigrator : MonoBehaviour
         "✅ 완전히 자동화된 설정입니다!";
 
     [Header("⚾ 볼존 설정")]
-    public Material ballZoneMaterial;
     public Color ballZoneColor = new Color(1f, 0f, 0f, 0.3f); // 반투명 빨강
+
+    // 내부적으로만 사용하는 머티리얼 (Inspector에 노출하지 않음)
+    private Material ballZoneMaterial;
 
     // ==============================================
     // 🔧 자동 설정
@@ -53,6 +55,9 @@ public class ZoneSystemMigrator : MonoBehaviour
             return;
         }
 
+        // BallZone 태그 생성
+        CreateBallZoneTag();
+
         // 새로운 GameObject 생성
         GameObject unifiedSystemObj = new GameObject("UnifiedZoneSystem");
         UnifiedZoneManager manager = unifiedSystemObj.AddComponent<UnifiedZoneManager>();
@@ -66,21 +71,71 @@ public class ZoneSystemMigrator : MonoBehaviour
         }
 
         // 볼존 머티리얼 설정
-        if (ballZoneMaterial != null)
-        {
-            manager.ballZoneMaterial = ballZoneMaterial;
-        }
-        else
-        {
-            // 기본 머티리얼 생성
-            Material defaultMaterial = CreateDefaultBallZoneMaterial();
-            manager.ballZoneMaterial = defaultMaterial;
-        }
+        SetupBallZoneMaterial(manager);
 
 #if UNITY_EDITOR
         EditorUtility.SetDirty(unifiedSystemObj);
 #endif
         Debug.Log("🎯 UnifiedZoneManager 생성 완료!");
+    }
+
+    /// <summary>
+    /// BallZone 머티리얼 자동 생성 및 설정
+    /// </summary>
+    private void SetupBallZoneMaterial(UnifiedZoneManager manager)
+    {
+        // 항상 기본 머티리얼 생성
+        Material defaultMaterial = CreateDefaultBallZoneMaterial();
+        manager.ballZoneMaterial = defaultMaterial;
+        ballZoneMaterial = defaultMaterial;
+        
+        Debug.Log("🎨 볼존 머티리얼 자동 생성 및 적용 완료!");
+    }
+
+    /// <summary>
+    /// BallZone 태그를 Unity에 추가
+    /// </summary>
+    private void CreateBallZoneTag()
+    {
+#if UNITY_EDITOR
+        // 태그가 이미 존재하는지 확인
+        string ballZoneTag = "BallZone";
+        
+        // SerializedObject를 사용하여 태그 매니저에 접근
+        UnityEngine.Object[] tagManager = UnityEditor.AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/TagManager.asset");
+        if (tagManager != null && tagManager.Length > 0)
+        {
+            UnityEditor.SerializedObject tagManagerSerializedObject = new UnityEditor.SerializedObject(tagManager[0]);
+            UnityEditor.SerializedProperty tagsProp = tagManagerSerializedObject.FindProperty("tags");
+            
+            // 태그가 이미 존재하는지 확인
+            bool tagExists = false;
+            for (int i = 0; i < tagsProp.arraySize; i++)
+            {
+                UnityEditor.SerializedProperty tagProp = tagsProp.GetArrayElementAtIndex(i);
+                if (tagProp.stringValue == ballZoneTag)
+                {
+                    tagExists = true;
+                    break;
+                }
+            }
+            
+            // 태그가 존재하지 않으면 추가
+            if (!tagExists)
+            {
+                tagsProp.InsertArrayElementAtIndex(0);
+                UnityEditor.SerializedProperty newTagProp = tagsProp.GetArrayElementAtIndex(0);
+                newTagProp.stringValue = ballZoneTag;
+                tagManagerSerializedObject.ApplyModifiedProperties();
+                
+                Debug.Log($"🏷️ '{ballZoneTag}' 태그 생성 완료!");
+            }
+            else
+            {
+                Debug.Log($"✅ '{ballZoneTag}' 태그가 이미 존재합니다.");
+            }
+        }
+#endif
     }
 
     private Transform FindStrikeZoneParent()
@@ -122,7 +177,7 @@ public class ZoneSystemMigrator : MonoBehaviour
     private Material CreateDefaultBallZoneMaterial()
     {
         Material mat = new Material(Shader.Find("Standard"));
-        mat.name = "BallZone_Material";
+        mat.name = "BallZone_Default_Material";
         mat.color = ballZoneColor;
 
         // 투명도 설정
