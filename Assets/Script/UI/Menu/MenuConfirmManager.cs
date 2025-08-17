@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.AddressableAssets;
 
 public class MenuConfirmManager : MonoBehaviour
 {
@@ -9,13 +10,25 @@ public class MenuConfirmManager : MonoBehaviour
     [SerializeField] private Button pitchingPracticeButton;
     [SerializeField] private Button hittingPracticeButton;
     [SerializeField] private Button exitButton;
+    [Space]
 
+    
     [Header("확인 대화상자")]
     [SerializeField] private GameObject confirmationDialogPanel;
     [SerializeField] private TextMeshProUGUI confirmationMessageText;
     [SerializeField] private Button confirmButton;
     [SerializeField] private Button cancelButton;
+    [Space]
 
+    
+    [Header("Listening to Event")]
+    [SerializeField] private SceneEventSO sceneEventSO;
+    
+    [Space]
+    [Header("Scenes")]
+    [SerializeField] private AssetReference gameScene;
+
+    
     private System.Action currentConfirmAction;
 
     void Start()
@@ -89,6 +102,7 @@ public class MenuConfirmManager : MonoBehaviour
     void OnOneOnOneMatch()
     {
         Debug.Log("1:1 매치 시작!");
+        sceneEventSO.RaiseEvent(gameScene);
         // TODO: 1:1 매치 씬 로드
     }
 

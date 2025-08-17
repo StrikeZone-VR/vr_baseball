@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,7 +12,17 @@ using UnityEngine.SceneManagement;
 public class SceneLoader : MonoBehaviour
 {
     [SerializeField] private SceneEventSO sceneEventSO;
-    private Scene currentScene = default;
+    
+    [SerializeField] private AssetReference GameReadyScene;
+    //[SerializeField] private AssetReference BatterScene;
+    //[SerializeField] private AssetReference PitcherScene;
+
+    private Scene currentScene;
+
+    private void Start()
+    {
+        currentScene = SceneManager.GetActiveScene();
+    }
 
     private void OnEnable()
     {
@@ -28,12 +39,16 @@ public class SceneLoader : MonoBehaviour
     {
         scene.LoadSceneAsync(LoadSceneMode.Additive, true).Completed += (AsyncOperationHandle<SceneInstance> op) => 
         {
-            //기존의 씬 제거
             if(currentScene != default)
             {
                 SceneManager.UnloadSceneAsync(currentScene);
             }
             currentScene = op.Result.Scene;
         };
+    }
+
+    public void QuitGame()
+    {
+        Application.Quit();        
     }
 }

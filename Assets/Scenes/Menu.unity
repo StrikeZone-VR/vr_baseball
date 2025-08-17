@@ -243,6 +243,56 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 20477990}
   m_CullTransparentMesh: 1
+--- !u!1 &119812697
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 119812699}
+  - component: {fileID: 119812698}
+  m_Layer: 0
+  m_Name: SceneLoader
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &119812698
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 119812697}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2797a38d6ea2be46ab469654a6f9efa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneEventSO: {fileID: 11400000, guid: 1614b16f3ac165a4095e5f466b87b7b6, type: 2}
+  GameReadyScene:
+    m_AssetGUID: 
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
+--- !u!4 &119812699
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 119812697}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -22.434855, y: 0.44655174, z: -19.24896}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &182603797
 GameObject:
   m_ObjectHideFlags: 0
@@ -1233,6 +1283,12 @@ MonoBehaviour:
   confirmationMessageText: {fileID: 315717984}
   confirmButton: {fileID: 1036193836}
   cancelButton: {fileID: 20477992}
+  sceneEventSO: {fileID: 11400000, guid: 1614b16f3ac165a4095e5f466b87b7b6, type: 2}
+  gameScene:
+    m_AssetGUID: 531d9c26cd5149740b5376dbd993540d
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
 --- !u!1 &1016233310
 GameObject:
   m_ObjectHideFlags: 0
@@ -1958,7 +2014,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1715644417}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 119812697}
+        m_TargetAssemblyTypeName: 
+        m_MethodName: 
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1715644417
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2781,3 +2849,4 @@ SceneRoots:
   - {fileID: 1967673736}
   - {fileID: 730544372}
   - {fileID: 968988765}
+  - {fileID: 119812699}
