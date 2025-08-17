@@ -2,587 +2,427 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 
-[System.Serializable]
-public class PitchingZoneArea
-{
-    public string areaName;
-    public Transform areaTransform;
-    public float probability;
-    public bool isStrike;
-    public Color visualColor;
-    public Vector3 areaSize;
-    
-    public PitchingZoneArea(string name, Transform transform, float prob, bool strike, Color color, Vector3 size)
-    {
-        areaName = name;
-        areaTransform = transform;
-        probability = prob;
-        isStrike = strike;
-        visualColor = color;
-        areaSize = size;
-    }
-}
-
+/// <summary>
+/// 🏟️ 25개 영역 투수 시스템 관리자
+/// - 중앙 3x3 (9개) = 스트라이크존
+/// - 주변 16개 = 볼존
+/// - 확률 기반 타겟팅
+/// - Scene View 전용 시각화
+/// </summary>
 public class PitchingZoneManager : MonoBehaviour
 {
-    [Header("🎯 25개 영역 시스템")]
-    [Tooltip("스트라이크존(9개) + 볼존(16개) = 총 25개 영역")]
-    
-    [Header("📊 확률 설정")]
-    [Range(40f, 80f)]
-    public float strikeZoneProbability = 65f;  // 스트라이크존 전체 확률
-    
-    [Header("🎯 스트라이크존 내부 확률 분배")]
-    [Range(10f, 40f)]
-    public float centerProbability = 25f;      // 중앙(MiddleCenter) 확률
-    [Range(60f, 90f)]  
-    public float edgeProbability = 75f;        // 나머지 8개 영역 확률 합계
-    
-    [Header("⚾ 볼존 확률 분배")]
-    [Range(60f, 90f)]
-    public float innerBallProbability = 70f;   // 스트라이크존 바로 인접한 8개 영역
-    [Range(10f, 40f)]
-    public float outerBallProbability = 30f;   // 가장 바깥쪽 8개 영역
-    
-    [Header("🎨 시각화 설정")]
-    public bool showInSceneView = true;
-    public bool showInPlayMode = false;
-    
-    [Header("📐 영역 크기 설정")]
-    public Vector3 strikeAreaSize = new Vector3(0.167f, 0.33f, 0.1f);
-    public Vector3 ballAreaSize = new Vector3(0.2f, 0.35f, 0.1f);
-    public float areaSpacing = 0.05f;
-    
-    [Header("🔗 참조")]
+    [Header("🎯 기본 설정")]
     public Transform strikeZoneParent;
-    
-    // 영역 컨테이너들
-    private List<PitchingZoneArea> allZones = new List<PitchingZoneArea>();
-    private List<PitchingZoneArea> strikeZones = new List<PitchingZoneArea>();
-    private List<PitchingZoneArea> ballZones = new List<PitchingZoneArea>();
-    
-    // 시각화 컨테이너
-    private GameObject ballZoneContainer;
-    
+
+    [Header("📊 확률 설정")]
+    [Range(0, 100)]
+    public float strikeProbability = 65f; // 스트라이크 확률
+
+    [Header("🎨 시각화 설정")]
+    public bool showZonesInSceneView = true;
+    public float zoneSize = 0.5f;
+
+    // ==============================================
+    // 💾 내부 데이터
+    // ==============================================
+    private List<PitchingZone> allZones = new List<PitchingZone>();
+    private List<PitchingZone> strikeZones = new List<PitchingZone>();
+    private List<PitchingZone> ballZones = new List<PitchingZone>();
+
+    private GameObject visualContainer;
+    private Vector3 zoneCenter = Vector3.zero;
+    private const float GRID_SIZE = 5; // 5x5 그리드
+    private const float ZONE_SPACING = 0.3f;
+
+    // ==============================================
+    // 🏗️ 시스템 초기화
+    // ==============================================
     void Start()
     {
+        Debug.Log("🏟️ 25개 영역 투수 시스템 초기화 시작...");
         InitializeZoneSystem();
     }
-    
+
     private void InitializeZoneSystem()
     {
-        Debug.Log("🏟️ 25개 영역 투수 시스템 초기화 시작...");
-        
-        // 기존 볼존 정리
-        CleanupOldBallZones();
-        
-        // 스트라이크존 수집 및 설정
+        FindStrikeZoneCenter();
+        CreateZoneGrid();
         SetupStrikeZones();
-        
-        // 볼존 생성
         CreateBallZones();
-        
-        // 확률 정규화
         NormalizeProbabilities();
-        
-        // 시각화 설정
-        SetupVisualization();
-        
+        CreateVisualization();
+
         Debug.Log($"✅ 초기화 완료! 스트라이크: {strikeZones.Count}개, 볼: {ballZones.Count}개, 총: {allZones.Count}개");
         LogProbabilityDistribution();
     }
-    
-    private void CleanupOldBallZones()
+
+    private void FindStrikeZoneCenter()
     {
-        // 태그 대신 이름으로만 검색해서 기존 Ball_Area 오브젝트들 삭제
-        GameObject[] allObjects = FindObjectsOfType<GameObject>();
-        int cleanedCount = 0;
-        
-        foreach (GameObject obj in allObjects)
+        if (strikeZoneParent != null)
         {
-            if (obj.name.StartsWith("Ball_Area") || obj.name.StartsWith("BallZone_"))
+            // StrikeZone 중심점 계산
+            Bounds bounds = new Bounds();
+            bool boundsSet = false;
+
+            foreach (Transform child in strikeZoneParent)
             {
-                DestroyImmediate(obj);
-                cleanedCount++;
+                if (child.gameObject.activeSelf)
+                {
+                    Renderer renderer = child.GetComponent<Renderer>();
+                    if (renderer != null)
+                    {
+                        if (!boundsSet)
+                        {
+                            bounds = renderer.bounds;
+                            boundsSet = true;
+                        }
+                        else
+                        {
+                            bounds.Encapsulate(renderer.bounds);
+                        }
+                    }
+                }
+            }
+
+            if (boundsSet)
+            {
+                zoneCenter = bounds.center;
             }
         }
-        
-        // 자식 오브젝트들도 확인
-        for (int i = 0; i < transform.childCount; i++)
+
+        // 기본값 설정
+        if (zoneCenter == Vector3.zero)
         {
-            Transform child = transform.GetChild(i);
-            if (child.name.StartsWith("Ball_Area_") || child.name.StartsWith("BallZone_"))
+            zoneCenter = transform.position + new Vector3(0, 0.5f, -14f);
+        }
+
+        Debug.Log($"🎯 존 중심점: {zoneCenter}");
+    }
+
+    private void CreateZoneGrid()
+    {
+        allZones.Clear();
+
+        // 5x5 그리드 생성
+        for (int row = 0; row < GRID_SIZE; row++)
+        {
+            for (int col = 0; col < GRID_SIZE; col++)
             {
-                DestroyImmediate(child.gameObject);
-                cleanedCount++;
-                i--; // 인덱스 조정
+                Vector3 position = CalculateZonePosition(row, col);
+                string zoneName = GetZoneName(row, col);
+                bool isStrike = IsStrikeZone(row, col);
+
+                PitchingZone zone = new PitchingZone(zoneName, position, isStrike, row, col);
+                allZones.Add(zone);
             }
         }
-        
-        if (cleanedCount > 0)
-        {
-            Debug.Log($"🗑️ {cleanedCount}개의 기존 Ball_Area 오브젝트 정리 완료");
-        }
+
+        Debug.Log($"🏗️ {GRID_SIZE}x{GRID_SIZE} 그리드 생성 완료: {allZones.Count}개 영역");
     }
-    
-    private void SetupStrikeZones()
+
+    private Vector3 CalculateZonePosition(int row, int col)
     {
-        if (strikeZoneParent == null)
-        {
-            Debug.LogError("❌ StrikeZone Parent가 설정되지 않았습니다!");
-            return;
-        }
-        
-        strikeZones.Clear();
-        
-        for (int i = 0; i < strikeZoneParent.childCount; i++)
-        {
-            Transform child = strikeZoneParent.GetChild(i);
-            
-            // 중앙인지 확인
-            bool isCenter = child.name.ToLower().Contains("center") && child.name.ToLower().Contains("middle");
-            
-            // 확률 계산
-            float individualProb;
-            if (isCenter)
-            {
-                individualProb = strikeZoneProbability * (centerProbability / 100f);
-            }
-            else
-            {
-                individualProb = strikeZoneProbability * (edgeProbability / 100f) / 8f; // 8개로 나눔
-            }
-            
-            // 색상 설정
-            Color zoneColor = isCenter ? Color.yellow : Color.green;
-            
-            PitchingZoneArea strikeZone = new PitchingZoneArea(
-                child.name, 
-                child, 
-                individualProb, 
-                true, 
-                zoneColor, 
-                strikeAreaSize
-            );
-            
-            strikeZones.Add(strikeZone);
-            allZones.Add(strikeZone);
-        }
-        
-        Debug.Log($"🎯 스트라이크존 {strikeZones.Count}개 설정 완료");
+        // 그리드의 중심을 기준으로 위치 계산
+        float offsetX = (col - 2) * ZONE_SPACING; // -2부터 +2까지
+        float offsetY = (2 - row) * ZONE_SPACING; // 상단이 +2, 하단이 -2
+
+        return zoneCenter + new Vector3(offsetX, offsetY, 0);
     }
-    
-    private void CreateBallZones()
+
+    private string GetZoneName(int row, int col)
     {
-        ballZones.Clear();
-        
-        // 볼존 컨테이너 생성
-        if (ballZoneContainer != null) DestroyImmediate(ballZoneContainer);
-        ballZoneContainer = new GameObject("BallZones_Container");
-        ballZoneContainer.transform.parent = transform;
-        ballZoneContainer.transform.localPosition = Vector3.zero;
-        
-        // 스트라이크존 경계 계산
-        Bounds strikeBounds = CalculateStrikeZoneBounds();
-        
-        // 5x5 그리드에서 16개 볼존 위치 계산
-        List<BallZoneData> ballPositions = Calculate25GridPositions(strikeBounds);
-        
-        foreach (var ballData in ballPositions)
+        if (IsStrikeZone(row, col))
         {
-            CreateBallZoneAt(ballData);
-        }
-        
-        Debug.Log($"⚾ 볼존 {ballZones.Count}개 생성 완료");
-    }
-    
-    [System.Serializable]
-    public class BallZoneData
-    {
-        public Vector3 position;
-        public string zoneName;
-        public bool isInnerBall; // 스트라이크존 바로 인접한 8개 영역
-        
-        public BallZoneData(Vector3 pos, string name, bool inner)
-        {
-            position = pos;
-            zoneName = name;
-            isInnerBall = inner;
-        }
-    }
-    
-    private List<BallZoneData> Calculate25GridPositions(Bounds strikeBounds)
-    {
-        List<BallZoneData> ballData = new List<BallZoneData>();
-        
-        Vector3 center = strikeBounds.center;
-        Vector3 strikeSize = strikeBounds.size;
-        
-        // 5x5 그리드 셀 크기 (스트라이크존 + 여유공간 포함)
-        float cellWidth = (strikeSize.x + areaSpacing * 2) / 3f;   // 3x3 스트라이크존 기준
-        float cellHeight = (strikeSize.y + areaSpacing * 2) / 3f;
-        
-        // 그리드 시작점 (5x5 그리드의 왼쪽 위)
-        Vector3 gridOrigin = center + new Vector3(-cellWidth * 2, cellHeight * 2, 0);
-        
-        int ballIndex = 0;
-        
-        // 5x5 그리드 순회
-        for (int row = 0; row < 5; row++)
-        {
-            for (int col = 0; col < 5; col++)
-            {
-                // 중앙 3x3 영역(스트라이크존) 건너뛰기
-                if (row >= 1 && row <= 3 && col >= 1 && col <= 3)
-                    continue;
-                
-                Vector3 position = gridOrigin + new Vector3(col * cellWidth, -row * cellHeight, center.z);
-                
-                // 내부/외부 볼존 구분
-                bool isInnerBall = IsInnerBallZone(row, col);
-                
-                string zoneName = $"BallZone_{ballIndex:D2}_{GetZoneLocationName(row, col)}";
-                
-                ballData.Add(new BallZoneData(position, zoneName, isInnerBall));
-                ballIndex++;
-            }
-        }
-        
-        return ballData;
-    }
-    
-    private bool IsInnerBallZone(int row, int col)
-    {
-        // 스트라이크존(1-3, 1-3) 바로 인접한 영역들
-        // 즉, 한 칸 간격으로 둘러싸는 영역들
-        
-        // 상단 중앙 (row=0, col=1,2,3)
-        if (row == 0 && col >= 1 && col <= 3) return true;
-        
-        // 하단 중앙 (row=4, col=1,2,3)  
-        if (row == 4 && col >= 1 && col <= 3) return true;
-        
-        // 좌측 중앙 (col=0, row=1,2,3)
-        if (col == 0 && row >= 1 && row <= 3) return true;
-        
-        // 우측 중앙 (col=4, row=1,2,3)
-        if (col == 4 && row >= 1 && row <= 3) return true;
-        
-        return false; // 나머지는 외부 볼존
-    }
-    
-    private string GetZoneLocationName(int row, int col)
-    {
-        if (row == 0)
-        {
-            if (col == 0) return "TopLeft";
-            if (col == 1) return "TopCenterLeft";
-            if (col == 2) return "TopCenter";
-            if (col == 3) return "TopCenterRight";
-            if (col == 4) return "TopRight";
-        }
-        else if (row == 1)
-        {
-            if (col == 0) return "MiddleLeft";
-            if (col == 4) return "MiddleRight";
-        }
-        else if (row == 2)
-        {
-            if (col == 0) return "CenterLeft";
-            if (col == 4) return "CenterRight";
-        }
-        else if (row == 3)
-        {
-            if (col == 0) return "LowerMiddleLeft";
-            if (col == 4) return "LowerMiddleRight";
-        }
-        else if (row == 4)
-        {
-            if (col == 0) return "BottomLeft";
-            if (col == 1) return "BottomCenterLeft";
-            if (col == 2) return "BottomCenter";
-            if (col == 3) return "BottomCenterRight";
-            if (col == 4) return "BottomRight";
-        }
-        
-        return $"Row{row}Col{col}";
-    }
-    
-    private void CreateBallZoneAt(BallZoneData ballData)
-    {
-        // 볼존 GameObject 생성
-        GameObject ballZoneObj = new GameObject(ballData.zoneName);
-        ballZoneObj.transform.parent = ballZoneContainer.transform;
-        ballZoneObj.transform.position = ballData.position;
-        // 태그는 설정하지 않음 (오류 방지)
-        
-        // Collider 추가
-        BoxCollider collider = ballZoneObj.AddComponent<BoxCollider>();
-        collider.size = ballAreaSize;
-        collider.isTrigger = true;
-        
-        // 확률 계산
-        float ballZoneTotalProb = 100f - strikeZoneProbability;
-        float individualProb;
-        
-        if (ballData.isInnerBall)
-        {
-            // 내부 볼존 8개: 70% 확률을 8개로 분배
-            individualProb = ballZoneTotalProb * (innerBallProbability / 100f) / 8f;
+            // 스트라이크존 이름 (3x3 그리드)
+            string[] rowNames = { "Top", "Middle", "Bottom" };
+            string[] colNames = { "Left", "Center", "Right" };
+            return $"{rowNames[row - 1]}{colNames[col - 1]}";
         }
         else
         {
-            // 외부 볼존 8개: 30% 확률을 8개로 분배  
-            individualProb = ballZoneTotalProb * (outerBallProbability / 100f) / 8f;
+            // 볼존 이름
+            return $"BallZone_{row:D2}_{col:D2}";
         }
-        
-        // 시각화 색상 설정
-        Color zoneColor = ballData.isInnerBall ? 
-            new Color(1f, 0.5f, 0f, 0.7f) :  // 주황색 (내부)
-            new Color(1f, 0.2f, 0.2f, 0.7f); // 빨간색 (외부)
-        
-        // 볼존 데이터 생성
-        PitchingZoneArea ballZone = new PitchingZoneArea(
-            ballData.zoneName,
-            ballZoneObj.transform,
-            individualProb,
-            false,
-            zoneColor,
-            ballAreaSize
-        );
-        
-        ballZones.Add(ballZone);
-        allZones.Add(ballZone);
-        
-        // 시각화 큐브 생성
-        CreateZoneVisual(ballZoneObj, ballZone);
     }
-    
-    private void CreateZoneVisual(GameObject parentObj, PitchingZoneArea zone)
+
+    private bool IsStrikeZone(int row, int col)
     {
-        GameObject visual = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        visual.name = $"Visual_{zone.areaName}";
-        visual.transform.parent = parentObj.transform;
-        visual.transform.localPosition = Vector3.zero;
-        visual.transform.localScale = zone.areaSize;
-        
-        // Collider 제거 (부모에 이미 있음)
-        Collider visualCollider = visual.GetComponent<Collider>();
-        if (visualCollider != null) DestroyImmediate(visualCollider);
-        
-        // 머티리얼 설정
-        Renderer renderer = visual.GetComponent<Renderer>();
-        Material material = new Material(Shader.Find("Standard"));
-        material.color = zone.visualColor;
-        
-        // 반투명 설정
-        material.SetFloat("_Mode", 3); // Transparent
-        material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-        material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-        material.SetInt("_ZWrite", 0);
-        material.DisableKeyword("_ALPHATEST_ON");
-        material.EnableKeyword("_ALPHABLEND_ON");
-        material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
-        material.renderQueue = 3000;
-        
-        renderer.material = material;
-        
-        // Play 모드에서 렌더링 제어
-        renderer.enabled = showInPlayMode || !Application.isPlaying;
+        // 중앙 3x3 영역이 스트라이크존 (인덱스 1,2,3의 행과 열)
+        return row >= 1 && row <= 3 && col >= 1 && col <= 3;
     }
-    
-    private Bounds CalculateStrikeZoneBounds()
+
+    // ==============================================
+    // 🎯 스트라이크존 설정
+    // ==============================================
+    private void SetupStrikeZones()
     {
-        if (strikeZones.Count == 0 || strikeZoneParent == null)
-        {
-            return new Bounds(transform.position, Vector3.one);
-        }
-        
-        Bounds totalBounds = new Bounds();
-        bool boundsInitialized = false;
-        
-        foreach (var zone in strikeZones)
-        {
-            if (zone.areaTransform != null)
-            {
-                Collider collider = zone.areaTransform.GetComponent<Collider>();
-                if (collider != null)
-                {
-                    if (!boundsInitialized)
-                    {
-                        totalBounds = collider.bounds;
-                        boundsInitialized = true;
-                    }
-                    else
-                    {
-                        totalBounds.Encapsulate(collider.bounds);
-                    }
-                }
-            }
-        }
-        
-        return totalBounds;
-    }
-    
-    private void NormalizeProbabilities()
-    {
-        float totalProb = allZones.Sum(zone => zone.probability);
-        
-        if (totalProb > 0)
-        {
-            foreach (var zone in allZones)
-            {
-                zone.probability = (zone.probability / totalProb) * 100f;
-            }
-        }
-        
-        Debug.Log($"📊 확률 정규화 완료: 총합 {totalProb:F1}% -> 100%");
-    }
-    
-    private void SetupVisualization()
-    {
-        // 모든 시각화 오브젝트의 렌더링 상태 설정
+        strikeZones.Clear();
+
         foreach (var zone in allZones)
         {
-            if (zone.areaTransform != null)
+            if (zone.isStrikeZone)
             {
-                Transform visualChild = zone.areaTransform.Find($"Visual_{zone.areaName}");
-                if (visualChild != null)
+                strikeZones.Add(zone);
+            }
+        }
+
+        // 기존 StrikeZone 객체들과 연결
+        if (strikeZoneParent != null)
+        {
+            StrikeZone[] existingStrikeZones = strikeZoneParent.GetComponentsInChildren<StrikeZone>();
+            for (int i = 0; i < existingStrikeZones.Length && i < strikeZones.Count; i++)
+            {
+                strikeZones[i].linkedStrikeZone = existingStrikeZones[i];
+            }
+        }
+
+        Debug.Log($"🎯 스트라이크존 {strikeZones.Count}개 설정 완료");
+    }
+
+    // ==============================================
+    // ⚾ 볼존 생성
+    // ==============================================
+    private void CreateBallZones()
+    {
+        ballZones.Clear();
+
+        foreach (var zone in allZones)
+        {
+            if (!zone.isStrikeZone)
+            {
+                ballZones.Add(zone);
+            }
+        }
+
+        Debug.Log($"⚾ 볼존 {ballZones.Count}개 생성 완료");
+    }
+
+    // ==============================================
+    // 📊 확률 정규화
+    // ==============================================
+    private void NormalizeProbabilities()
+    {
+        float ballProbability = 100f - strikeProbability;
+
+        // 스트라이크존 확률 분배
+        if (strikeZones.Count > 0)
+        {
+            float centerProb = strikeProbability * 0.3f; // 중앙에 30%
+            float edgeProb = strikeProbability * 0.7f / 8f; // 나머지 8개에 분배
+
+            foreach (var zone in strikeZones)
+            {
+                if (zone.zoneName == "MiddleCenter")
                 {
-                    Renderer renderer = visualChild.GetComponent<Renderer>();
-                    if (renderer != null)
-                    {
-                        renderer.enabled = showInPlayMode || (!Application.isPlaying && showInSceneView);
-                    }
+                    zone.probability = centerProb;
+                }
+                else
+                {
+                    zone.probability = edgeProb;
                 }
             }
         }
+
+        // 볼존 확률 분배
+        if (ballZones.Count > 0)
+        {
+            float ballZoneProb = ballProbability / ballZones.Count;
+            foreach (var zone in ballZones)
+            {
+                zone.probability = ballZoneProb;
+            }
+        }
+
+        // 총합 계산 및 검증
+        float totalProb = allZones.Sum(z => z.probability);
+        Debug.Log($"📊 확률 정규화 완료: 총합 {totalProb:F1}%");
     }
-    
+
     private void LogProbabilityDistribution()
     {
         float strikeTotal = strikeZones.Sum(z => z.probability);
         float ballTotal = ballZones.Sum(z => z.probability);
-        float innerBallTotal = ballZones.Where(z => z.areaName.Contains("Middle") || z.areaName.Contains("Center")).Sum(z => z.probability);
-        
-        Debug.Log($"📈 확률 분배 현황:");
+
+        Debug.Log("📈 확률 분배 현황:");
         Debug.Log($"   🎯 스트라이크존: {strikeTotal:F1}% ({strikeZones.Count}개)");
         Debug.Log($"   ⚾ 볼존 전체: {ballTotal:F1}% ({ballZones.Count}개)");
-        Debug.Log($"   🔸 내부 볼존: {innerBallTotal:F1}%");
-        Debug.Log($"   🔹 외부 볼존: {(ballTotal - innerBallTotal):F1}%");
     }
-    
-    // 공개 메서드: 랜덤 타겟 위치 반환
+
+    // ==============================================
+    // 🎯 랜덤 타겟 선택
+    // ==============================================
     public Vector3 GetRandomTargetPosition()
     {
         if (allZones.Count == 0)
         {
-            Debug.LogError("❌ 영역이 초기화되지 않았습니다!");
-            return transform.position;
+            Debug.LogWarning("⚠️ 존이 초기화되지 않음!");
+            return zoneCenter;
         }
-        
-        // 누적 확률 기반 선택
+
+        // 확률 기반 선택
         float randomValue = Random.Range(0f, 100f);
-        float cumulativeProb = 0f;
-        
+        float currentSum = 0f;
+
         foreach (var zone in allZones)
         {
-            cumulativeProb += zone.probability;
-            if (randomValue <= cumulativeProb)
+            currentSum += zone.probability;
+            if (randomValue <= currentSum)
             {
-                Vector3 targetPos = GetRandomPositionInZone(zone);
-                
-                string zoneType = zone.isStrike ? "⚾ Strike" : "❌ Ball";
-                Debug.Log($"🎯 선택: {zone.areaName} ({zoneType}) - 확률: {zone.probability:F1}%");
-                
-                return targetPos;
+                string zoneType = zone.isStrikeZone ? "⚾ Strike" : "❌ Ball";
+                Debug.Log($"🎯 선택: {zone.zoneName} ({zoneType}) - 확률: {zone.probability:F1}%");
+                return zone.position;
             }
         }
-        
-        // 마지막 영역 반환 (안전장치)
-        return GetRandomPositionInZone(allZones.Last());
+
+        // 마지막 존 반환 (폴백)
+        var lastZone = allZones.Last();
+        string lastType = lastZone.isStrikeZone ? "⚾ Strike" : "❌ Ball";
+        Debug.Log($"🎯 폴백 선택: {lastZone.zoneName} ({lastType})");
+        return lastZone.position;
     }
-    
-    private Vector3 GetRandomPositionInZone(PitchingZoneArea zone)
-    {
-        Vector3 basePos = zone.areaTransform.position;
-        Vector3 size = zone.areaSize;
-        
-        Vector3 randomOffset = new Vector3(
-            Random.Range(-size.x / 2f, size.x / 2f),
-            Random.Range(-size.y / 2f, size.y / 2f),
-            Random.Range(-size.z / 2f, size.z / 2f)
-        );
-        
-        return basePos + randomOffset;
-    }
-    
+
+    // ==============================================
+    // ⚖️ 스트라이크/볼 판정
+    // ==============================================
     public bool IsStrikePosition(Vector3 position)
     {
-        foreach (var zone in strikeZones)
-        {
-            if (zone.areaTransform != null)
-            {
-                Collider collider = zone.areaTransform.GetComponent<Collider>();
-                if (collider != null && collider.bounds.Contains(position))
-                {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-    
-    // 통계 정보 반환
-    public (int strikes, int balls, int total) GetZoneStatistics()
-    {
-        return (strikeZones.Count, ballZones.Count, allZones.Count);
-    }
-    
-    // Inspector에서 설정 변경 시 실시간 업데이트
-    void OnValidate()
-    {
-        if (Application.isPlaying && allZones.Count > 0)
-        {
-            // 확률 재계산
-            SetupStrikeZones();
-            CreateBallZones();
-            NormalizeProbabilities();
-            SetupVisualization();
-        }
-    }
-    
-    // Scene View Gizmos
-    void OnDrawGizmos()
-    {
-        if (!showInSceneView || allZones == null || allZones.Count == 0) return;
-        
+        if (allZones.Count == 0) return false;
+
+        // 가장 가까운 존 찾기
+        PitchingZone closestZone = null;
+        float minDistance = float.MaxValue;
+
         foreach (var zone in allZones)
         {
-            if (zone.areaTransform != null)
+            float distance = Vector3.Distance(position, zone.position);
+            if (distance < minDistance)
             {
-                Gizmos.color = zone.visualColor;
-                Gizmos.DrawWireCube(zone.areaTransform.position, zone.areaSize);
-                
-                #if UNITY_EDITOR
-                Vector3 labelPos = zone.areaTransform.position + Vector3.up * (zone.areaSize.y / 2f + 0.1f);
-                string label = $"{zone.areaName}\n{zone.probability:F1}%";
-                UnityEditor.Handles.Label(labelPos, label);
-                #endif
+                minDistance = distance;
+                closestZone = zone;
             }
         }
-        
-        // 시스템 정보 표시
-        #if UNITY_EDITOR
-        if (strikeZoneParent != null)
+
+        return closestZone != null && closestZone.isStrikeZone;
+    }
+
+    // ==============================================
+    // 🎨 시각화
+    // ==============================================
+    private void CreateVisualization()
+    {
+        if (!showZonesInSceneView) return;
+
+        // 기존 시각화 제거
+        if (visualContainer != null)
         {
-            Vector3 infoPos = strikeZoneParent.position + Vector3.up * 2.5f;
-            string info = $"🏟️ 25구역 투수 시스템\n" +
-                         $"🎯 스트라이크: {strikeZones.Count}개 ({strikeZoneProbability}%)\n" +
-                         $"⚾ 볼: {ballZones.Count}개 ({(100 - strikeZoneProbability)}%)\n" +
-                         $"📊 총 {allZones.Count}개 영역";
-            UnityEditor.Handles.Label(infoPos, info);
+            if (Application.isPlaying)
+                Destroy(visualContainer);
+            else
+                DestroyImmediate(visualContainer);
         }
-        #endif
+
+        // 새 컨테이너 생성
+        visualContainer = new GameObject("25Zone_Visualization");
+        visualContainer.transform.SetParent(transform);
+
+        foreach (var zone in allZones)
+        {
+            CreateZoneVisual(zone);
+        }
+
+        Debug.Log($"🎨 시각화 생성 완료: {allZones.Count}개 존");
+    }
+
+    private void CreateZoneVisual(PitchingZone zone)
+    {
+        GameObject visual = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        visual.name = $"Zone_{zone.zoneName}";
+        visual.transform.SetParent(visualContainer.transform);
+        visual.transform.position = zone.position;
+        visual.transform.localScale = Vector3.one * zoneSize;
+
+        // 색상 설정
+        Renderer renderer = visual.GetComponent<Renderer>();
+        if (zone.isStrikeZone)
+        {
+            if (zone.zoneName == "MiddleCenter")
+                renderer.material.color = Color.yellow; // 중앙
+            else
+                renderer.material.color = Color.green;  // 스트라이크존
+        }
+        else
+        {
+            renderer.material.color = Color.red; // 볼존
+        }
+
+        // 반투명 설정
+        renderer.material.color = new Color(
+            renderer.material.color.r,
+            renderer.material.color.g,
+            renderer.material.color.b,
+            0.6f
+        );
+
+        // Collider 제거 (시각화 전용)
+        if (visual.GetComponent<Collider>())
+        {
+            DestroyImmediate(visual.GetComponent<Collider>());
+        }
+    }
+
+    void OnDrawGizmos()
+    {
+        if (!showZonesInSceneView || allZones == null) return;
+
+        foreach (var zone in allZones)
+        {
+            // 색상 설정
+            if (zone.isStrikeZone)
+            {
+                Gizmos.color = zone.zoneName == "MiddleCenter" ? Color.yellow : Color.green;
+            }
+            else
+            {
+                Gizmos.color = Color.red;
+            }
+
+            // 반투명 설정
+            Color color = Gizmos.color;
+            color.a = 0.6f;
+            Gizmos.color = color;
+
+            // 박스 그리기
+            Gizmos.DrawCube(zone.position, Vector3.one * zoneSize);
+
+            // 테두리 그리기
+            Gizmos.color = Color.white;
+            Gizmos.DrawWireCube(zone.position, Vector3.one * zoneSize);
+        }
+    }
+}
+
+/// <summary>
+/// 🎯 투구 존 데이터 클래스
+/// </summary>
+[System.Serializable]
+public class PitchingZone
+{
+    public string zoneName;
+    public Vector3 position;
+    public float probability;
+    public bool isStrikeZone;
+    public int gridRow;
+    public int gridCol;
+    public StrikeZone linkedStrikeZone; // 기존 StrikeZone 연결
+
+    public PitchingZone(string name, Vector3 pos, bool strike, int row, int col)
+    {
+        zoneName = name;
+        position = pos;
+        isStrikeZone = strike;
+        gridRow = row;
+        gridCol = col;
+        probability = 0f;
+        linkedStrikeZone = null;
     }
 }
