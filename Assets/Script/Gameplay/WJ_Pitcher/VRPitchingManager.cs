@@ -1,3 +1,7 @@
+/// <summary>
+/// 🎯 VR 투수 게임 메인 매니저 - 공 생성, 던지기, 카운트 관리
+/// </summary>
+
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using Unity.XR.CoreUtils;
@@ -181,12 +185,16 @@ public class VRPitchingManager : MonoBehaviour
         }
         audioSrc.enabled = true;
 
-        // **UnifiedZoneManager 연결**
-        UnifiedZoneManager unifiedManager = FindObjectOfType<UnifiedZoneManager>();
-        if (unifiedManager != null)
+        // **PitchingSystemManager 연결**
+        PitchingSystemManager pitchingSystem = FindObjectOfType<PitchingSystemManager>();
+        if (pitchingSystem != null)
         {
-            currentBall.unifiedZoneManager = unifiedManager;
-            Debug.Log("✅ 새 공에 UnifiedZoneManager 연결 완료");
+            currentBall.pitchingSystemManager = pitchingSystem;
+            Debug.Log("✅ 새 공에 PitchingSystemManager 연결 완료");
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ PitchingSystemManager를 찾을 수 없습니다!");
         }
 
         // 공 이벤트 등록
@@ -507,6 +515,49 @@ public class VRPitchingManager : MonoBehaviour
     public int GetBallsThrown() => ballsThrown;
     public int GetMaxBalls() => maxBalls;
     public VRBaseball GetCurrentBall() => currentBall;
+
+    /// <summary>
+    /// 공이 특정 구역에 착지했을 때 호출되는 메서드
+    /// </summary>
+    /// <param name="isStrike">스트라이크 여부</param>
+    /// <param name="zoneName">구역 이름</param>
+    public void OnBallResult(bool isStrike, string zoneName)
+    {
+        Debug.Log($"⚾ 공 결과 수신: {zoneName} - {(isStrike ? "Strike ⚾" : "Ball ❌")}");
+        
+        // 카운트 업데이트
+        if (isStrike)
+        {
+            strikes++;
+            PlayAudio(strikeSound);
+            Debug.Log($"⚾ Strike! 현재 카운트: {balls}-{strikes}");
+        }
+        else
+        {
+            balls++;
+            PlayAudio(ballSound);
+            Debug.Log($"❌ Ball! 현재 카운트: {balls}-{strikes}");
+        }
+        
+        // 이벤트 발생
+        OnCountChanged?.Invoke(strikes, balls);
+        OnPitchResult?.Invoke(isStrike);
+        
+        // 카운트 리셋 체크 (3볼 또는 3스트라이크)
+        if (balls >= 3 || strikes >= 3)
+        {
+            Debug.Log($"🔄 카운트 리셋! (볼: {balls}, 스트라이크: {strikes})");
+            ResetCount();
+        }
+    }
+
+    private void PlayAudio(AudioClip clip)
+    {
+        if (audioSource != null && clip != null)
+        {
+            audioSource.PlayOneShot(clip);
+        }
+    }
 
     void OnDestroy()
     {

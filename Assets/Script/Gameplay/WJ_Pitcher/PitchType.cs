@@ -1,3 +1,7 @@
+/// <summary>
+/// ⚾ 구종 정의 및 데이터 클래스 - 직구, 커브, 슬라이더, 포크볼 설정
+/// </summary>
+
 using UnityEngine;
 
 [System.Serializable]

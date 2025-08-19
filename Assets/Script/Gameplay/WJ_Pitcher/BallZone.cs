@@ -1,3 +1,7 @@
+/// <summary>
+/// ⚾ 볼 존 충돌 감지 스크립트 - 공이 닿으면 볼 판정 처리
+/// </summary>
+
 using UnityEngine;
 using System.Collections;
 
@@ -14,7 +18,7 @@ public class BallZone : MonoBehaviour
     [Header("오디오")]
     public AudioClip ballSound;
 
-    private UnifiedZoneManager zoneManager;
+    private PitchingSystemManager systemManager;
     private Renderer zoneRenderer;
     private AudioSource audioSource;
     private Material originalMaterial;
@@ -23,9 +27,9 @@ public class BallZone : MonoBehaviour
     // ==============================================
     // 🏗️ 초기화
     // ==============================================
-    public void SetupBallZone(UnifiedZoneManager manager)
+    public void SetupBallZone(PitchingSystemManager manager)
     {
-        zoneManager = manager;
+        systemManager = manager;
 
         // 컴포넌트 설정
         zoneRenderer = GetComponent<Renderer>();
@@ -49,7 +53,7 @@ public class BallZone : MonoBehaviour
     void OnTriggerEnter(Collider other)
     {
         VRBaseball baseball = other.GetComponent<VRBaseball>();
-        if (baseball != null)
+        if (baseball != null && baseball.IsThrown())
         {
             HandleBallHit(baseball);
         }
@@ -58,7 +62,7 @@ public class BallZone : MonoBehaviour
     void OnCollisionEnter(Collision collision)
     {
         VRBaseball baseball = collision.gameObject.GetComponent<VRBaseball>();
-        if (baseball != null)
+        if (baseball != null && baseball.IsThrown())
         {
             HandleBallHit(baseball);
         }
@@ -69,7 +73,7 @@ public class BallZone : MonoBehaviour
     // ==============================================
     private void HandleBallHit(VRBaseball baseball)
     {
-        Debug.Log($"❌ 볼! 위치: {transform.name}");
+        Debug.Log($"⚾ 볼존 충돌: {gameObject.name}");
 
         // 시각적 피드백
         FlashZone();
@@ -80,11 +84,8 @@ public class BallZone : MonoBehaviour
             audioSource.PlayOneShot(ballSound);
         }
 
-        // 매니저에 알림
-        if (zoneManager != null)
-        {
-            zoneManager.HandleBallHit(transform.position, baseball);
-        }
+        // VRBaseball에 결과 전달
+        baseball.OnBallLandedInZone(false, gameObject.name); // false = 볼
     }
 
     // ==============================================

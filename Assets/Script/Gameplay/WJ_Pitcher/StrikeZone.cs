@@ -1,3 +1,7 @@
+/// <summary>
+/// 🎯 스트라이크 존 충돌 감지 스크립트 - 공이 닿으면 스트라이크 판정 처리
+/// </summary>
+
 using UnityEngine;
 using UnityEngine.UI;
 
