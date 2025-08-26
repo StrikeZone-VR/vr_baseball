@@ -7,7 +7,7 @@ using UnityEngine.Serialization;
 public class Baseball : MonoBehaviour
 {
     private Rigidbody _rigidbody;
-    private Defender myDefender; //handling player
+    [SerializeField] private Defender myDefender; //handling player
 
     bool isGroundBall = false; 
     bool isBatTouch = false;
