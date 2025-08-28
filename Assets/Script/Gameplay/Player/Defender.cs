@@ -108,7 +108,7 @@ public class Defender : Player
         _myBall.MyDefender = this;
         IsTracking = false;
 
-        transform.LookAt(_ball.transform, Vector3.up);
+        //transform.LookAt(_ball.transform, Vector3.up);
     }
 
 
