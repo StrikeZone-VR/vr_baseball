@@ -15,7 +15,8 @@ public class Pitcher : Defender
     {
         float dis = Vector3.Distance(defenderTransform.position, transform.position);
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        //shoot
+        if (Input.GetKeyDown(KeyCode.Z))
         {
             if (!_ball.MyDefender)
             {
@@ -68,7 +69,7 @@ public class Pitcher : Defender
         float z = ADDFORCE * Mathf.Cos(transform.rotation.eulerAngles.y * Mathf.PI / 180);
 
         // _ball.RemovePlayer(); => throw ball 
-        _ball.ThrowBall(new Vector3(x, ADDFORCE * 0.1f ,z));
+        _ball.ThrowBall(new Vector3(x, ADDFORCE * 0.2f ,z));
         
         //player's
         

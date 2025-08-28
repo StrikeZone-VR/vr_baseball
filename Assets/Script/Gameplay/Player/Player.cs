@@ -41,7 +41,7 @@ public class Player : MonoBehaviour
         float z = Mathf.Cos(transform.rotation.eulerAngles.y * Mathf.PI / 180);
 
         //player angle
-        _myBall.transform.position = transform.position + new Vector3(BALL_DISTANCE * x, 0, BALL_DISTANCE * z);
+        _myBall.transform.position = transform.position + new Vector3(BALL_DISTANCE * x, 0.5f, BALL_DISTANCE * z);
     }
 
     public void RemoveBall()
