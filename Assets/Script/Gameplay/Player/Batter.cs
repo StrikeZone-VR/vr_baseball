@@ -53,6 +53,7 @@ public class Batter : Player
 
     public bool IsMove
     {
+        
         get => isMove;
         set
         {

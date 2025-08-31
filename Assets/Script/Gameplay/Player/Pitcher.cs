@@ -9,6 +9,7 @@ public class Pitcher : Defender
     protected void Start()
     {
         HaveBall();
+        
     }
 
     protected override void Update()

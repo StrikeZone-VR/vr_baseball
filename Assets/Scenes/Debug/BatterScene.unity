@@ -278,6 +278,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1237663154700409361, guid: 6e75424edaedeb6419c9dd3da010b7cf, type: 3}
+      propertyPath: m_TagString
+      value: Bat
+      objectReference: {fileID: 0}
     - target: {fileID: 1344779717367027276, guid: 6e75424edaedeb6419c9dd3da010b7cf, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -368,6 +372,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8736714377024652743, guid: 6e75424edaedeb6419c9dd3da010b7cf, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1879281961}
+    - targetCorrespondingSourceObject: {fileID: 8736714377024652743, guid: 6e75424edaedeb6419c9dd3da010b7cf, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1678452726}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 1237663154700409361, guid: 6e75424edaedeb6419c9dd3da010b7cf, type: 3}
       insertIndex: -1
@@ -375,6 +382,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1237663154700409361, guid: 6e75424edaedeb6419c9dd3da010b7cf, type: 3}
       insertIndex: -1
       addedObject: {fileID: 98728484}
+    - targetCorrespondingSourceObject: {fileID: 1237663154700409361, guid: 6e75424edaedeb6419c9dd3da010b7cf, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 98728488}
   m_SourcePrefab: {fileID: 100100000, guid: 6e75424edaedeb6419c9dd3da010b7cf, type: 3}
 --- !u!1 &98728482 stripped
 GameObject:
@@ -436,7 +446,19 @@ MonoBehaviour:
       m_Calls: []
   m_SelectEntered:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 98728488}
+        m_TargetAssemblyTypeName: Bat, Assembly-CSharp
+        m_MethodName: GrabBat
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_SelectExited:
     m_PersistentCalls:
       m_Calls: []
@@ -490,7 +512,7 @@ MonoBehaviour:
       m_Calls: []
   m_AttachTransform: {fileID: 1879281961}
   m_SecondaryAttachTransform: {fileID: 0}
-  m_UseDynamicAttach: 0
+  m_UseDynamicAttach: 1
   m_MatchAttachPosition: 1
   m_MatchAttachRotation: 1
   m_SnapToColliderVolume: 1
@@ -564,7 +586,20 @@ Rigidbody:
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 0
-  m_CollisionDetection: 0
+  m_CollisionDetection: 2
+--- !u!114 &98728488
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 98728482}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 675206bba58e25244bb2086758c27503, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  topBatPos: {fileID: 1678452726}
 --- !u!1 &126508607
 GameObject:
   m_ObjectHideFlags: 0
@@ -745,9 +780,17 @@ PrefabInstance:
       propertyPath: m_Constraints
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1682164828880379055, guid: 9b087ad3ee72dbd408584ba96bc2cc57, type: 3}
+      propertyPath: m_CollisionDetection
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1999286011031628131, guid: 9b087ad3ee72dbd408584ba96bc2cc57, type: 3}
       propertyPath: m_Enabled
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1999286011031628131, guid: 9b087ad3ee72dbd408584ba96bc2cc57, type: 3}
+      propertyPath: m_UseDynamicAttach
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3169090002416453430, guid: 9b087ad3ee72dbd408584ba96bc2cc57, type: 3}
       propertyPath: m_Name
@@ -841,6 +884,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   myDefender: {fileID: 0}
   allTrackingOffEvent: {fileID: 11400000, guid: eb943823faaa14e4b87ec836d9d214f4, type: 2}
+  PaulEvent: {fileID: 0}
+  HomerunEvent: {fileID: 0}
 --- !u!1001 &1166668991
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1315,6 +1360,37 @@ Transform:
   - {fileID: 375068588}
   m_Father: {fileID: 1360401515}
   m_LocalEulerAnglesHint: {x: 0, y: 45, z: 0}
+--- !u!1 &1678452725
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1678452726}
+  m_Layer: 0
+  m_Name: batPos
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1678452726
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1678452725}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.763, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 98728483}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1760190221
 PrefabInstance:
   m_ObjectHideFlags: 0
