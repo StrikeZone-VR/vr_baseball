@@ -13,37 +13,25 @@ public class FarNearGrab : XRGrabInteractable
     public Transform rightHandGrip;  // 오른손용 그립
     
     
-    protected override void OnSelectEntered(SelectEnterEventArgs args)
+    protected override void OnHoverEntering(HoverEnterEventArgs args)
     {
-        // Ray Interactor로 선택된 경우 => 일단 계속 건드려 보자
-        if (args.interactorObject is XRRayInteractor)
+        base.OnHoverEntering(args);
+        
+        // Hover 시작될 때 Force Grab 설정
+        if (args.interactorObject is XRRayInteractor rayInteractor)
         {
-            Debug.Log("포지셩" + args.interactorObject.transform.position);
-            // attachTransform을 컨트롤러 위치로 리셋
-            //attachTransform.position = args.interactorObject.transform.position;
+            rayInteractor.useForceGrab = true;
         }
-        base.OnSelectEntered(args);
-
+    }
+    
+    protected override void OnHoverExiting(HoverExitEventArgs args)
+    {
+        base.OnHoverExiting(args);
         
-        
-        
-        //
-        // // 어느 손으로 잡았는지 확인
-        // //string interactorName = args.interactorObject.transform.name.ToLower();
-        // string mytag = args.interactorObject.transform.tag;
-        //
-        //
-        // if (mytag.Contains("left") && leftHandGrip != null)
-        // {
-        //     transform.position = leftHandGrip.position;
-        //     Debug.Log("left : " + transform.position );
-        // }
-        // else if (mytag.Contains("right") && rightHandGrip != null)
-        // {
-        //     transform.position = rightHandGrip.position;
-        //     Debug.Log("right : " + transform.position );
-        // }
-        
-        //Debug.Log($"{interactorName} hold by controller. AttachTransform: {this.attachTransform.name}");
+        // Hover 끝날 때 Force Grab 해제 (선택 사항)
+        if (args.interactorObject is XRRayInteractor rayInteractor)
+        {
+            rayInteractor.useForceGrab = false;
+        }
     }
 }

@@ -13,7 +13,7 @@ public class SceneLoader : MonoBehaviour
 {
     [SerializeField] private SceneEventSO sceneEventSO;
     
-    [SerializeField] private AssetReference GameReadyScene;
+    [SerializeField] private AssetReference GameMenuScene;
     //[SerializeField] private AssetReference BatterScene;
     //[SerializeField] private AssetReference PitcherScene;
 
@@ -21,7 +21,8 @@ public class SceneLoader : MonoBehaviour
 
     private void Start()
     {
-        currentScene = SceneManager.GetActiveScene();
+        LoadScene(GameMenuScene);
+        //currentScene = SceneManager.GetActiveScene();
     }
 
     private void OnEnable()
