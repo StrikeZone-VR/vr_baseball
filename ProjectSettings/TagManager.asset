@@ -8,6 +8,9 @@ TagManager:
   - Ground
   - StrikeZone
   - Base
+  - Bat
+  - left
+  - right
   layers:
   - Default
   - TransparentFX
