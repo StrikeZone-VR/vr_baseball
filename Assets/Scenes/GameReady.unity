@@ -508,6 +508,12 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   scrollThreshold: 0.1
+  sceneEventSO: {fileID: 11400000, guid: 1614b16f3ac165a4095e5f466b87b7b6, type: 2}
+  gamePlayScene:
+    m_AssetGUID: 68d2e92b0016b5d478424d1178581a03
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
 --- !u!1 &236949317
 GameObject:
   m_ObjectHideFlags: 0
@@ -2257,12 +2263,12 @@ RectTransform:
   m_LocalScale: {x: 0.005, y: 0.005, z: 0.005}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 213014272}
   - {fileID: 334206719}
   - {fileID: 1524717032}
   - {fileID: 2133110684}
   - {fileID: 1359614616}
   - {fileID: 863006266}
-  - {fileID: 213014272}
   - {fileID: 1414040969}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

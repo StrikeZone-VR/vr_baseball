@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
 using System.Collections;
+using UnityEngine.AddressableAssets;
 using UnityEngine.EventSystems;
 
 public class TeamSelectionManager : MonoBehaviour
@@ -45,7 +46,14 @@ public class TeamSelectionManager : MonoBehaviour
     [SerializeField] private float scrollAnimationDuration = 0.3f;
     [SerializeField] private AnimationCurve scrollAnimationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
     [SerializeField] private float scrollThreshold = 0.1f; // 스크롤 감지 민감도
+    
+    [Header("Listening to Event")]
+    [SerializeField] private SceneEventSO sceneEventSO;
 
+    [Header("Scene")]
+    [SerializeField] private AssetReference gamePlayScene;
+    
+    
     private int currentComputerTeamIndex = 0;
     private int currentPlayerTeamIndex = 1;
     private bool isAnimating = false;
@@ -413,12 +421,12 @@ public class TeamSelectionManager : MonoBehaviour
 
     void OnPlayBallClicked()
     {
-        Debug.Log("게임시작!");
+        Debug.Log("GameStart!");
         Debug.Log($"컴퓨터 팀: {teams[currentComputerTeamIndex].teamName}");
         Debug.Log($"플레이어 팀: {teams[currentPlayerTeamIndex].teamName}");
 
         // TODO: 게임플레이 씬으로 전환
-        // SceneManager.LoadScene("Gameplay");
+        sceneEventSO.RaiseEvent(gamePlayScene);
     }
 
     // 현재 선택된 팀 정보를 가져오는 메서드들 
