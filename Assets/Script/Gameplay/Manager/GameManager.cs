@@ -62,6 +62,7 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        Debug.Log("Game start");
         BallCount = 0;
         Strike = 0;
         OutCount = 0;
