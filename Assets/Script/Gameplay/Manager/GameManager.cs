@@ -21,7 +21,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI [] _scoreTexts ;
     [SerializeField] private TextMeshProUGUI _inningText ;
     
-    [SerializeField] private Defender[] defenders;
+    [SerializeField] private Defender[] defenders; // pitcher => 0
     [SerializeField] private Transform[] bases;
     [SerializeField] private Baseball _ball;
 
@@ -74,6 +74,7 @@ public class GameManager : MonoBehaviour
         SetScore(0, 0);
         SetScore(1, 0);
         Inning = 0;
+        StartCoroutine(WaitBatting());
     }
 
     private void Update()
@@ -100,6 +101,7 @@ public class GameManager : MonoBehaviour
             DebugBatting();
         }
         
+        //pitcher has ball
         if (Input.GetKeyDown(KeyCode.V))
         {
             _ball.RemovePlayer();
@@ -267,30 +269,6 @@ public class GameManager : MonoBehaviour
     // *************************************************************end
     #endregion
 
-    private void ThrowToBase(int index)
-    {
-        if(_ball.MyDefender)
-            _ball.MyDefender.ThrowBall(bases[index].position + new Vector3(0,0.5f,0));
-    }
-
-    public int FindClosestDefenderIndex()
-    {
-        float min = float.MaxValue;
-        int index = -1;
-        for (int i = 0; i < defenders.Length; i++)
-        {
-            float dis = GetDistanceBetween(_ball.transform.position, defenders[i].transform.position);
-            if (min > dis)
-            {
-                min = dis;
-                index = i;
-            }
-        }
-
-        _ball.DefenderDis = min;
-        return index;
-    }
-
 
     private float GetDistanceBetween(Vector3 a, Vector3 b)
     {
@@ -344,8 +322,50 @@ public class GameManager : MonoBehaviour
         
         MoveBase();
     }
+    
+    IEnumerator WaitBatting()
+    {
+        for (int i = 5; i > 0; i--)
+        {
+            Debug.Log(i);
+            yield return new WaitForSeconds(1.0f);
+        }
+
+        Pitcher pitcher = defenders[0].transform.GetComponent<Pitcher>();
+        pitcher.PitchingBall();
+        
+    }
+    
+    
 
     #region ALGORITHM
+    
+    
+    private void ThrowToBase(int index)
+    {
+        if(_ball.MyDefender)
+            _ball.MyDefender.ThrowBall(bases[index].position + new Vector3(0,0.5f,0));
+    }
+
+    public int FindClosestDefenderIndex()
+    {
+        float min = float.MaxValue;
+        int index = -1;
+        for (int i = 0; i < defenders.Length; i++)
+        {
+            float dis = GetDistanceBetween(_ball.transform.position, defenders[i].transform.position);
+            if (min > dis)
+            {
+                min = dis;
+                index = i;
+            }
+        }
+
+        _ball.DefenderDis = min;
+        return index;
+    }
+
+    
     private void ThrowBallAlgorithm() //SO
     {
         for (int i = runners.Length - 1; i >= 0; i--)
@@ -414,6 +434,8 @@ public class GameManager : MonoBehaviour
         }
     }
     #endregion
+    
+    
 }
 
 struct TeamStatus

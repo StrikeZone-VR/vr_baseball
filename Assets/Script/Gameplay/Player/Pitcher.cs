@@ -27,7 +27,7 @@ public class Pitcher : Defender
             }
             else
             {
-                PitchBall();
+                PitchingBall();
             }
             
             
@@ -60,7 +60,7 @@ public class Pitcher : Defender
     }
     
     //공 던지는 함수
-    private void PitchBall()
+    public void PitchingBall()
     {
         //Debug.Log("Throwing ball" + transform.rotation.eulerAngles.x + ", " + transform.rotation.eulerAngles.z);
         //transform.rotation.eulerAngles.x, ADDFORCE, transform.rotation.eulerAngles.z => you should be setting cos sin
