@@ -39,7 +39,7 @@ public class StrikeZone : MonoBehaviour
     private void SetupStrikeZone()
     {
         // 태그 설정
-        gameObject.tag = "StrikeZone";
+        //gameObject.tag = "StrikeZone";
 
         // 컴포넌트 가져오기/추가
         zoneRenderer = GetComponent<Renderer>();

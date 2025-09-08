@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class Pitcher : Defender
@@ -6,11 +7,6 @@ public class Pitcher : Defender
 
     //_myBall
 
-    protected void Start()
-    {
-        HaveBall();
-        
-    }
 
     protected override void Update()
     {
@@ -29,8 +25,6 @@ public class Pitcher : Defender
             {
                 PitchingBall();
             }
-            
-            
         }
         
         if (dis <= 1.0f)
@@ -52,12 +46,27 @@ public class Pitcher : Defender
     //        PitchBall();
     //}
 
-    public void HaveBall()
+    public override void SetMyBall(Baseball myBall)
     {
-        //ready handling ball
-        _ball.RemovePlayer();
-        SetMyBall(_ball);
+        base.SetMyBall(myBall);
+
+        _ball.IsGroundBall = false;
+        _ball.IsPassing = false;
+        _ball.IsSZ = false;
+        StartCoroutine(WaitBatting());
+        //transform.LookAt(_ball.transform, Vector3.up);
     }
+    
+    IEnumerator WaitBatting()
+    {
+        for (int i = 5; i > 0; i--)
+        {
+            yield return new WaitForSeconds(1.0f);
+        }
+
+        PitchingBall();
+    }
+    
     
     //공 던지는 함수
     public void PitchingBall()
@@ -69,11 +78,10 @@ public class Pitcher : Defender
         float x = ADDFORCE * Mathf.Sin(transform.rotation.eulerAngles.y * Mathf.PI / 180);
         float z = ADDFORCE * Mathf.Cos(transform.rotation.eulerAngles.y * Mathf.PI / 180);
 
+        //player's
         // _ball.RemovePlayer(); => throw ball 
         _ball.ThrowBall(new Vector3(x, ADDFORCE * 0.2f ,z));
-        
-        //player's
-        
+
     }
 
 }

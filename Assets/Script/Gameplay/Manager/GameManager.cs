@@ -32,6 +32,7 @@ public class GameManager : MonoBehaviour
 
     [Header("Broadcasting on EventChannels")]
     [SerializeField] private IntEventSO outBatterEvent; //Defender, Baseman
+    [SerializeField] private VoidEventSO strikeEvent;
     [SerializeField] private VoidEventSO allTrackingOffEvent; //to baseball
     [SerializeField] private VoidEventSO addScore; //to Batter
     [SerializeField] private IntEventSO addIsBaseStatus; //to Batter
@@ -46,14 +47,17 @@ public class GameManager : MonoBehaviour
     private void OnEnable()
     {
         outBatterEvent.onEventRaised += OutBatter;
+        strikeEvent.onEventRaised += AddStrike;
         allTrackingOffEvent.onEventRaised += AllTrackingOff;
         addScore.onEventRaised += AddScore;
         
         addIsBaseStatus.onEventRaised += AddIsBaseStatus;
+
     }
     private void OnDisable()
     {
         outBatterEvent.onEventRaised -= OutBatter;
+        strikeEvent.onEventRaised -= AddStrike;
         allTrackingOffEvent.onEventRaised -= AllTrackingOff;
         addScore.onEventRaised -= AddScore;
 
@@ -74,12 +78,20 @@ public class GameManager : MonoBehaviour
         SetScore(0, 0);
         SetScore(1, 0);
         Inning = 0;
-        StartCoroutine(WaitBatting());
+        
+        //pitcher has ball
+        //_ball.RemovePlayer();
+        //defenders[0].SetMyBall(_ball);
     }
 
     private void Update()
     {
         //debug
+        //to pitcher
+        if (Input.GetKeyDown(KeyCode.Alpha0))
+        {
+            _ball.MyDefender.ThrowBall(defenders[0].transform.position);
+        }
         if(Input.GetKeyDown(KeyCode.Alpha1))
             ThrowToBase(0);
         else if (Input.GetKeyDown(KeyCode.Alpha2))
@@ -101,15 +113,6 @@ public class GameManager : MonoBehaviour
             DebugBatting();
         }
         
-        //pitcher has ball
-        if (Input.GetKeyDown(KeyCode.V))
-        {
-            _ball.RemovePlayer();
-            AllTrackingOff();
-            _ball.IsGroundBall = false;
-            _ball.IsPassing = false;
-            defenders[0].SetMyBall(_ball);
-        }
 
         if (Input.GetKeyDown(KeyCode.B))
         {
@@ -124,10 +127,6 @@ public class GameManager : MonoBehaviour
         // {
         //     DebugBaseStatus();
         // }
-        if (Input.GetKeyDown(KeyCode.A))
-        {
-            AddOut();
-        }
         
         if (_ball.MyDefender)
         {
@@ -240,6 +239,12 @@ public class GameManager : MonoBehaviour
         runners[index + 1].Enqueue(batter);
     }
 
+    void AddStrike()
+    {
+        Strike++;
+    }
+    
+
     private void AddScore()
     {
         Batter batter = runners[3].Dequeue();
@@ -323,18 +328,6 @@ public class GameManager : MonoBehaviour
         MoveBase();
     }
     
-    IEnumerator WaitBatting()
-    {
-        for (int i = 5; i > 0; i--)
-        {
-            Debug.Log(i);
-            yield return new WaitForSeconds(1.0f);
-        }
-
-        Pitcher pitcher = defenders[0].transform.GetComponent<Pitcher>();
-        pitcher.PitchingBall();
-        
-    }
     
     
 

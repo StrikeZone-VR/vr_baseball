@@ -75,7 +75,7 @@ public class Defender : Player
             return;
         }
         Vector3 launchVelocity = CalculateLaunchVelocity(transform.position, position, 45f);
-        
+
         //cal dis
         //_ball.ThrowBall(dir * dis);
         _ball.ThrowBall(launchVelocity);
@@ -102,7 +102,7 @@ public class Defender : Player
         return launchVelocity;
     }
     
-    public void SetMyBall(Baseball myBall)
+    public virtual void SetMyBall(Baseball myBall)
     {
         _myBall = myBall;
         _myBall.MyDefender = this;

@@ -11,6 +11,8 @@ TagManager:
   - Bat
   - left
   - right
+  - BallZone
+  - SZ
   layers:
   - Default
   - TransparentFX

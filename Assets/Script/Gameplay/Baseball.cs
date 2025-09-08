@@ -12,6 +12,7 @@ public class Baseball : MonoBehaviour
     bool isGroundBall = false; 
     bool isBatTouch = false;
     bool isPassing = false;
+    bool isSZ = false;
     private float defenderDis = 0.0f;
     
     [Header("Listening to Events")]
@@ -24,10 +25,25 @@ public class Baseball : MonoBehaviour
         _rigidbody = GetComponent<Rigidbody>();
     }
 
+    private void OnTriggerEnter(Collider collision)
+    {
+        //Strike Zone
+        if (collision.gameObject.CompareTag("SZ") && !isSZ)
+        {
+            Debug.Log("스트라이크~");
+            isSZ = true;
+        }
+    }
+
     private void OnCollisionEnter(Collision collision)
     {
+        
         if(collision.collider.CompareTag("Ground"))
         {
+            if (!isBatTouch)
+            {
+                return;
+            }
             //paul, homerun check
             if (!isGroundBall)
             {
@@ -88,17 +104,8 @@ public class Baseball : MonoBehaviour
         isPassing = true;
         
         //rotation zero
-        //_rigidbody.useGravity = false;
         _rigidbody.velocity = Vector3.zero;
-        // _rigidbody.angularVelocity = Vector3.zero;
-        // _rigidbody.constraints = RigidbodyConstraints.FreezeRotation;
-        //_rigidbody.AddForce(force, ForceMode.Impulse);
         _rigidbody.velocity = force;
-        //_rigidbody.constraints = RigidbodyConstraints.None;
-        //_rigidbody.AddTorque(force * 1000f, ForceMode.Impulse);
-        
-        //isBatTouch = false;
-        //isGroundBall = false;
     }
 
     public bool IsPassing
@@ -146,5 +153,11 @@ public class Baseball : MonoBehaviour
         }
         myDefender.RemoveBall();
         myDefender = null;
+    }
+
+    public bool IsSZ
+    {
+        get => isSZ;
+        set => isSZ = value;
     }
 }
