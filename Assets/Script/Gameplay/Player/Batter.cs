@@ -44,7 +44,7 @@ public class Batter : Player
     IEnumerator RotateWithCurve()
     {
         Quaternion startRotation = Quaternion.Euler(90, 0, 0);
-        Quaternion endRotation = Quaternion.Euler(0, 0, 90);
+        Quaternion endRotation =    Quaternion.Euler(0, 0, 90);
 
         float elapsed = 0f;
 
