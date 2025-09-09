@@ -6,9 +6,14 @@ using UnityEngine;
 
 public class Batter : Player
 {
+
+    public AnimationCurve rotationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+    public float rotationTime = 1f;
+
     //[SerializeField] private Baseball _ball;
     private int base_index = 0;
     private Transform[] bases;
+    [SerializeField] private GameObject bat;
 
     private bool isMove = false;
     //private bool isInBase = false;
@@ -18,10 +23,44 @@ public class Batter : Player
 
     public void DebugHitting()
     {
+
+        //방망이 휘두르는 함수
+        bat.transform.rotation = Quaternion.Euler(new Vector3(90f , 0, 0)); //x 90 z 0 =
+        
+        bat.transform.Rotate(new Vector3(0, 0, 90f));
+
         //_ball.RemovePlayer();
 
         //_myBall.transform.position = transform.position + new Vector3(0.0f, 0.5f, 0.0f);
-        IsMove = true;
+        //IsMove = true;
+    }
+
+
+    public void StartRotation()
+    {
+        StartCoroutine(RotateWithCurve());
+    }
+
+    IEnumerator RotateWithCurve()
+    {
+        Quaternion startRotation = Quaternion.Euler(90, 0, 0);
+        Quaternion endRotation = Quaternion.Euler(0, 0, 90);
+
+        float elapsed = 0f;
+
+        while (elapsed < rotationTime)
+        {
+            elapsed += Time.deltaTime;
+            float progress = elapsed / rotationTime;
+
+            // Animation Curve 적용
+            float curveValue = rotationCurve.Evaluate(progress);
+
+            transform.rotation = Quaternion.Lerp(startRotation, endRotation, curveValue);
+            yield return null;
+        }
+
+        transform.rotation = endRotation;
     }
 
     private void MoveBase()
@@ -49,6 +88,8 @@ public class Batter : Player
             }
         }
     }
+
+
 
 
     public bool IsMove

@@ -14,6 +14,7 @@ public class Defender : Player
     [SerializeField] private bool isTracking = false;
     [SerializeField] protected bool isInPosition = false;
 
+
     protected virtual void Update()
     {
         if (_myBall)
@@ -136,9 +137,9 @@ public class Defender : Player
             {
                 return;
             }
-            if (!isTracking )
+            if (!isTracking)
             {
-                nav.ResetPath();
+                 nav.ResetPath();
             }
             else
             {

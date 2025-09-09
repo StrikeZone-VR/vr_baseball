@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.XR.CoreUtils;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UIElements;
@@ -16,7 +17,9 @@ public class GameManager : MonoBehaviour
     private int ball_count = 0;
     private int strike_count = 0;
     private int out_count = 0;
-    
+
+    [SerializeField] private XROrigin playerOrigin;
+
     [SerializeField] private UIGameStatus[] _UIGameStatusElements;
     [SerializeField] private TextMeshProUGUI [] _scoreTexts ;
     [SerializeField] private TextMeshProUGUI _inningText ;
@@ -27,7 +30,8 @@ public class GameManager : MonoBehaviour
 
     private Queue<Batter> [] runners = new Queue<Batter>[MAX_BASE_COUNT + 1]; //
     [SerializeField] private Batter batterPrefab; 
-    
+    [SerializeField] private Batter batter;
+
     private TeamStatus []_teamStatus = new TeamStatus[2];
 
     [Header("Broadcasting on EventChannels")]
@@ -100,6 +104,11 @@ public class GameManager : MonoBehaviour
             ThrowToBase(2);
         else if(Input.GetKeyDown(KeyCode.Alpha4))
             ThrowToBase(3);
+        
+        if(Input.GetKeyDown(KeyCode.Alpha5))
+        {
+            batter.DebugHitting();
+        }
 
         //has ball and ball batting
         if (_ball.MyDefender && _ball.IsBatTouch)
@@ -186,6 +195,20 @@ public class GameManager : MonoBehaviour
             inning = value;
             ClearRunners();
 
+            int num = inning % 2;
+
+            Debug.Log(num);
+
+            //change 
+            if (num == 0)
+            {
+                StartBatter();
+            }
+            else
+            {
+                StartPitcher();
+            }
+
             string t = inning % 2 == 0 ? "▲" : "▼";
             t += " " + (inning / 2 + 1) + "이닝";
             _inningText.text = t;
@@ -270,9 +293,29 @@ public class GameManager : MonoBehaviour
             }
         }
     }
-    
+
     // *************************************************************end
     #endregion
+
+    private void StartBatter()
+    {
+        Debug.Log("엄준식 타자");
+
+        defenders[0].gameObject.SetActive(true);
+        //방망이 false
+        playerOrigin.MoveCameraToWorldLocation(new Vector3(0, 1.0f, 0));
+    }
+
+    private void StartPitcher()
+    {
+        //pitcher stop
+
+        
+        defenders[0].gameObject.SetActive(false);
+        Debug.Log("엄준식 투수");
+        playerOrigin.MoveCameraToWorldLocation(new Vector3(-10, 1.0f, -10));
+        playerOrigin.MatchOriginUpCameraForward(Vector3.up, new Vector3(1, 0, 1));
+    }
 
 
     private float GetDistanceBetween(Vector3 a, Vector3 b)
@@ -285,7 +328,8 @@ public class GameManager : MonoBehaviour
     {
         for (int i = 0; i < defenders.Length; i++)
         {
-            defenders[i].IsTracking = false;
+            if(defenders[i].gameObject.activeSelf)
+                defenders[i].IsTracking = false;
         }
     }
 
