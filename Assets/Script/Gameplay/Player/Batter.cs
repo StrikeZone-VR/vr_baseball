@@ -6,28 +6,28 @@ using UnityEngine;
 
 public class Batter : Player
 {
-
     public AnimationCurve rotationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
-    public float rotationTime = 1f;
 
     //[SerializeField] private Baseball _ball;
     private int base_index = 0;
     private Transform[] bases;
     [SerializeField] private GameObject bat;
 
-    private bool isMove = false;
-    //private bool isInBase = false;
     
     [SerializeField] private VoidEventSO addScore; //From GameManager
     [SerializeField] private IntEventSO addIsBaseStatus; //From GameManager
 
+    
+    private bool isMove = false;
+    //private bool isInBase = false;
+    
+    const float rotationTime = 0.25f;
+    float elapsed = 0f;
+    
     public void DebugHitting()
     {
-
-        //πÊ∏¡¿Ã »÷µŒ∏£¥¬ «‘ºˆ
-        bat.transform.rotation = Quaternion.Euler(new Vector3(90f , 0, 0)); //x 90 z 0 =
-        
-        bat.transform.Rotate(new Vector3(0, 0, 90f));
+        Debug.Log("ÌÉÄÏûê ÌÉÄÏûÑ : " + Time.time);
+        StartRotation();
 
         //_ball.RemovePlayer();
 
@@ -38,29 +38,30 @@ public class Batter : Player
 
     public void StartRotation()
     {
-        StartCoroutine(RotateWithCurve());
+        if(elapsed != 0) return;
+        
+        StartCoroutine(RotateWithCurve(new Vector3(0, 0, -120), new Vector3(135, 135, -120)));
     }
 
-    IEnumerator RotateWithCurve()
+    IEnumerator RotateWithCurve(Vector3 start, Vector3 end)
     {
-        Quaternion startRotation = Quaternion.Euler(90, 0, 0);
-        Quaternion endRotation =    Quaternion.Euler(0, 0, 90);
-
-        float elapsed = 0f;
+        // Quaternion startRotation = Quaternion.Euler(start);
+        Quaternion endRotation = Quaternion.Euler(end);
 
         while (elapsed < rotationTime)
         {
             elapsed += Time.deltaTime;
             float progress = elapsed / rotationTime;
 
-            // Animation Curve ¿˚øÎ
+            // Animation Curve
             float curveValue = rotationCurve.Evaluate(progress);
 
-            transform.rotation = Quaternion.Lerp(startRotation, endRotation, curveValue);
+            bat.transform.localRotation = Quaternion.Euler(start * (1 - curveValue) + end * curveValue);
             yield return null;
         }
 
-        transform.rotation = endRotation;
+        elapsed = 0;
+        bat.transform.rotation = endRotation;
     }
 
     private void MoveBase()

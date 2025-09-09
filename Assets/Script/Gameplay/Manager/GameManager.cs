@@ -40,6 +40,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private VoidEventSO allTrackingOffEvent; //to baseball
     [SerializeField] private VoidEventSO addScore; //to Batter
     [SerializeField] private IntEventSO addIsBaseStatus; //to Batter
+    
+    [SerializeField] private VoidEventSO swingEvent; //to Pitcher
 
     //Define
     private const int MAX_BALL_COUNT = 4; 
@@ -56,7 +58,8 @@ public class GameManager : MonoBehaviour
         addScore.onEventRaised += AddScore;
         
         addIsBaseStatus.onEventRaised += AddIsBaseStatus;
-
+        
+        swingEvent.onEventRaised += DebugBatting;
     }
     private void OnDisable()
     {
@@ -66,6 +69,8 @@ public class GameManager : MonoBehaviour
         addScore.onEventRaised -= AddScore;
 
         addIsBaseStatus.onEventRaised -= AddIsBaseStatus;
+        
+        swingEvent.onEventRaised -= DebugBatting;
     }
 
     private void Start()
@@ -107,8 +112,8 @@ public class GameManager : MonoBehaviour
         
         if(Input.GetKeyDown(KeyCode.Alpha5))
         {
-            batter.DebugHitting();
-        }
+            defenders[0].SetMyBall(_ball);
+;        }
 
         //has ball and ball batting
         if (_ball.MyDefender && _ball.IsBatTouch)
@@ -117,10 +122,6 @@ public class GameManager : MonoBehaviour
         }
         
 
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            DebugBatting();
-        }
         
 
         if (Input.GetKeyDown(KeyCode.B))
@@ -302,17 +303,23 @@ public class GameManager : MonoBehaviour
         Debug.Log("엄준식 타자");
 
         defenders[0].gameObject.SetActive(true);
-        //방망이 false
+        
+        //방망이 중력, rotation position 풀기
+        batter.gameObject.SetActive(false);
         playerOrigin.MoveCameraToWorldLocation(new Vector3(0, 1.0f, 0));
     }
 
     private void StartPitcher()
     {
         //pitcher stop
-
-        
-        defenders[0].gameObject.SetActive(false);
         Debug.Log("엄준식 투수");
+
+        defenders[0].gameObject.SetActive(false);
+        
+        //방망이 위치 Vector3(-0.660000026,1.37,0.150000006) 여기로
+        //방망이 중력, rotation position 얼리기
+        batter.gameObject.SetActive(true);
+
         playerOrigin.MoveCameraToWorldLocation(new Vector3(-10, 1.0f, -10));
         playerOrigin.MatchOriginUpCameraForward(Vector3.up, new Vector3(1, 0, 1));
     }
@@ -352,24 +359,28 @@ public class GameManager : MonoBehaviour
 
     private void DebugBatting()
     {
-        float x = Random.Range(-1.0f, 0f);
-        float z = Random.Range(-1.0f, 0f);
-        Vector3 view = new Vector3(-1, 1, -1).normalized;
-
-        _ball.IsBatTouch = true;
-        _ball.IsGroundBall = false;
-        _ball.IsPassing = false;
-
-        _ball.RemovePlayer();
-
-        float r = Random.Range(15.0f, 25.0f);
+        //batter.DebugHitting();
         
-        view *= 19;
-        _ball.transform.position = Vector3.zero;
-        _ball.GetComponent<Rigidbody>().velocity = Vector3.zero;
-        _ball.GetComponent<Rigidbody>().AddForce(view, ForceMode.Impulse);
+        // float x = Random.Range(-1.0f, 0f);
+        // float z = Random.Range(-1.0f, 0f);
+        // Vector3 view = new Vector3(-1, 1, -1).normalized;
+        //
+        // _ball.IsBatTouch = true;
+        // _ball.IsGroundBall = false;
+        // _ball.IsPassing = false;
+        //
+        // _ball.RemovePlayer();
+        //
+        // float r = Random.Range(15.0f, 25.0f);
+        //
+        // view *= 19;
+        // _ball.transform.position = Vector3.zero;
+        // _ball.GetComponent<Rigidbody>().velocity = Vector3.zero;
+        // _ball.GetComponent<Rigidbody>().AddForce(view, ForceMode.Impulse);
+        //
+        // MoveBase();
         
-        MoveBase();
+        
     }
     
     

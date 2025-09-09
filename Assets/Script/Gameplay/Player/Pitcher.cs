@@ -4,6 +4,9 @@ using UnityEngine;
 public class Pitcher : Defender
 {
     private const float ADDFORCE = 20.0f;
+    
+    
+    [SerializeField] private VoidEventSO swingEvent; //from GameManager
 
     //_myBall
 
@@ -81,7 +84,13 @@ public class Pitcher : Defender
         //player's
         // _ball.RemovePlayer(); => throw ball 
         _ball.ThrowBall(new Vector3(x, ADDFORCE * 0.2f ,z));
+        StartCoroutine(Swing());
+    }
 
+    IEnumerator Swing()
+    {
+        yield return new WaitForSeconds(0.5f); 
+        swingEvent.RaiseEvent();
     }
 
 }
