@@ -9,10 +9,11 @@ public class MenuConfirmManager : MonoBehaviour
     [SerializeField] private Button oneOnOneMatchButton;
     [SerializeField] private Button pitchingPracticeButton;
     [SerializeField] private Button hittingPracticeButton;
+    [SerializeField] private Button kboInfoButton;
     [SerializeField] private Button exitButton;
     [Space]
 
-    
+
     [Header("확인 대화상자")]
     [SerializeField] private GameObject confirmationDialogPanel;
     [SerializeField] private TextMeshProUGUI confirmationMessageText;
@@ -20,15 +21,18 @@ public class MenuConfirmManager : MonoBehaviour
     [SerializeField] private Button cancelButton;
     [Space]
 
-    
+
     [Header("Listening to Event")]
     [SerializeField] private SceneEventSO sceneEventSO;
-    
+
     [Space]
     [Header("Scenes")]
     [SerializeField] private AssetReference gameScene;
 
-    
+    [Header("KBO 정보 UI")]
+    [SerializeField] private GameObject kboInfoPanel;
+
+
     private System.Action currentConfirmAction;
 
     void Start()
@@ -54,6 +58,9 @@ public class MenuConfirmManager : MonoBehaviour
 
         if (hittingPracticeButton != null)
             hittingPracticeButton.onClick.AddListener(() => ShowConfirmation("타자 연습을 시작하시겠습니까?", OnHittingPractice));
+
+        if (kboInfoButton != null)
+            kboInfoButton.onClick.AddListener(OnKBOInfo);
 
         if (exitButton != null)
             exitButton.onClick.AddListener(() => ShowConfirmation("게임을 종료하시겠습니까?", OnExit));
@@ -116,6 +123,16 @@ public class MenuConfirmManager : MonoBehaviour
     {
         Debug.Log("타자 연습 시작!");
         // TODO: 타자 연습 씬 로드
+    }
+
+    void OnKBOInfo()
+    {
+        Debug.Log("KBO 정보 보기");
+        if (kboInfoPanel != null)
+        {
+            bool isActive = kboInfoPanel.activeInHierarchy;
+            kboInfoPanel.SetActive(!isActive);
+        }
     }
 
     void OnExit()
