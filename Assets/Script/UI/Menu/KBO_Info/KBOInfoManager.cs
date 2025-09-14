@@ -28,13 +28,9 @@ public class KBOInfoManager : MonoBehaviour
     [SerializeField] private GameObject errorPanel;
     [SerializeField] private TextMeshProUGUI errorText;
 
-    [Header("테이블 헤더 (동적 생성용)")]
-    [SerializeField] private Transform headerContainer;
-    [SerializeField] private GameObject headerCellPrefab;
-
-    [Header("테이블 행 (동적 생성용)")]
-    [SerializeField] private Transform rowContainer;
-    [SerializeField] private GameObject rowPrefab;
+    [Header("테이블 컨테이너")]
+    [SerializeField] private Transform tableContainer;
+    [SerializeField] private ScrollRect scrollRect;
 
     [Header("새로고침")]
     [SerializeField] private Button refreshButton;
@@ -284,19 +280,18 @@ public class KBOInfoManager : MonoBehaviour
     void DisplayTeamRankings()
     {
         Debug.Log("========== 팀 순위 UI 표시 시작 ==========");
-        ClearTable();
 
-        // 헤더 생성
+        // 헤더 정의
         string[] headers = { "순위", "팀", "경기", "승", "패", "무", "승률", "게임차", "연속", "최근10경기" };
-        Debug.Log($"헤더 생성: {string.Join(", ", headers)}");
-        CreateHeaders(headers);
 
-        // 데이터 행 생성
-        Debug.Log($"팀 순위 데이터 행 생성 시작: {teamRankings.Count}개 팀");
+        // 데이터 준비
+        List<string[]> tableData = new List<string[]>();
+
         for (int i = 0; i < teamRankings.Count; i++)
         {
             var team = teamRankings[i];
             string teamFullName = KBOTeamHelper.GetTeamFullName(team.id.team);
+
             string[] rowData = {
                 team.rank.ToString(),
                 teamFullName,
@@ -310,20 +305,12 @@ public class KBOInfoManager : MonoBehaviour
                 team.last10
             };
 
-            Debug.Log($"행 {i + 1}: {team.rank}위 {teamFullName} ({team.wins}승 {team.losses}패, 승률 {team.pct:F3})");
-
-            // 순위에 따른 배경 색상 적용
-            Color backgroundColor = i % 2 == 0 ? rowColor1 : rowColor2;
-
-            // 상위 5팀은 특별한 색상으로 구분
-            if (team.rank <= 5)
-            {
-                Color rankColor = KBOTeamHelper.GetRankColor(team.rank);
-                backgroundColor = Color.Lerp(backgroundColor, rankColor, 0.3f);
-            }
-
-            CreateDataRow(rowData, backgroundColor, team.id.team, team.rank);
+            tableData.Add(rowData);
+            Debug.Log($"팀 데이터 추가: {team.rank}위 {teamFullName}");
         }
+
+        // 새로운 테이블 시스템으로 생성
+        CreateTable(headers, tableData);
 
         Debug.Log("========== 팀 순위 UI 표시 완료 ==========");
     }
@@ -331,19 +318,18 @@ public class KBOInfoManager : MonoBehaviour
     void DisplayHitters()
     {
         Debug.Log("========== 타자 순위 UI 표시 시작 ==========");
-        ClearTable();
 
-        // 헤더 생성
+        // 헤더 정의
         string[] headers = { "순위", "선수명", "팀", "타율", "경기", "타석", "안타", "홈런", "타점", "득점" };
-        Debug.Log($"타자 헤더 생성: {string.Join(", ", headers)}");
-        CreateHeaders(headers);
 
-        // 데이터 행 생성
-        Debug.Log($"타자 데이터 행 생성 시작: {hitters.Count}명");
+        // 데이터 준비
+        List<string[]> tableData = new List<string[]>();
+
         for (int i = 0; i < hitters.Count; i++)
         {
             var hitter = hitters[i];
             string teamFullName = KBOTeamHelper.GetTeamFullName(hitter.id.team);
+
             string[] rowData = {
                 (i + 1).ToString(),
                 hitter.id.playerName,
@@ -357,10 +343,12 @@ public class KBOInfoManager : MonoBehaviour
                 hitter.r.ToString()
             };
 
-            Debug.Log($"타자 행 {i + 1}: {hitter.id.playerName} ({teamFullName}) - 타율 {hitter.avg:F3}, 홈런 {hitter.hr}, 타점 {hitter.rbi}");
-
-            CreateDataRowWithTeam(rowData, i % 2 == 0 ? rowColor1 : rowColor2, hitter.id.team, i + 1);
+            tableData.Add(rowData);
+            Debug.Log($"타자 데이터 추가: {i + 1}위 {hitter.id.playerName} ({teamFullName})");
         }
+
+        // 새로운 테이블 시스템으로 생성
+        CreateTable(headers, tableData);
 
         Debug.Log("========== 타자 순위 UI 표시 완료 ==========");
     }
@@ -368,19 +356,18 @@ public class KBOInfoManager : MonoBehaviour
     void DisplayPitchers()
     {
         Debug.Log("========== 투수 순위 UI 표시 시작 ==========");
-        ClearTable();
 
-        // 헤더 생성
+        // 헤더 정의
         string[] headers = { "순위", "선수명", "팀", "ERA", "이닝", "승", "패", "세이브", "삼진", "볼넷" };
-        Debug.Log($"투수 헤더 생성: {string.Join(", ", headers)}");
-        CreateHeaders(headers);
 
-        // 데이터 행 생성
-        Debug.Log($"투수 데이터 행 생성 시작: {pitchers.Count}명");
+        // 데이터 준비
+        List<string[]> tableData = new List<string[]>();
+
         for (int i = 0; i < pitchers.Count; i++)
         {
             var pitcher = pitchers[i];
             string teamFullName = KBOTeamHelper.GetTeamFullName(pitcher.id.team);
+
             string[] rowData = {
                 (i + 1).ToString(),
                 pitcher.id.playerName,
@@ -394,216 +381,193 @@ public class KBOInfoManager : MonoBehaviour
                 pitcher.bb.ToString()
             };
 
-            Debug.Log($"투수 행 {i + 1}: {pitcher.id.playerName} ({teamFullName}) - ERA {pitcher.era:F2}, 승 {pitcher.w}, 세이브 {pitcher.sv}");
-
-            CreateDataRowWithTeam(rowData, i % 2 == 0 ? rowColor1 : rowColor2, pitcher.id.team, i + 1);
+            tableData.Add(rowData);
+            Debug.Log($"투수 데이터 추가: {i + 1}위 {pitcher.id.playerName} ({teamFullName})");
         }
+
+        // 새로운 테이블 시스템으로 생성
+        CreateTable(headers, tableData);
 
         Debug.Log("========== 투수 순위 UI 표시 완료 ==========");
     }
 
-    void CreateHeaders(string[] headers)
+    /// <summary>
+    /// 새로운 깔끔한 테이블을 생성합니다
+    /// </summary>
+    void CreateTable(string[] headers, List<string[]> data)
     {
-        if (headerContainer == null || headerCellPrefab == null) return;
+        ClearTable();
 
-        foreach (string header in headers)
+        if (tableContainer == null)
         {
-            GameObject headerCell = Instantiate(headerCellPrefab, headerContainer);
-
-            // 생성된 UI 요소 강제 활성화
-            headerCell.SetActive(true);
-
-            // 최소 크기 설정
-            var rectTransform = headerCell.GetComponent<RectTransform>();
-            if (rectTransform != null)
-            {
-                rectTransform.sizeDelta = new Vector2(100, 30); // 최소 크기 설정
-            }
-
-            var text = headerCell.GetComponentInChildren<TextMeshProUGUI>(true);
-            if (text != null)
-            {
-                text.text = header;
-                text.fontStyle = FontStyles.Bold;
-                text.fontSize = 16f; // 헤더는 조금 더 크게
-
-                // Canvas 안에 있는 TextMeshPro의 RectTransform 올바르게 설정
-                var textRect = text.GetComponent<RectTransform>();
-                if (textRect != null)
-                {
-                    // 부모 Canvas의 크기에 맞게 꽉 채우도록 설정
-                    textRect.anchorMin = Vector2.zero;
-                    textRect.anchorMax = Vector2.one;
-                    textRect.offsetMin = Vector2.zero;
-                    textRect.offsetMax = Vector2.zero;
-                    textRect.anchoredPosition = Vector2.zero;
-
-                    // 텍스트 정렬 설정
-                    text.alignment = TextAlignmentOptions.Center;
-                }
-
-                // Canvas 컴포넌트가 있다면 설정 확인
-                var canvas = text.GetComponentInParent<Canvas>();
-                if (canvas != null && canvas.gameObject != text.gameObject)
-                {
-                    // 부모 Canvas 설정 확인
-                    canvas.overrideSorting = false;
-                    canvas.sortingOrder = 0;
-                }
-
-                // 헤더에도 한글 폰트 적용
-                ApplyKoreanFontToText(text);
-            }
-
-            var image = headerCell.GetComponent<Image>();
-            if (image != null)
-                image.color = headerColor;
-        }
-
-        // Layout 강제 갱신
-        StartCoroutine(RefreshLayoutAfterFrame());
-    }
-
-    void CreateDataRow(string[] data, Color backgroundColor, string teamName = "", int rank = 0)
-    {
-        if (rowContainer == null || rowPrefab == null)
-        {
-            Debug.LogError("CreateDataRow: rowContainer 또는 rowPrefab이 null입니다!");
+            Debug.LogError("TableContainer가 할당되지 않았습니다!");
             return;
         }
 
-        Debug.Log($"데이터 행 생성: {string.Join(" | ", data)}");
-        GameObject row = Instantiate(rowPrefab, rowContainer);
+        // 메인 테이블 컨테이너 생성
+        GameObject table = new GameObject("KBO_Table");
+        table.transform.SetParent(tableContainer);
 
-        // 생성된 UI 요소 강제 활성화
-        row.SetActive(true);
+        var tableRect = table.AddComponent<RectTransform>();
+        tableRect.anchorMin = new Vector2(0, 1);
+        tableRect.anchorMax = new Vector2(1, 1);
+        tableRect.pivot = new Vector2(0.5f, 1);
 
-        // 디버깅: 생성된 오브젝트의 구조 확인
-        Debug.Log($"생성된 행 오브젝트: {row.name}, 활성 상태: {row.activeInHierarchy}");
+        // Vertical Layout Group으로 헤더와 데이터 행들을 세로 배치
+        var verticalLayout = table.AddComponent<VerticalLayoutGroup>();
+        verticalLayout.childControlWidth = true;
+        verticalLayout.childControlHeight = true;
+        verticalLayout.childForceExpandWidth = true;
+        verticalLayout.childForceExpandHeight = false;
+        verticalLayout.spacing = 1f;
 
-        // 최소 크기 설정
-        var rectTransform = row.GetComponent<RectTransform>();
-        if (rectTransform != null)
+        // Content Size Fitter 추가
+        var contentSizeFitter = table.AddComponent<ContentSizeFitter>();
+        contentSizeFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+        // 헤더 생성
+        CreateTableHeader(table.transform, headers);
+
+        // 데이터 행들 생성
+        for (int i = 0; i < data.Count; i++)
         {
-            rectTransform.sizeDelta = new Vector2(100, 30); // 최소 크기 설정
+            CreateTableRow(table.transform, data[i], i);
         }
 
-        var rowImage = row.GetComponent<Image>();
-        if (rowImage != null)
-            rowImage.color = backgroundColor;
+        Debug.Log($"테이블 생성 완료: 헤더 1개, 데이터 행 {data.Count}개");
 
-        var textComponents = row.GetComponentsInChildren<TextMeshProUGUI>(true);
-
-        Debug.Log($"찾은 텍스트 컴포넌트 수: {textComponents.Length}");
-
-        for (int i = 0; i < data.Length && i < textComponents.Length; i++)
-        {
-            textComponents[i].text = data[i];
-
-            // 텍스트 크기 줄이기
-            textComponents[i].fontSize = 14f;
-
-            Debug.Log($"텍스트 {i} 설정: '{data[i]}', 오브젝트: {textComponents[i].gameObject.name}, 활성: {textComponents[i].gameObject.activeInHierarchy}");
-
-            // Canvas 안에 있는 TextMeshPro의 RectTransform 올바르게 설정
-            var textRect = textComponents[i].GetComponent<RectTransform>();
-            if (textRect != null)
-            {
-                // 부모 Canvas의 크기에 맞게 꽉 채우도록 설정
-                textRect.anchorMin = Vector2.zero;
-                textRect.anchorMax = Vector2.one;
-                textRect.offsetMin = Vector2.zero;
-                textRect.offsetMax = Vector2.zero;
-                textRect.anchoredPosition = Vector2.zero;
-
-                // 텍스트 정렬 설정
-                textComponents[i].alignment = TextAlignmentOptions.Center;
-            }
-
-            // Canvas 컴포넌트가 있다면 설정 확인
-            var canvas = textComponents[i].GetComponentInParent<Canvas>();
-            if (canvas != null && canvas.gameObject != textComponents[i].gameObject)
-            {
-                // 부모 Canvas 설정 확인
-                canvas.overrideSorting = false;
-                canvas.sortingOrder = 0;
-            }
-
-            // 한글 폰트 적용
-            ApplyKoreanFontToText(textComponents[i]);
-
-            // 팀 이름 컬럼에 팀 색상 적용
-            if (i == 1 && !string.IsNullOrEmpty(teamName))
-            {
-                textComponents[i].color = KBOTeamHelper.GetTeamColor(teamName);
-                textComponents[i].fontStyle = FontStyles.Bold;
-            }
-
-            // 순위 컬럼에 특별 색상 적용
-            if (i == 0 && rank > 0 && rank <= 3)
-            {
-                textComponents[i].color = KBOTeamHelper.GetRankColor(rank);
-                textComponents[i].fontStyle = FontStyles.Bold;
-            }
-        }
-
-        // Layout 강제 갱신
-        StartCoroutine(RefreshLayoutAfterFrame());
+        // 테이블 생성 완료 후 다음 프레임에서 RectTransform 강제 Reset
+        StartCoroutine(ForceResetAfterLayout(tableRect));
     }
 
-    // 기존 메서드 오버로드
-    void CreateDataRow(string[] data, Color backgroundColor)
+    /// <summary>
+    /// 테이블 헤더를 생성합니다
+    /// </summary>
+    void CreateTableHeader(Transform parent, string[] headers)
     {
-        CreateDataRow(data, backgroundColor, "", 0);
+        GameObject headerRow = new GameObject("TableHeader");
+        headerRow.transform.SetParent(parent);
+
+        var headerRect = headerRow.AddComponent<RectTransform>();
+        headerRect.sizeDelta = new Vector2(0, 50); // 헤더 높이
+
+        // 배경
+        var headerBg = headerRow.AddComponent<Image>();
+        headerBg.color = new Color(0.2f, 0.3f, 0.5f, 0.8f); // 진한 파란색
+
+        // Grid Layout으로 정확한 컬럼 정렬
+        var gridLayout = headerRow.AddComponent<GridLayoutGroup>();
+        gridLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+        gridLayout.constraintCount = headers.Length;
+        gridLayout.cellSize = new Vector2(120, 45);
+        gridLayout.spacing = new Vector2(2, 0);
+        gridLayout.padding = new RectOffset(5, 5, 2, 2);
+        gridLayout.childAlignment = TextAnchor.MiddleCenter;
+
+        // 헤더 셀들 생성
+        for (int i = 0; i < headers.Length; i++)
+        {
+            CreateHeaderCell(headerRow.transform, headers[i]);
+        }
     }
 
-    void CreateDataRowWithTeam(string[] data, Color backgroundColor, string teamName, int rank)
+    /// <summary>
+    /// 헤더 셀 생성
+    /// </summary>
+    void CreateHeaderCell(Transform parent, string headerText)
     {
-        if (rowContainer == null || rowPrefab == null) return;
+        GameObject cell = new GameObject($"Header_{headerText}");
+        cell.transform.SetParent(parent);
 
-        GameObject row = Instantiate(rowPrefab, rowContainer);
-        var rowImage = row.GetComponent<Image>();
-        if (rowImage != null)
-            rowImage.color = backgroundColor;
+        var cellRect = cell.AddComponent<RectTransform>();
 
-        var textComponents = row.GetComponentsInChildren<TextMeshProUGUI>();
+        // 텍스트 컴포넌트
+        var text = cell.AddComponent<TextMeshProUGUI>();
+        text.text = headerText;
+        text.fontSize = 14f;
+        text.fontStyle = FontStyles.Bold;
+        text.alignment = TextAlignmentOptions.Center;
+        text.color = Color.white;
 
-        for (int i = 0; i < data.Length && i < textComponents.Length; i++)
+        ApplyKoreanFontToText(text);
+    }
+
+    /// <summary>
+    /// 데이터 행을 생성합니다
+    /// </summary>
+    void CreateTableRow(Transform parent, string[] rowData, int rowIndex)
+    {
+        GameObject dataRow = new GameObject($"DataRow_{rowIndex}");
+        dataRow.transform.SetParent(parent);
+
+        var rowRect = dataRow.AddComponent<RectTransform>();
+        rowRect.sizeDelta = new Vector2(0, 40); // 행 높이
+
+        // 배경 (짝수/홀수 행 구분)
+        var rowBg = dataRow.AddComponent<Image>();
+        rowBg.color = rowIndex % 2 == 0 ?
+            new Color(1f, 1f, 1f, 0.1f) :
+            new Color(0.9f, 0.9f, 0.9f, 0.2f);
+
+        // Grid Layout - 헤더와 동일한 설정
+        var gridLayout = dataRow.AddComponent<GridLayoutGroup>();
+        gridLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+        gridLayout.constraintCount = rowData.Length;
+        gridLayout.cellSize = new Vector2(120, 35);
+        gridLayout.spacing = new Vector2(2, 0);
+        gridLayout.padding = new RectOffset(5, 5, 2, 2);
+        gridLayout.childAlignment = TextAnchor.MiddleCenter;
+
+        // 데이터 셀들 생성
+        for (int i = 0; i < rowData.Length; i++)
         {
-            textComponents[i].text = data[i];
+            CreateDataCell(dataRow.transform, rowData[i], i, rowIndex);
+        }
+    }
 
-            // 팀 이름 컬럼 (3번째 컬럼)에 팀 색상 적용
-            if (i == 2 && !string.IsNullOrEmpty(teamName))
-            {
-                textComponents[i].color = KBOTeamHelper.GetTeamColor(teamName);
-                textComponents[i].fontStyle = FontStyles.Bold;
-            }
+    /// <summary>
+    /// 데이터 셀 생성
+    /// </summary>
+    void CreateDataCell(Transform parent, string cellData, int columnIndex, int rowIndex)
+    {
+        GameObject cell = new GameObject($"Cell_{rowIndex}_{columnIndex}");
+        cell.transform.SetParent(parent);
 
-            // 순위 컬럼에 특별 색상 적용
-            if (i == 0 && rank > 0 && rank <= 3)
+        var cellRect = cell.AddComponent<RectTransform>();
+
+        // 텍스트 컴포넌트
+        var text = cell.AddComponent<TextMeshProUGUI>();
+        text.text = cellData;
+        text.fontSize = 12f;
+        text.alignment = TextAlignmentOptions.Center;
+        text.color = Color.black;
+
+        // 특별한 컬럼 스타일링
+        if (columnIndex == 1) // 팀 이름 컬럼
+        {
+            text.fontStyle = FontStyles.Bold;
+            // 팀 색상 적용 (필요시)
+        }
+        else if (columnIndex == 0) // 순위 컬럼
+        {
+            text.fontStyle = FontStyles.Bold;
+            int rank = int.TryParse(cellData, out int r) ? r : 0;
+            if (rank <= 3)
             {
-                textComponents[i].color = KBOTeamHelper.GetRankColor(rank);
-                textComponents[i].fontStyle = FontStyles.Bold;
+                text.color = rank == 1 ? Color.red :
+                           rank == 2 ? new Color(1f, 0.5f, 0f) :
+                           new Color(0.8f, 0.6f, 0f);
             }
         }
+
+        ApplyKoreanFontToText(text);
     }
 
     void ClearTable()
     {
-        // 헤더 클리어
-        if (headerContainer != null)
+        if (tableContainer != null)
         {
-            foreach (Transform child in headerContainer)
-            {
-                if (Application.isPlaying)
-                    Destroy(child.gameObject);
-            }
-        }
-
-        // 행 클리어
-        if (rowContainer != null)
-        {
-            foreach (Transform child in rowContainer)
+            foreach (Transform child in tableContainer)
             {
                 if (Application.isPlaying)
                     Destroy(child.gameObject);
@@ -656,33 +620,51 @@ public class KBOInfoManager : MonoBehaviour
     {
         yield return new WaitForEndOfFrame();
 
-        // ScrollView Content의 Layout Group 강제 갱신
-        if (headerContainer != null)
+        // 테이블 컨테이너의 Layout Group 강제 갱신
+        if (tableContainer != null)
         {
-            var layoutGroup = headerContainer.GetComponent<LayoutGroup>();
+            var layoutGroup = tableContainer.GetComponent<LayoutGroup>();
             if (layoutGroup != null)
             {
-                LayoutRebuilder.ForceRebuildLayoutImmediate(headerContainer.GetComponent<RectTransform>());
-            }
-        }
-
-        if (rowContainer != null)
-        {
-            var layoutGroup = rowContainer.GetComponent<LayoutGroup>();
-            if (layoutGroup != null)
-            {
-                LayoutRebuilder.ForceRebuildLayoutImmediate(rowContainer.GetComponent<RectTransform>());
+                LayoutRebuilder.ForceRebuildLayoutImmediate(tableContainer.GetComponent<RectTransform>());
             }
 
             // ScrollView의 Content 영역도 갱신
-            Transform content = rowContainer.parent;
-            if (content != null)
+            if (scrollRect != null && scrollRect.content != null)
             {
-                LayoutRebuilder.ForceRebuildLayoutImmediate(content.GetComponent<RectTransform>());
+                LayoutRebuilder.ForceRebuildLayoutImmediate(scrollRect.content);
             }
         }
 
         Debug.Log("Layout 강제 갱신 완료");
+    }
+
+    /// <summary>
+    /// 테이블 생성 완료 후 Layout 계산을 기다린 다음 RectTransform을 Reset합니다
+    /// </summary>
+    IEnumerator ForceResetAfterLayout(RectTransform tableRect)
+    {
+        // Layout 계산을 위해 2프레임 대기
+        yield return new WaitForEndOfFrame();
+        yield return new WaitForEndOfFrame();
+
+        if (tableRect != null)
+        {
+            // Unity Inspector의 Reset과 동일한 효과
+            tableRect.localPosition = Vector3.zero;
+            tableRect.localRotation = Quaternion.identity;
+            tableRect.localScale = Vector3.one;
+            tableRect.anchorMin = Vector2.zero;
+            tableRect.anchorMax = Vector2.one;
+            tableRect.anchoredPosition = Vector2.zero;
+            tableRect.sizeDelta = Vector2.zero;
+            tableRect.pivot = new Vector2(0.5f, 0.5f);
+
+            Debug.Log("테이블 RectTransform 자동 Reset 완료 - 이제 테이블이 올바르게 표시됩니다!");
+
+            // Reset 후 추가 Layout 갱신
+            LayoutRebuilder.ForceRebuildLayoutImmediate(tableRect);
+        }
     }
 
     bool ShouldRefreshData()
