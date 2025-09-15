@@ -47,7 +47,7 @@ public class PitchSelectionUI : MonoBehaviour
 
     private AudioSource audioSource;
     private PitchType currentSelectedPitch = PitchType.FastBall;
-    private VRBaseball currentBaseball;
+    private PitchingBallController currentBaseball;
 
     // 통계 데이터
     private int totalPitches = 0;
@@ -326,7 +326,7 @@ public class PitchSelectionUI : MonoBehaviour
         }
     }
 
-    public void RegisterBaseball(VRBaseball baseball)
+    public void RegisterBaseball(PitchingBallController baseball)
     {
         currentBaseball = baseball;
         // 현재 선택된 구종을 야구공에 적용

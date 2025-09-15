@@ -28,6 +28,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Transform[] bases;
     [SerializeField] private Baseball _ball;
 
+    [Header("pitcher Mode")]
+    [SerializeField] private GameObject pitcherUI;
+
     private Queue<Batter> [] runners = new Queue<Batter>[MAX_BASE_COUNT + 1]; //
     [SerializeField] private Batter batterPrefab; 
     [SerializeField] private Batter batter;
@@ -133,10 +136,10 @@ public class GameManager : MonoBehaviour
         {
             MoveOneBase();
         }
-        // if (Input.GetKeyDown(KeyCode.D))
-        // {
-        //     DebugBaseStatus();
-        // }
+        if (Input.GetKeyDown(KeyCode.X))
+        {
+            Inning++;
+        }
         
         if (_ball.MyDefender)
         {
@@ -190,6 +193,7 @@ public class GameManager : MonoBehaviour
             if (value >= MAX_INNING_COUNT)
             {
                 Debug.Log("Game Over, back to the menu...");
+                
                 //GameEnd
                 return;
             }
@@ -302,6 +306,7 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("엄준식 타자");
 
+        pitcherUI.gameObject.SetActive(false);
         defenders[0].gameObject.SetActive(true);
         
         //방망이 중력, rotation position 풀기
@@ -314,6 +319,7 @@ public class GameManager : MonoBehaviour
         //pitcher stop
         Debug.Log("엄준식 투수");
 
+        pitcherUI.gameObject.SetActive(true);
         defenders[0].gameObject.SetActive(false);
         
         //방망이 위치 Vector3(-0.660000026,1.37,0.150000006) 여기로

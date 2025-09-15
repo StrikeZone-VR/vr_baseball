@@ -300,7 +300,7 @@ public class PitchingSystemManager : MonoBehaviour
     // ==============================================
     // 🎯 공 결과 처리
     // ==============================================
-    public void OnBallLanded(VRBaseball ball, bool isStrike)
+    public void OnBallLanded(PitchingBallController ball, bool isStrike)
     {
         string resultText = isStrike ? "스트라이크!" : "볼!";
         Debug.Log($"🎾 공 착지 결과: {resultText} 위치: {ball.transform.position}");

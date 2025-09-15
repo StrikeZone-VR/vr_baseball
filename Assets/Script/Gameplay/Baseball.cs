@@ -3,7 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
+using UnityEngine.XR.Interaction.Toolkit;
 
+[RequireComponent( typeof(PitchingBallController))]
 public class Baseball : MonoBehaviour
 {
     private Rigidbody _rigidbody;

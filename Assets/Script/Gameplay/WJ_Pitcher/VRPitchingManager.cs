@@ -14,7 +14,7 @@ public class VRPitchingManager : MonoBehaviour
     public Transform pitcherMound;          // 투수 마운드 위치
     public Transform homeplate;             // 홈플레이트 위치  
     public Transform strikeZone;            // 스트라이크 존
-    public VRBaseball baseballPrefab;       // 야구공 프리팹
+    public PitchingBallController baseballPrefab;       // 야구공 프리팹
     public PitchSelectionUI pitchSelectionUI; // 구종 선택 UI
 
     [Header("VR 설정")]
@@ -33,7 +33,7 @@ public class VRPitchingManager : MonoBehaviour
     public AudioClip ballSound;
 
     private AudioSource audioSource;
-    private VRBaseball currentBall;
+    private PitchingBallController currentBall;
     private int ballsThrown = 0;
     private GameObject originalBall;  // 원본 공 레퍼런스 추가 (스폰용)
     private List<GameObject> thrownBalls = new List<GameObject>();  // 던진 공들 관리
@@ -61,7 +61,7 @@ public class VRPitchingManager : MonoBehaviour
             strikeZone.gameObject.tag = "StrikeZone";
 
         // **씬에 이미 있는 VRBaseball 찾기**
-        VRBaseball existingBall = FindObjectOfType<VRBaseball>();
+        PitchingBallController existingBall = FindObjectOfType<PitchingBallController>();
         if (existingBall != null)
         {
             Debug.Log("씬에서 기존 VRBaseball을 찾았습니다. 이것을 첫 번째 공으로 사용합니다.");
@@ -113,13 +113,13 @@ public class VRPitchingManager : MonoBehaviour
             Vector3 spawnPosition = GetBallSpawnPosition();
             Debug.Log($"새 공 생성 위치: {spawnPosition}");
 
-            VRBaseball newBall = null;
+            PitchingBallController newBall = null;
 
-            if (originalBall != null && originalBall.GetComponent<VRBaseball>() != null)
+            if (originalBall != null && originalBall.GetComponent<PitchingBallController>() != null)
             {
                 Debug.Log("원본 공을 템플릿으로 사용하여 새 공 생성");
                 // 원본 공을 복제
-                newBall = Instantiate(originalBall.GetComponent<VRBaseball>(), spawnPosition, Quaternion.identity);
+                newBall = Instantiate(originalBall.GetComponent<PitchingBallController>(), spawnPosition, Quaternion.identity);
                 newBall.name = "VRBaseball_Clone_" + ballsThrown;
             }
             else if (baseballPrefab != null)
@@ -234,7 +234,7 @@ public class VRPitchingManager : MonoBehaviour
             // 컴포넌트 얻기
             Rigidbody ballRb = currentBall.GetComponent<Rigidbody>();
             XRGrabInteractable grabInteractable = currentBall.GetComponent<XRGrabInteractable>();
-            VRBaseball vrBallScript = currentBall.GetComponent<VRBaseball>();
+            PitchingBallController vrBallScript = currentBall.GetComponent<PitchingBallController>();
 
             // VRBaseball 스크립트가 활성화되어 있는지 확인
             if (vrBallScript != null)
@@ -361,7 +361,7 @@ public class VRPitchingManager : MonoBehaviour
             currentBall.SetPitchType(pitchType);
     }
 
-    private void OnBallThrown(VRBaseball ball)
+    private void OnBallThrown(PitchingBallController ball)
     {
         Debug.Log($"🎾 VRPitchingManager: OnBallThrown 이벤트 수신됨! 딜레이 후 새 공 생성 시작!");
 
@@ -386,7 +386,7 @@ public class VRPitchingManager : MonoBehaviour
         // **이전 공들은 새 공 스폰 후에 정리** (착지 상태 확인 시간 제공)
 
         // 현재 공 저장 (안전하게)
-        VRBaseball throwBall = currentBall;
+        PitchingBallController throwBall = currentBall;
 
         // 참조를 끊어 GC 대상이 되지 않게
         currentBall = null;
@@ -395,7 +395,7 @@ public class VRPitchingManager : MonoBehaviour
         Invoke(nameof(SpawnNewBall), ballResetDelay);
     }
 
-    private void OnBallLanded(VRBaseball ball, bool isStrike)
+    private void OnBallLanded(PitchingBallController ball, bool isStrike)
     {
         Debug.Log($"=== 공 착지 결과 ===");
         Debug.Log($"위치: {ball.transform.position}");
@@ -514,7 +514,7 @@ public class VRPitchingManager : MonoBehaviour
     public int GetBallCount() => balls;
     public int GetBallsThrown() => ballsThrown;
     public int GetMaxBalls() => maxBalls;
-    public VRBaseball GetCurrentBall() => currentBall;
+    public PitchingBallController GetCurrentBall() => currentBall;
 
     /// <summary>
     /// 공이 특정 구역에 착지했을 때 호출되는 메서드
