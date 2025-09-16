@@ -1763,7 +1763,6 @@ MonoBehaviour:
   throwSound: {fileID: 0}
   bounceSound: {fileID: 0}
   strikeZone: {fileID: 0}
-  pitchingSystemManager: {fileID: 0}
   aimAssistStrength: 0.8
   enableRandomTargeting: 1
 --- !u!1001 &698565504
@@ -1952,11 +1951,57 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 761965507}
   m_CullTransparentMesh: 1
---- !u!1 &876239796 stripped
+--- !u!1 &853712788
 GameObject:
-  m_CorrespondingSourceObject: {fileID: 2048653189908155841, guid: 6b632a987658c784fb8d018000345df0, type: 3}
-  m_PrefabInstance: {fileID: 1998049267}
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 853712789}
+  - component: {fileID: 853712790}
+  m_Layer: 0
+  m_Name: PitchingManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &853712789
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 853712788}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1208688575}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &853712790
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 853712788}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f13226d5984bcc64a8371e346910bc21, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pitchSelectionUI: {fileID: 1998049268}
+  ball: {fileID: 683532159}
+  maxBalls: 10
+  ballResetDelay: 3
+  gameStartSound: {fileID: 0}
+  strikeSound: {fileID: 0}
+  ballSound: {fileID: 0}
 --- !u!1001 &877522167
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2688,7 +2733,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 853712789}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1208688576
@@ -2703,6 +2749,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e5730fa4a2c0a1f4fbec61017dfb0ba5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pitchingManager: {fileID: 853712790}
   playerOrigin: {fileID: 1388435485}
   _UIGameStatusElements:
   - {fileID: 67701808}
@@ -2728,7 +2775,6 @@ MonoBehaviour:
   - {fileID: 2029007883}
   - {fileID: 21339321}
   _ball: {fileID: 683532152}
-  pitcherUI: {fileID: 876239796}
   batterPrefab: {fileID: -2223903063539352654, guid: 022e049949df0ed47a134ea64e62c95d, type: 3}
   batter: {fileID: 1473264740}
   outBatterEvent: {fileID: 11400000, guid: a7e00550afa182d4594b424474b58e00, type: 2}
@@ -3144,6 +3190,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1128552219}
     m_Modifications:
+    - target: {fileID: 15669373753469689, guid: 9b087ad3ee72dbd408584ba96bc2cc57, type: 3}
+      propertyPath: m_Convex
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1682164828880379055, guid: 9b087ad3ee72dbd408584ba96bc2cc57, type: 3}
       propertyPath: m_UseGravity
       value: 1
@@ -4333,6 +4383,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6b632a987658c784fb8d018000345df0, type: 3}
+--- !u!114 &1998049268 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1474943157002577863, guid: 6b632a987658c784fb8d018000345df0, type: 3}
+  m_PrefabInstance: {fileID: 1998049267}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 636125138a713444da2a0d0943948b9a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2029007882
 GameObject:
   m_ObjectHideFlags: 0
@@ -4591,6 +4652,10 @@ PrefabInstance:
       propertyPath: pitcher
       value: 
       objectReference: {fileID: 1036175184}
+    - target: {fileID: 4967905421558346264, guid: 4c98c6ae2f898124bbd8ec166f02c936, type: 3}
+      propertyPath: debug_pm
+      value: 
+      objectReference: {fileID: 853712790}
     - target: {fileID: 4967905421558346264, guid: 4c98c6ae2f898124bbd8ec166f02c936, type: 3}
       propertyPath: defenderTransform
       value: 

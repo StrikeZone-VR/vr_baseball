@@ -91,6 +91,8 @@ public class PitchingSystemManager : MonoBehaviour
         Debug.Log($"✅ 시스템 초기화 완료! 스트라이크: {strikeZones.Count}개, 볼: {ballZones.Count}개, 총: {allZones.Count}개");
     }
     
+    /// <summary> ballZone Clear
+    /// </summary>
     private void ClearExistingSystems()
     {
         // 기존 볼존 제거

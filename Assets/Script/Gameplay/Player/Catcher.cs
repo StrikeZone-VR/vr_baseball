@@ -5,6 +5,8 @@ using UnityEngine;
 public class Catcher : Baseman
 {
     [SerializeField] private Pitcher pitcher;
+    [SerializeField] private PitchingManager debug_pm;
+
     
     [Header("Listening to Event")]
     [SerializeField] private VoidEventSO strikeEvent;
@@ -22,8 +24,14 @@ public class Catcher : Baseman
         
         yield return new WaitForSeconds(4.0f);
         
-        //ball to pitcher
-        ThrowBall(pitcher.transform.position);
+        //batterMode
+        if (pitcher.gameObject.activeSelf)
+            ThrowBall(pitcher.transform.position);
+        else
+        {
+            debug_pm.ResetBall();
+            //_ball.GetComponent<PitchingBallController>().ResetBall();
+        }
     }
     
     

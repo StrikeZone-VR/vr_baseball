@@ -18,6 +18,10 @@ public class GameManager : MonoBehaviour
     private int strike_count = 0;
     private int out_count = 0;
 
+    [Header("Manager")]
+    [SerializeField] private PitchingManager pitchingManager;
+    
+    
     [SerializeField] private XROrigin playerOrigin;
 
     [SerializeField] private UIGameStatus[] _UIGameStatusElements;
@@ -27,9 +31,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Defender[] defenders; // pitcher => 0
     [SerializeField] private Transform[] bases;
     [SerializeField] private Baseball _ball;
-
-    [Header("pitcher Mode")]
-    [SerializeField] private GameObject pitcherUI;
 
     private Queue<Batter> [] runners = new Queue<Batter>[MAX_BASE_COUNT + 1]; //
     [SerializeField] private Batter batterPrefab; 
@@ -198,7 +199,8 @@ public class GameManager : MonoBehaviour
                 return;
             }
             inning = value;
-            ClearRunners();
+            InitInning();
+            
 
             int num = inning % 2;
 
@@ -287,8 +289,13 @@ public class GameManager : MonoBehaviour
         _scoreTexts[teamIndex].text = (_teamStatus[teamIndex].Score).ToString();
     }
 
-    private void ClearRunners()
+    private void InitInning()
     {
+        BallCount = 0;
+        Strike = 0;
+        OutCount = 0;
+        
+        //runner clear
         for (int i = 0; i < runners.Length; i++)
         {
             while (runners[i].Count > 0)
@@ -304,9 +311,9 @@ public class GameManager : MonoBehaviour
 
     private void StartBatter()
     {
-        Debug.Log("엄준식 타자");
+        Debug.Log("타자 Mode On");
 
-        pitcherUI.gameObject.SetActive(false);
+        pitchingManager.EndPitchingGame();
         defenders[0].gameObject.SetActive(true);
         
         //방망이 중력, rotation position 풀기
@@ -317,9 +324,9 @@ public class GameManager : MonoBehaviour
     private void StartPitcher()
     {
         //pitcher stop
-        Debug.Log("엄준식 투수");
+        Debug.Log("투수 Mode On");
 
-        pitcherUI.gameObject.SetActive(true);
+        pitchingManager.StartPitchingGame();
         defenders[0].gameObject.SetActive(false);
         
         //방망이 위치 Vector3(-0.660000026,1.37,0.150000006) 여기로

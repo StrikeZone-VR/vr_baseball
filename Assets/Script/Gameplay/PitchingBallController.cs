@@ -32,7 +32,7 @@ public class PitchingBallController : MonoBehaviour
 
     [Header("참조")]
     public Transform strikeZone;
-    public PitchingSystemManager pitchingSystemManager;    // 새로운 통합 시스템
+    //public PitchingSystemManager pitchingSystemManager;    // 새로운 통합 시스템
 
     [Header("투구 보정 설정")]
     [Range(0f, 1f)]
@@ -52,10 +52,6 @@ public class PitchingBallController : MonoBehaviour
     private Vector3 lastPosition;
     private Vector3 originalGravity;
 
-    // 이벤트
-    public System.Action<PitchingBallController> OnBallThrown;
-    public System.Action<PitchingBallController, bool> OnBallLanded; // bool: isStrike
-
     // 이벤트 한 번만 발생시키기 위한 플래그
     private bool eventFired = false;
         
@@ -64,16 +60,6 @@ public class PitchingBallController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         grabInteractable = GetComponent<XRGrabInteractable>();
-        
-        // 강제 활성화
-        this.enabled = true;
-
-        // 공끼리 충돌 방지를 위한 레이어 설정
-        if (this.name.Contains("Clone"))
-        {
-            // 복제된 공들은 서로 충돌하지 않게 설정
-            gameObject.layer = LayerMask.NameToLayer("Default"); // 기본 레이어 사용
-        }
 
         InitializeComponents();
         UpdatePitchData();
@@ -83,7 +69,7 @@ public class PitchingBallController : MonoBehaviour
     {
         if (isThrown)
         {
-            // **안전장치: 공이 너무 아래로 떨어지면 강제 멈춤**
+            // 안전장치: 공이 너무 아래로 떨어지면 강제 멈춤 => ball
             if (transform.position.y < -2.0f) // Y=-2 이하로 떨어지면
             {
                 Debug.LogWarning($"⚠️ 공이 바닥을 뚫고 떨어짐! Y위치: {transform.position.y} - 볼 처리합니다.");
@@ -99,13 +85,6 @@ public class PitchingBallController : MonoBehaviour
 
                 // 던지기 상태 종료
                 isThrown = false;
-
-                // 이벤트 발생
-                Debug.Log($"🚀 강제 착지 - OnBallThrown 이벤트 발생!");
-                OnBallThrown?.Invoke(this);
-                Debug.Log($"📊 강제 착지 - OnBallLanded 이벤트 발생! (볼 처리)");
-                OnBallLanded?.Invoke(this, false); // 볼로 처리
-
                 return;
             }
 
@@ -134,7 +113,7 @@ public class PitchingBallController : MonoBehaviour
             return;
         }
 
-        if (isThrown && rb != null)
+        if (isThrown)
         {
             // **충돌 시 즉시 멈춤!** - Kinematic 체크 추가
             // Kinematic인 상태에서는 velocity를 설정하지 않음
@@ -171,38 +150,31 @@ public class PitchingBallController : MonoBehaviour
                 Vector3 hitPosition = collision.contacts[0].point;
                 bool isStrike = false;
 
-                // 스트라이크 판정 로직 개선 - 새로운 시스템 우선
-                if (pitchingSystemManager != null)
+                //
+                
+                // 기존 방식: 스트라이크존 콜라이더 내부인지 확인
+                if (strikeZone != null)
                 {
-                    isStrike = pitchingSystemManager.IsStrikePosition(hitPosition);
-                    Debug.Log($"🎯 새로운 25구역 시스템 판정: {(isStrike ? "⚾ Strike" : "❌ Ball")} (위치: {hitPosition})");
-                }
-                else
-                {
-                    // 기존 방식: 스트라이크존 콜라이더 내부인지 확인
-                    if (strikeZone != null)
+                    Collider strikeZoneCollider = strikeZone.GetComponent<Collider>();
+                    if (strikeZoneCollider != null)
                     {
-                        Collider strikeZoneCollider = strikeZone.GetComponent<Collider>();
-                        if (strikeZoneCollider != null)
-                        {
-                            isStrike = strikeZoneCollider.bounds.Contains(hitPosition);
-                            Debug.Log($"🎯 기본 판정: {(isStrike ? "스트라이크" : "볼")} (위치: {hitPosition})");
-                        }
+                        isStrike = strikeZoneCollider.bounds.Contains(hitPosition);
+                        Debug.Log($"🎯 기본 판정: {(isStrike ? "스트라이크" : "볼")} (위치: {hitPosition})");
                     }
+                }
 
-                    // 추가 판정: MiddleCenter 기준으로도 확인
-                    if (!isStrike && strikeZone != null)
+                // 추가 판정: MiddleCenter 기준으로도 확인
+                if (!isStrike && strikeZone != null)
+                {
+                    // MiddleCenter 찾기
+                    Transform middleCenter = strikeZone.Find("MiddleCenter");
+                    Vector3 centerPos = middleCenter != null ? middleCenter.position : strikeZone.position;
+
+                    float distanceToCenter = Vector3.Distance(hitPosition, centerPos);
+                    if (distanceToCenter < 1.0f) // 1미터 이내면 스트라이크로 판정
                     {
-                        // MiddleCenter 찾기
-                        Transform middleCenter = strikeZone.Find("MiddleCenter");
-                        Vector3 centerPos = middleCenter != null ? middleCenter.position : strikeZone.position;
-
-                        float distanceToCenter = Vector3.Distance(hitPosition, centerPos);
-                        if (distanceToCenter < 1.0f) // 1미터 이내면 스트라이크로 판정
-                        {
-                            isStrike = true;
-                            Debug.Log($"🎯 MiddleCenter 기준 판정: 스트라이크! (거리: {distanceToCenter:F2}m)");
-                        }
+                        isStrike = true;
+                        Debug.Log($"🎯 MiddleCenter 기준 판정: 스트라이크! (거리: {distanceToCenter:F2}m)");
                     }
                 }
 
@@ -211,11 +183,6 @@ public class PitchingBallController : MonoBehaviour
                 // 던지기 상태 종료
                 isThrown = false;
 
-                // 이벤트 발생 - 공이 착지했을 때 둘 다 발생!
-                Debug.Log($"🚀 OnBallThrown 이벤트 발생 시도!");
-                OnBallThrown?.Invoke(this);   // 이제 여기서 새 공 스폰
-                Debug.Log($"📊 OnBallLanded 이벤트 발생 시도!");
-                OnBallLanded?.Invoke(this, isStrike);
             }
             else
             {
@@ -225,15 +192,9 @@ public class PitchingBallController : MonoBehaviour
                 // 던지기 상태 종료
                 isThrown = false;
 
-                // 스트라이크/볼 판정은 안 되지만 새 공은 스폰해야 함
-                Debug.Log($"🚀 OnBallThrown 이벤트 발생 시도! (알 수 없는 충돌)");
-                OnBallThrown?.Invoke(this);   // 새 공 스폰
-                Debug.Log($"📊 OnBallLanded 이벤트 발생 시도! (기본 볼 처리)");
-                OnBallLanded?.Invoke(this, false); // 일단 볼로 처리
             }
         }
     }
-
 
     void OnTriggerEnter(Collider other)
     {
@@ -287,13 +248,6 @@ public class PitchingBallController : MonoBehaviour
 
                 // 파티클 효과 정지
                 StopAllEffects();
-
-                // 이벤트 발생 - 한 번만 발생!
-                Debug.Log($"🚀 OnBallThrown 이벤트 발생! (트리거)");
-                if (OnBallThrown != null) OnBallThrown(this);
-
-                Debug.Log($"📊 OnBallLanded 이벤트 발생! (트리거 - {(isGroundTrigger ? "바닥" : "스트라이크")})");
-                if (OnBallLanded != null) OnBallLanded(this, !isGroundTrigger); // 바닥이면 볼, 스트라이크존이면 스트라이크
             }
             catch (System.Exception e)
             {
@@ -345,8 +299,6 @@ public class PitchingBallController : MonoBehaviour
         if (audioSource == null)
             audioSource = GetComponent<AudioSource>();
 
-        if (audioSource == null)
-            audioSource = gameObject.AddComponent<AudioSource>();
 
         // XR 이벤트 연결
         grabInteractable.selectExited.AddListener(OnRelease);
@@ -390,16 +342,6 @@ public class PitchingBallController : MonoBehaviour
         if (trailEffect == null)
             trailEffect = GetComponentInChildren<ParticleSystem>();
 
-        // 시스템 매니저 찾기
-        if (pitchingSystemManager == null)
-        {
-            pitchingSystemManager = FindObjectOfType<PitchingSystemManager>();
-            if (pitchingSystemManager != null)
-            {
-                Debug.Log("✅ PitchingSystemManager 발견! 새로운 25구역 시스템 사용");
-            }
-        }
-
         // StrikeZone 찾기 - MiddleCenter까지 확인
         if (strikeZone == null)
         {
@@ -408,11 +350,6 @@ public class PitchingBallController : MonoBehaviour
             {
                 Debug.Log($"✅ StrikeZone 태그로 발견: {strikeZoneObj.name}");
                 strikeZone = strikeZoneObj.transform;
-            }
-            else if (pitchingSystemManager != null && pitchingSystemManager.strikeZoneParent != null)
-            {
-                Debug.Log($"✅ PitchingSystemManager에서 StrikeZone 발견: {pitchingSystemManager.strikeZoneParent.name}");
-                strikeZone = pitchingSystemManager.strikeZoneParent;
             }
 
             // MiddleCenter 확인
@@ -482,7 +419,7 @@ public class PitchingBallController : MonoBehaviour
 
             // 핵심: 물리 설정을 명확하게
             rb.isKinematic = false;  // 반드시 kinematic을 false로 설정
-            rb.useGravity = true;    // 중력 활성화 (자연스러운 느낌)
+            //rb.useGravity = true;    // 중력 활성화 (자연스러운 느낌)
             rb.velocity = Vector3.zero;      // velocity 초기화
             rb.angularVelocity = Vector3.zero; // angular velocity 초기화
 
@@ -501,24 +438,21 @@ public class PitchingBallController : MonoBehaviour
         // XR 비활성화
         grabInteractable.enabled = false;
 
-        // 스트라이크존 찾기
-        if (strikeZone == null)
-        {
-            strikeZone = GameObject.FindGameObjectWithTag("StrikeZone")?.transform;
-            if (strikeZone == null && pitchingSystemManager != null)
-                strikeZone = pitchingSystemManager.strikeZoneParent;
-        }
-
-        // **새로운 통합 25구역 시스템 사용** - 랜덤 타겟 위치 가져오기
         Vector3 targetPosition;
 
-        if (enableRandomTargeting && pitchingSystemManager != null)
-        {
-            // **🎯 새로운 통합 시스템 사용!**
-            targetPosition = pitchingSystemManager.GetTargetPosition();
-            Debug.Log($"🎯 새로운 투수 시스템에서 랜덤 타겟 선택: {targetPosition}");
-        }
-        else if (strikeZone != null)
+        // 스트라이크존 찾기 ★★★★★★★★★★★★★★★★★★★★ => 나중에 추가할거
+        // 대충 찾는 함수
+        
+        // **새로운 통합 25구역 시스템 사용** - 랜덤 타겟 위치 가져오기 ★★★★★★★★★★★★★★★★★★★★
+        // if (enableRandomTargeting && pitchingSystemManager != null)
+        // {
+        //     // **🎯 새로운 통합 시스템 사용!**
+        //     targetPosition = pitchingSystemManager.GetTargetPosition();
+        //     Debug.Log($"🎯 새로운 투수 시스템에서 랜덤 타겟 선택: {targetPosition}");
+        // }
+        
+        
+        if (strikeZone != null)
         {
             // **정확한 StrikeZone 위치만 사용! 임의 보정 금지!**
             targetPosition = strikeZone.position;
@@ -527,8 +461,7 @@ public class PitchingBallController : MonoBehaviour
         else
         {
             // 완전 못찾으면 씬 기준 고정 위치 (StrikeZone 위치)
-            targetPosition = new Vector3(0f, 0.605f, -14.06f);
-            Debug.Log($"🎯 완전 못찾음! 씬 기준 고정 위치 사용: {targetPosition}");
+            targetPosition = new Vector3(0f, 0.5f, 0f);
         }
 
         // **완전 무시하고 강제 방향!**
@@ -537,14 +470,7 @@ public class PitchingBallController : MonoBehaviour
         // **속도 설정 - 느린 투구 속도로 조정**
         float targetSpeed = 8.0f;  // 12.0f에서 8.0f로 감소 (약 29km/h, 더 여유있게)
 
-        // **물리 완전 제어 - 야구 게임다운 설정**
-        rb.isKinematic = false;  // kinematic 해제
-        rb.useGravity = true;    // 중력 적용 (자연스러운 포물선)
-        rb.velocity = Vector3.zero;
-        rb.angularVelocity = Vector3.zero;
-        rb.drag = 0.02f;         // 최소한의 공기 저항
-        rb.angularDrag = 0.05f;  // 최소한의 회전 저항
-        rb.collisionDetectionMode = CollisionDetectionMode.Continuous; // 바닥 충돌 개선
+        OnBallPhysics();
 
         // **정확한 직선 투구 - 스트라이크존 (0, 0.605, -14.06) 조준**
         Vector3 direction = (targetPosition - transform.position).normalized;
@@ -568,6 +494,7 @@ public class PitchingBallController : MonoBehaviour
         // OnBallThrown 이벤트는 충돌 시에만 발생하도록 수정!
     }    // 구 버전 보정 메서드 제거됨 - 단순화
 
+    
     private void StartCurveEffect()
     {
         // 단순화 - 커브 효과 비활성화
@@ -676,9 +603,9 @@ public class PitchingBallController : MonoBehaviour
         }
     }
 
+    // 공 상태 초기화 => 일단 안쓰는데 지켜봄
     public void ResetBall(Vector3 position)
     {
-        // 공 상태 초기화
         isThrown = false;
         eventFired = false; // 이벤트 플래그 초기화
         // 사용하지 않는 변수들 제거됨
@@ -690,10 +617,7 @@ public class PitchingBallController : MonoBehaviour
             grabInteractable.enabled = true;
         }
 
-        // 물리 초기화
-        rb.velocity = Vector3.zero;
-        rb.angularVelocity = Vector3.zero;
-        rb.useGravity = false; // 리셋된 공도 중력 비활성화 (안정적 배치)
+        OffBallPhysics();
 
         // 위치 설정
         transform.position = position;
@@ -770,10 +694,40 @@ public class PitchingBallController : MonoBehaviour
         Debug.Log($"⚾ 공이 {zoneName}에 착지! {(isStrike ? "Strike ⚾" : "Ball ❌")}");
         
         // VRPitchingManager에게 결과 전달
-        VRPitchingManager pitchingManager = FindObjectOfType<VRPitchingManager>();
+        PitchingManager pitchingManager = FindObjectOfType<PitchingManager>();
         if (pitchingManager != null)
         {
             pitchingManager.OnBallResult(isStrike, zoneName);
         }
     }
+    
+    
+    //Rigidbody
+    #region PHYSICS
+
+    public void OffBallPhysics()
+    {
+        // **이미 kinematic이면 먼저 해제하고 velocity 설정!**
+        rb.isKinematic = false;  // 먼저 kinematic 해제
+
+        rb.velocity = Vector3.zero;         // 이제 안전하게 velocity 설정
+        rb.angularVelocity = Vector3.zero;  // 이제 안전하게 angular velocity 설정
+        rb.useGravity = false;              // 중력 끄기
+        rb.isKinematic = true;              // 다시 kinematic 설정
+        rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic; // 충돌 감지 개선
+    }
+    public void OnBallPhysics()
+    {
+        // **물리 완전 제어 - 야구 게임다운 설정**
+        rb.isKinematic = false;  // kinematic 해제
+        rb.useGravity = true;    // 중력 적용 (자연스러운 포물선)
+        rb.velocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        rb.drag = 0.02f;         // 최소한의 공기 저항
+        rb.angularDrag = 0.05f;  // 최소한의 회전 저항
+        rb.collisionDetectionMode = CollisionDetectionMode.Continuous; // 바닥 충돌 개선
+    }
+        
+    
+    #endregion
 }
