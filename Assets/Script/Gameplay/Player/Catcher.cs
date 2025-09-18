@@ -5,11 +5,11 @@ using UnityEngine;
 public class Catcher : Baseman
 {
     [SerializeField] private Pitcher pitcher;
-    [SerializeField] private PitchingManager debug_pm;
-
     
     [Header("Listening to Event")]
     [SerializeField] private VoidEventSO strikeEvent;
+    [SerializeField] private VoidEventSO backToPitcherEvent;
+    
     public override void SetMyBall(Baseball myBall)
     {
         base.SetMyBall(myBall);
@@ -29,7 +29,7 @@ public class Catcher : Baseman
             ThrowBall(pitcher.transform.position);
         else
         {
-            debug_pm.ResetBall();
+            backToPitcherEvent.RaiseEvent();
             //_ball.GetComponent<PitchingBallController>().ResetBall();
         }
     }

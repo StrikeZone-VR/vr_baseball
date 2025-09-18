@@ -37,10 +37,17 @@ public class Baseball : MonoBehaviour
             Debug.Log("스트라이크~");
             isSZ = true;
         }
+        //paul
+        else if (collider.CompareTag("Paul"))
+        {
+            backToPitcherEvent.RaiseEvent();
+            Debug.Log("paul");
+        }
         //homerun
         else if (collider.CompareTag("Homerun"))
         {
             //HomerunEvent.event
+            backToPitcherEvent.RaiseEvent();
             Debug.Log("homerun");
         }
     }
@@ -59,15 +66,7 @@ public class Baseball : MonoBehaviour
             {
                 IsGroundBall = true;
                 IsPassing = false;
-                //paul
-                if (transform.position.x > 0.0f || transform.position.z > 0.0f)
-                {
-                    Debug.Log("paul");
-                }
-                else //other => in play game
-                {
-                    Debug.Log("in play game");
-                }
+                Debug.Log("in play game");
             }
             
         }
