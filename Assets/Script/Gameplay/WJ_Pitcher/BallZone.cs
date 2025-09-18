@@ -52,8 +52,8 @@ public class BallZone : MonoBehaviour
     // ==============================================
     void OnTriggerEnter(Collider other)
     {
-        PitchingBallController baseball = other.GetComponent<PitchingBallController>();
-        if (baseball != null && baseball.IsThrown())
+        Baseball baseball = other.GetComponent<Baseball>();
+        if (baseball != null && baseball.IsThrown)
         {
             HandleBallHit(baseball);
         }
@@ -61,8 +61,8 @@ public class BallZone : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
-        PitchingBallController baseball = collision.gameObject.GetComponent<PitchingBallController>();
-        if (baseball != null && baseball.IsThrown())
+        Baseball baseball = collision.gameObject.GetComponent<Baseball>();
+        if (baseball != null && baseball.IsThrown)
         {
             HandleBallHit(baseball);
         }
@@ -71,7 +71,7 @@ public class BallZone : MonoBehaviour
     // ==============================================
     // 🎾 볼 처리
     // ==============================================
-    private void HandleBallHit(PitchingBallController baseball)
+    private void HandleBallHit(Baseball baseball)
     {
         Debug.Log($"⚾ 볼존 충돌: {gameObject.name}");
 

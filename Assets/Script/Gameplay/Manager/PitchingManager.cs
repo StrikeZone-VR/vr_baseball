@@ -17,7 +17,7 @@ public class PitchingManager : MonoBehaviour
 {
     [Header("게임 오브젝트 참조")]
     public PitchSelectionUI pitchSelectionUI; // 구종 선택 UI
-    [SerializeField] private PitchingBallController ball;
+    [SerializeField] private Baseball ball;
 
     
     [Header("게임 설정")]
@@ -101,7 +101,8 @@ public class PitchingManager : MonoBehaviour
     //SpawnNewBall => InitBall
     public void ResetBall()
     {
-        ball.GetComponent<Baseball>().RemovePlayer();
+        ball.RemovePlayer();
+        
         // **한 프레임 뒤에 물리 설정 - VRBaseball Start() 후에 실행되도록!**
         StartCoroutine(SetupBallAfterFrame());
 
@@ -135,7 +136,7 @@ public class PitchingManager : MonoBehaviour
 
         // init ball
         Vector3 finalPosition = ballResetPosition;
-        ball.transform.position = finalPosition;
+        ball.ResetBall(finalPosition);
     }
 
     //ball setting => 제거할 예정, 볼 자체에 넣거나 뭔가 할 예정 ★★★
@@ -155,7 +156,7 @@ public class PitchingManager : MonoBehaviour
 
             // get components
             XRGrabInteractable grabInteractable = ball.GetComponent<XRGrabInteractable>();
-            PitchingBallController vrBallScript = ball.GetComponent<PitchingBallController>();
+            Baseball vrBallScript = ball.GetComponent<Baseball>();
 
             // Baseball 스크립트가 활성화되어 있는지 확인
             if (vrBallScript != null)
@@ -261,7 +262,7 @@ public class PitchingManager : MonoBehaviour
         }
     }
 
-    public PitchingBallController GetCurrentBall() => ball;
+    public Baseball GetCurrentBall() => ball;
 
     /// <summary>
     /// 공이 특정 구역에 착지했을 때 호출되는 메서드

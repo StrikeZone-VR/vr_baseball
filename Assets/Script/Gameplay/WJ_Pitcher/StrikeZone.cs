@@ -132,7 +132,7 @@ public class StrikeZone : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        PitchingBallController baseball = other.GetComponent<PitchingBallController>();
+        Baseball baseball = other.GetComponent<Baseball>();
         if (baseball != null)
         {
             HandleStrike(baseball);
@@ -142,7 +142,7 @@ public class StrikeZone : MonoBehaviour
     void OnCollisionEnter(Collision collision)
     {
         // 공이 스트라이크 존 근처에 떨어졌을 때
-        PitchingBallController baseball = collision.gameObject.GetComponent<PitchingBallController>();
+        Baseball baseball = collision.gameObject.GetComponent<Baseball>();
         if (baseball != null)
         {
             // 공의 위치가 스트라이크 존 범위 내인지 확인
@@ -167,7 +167,7 @@ public class StrikeZone : MonoBehaviour
         return bounds.Contains(position);
     }
 
-    private void HandleStrike(PitchingBallController baseball)
+    private void HandleStrike(Baseball baseball)
     {
         Debug.Log("스트라이크!");
 
@@ -182,7 +182,7 @@ public class StrikeZone : MonoBehaviour
         OnPitchResult?.Invoke(true);
     }
 
-    private void HandleBall(PitchingBallController baseball)
+    private void HandleBall(Baseball baseball)
     {
         Debug.Log("볼!");
 

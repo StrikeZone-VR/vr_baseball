@@ -206,8 +206,6 @@ public class GameManager : MonoBehaviour
 
             int num = inning % 2;
 
-            Debug.Log(num);
-
             //change 
             if (num == 0)
             {
