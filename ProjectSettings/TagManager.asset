@@ -13,6 +13,7 @@ TagManager:
   - right
   - BallZone
   - SZ
+  - Homerun
   layers:
   - Default
   - TransparentFX

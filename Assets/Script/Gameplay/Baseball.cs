@@ -21,19 +21,27 @@ public class Baseball : MonoBehaviour
     [SerializeField] private VoidEventSO allTrackingOffEvent;
     [SerializeField] private VoidEventSO PaulEvent;
     [SerializeField] private VoidEventSO HomerunEvent;
+    [SerializeField] private VoidEventSO backToPitcherEvent; //from gamemanager
+
 
     private void Start()
     {
         _rigidbody = GetComponent<Rigidbody>();
     }
 
-    private void OnTriggerEnter(Collider collision)
+    private void OnTriggerEnter(Collider collider)
     {
         //Strike Zone
-        if (collision.gameObject.CompareTag("SZ") && !isSZ)
+        if (collider.gameObject.CompareTag("SZ") && !isSZ)
         {
             Debug.Log("스트라이크~");
             isSZ = true;
+        }
+        //homerun
+        else if (collider.CompareTag("Homerun"))
+        {
+            //HomerunEvent.event
+            Debug.Log("homerun");
         }
     }
 
@@ -56,18 +64,13 @@ public class Baseball : MonoBehaviour
                 {
                     Debug.Log("paul");
                 }
-                //homerun
-                else if (transform.position.x <= -100.0f && transform.position.z <= -100.0f)
-                {
-                    Debug.Log("homerun");
-                }
                 else //other => in play game
                 {
                     Debug.Log("in play game");
                 }
             }
+            
         }
-
         if (collision.collider.CompareTag("Bat"))
         {
             IsBatTouch = true;

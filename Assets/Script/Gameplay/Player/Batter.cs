@@ -24,26 +24,17 @@ public class Batter : Player
     const float rotationTime = 0.25f;
     float elapsed = 0f;
     
-    public void DebugHitting()
-    {
-        Debug.Log("타자 타임 : " + Time.time);
-        StartRotation();
-
-        //_ball.RemovePlayer();
-
-        //_myBall.transform.position = transform.position + new Vector3(0.0f, 0.5f, 0.0f);
-        //IsMove = true;
-    }
 
 
-    public void StartRotation()
+    public void StartSwing()
     {
         if(elapsed != 0) return;
         
-        StartCoroutine(RotateWithCurve(new Vector3(0, 0, -120), new Vector3(135, 135, -120)));
+        StartCoroutine(RotateWithCurveSwing(new Vector3(0, 0, -120), new Vector3(135, 135, -120)));
     }
 
-    IEnumerator RotateWithCurve(Vector3 start, Vector3 end)
+    
+    IEnumerator RotateWithCurveSwing(Vector3 start, Vector3 end)
     {
         // Quaternion startRotation = Quaternion.Euler(start);
         Quaternion endRotation = Quaternion.Euler(end);

@@ -54,6 +54,10 @@ public class PitchingBallController : MonoBehaviour
 
     // 이벤트 한 번만 발생시키기 위한 플래그
     private bool eventFired = false;
+    
+    [Header("Listening to Event")]
+    [SerializeField] private VoidEventSO pitchEvent; //from Gamemanager
+
         
     #region EventFunction
     void Start()
@@ -102,162 +106,162 @@ public class PitchingBallController : MonoBehaviour
         }
     }
 
-    void OnCollisionEnter(Collision collision)
-    {
-        //Debug.Log($"🔥 충돌 감지! 공 던진 상태: {isThrown}, 충돌 객체: {collision.gameObject.name}, 태그: {collision.gameObject.tag}, 레이어: {collision.gameObject.layer}");
+    // void OnCollisionEnter(Collision collision)
+    // {
+    //     //Debug.Log($"🔥 충돌 감지! 공 던진 상태: {isThrown}, 충돌 객체: {collision.gameObject.name}, 태그: {collision.gameObject.tag}, 레이어: {collision.gameObject.layer}");
+    //
+    //     // **공끼리 충돌은 무시**
+    //     if (collision.gameObject.name.Contains("Baseball"))
+    //     {
+    //         Debug.Log($"⚾ 공끼리 충돌 감지 - 무시합니다: {collision.gameObject.name}");
+    //         return;
+    //     }
+    //
+    //     if (isThrown)
+    //     {
+    //         // **충돌 시 즉시 멈춤!** - Kinematic 체크 추가
+    //         // Kinematic인 상태에서는 velocity를 설정하지 않음
+    //         if (!rb.isKinematic)
+    //         {
+    //             rb.velocity = Vector3.zero;
+    //             rb.angularVelocity = Vector3.zero;
+    //         }
+    //         rb.useGravity = false;  // 중력도 끄기
+    //         rb.isKinematic = true;  // 완전히 멈추기
+    //
+    //         // 파티클 효과 정지
+    //         StopAllEffects();
+    //
+    //         // 충돌 처리 - 바닥과 모든 필드 객체 감지 강화
+    //         if (collision.gameObject.CompareTag("Ground") ||
+    //             collision.gameObject.CompareTag("StrikeZone") ||
+    //             collision.gameObject.name.Contains("Ground") ||
+    //             collision.gameObject.name.Contains("MainZone") ||  // MainZoneVisual 추가!
+    //             collision.gameObject.name.Contains("Zone") ||      // 기타 Zone 객체들
+    //             collision.gameObject.name.Contains("Strike") ||    // StrikeZone 강화!
+    //             collision.gameObject.name.Contains("Plane") ||     // Plane 객체 추가
+    //             collision.gameObject.name.Contains("Floor") ||     // Floor 객체 추가
+    //             collision.gameObject.name.Contains("Field") ||     // baseball-field 추가
+    //             collision.gameObject.name.Contains("field") ||     // 소문자도 포함
+    //             collision.gameObject.name.Contains("Infrastructure") || // Infrastructure 추가
+    //             collision.gameObject.layer == 0)                   // Default 레이어도 포함
+    //         {
+    //             Debug.Log($"✅ 유효한 충돌 객체 확인: {collision.gameObject.name}");
+    //
+    //             if (bounceSound != null && audioSource != null && !audioSource.isPlaying)
+    //                 audioSource.PlayOneShot(bounceSound);
+    //
+    //             Vector3 hitPosition = collision.contacts[0].point;
+    //             bool isStrike = false;
+    //
+    //             //
+    //             
+    //             // 기존 방식: 스트라이크존 콜라이더 내부인지 확인
+    //             if (strikeZone != null)
+    //             {
+    //                 Collider strikeZoneCollider = strikeZone.GetComponent<Collider>();
+    //                 if (strikeZoneCollider != null)
+    //                 {
+    //                     isStrike = strikeZoneCollider.bounds.Contains(hitPosition);
+    //                     Debug.Log($"🎯 기본 판정: {(isStrike ? "스트라이크" : "볼")} (위치: {hitPosition})");
+    //                 }
+    //             }
+    //
+    //             // 추가 판정: MiddleCenter 기준으로도 확인
+    //             if (!isStrike && strikeZone != null)
+    //             {
+    //                 // MiddleCenter 찾기
+    //                 Transform middleCenter = strikeZone.Find("MiddleCenter");
+    //                 Vector3 centerPos = middleCenter != null ? middleCenter.position : strikeZone.position;
+    //
+    //                 float distanceToCenter = Vector3.Distance(hitPosition, centerPos);
+    //                 if (distanceToCenter < 1.0f) // 1미터 이내면 스트라이크로 판정
+    //                 {
+    //                     isStrike = true;
+    //                     Debug.Log($"🎯 MiddleCenter 기준 판정: 스트라이크! (거리: {distanceToCenter:F2}m)");
+    //                 }
+    //             }
+    //
+    //             Debug.Log($"⚾ 최종 판정: {(isStrike ? "🎯 스트라이크!" : "❌ 볼!")} - 공 완전 정지!");
+    //
+    //             // 던지기 상태 종료
+    //             isThrown = false;
+    //
+    //         }
+    //         else
+    //         {
+    //             // **조건에 맞지 않는 충돌 객체라도 이벤트는 발생시키기!**
+    //             Debug.Log($"❓ 알 수 없는 충돌 객체: {collision.gameObject.name}, 하지만 이벤트는 발생!");
+    //
+    //             // 던지기 상태 종료
+    //             isThrown = false;
+    //
+    //         }
+    //     }
+    // }
 
-        // **공끼리 충돌은 무시**
-        if (collision.gameObject.name.Contains("Baseball"))
-        {
-            Debug.Log($"⚾ 공끼리 충돌 감지 - 무시합니다: {collision.gameObject.name}");
-            return;
-        }
-
-        if (isThrown)
-        {
-            // **충돌 시 즉시 멈춤!** - Kinematic 체크 추가
-            // Kinematic인 상태에서는 velocity를 설정하지 않음
-            if (!rb.isKinematic)
-            {
-                rb.velocity = Vector3.zero;
-                rb.angularVelocity = Vector3.zero;
-            }
-            rb.useGravity = false;  // 중력도 끄기
-            rb.isKinematic = true;  // 완전히 멈추기
-
-            // 파티클 효과 정지
-            StopAllEffects();
-
-            // 충돌 처리 - 바닥과 모든 필드 객체 감지 강화
-            if (collision.gameObject.CompareTag("Ground") ||
-                collision.gameObject.CompareTag("StrikeZone") ||
-                collision.gameObject.name.Contains("Ground") ||
-                collision.gameObject.name.Contains("MainZone") ||  // MainZoneVisual 추가!
-                collision.gameObject.name.Contains("Zone") ||      // 기타 Zone 객체들
-                collision.gameObject.name.Contains("Strike") ||    // StrikeZone 강화!
-                collision.gameObject.name.Contains("Plane") ||     // Plane 객체 추가
-                collision.gameObject.name.Contains("Floor") ||     // Floor 객체 추가
-                collision.gameObject.name.Contains("Field") ||     // baseball-field 추가
-                collision.gameObject.name.Contains("field") ||     // 소문자도 포함
-                collision.gameObject.name.Contains("Infrastructure") || // Infrastructure 추가
-                collision.gameObject.layer == 0)                   // Default 레이어도 포함
-            {
-                Debug.Log($"✅ 유효한 충돌 객체 확인: {collision.gameObject.name}");
-
-                if (bounceSound != null && audioSource != null && !audioSource.isPlaying)
-                    audioSource.PlayOneShot(bounceSound);
-
-                Vector3 hitPosition = collision.contacts[0].point;
-                bool isStrike = false;
-
-                //
-                
-                // 기존 방식: 스트라이크존 콜라이더 내부인지 확인
-                if (strikeZone != null)
-                {
-                    Collider strikeZoneCollider = strikeZone.GetComponent<Collider>();
-                    if (strikeZoneCollider != null)
-                    {
-                        isStrike = strikeZoneCollider.bounds.Contains(hitPosition);
-                        Debug.Log($"🎯 기본 판정: {(isStrike ? "스트라이크" : "볼")} (위치: {hitPosition})");
-                    }
-                }
-
-                // 추가 판정: MiddleCenter 기준으로도 확인
-                if (!isStrike && strikeZone != null)
-                {
-                    // MiddleCenter 찾기
-                    Transform middleCenter = strikeZone.Find("MiddleCenter");
-                    Vector3 centerPos = middleCenter != null ? middleCenter.position : strikeZone.position;
-
-                    float distanceToCenter = Vector3.Distance(hitPosition, centerPos);
-                    if (distanceToCenter < 1.0f) // 1미터 이내면 스트라이크로 판정
-                    {
-                        isStrike = true;
-                        Debug.Log($"🎯 MiddleCenter 기준 판정: 스트라이크! (거리: {distanceToCenter:F2}m)");
-                    }
-                }
-
-                Debug.Log($"⚾ 최종 판정: {(isStrike ? "🎯 스트라이크!" : "❌ 볼!")} - 공 완전 정지!");
-
-                // 던지기 상태 종료
-                isThrown = false;
-
-            }
-            else
-            {
-                // **조건에 맞지 않는 충돌 객체라도 이벤트는 발생시키기!**
-                Debug.Log($"❓ 알 수 없는 충돌 객체: {collision.gameObject.name}, 하지만 이벤트는 발생!");
-
-                // 던지기 상태 종료
-                isThrown = false;
-
-            }
-        }
-    }
-
-    void OnTriggerEnter(Collider other)
-    {
-        Debug.Log($"🎯 트리거 감지! 공 던진 상태: {isThrown}, 트리거 객체: {other.name}, 이벤트 발생 여부: {eventFired}");
-
-        // 이벤트가 이미 발생했거나 공이 던져지지 않았으면 무시
-        if (!isThrown || eventFired) return;
-
-        // **바닥 트리거 감지 추가**
-        string objectName = other.gameObject.name.ToLower();
-        string objectTag = other.gameObject.tag;
-        int objectLayer = other.gameObject.layer;
-
-        bool isGroundTrigger = objectName.Contains("ground") ||
-                              objectName.Contains("field") ||
-                              objectName.Contains("floor") ||
-                              objectName.Contains("infrastructure") ||
-                              objectTag == "Ground" ||
-                              objectTag == "Field" ||
-                              objectTag == "Floor" ||
-                              objectLayer == 0;  // Default layer
-
-        // 스트라이크존 또는 바닥 트리거 처리
-        if (other.CompareTag("StrikeZone") ||
-            other.name.Contains("Zone") ||
-            other.name.Contains("Strike") ||
-            isGroundTrigger)
-        {
-            // 이벤트 플래그 설정 (중복 호출 방지)
-            eventFired = true;
-
-            try
-            {
-                // **트리거 충돌 시에도 즉시 멈춤!**
-                if (rb != null)
-                {
-                    // Kinematic인 상태에서는 velocity를 설정하지 않음
-                    if (!rb.isKinematic)
-                    {
-                        rb.velocity = Vector3.zero;
-                        rb.angularVelocity = Vector3.zero;
-                    }
-                    rb.useGravity = false;
-                    rb.isKinematic = true;
-                }
-
-                Debug.Log($"🎯 트리거 감지! 콜라이더: {other.name}, 타입: {(isGroundTrigger ? "바닥" : "스트라이크존")} - 공 완전 정지!");
-
-                // 던지기 상태 종료
-                isThrown = false;
-
-                // 파티클 효과 정지
-                StopAllEffects();
-            }
-            catch (System.Exception e)
-            {
-                Debug.LogError($"OnTriggerEnter 오류 발생: {e.Message}");
-            }
-        }
-    }
-
-    
-    
+    // void OnTriggerEnter(Collider other)
+    // {
+    //     Debug.Log($"🎯 트리거 감지! 공 던진 상태: {isThrown}, 트리거 객체: {other.name}, 이벤트 발생 여부: {eventFired}");
+    //
+    //     // 이벤트가 이미 발생했거나 공이 던져지지 않았으면 무시
+    //     if (!isThrown || eventFired) return;
+    //
+    //     // **바닥 트리거 감지 추가**
+    //     string objectName = other.gameObject.name.ToLower();
+    //     string objectTag = other.gameObject.tag;
+    //     int objectLayer = other.gameObject.layer;
+    //
+    //     bool isGroundTrigger = objectName.Contains("ground") ||
+    //                           objectName.Contains("field") ||
+    //                           objectName.Contains("floor") ||
+    //                           objectName.Contains("infrastructure") ||
+    //                           objectTag == "Ground" ||
+    //                           objectTag == "Field" ||
+    //                           objectTag == "Floor" ||
+    //                           objectLayer == 0;  // Default layer
+    //
+    //     // 스트라이크존 또는 바닥 트리거 처리
+    //     if (other.CompareTag("StrikeZone") ||
+    //         other.name.Contains("Zone") ||
+    //         other.name.Contains("Strike") ||
+    //         isGroundTrigger)
+    //     {
+    //         // 이벤트 플래그 설정 (중복 호출 방지)
+    //         eventFired = true;
+    //
+    //         try
+    //         {
+    //             // **트리거 충돌 시에도 즉시 멈춤!**
+    //             if (rb != null)
+    //             {
+    //                 // Kinematic인 상태에서는 velocity를 설정하지 않음
+    //                 if (!rb.isKinematic)
+    //                 {
+    //                     rb.velocity = Vector3.zero;
+    //                     rb.angularVelocity = Vector3.zero;
+    //                 }
+    //                 rb.useGravity = false;
+    //                 rb.isKinematic = true;
+    //             }
+    //
+    //             Debug.Log($"🎯 트리거 감지! 콜라이더: {other.name}, 타입: {(isGroundTrigger ? "바닥" : "스트라이크존")} - 공 완전 정지!");
+    //
+    //             // 던지기 상태 종료
+    //             isThrown = false;
+    //
+    //             // 파티클 효과 정지
+    //             StopAllEffects();
+    //         }
+    //         catch (System.Exception e)
+    //         {
+    //             Debug.LogError($"OnTriggerEnter 오류 발생: {e.Message}");
+    //         }
+    //     }
+    // }
+    //
+    //
+    //
     void OnDestroy()
     {
         if (grabInteractable != null)
@@ -397,7 +401,7 @@ public class PitchingBallController : MonoBehaviour
 
     private void OnGrab(SelectEnterEventArgs args)
     {
-        Debug.Log("✋ 공을 잡았습니다! 물리 활성화!");
+        Debug.Log("✋ 공을 잡았습니다! ");
 
         // **공을 잡는 순간 물리 활성화!**
         if (rb != null)
@@ -437,6 +441,7 @@ public class PitchingBallController : MonoBehaviour
 
         // XR 비활성화
         grabInteractable.enabled = false;
+        pitchEvent.RaiseEvent();
 
         Vector3 targetPosition;
 

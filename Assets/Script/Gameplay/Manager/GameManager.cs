@@ -30,7 +30,7 @@ public class GameManager : MonoBehaviour
     
     [SerializeField] private Defender[] defenders; // pitcher => 0
     [SerializeField] private Transform[] bases;
-    [SerializeField] private Baseball _ball;
+    [SerializeField] private Baseball _ball; //일단 PitchingBallController도 여깄음
 
     private Queue<Batter> [] runners = new Queue<Batter>[MAX_BASE_COUNT + 1]; //
     [SerializeField] private Batter batterPrefab; 
@@ -46,6 +46,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private IntEventSO addIsBaseStatus; //to Batter
     
     [SerializeField] private VoidEventSO swingEvent; //to Pitcher
+    [SerializeField] private VoidEventSO pitchEvent; //to PitchingBallController
+    [SerializeField] private VoidEventSO backToPitcherEvent; //baseball
 
     //Define
     private const int MAX_BALL_COUNT = 4; 
@@ -64,6 +66,8 @@ public class GameManager : MonoBehaviour
         addIsBaseStatus.onEventRaised += AddIsBaseStatus;
         
         swingEvent.onEventRaised += DebugBatting;
+        pitchEvent.onEventRaised += SwingSignalToBatter;
+        backToPitcherEvent.onEventRaised += PitcherGetBall;
     }
     private void OnDisable()
     {
@@ -75,6 +79,8 @@ public class GameManager : MonoBehaviour
         addIsBaseStatus.onEventRaised -= AddIsBaseStatus;
         
         swingEvent.onEventRaised -= DebugBatting;
+        pitchEvent.onEventRaised -= SwingSignalToBatter;
+        backToPitcherEvent.onEventRaised -= PitcherGetBall;
     }
 
     private void Start()
@@ -103,7 +109,8 @@ public class GameManager : MonoBehaviour
         //to pitcher
         if (Input.GetKeyDown(KeyCode.Alpha0))
         {
-            _ball.MyDefender.ThrowBall(defenders[0].transform.position);
+            defenders[0].SetMyBall(_ball);
+            //_ball.MyDefender.ThrowBall(defenders[0].transform.position);
         }
         if(Input.GetKeyDown(KeyCode.Alpha1))
             ThrowToBase(0);
@@ -114,11 +121,6 @@ public class GameManager : MonoBehaviour
         else if(Input.GetKeyDown(KeyCode.Alpha4))
             ThrowToBase(3);
         
-        if(Input.GetKeyDown(KeyCode.Alpha5))
-        {
-            defenders[0].SetMyBall(_ball);
-;        }
-
         //has ball and ball batting
         if (_ball.MyDefender && _ball.IsBatTouch)
         {
@@ -392,11 +394,23 @@ public class GameManager : MonoBehaviour
         // _ball.GetComponent<Rigidbody>().AddForce(view, ForceMode.Impulse);
         //
         // MoveBase();
-        
-        
+    }
+
+    private void SwingSignalToBatter()
+    {
+        StartCoroutine(Swing());
     }
     
-    
+    IEnumerator Swing()
+    {
+        yield return new WaitForSeconds(1.0f); 
+        batter.StartSwing();
+    }
+
+    void PitcherGetBall()
+    {
+        pitchingManager.ResetBall();
+    }
     
 
     #region ALGORITHM
