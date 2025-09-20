@@ -12,15 +12,16 @@ public class Baseball : MonoBehaviour
     private Rigidbody _rigidbody;
     private XRGrabInteractable grabInteractable;
 
-    bool isGroundBall = false; 
-    bool isBatTouch = false;
-    bool isPassing = false;
+    [SerializeField] bool isGroundBall = false; 
+    [SerializeField] bool isBatTouch = false;
+    [SerializeField] bool isPassing = false;
     bool isZone = false;
-    private float defenderDis = 0.0f;
+    [SerializeField] private float defenderDis = 0.0f;
     
     [Header("Listening to Events")]
     [SerializeField] private VoidEventSO allTrackingOffEvent;
     [SerializeField] private VoidEventSO addBallCountEvent;
+    [SerializeField] private VoidEventSO addStrikeEvent;
     [SerializeField] private VoidEventSO PaulEvent;
     [SerializeField] private VoidEventSO HomerunEvent;
     [SerializeField] private VoidEventSO backToPitcherEvent; //from gamemanager
@@ -57,7 +58,7 @@ public class Baseball : MonoBehaviour
     public float aimAssistStrength = 0.8f;     // 보정 강도 높임 (0=보정없음, 1=완전보정)
     public bool enableRandomTargeting = true;   // 랜덤 타겟팅 활성화
 
-    // 상태 변수
+    // is Pitcher throw?
     private bool isThrown = false;
     
     /// <summary> 공이 투구되었는지 확인 </summary>  <returns>투구 상태</returns>
@@ -128,11 +129,7 @@ public class Baseball : MonoBehaviour
         if (collider.gameObject.CompareTag("StrikeZone") && !IsZone)
         {
             IsZone = true;
-        }
-        else if (collider.gameObject.CompareTag("BallZone") && !IsZone)
-        {
-            IsZone = true;
-            addBallCountEvent.RaiseEvent();
+            addStrikeEvent.RaiseEvent();
         }
         //paul
         else if (collider.CompareTag("Paul"))
@@ -147,23 +144,33 @@ public class Baseball : MonoBehaviour
             backToPitcherEvent.RaiseEvent();
             Debug.Log("homerun");
         }
+    }
 
+    private void OnTriggerExit(Collider collider)
+    {
+        if (collider.gameObject.CompareTag("BallZone") && !IsZone)
+        {
+            IsZone = true;
+            addBallCountEvent.RaiseEvent();
+        }
+        
     }
 
     private void OnCollisionEnter(Collision collision)
     {
         
-        if(collision.collider.CompareTag("Ground"))
+        if(collision.collider.CompareTag("Ground") || collision.collider.CompareTag("Base"))
         {
-            if (!isBatTouch)
-            {
-                return;
-            }
+            IsPassing = false;
+
+            // if (!isBatTouch)
+            // {
+            //     return;
+            // }
             //paul, homerun check
-            if (!isGroundBall)
+            if (!isGroundBall) //groundball or flyingball
             {
                 IsGroundBall = true;
-                IsPassing = false;
                 Debug.Log("in play game");
             }
             
@@ -214,7 +221,7 @@ public class Baseball : MonoBehaviour
     public void ThrowBall(Vector3 force)
     {
         RemovePlayer();
-        isPassing = true;
+        IsPassing = true;
         
         //rotation zero
         _rigidbody.velocity = Vector3.zero;
@@ -253,7 +260,7 @@ public class Baseball : MonoBehaviour
             if (myDefender)
             {
                 DefenderDis = 0;
-                isPassing = false;
+                IsPassing = false;
                 allTrackingOffEvent.RaiseEvent();
             }
         }
@@ -343,35 +350,6 @@ public class Baseball : MonoBehaviour
             trajectoryLine.startWidth = 0.02f;
             trajectoryLine.endWidth = 0.02f;
             trajectoryLine.positionCount = 0;
-        }
-
-        // 컴포넌트 찾기
-        if (trailEffect == null)
-            trailEffect = GetComponentInChildren<ParticleSystem>();
-
-        // StrikeZone 찾기 - MiddleCenter까지 확인
-        if (strikeZone == null)
-        {
-            GameObject strikeZoneObj = GameObject.FindGameObjectWithTag("StrikeZone");
-            if (strikeZoneObj != null)
-            {
-                Debug.Log($"✅ StrikeZone 태그로 발견: {strikeZoneObj.name}");
-                strikeZone = strikeZoneObj.transform;
-            }
-
-            // MiddleCenter 확인
-            if (strikeZone != null)
-            {
-                Transform middleCenter = strikeZone.Find("MiddleCenter");
-                if (middleCenter != null)
-                {
-                    Debug.Log($"✅ MiddleCenter 발견! 위치: {middleCenter.position}");
-                }
-                else
-                {
-                    Debug.LogWarning($"⚠️ MiddleCenter를 찾을 수 없습니다! StrikeZone: {strikeZone.name}");
-                }
-            }
         }
 
         // 초기 위치 설정

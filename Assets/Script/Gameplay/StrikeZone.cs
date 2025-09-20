@@ -8,6 +8,7 @@ using UnityEngine.UI;
 public class StrikeZone : MonoBehaviour
 {
     [Header("스트라이크 존 설정")]
+    [SerializeField] private Transform[] zones; 
     public Vector3 zoneSize = new Vector3(0.5f, 1.0f, 0.1f);
     public Color normalColor = Color.white;
     public Color strikeColor = Color.green;
@@ -21,7 +22,7 @@ public class StrikeZone : MonoBehaviour
     [Header("오디오")]
     public AudioClip strikeSound;
     public AudioClip ballSound;
-
+    
     private Renderer zoneRenderer;
     private AudioSource audioSource;
     private Collider zoneCollider;
@@ -236,5 +237,10 @@ public class StrikeZone : MonoBehaviour
         Gizmos.color = Color.yellow;
         Gizmos.matrix = transform.localToWorldMatrix;
         Gizmos.DrawCube(Vector3.zero, zoneSize);
+    }
+
+    public Transform GetZone(int index)
+    {
+        return zones[index];
     }
 }

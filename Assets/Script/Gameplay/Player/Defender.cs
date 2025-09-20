@@ -38,15 +38,15 @@ public class Defender : Player
     //touch ball
     void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("Ball"))
+        if (collision.gameObject.CompareTag("Ball") && _ball.MyDefender == null)
         {
             //owner ball
             SetMyBall(collision.gameObject.GetComponent<Baseball>());
             Baseball baseball = _myBall;
+            
             collision.rigidbody.velocity = Vector3.zero;
-
-            isTracking = false;
             baseball.MyDefender = this;
+            isTracking = false;
             
             OutRunner();
         }
@@ -85,7 +85,7 @@ public class Defender : Player
     public Vector3 CalculateLaunchVelocity(Vector3 start, Vector3 target, float angleDeg)
     {
         float gravity = Physics.gravity.y; // 보통 -9.81f
-        float angle = angleDeg * Mathf.Deg2Rad;
+        float angle = angleDeg * Mathf.Deg2Rad; //각도?
 
         Vector3 direction = target - start;
         Vector3 directionXZ = new Vector3(direction.x, 0, direction.z);

@@ -5,7 +5,7 @@ public class Pitcher : Defender
 {
     private const float ADDFORCE = 20.0f;
     
-    
+    [SerializeField] private StrikeZone strikeZone;
     [SerializeField] private VoidEventSO swingEvent; //from GameManager
 
     //_myBall
@@ -15,7 +15,7 @@ public class Pitcher : Defender
     {
         float dis = Vector3.Distance(defenderTransform.position, transform.position);
 
-        //shoot
+        //keeping
         if (Input.GetKeyDown(KeyCode.Z))
         {
             if (!_ball.MyDefender)
@@ -23,10 +23,6 @@ public class Pitcher : Defender
                 SetMyBall(_ball);
                 _ball.IsGroundBall = false;
                 _ball.IsPassing = false;
-            }
-            else
-            {
-                PitchingBall();
             }
         }
         
@@ -53,6 +49,7 @@ public class Pitcher : Defender
     {
         base.SetMyBall(myBall);
 
+        _ball.IsThrown = false;
         _ball.IsGroundBall = false;
         _ball.IsPassing = false;
         _ball.IsZone = false;
@@ -74,16 +71,23 @@ public class Pitcher : Defender
     //공 던지는 함수
     public void PitchingBall()
     {
+        _myBall.IsThrown = true;
         //Debug.Log("Throwing ball" + transform.rotation.eulerAngles.x + ", " + transform.rotation.eulerAngles.z);
         //transform.rotation.eulerAngles.x, ADDFORCE, transform.rotation.eulerAngles.z => you should be setting cos sin
         
+        //random value 0 ~ 24
+        int index = Random.Range(0, 25);
+        Debug.Log(index);
+        Transform SZTransform = strikeZone.GetZone(index);
+
+        Vector3 velocity = CalculateLaunchVelocity(transform.position, SZTransform.position - new Vector3(0,0.67f,0), 45f);
         
         float x = ADDFORCE * Mathf.Sin(transform.rotation.eulerAngles.y * Mathf.PI / 180);
         float z = ADDFORCE * Mathf.Cos(transform.rotation.eulerAngles.y * Mathf.PI / 180);
 
         //player's
-        // _ball.RemovePlayer(); => throw ball 
-        _ball.ThrowBall(new Vector3(x, ADDFORCE * 0.2f ,z));
+        // _ball.RemovePlayer(); => throw ball => new Vector3(x, ADDFORCE * 0.2f ,z) 
+        _ball.ThrowBall(velocity);
         StartCoroutine(Swing());
     }
 
