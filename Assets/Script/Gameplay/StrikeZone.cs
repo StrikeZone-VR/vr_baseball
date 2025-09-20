@@ -31,6 +31,9 @@ public class StrikeZone : MonoBehaviour
 
     public System.Action<bool> OnPitchResult; // true = strike, false = ball
 
+    [Header("Listening to events")] 
+    [SerializeField] private VoidEventSO strikeEvent; //from GameManager 
+    
     void Start()
     {
         SetupStrikeZone();
@@ -70,7 +73,7 @@ public class StrikeZone : MonoBehaviour
             audioSource = gameObject.AddComponent<AudioSource>();
 
         // 재질 설정
-        SetupMaterial();
+        //SetupMaterial();
     }
 
     private void SetupMaterial()

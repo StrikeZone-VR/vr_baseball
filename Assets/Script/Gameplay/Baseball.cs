@@ -15,11 +15,12 @@ public class Baseball : MonoBehaviour
     bool isGroundBall = false; 
     bool isBatTouch = false;
     bool isPassing = false;
-    bool isSZ = false;
+    bool isZone = false;
     private float defenderDis = 0.0f;
     
     [Header("Listening to Events")]
     [SerializeField] private VoidEventSO allTrackingOffEvent;
+    [SerializeField] private VoidEventSO addBallCountEvent;
     [SerializeField] private VoidEventSO PaulEvent;
     [SerializeField] private VoidEventSO HomerunEvent;
     [SerializeField] private VoidEventSO backToPitcherEvent; //from gamemanager
@@ -124,10 +125,14 @@ public class Baseball : MonoBehaviour
     private void OnTriggerEnter(Collider collider)
     {
         //Strike Zone
-        if (collider.gameObject.CompareTag("SZ") && !isSZ)
+        if (collider.gameObject.CompareTag("StrikeZone") && !IsZone)
         {
-            Debug.Log("스트라이크~");
-            isSZ = true;
+            IsZone = true;
+        }
+        else if (collider.gameObject.CompareTag("BallZone") && !IsZone)
+        {
+            IsZone = true;
+            addBallCountEvent.RaiseEvent();
         }
         //paul
         else if (collider.CompareTag("Paul"))
@@ -142,6 +147,7 @@ public class Baseball : MonoBehaviour
             backToPitcherEvent.RaiseEvent();
             Debug.Log("homerun");
         }
+
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -269,10 +275,10 @@ public class Baseball : MonoBehaviour
         myDefender = null;
     }
 
-    public bool IsSZ
+    public bool IsZone
     {
-        get => isSZ;
-        set => isSZ = value;
+        get => isZone;
+        set => isZone = value;
     }
     
     #endregion

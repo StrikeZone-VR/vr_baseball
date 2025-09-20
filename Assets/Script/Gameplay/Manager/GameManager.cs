@@ -40,7 +40,8 @@ public class GameManager : MonoBehaviour
 
     [Header("Broadcasting on EventChannels")]
     [SerializeField] private IntEventSO outBatterEvent; //Defender, Baseman
-    [SerializeField] private VoidEventSO strikeEvent;
+    [SerializeField] private VoidEventSO addBallCountEvent; //to Baseball
+    [SerializeField] private VoidEventSO strikeEvent; // toStrikeZone
     [SerializeField] private VoidEventSO allTrackingOffEvent; //to baseball
     [SerializeField] private VoidEventSO addScore; //to Batter
     [SerializeField] private IntEventSO addIsBaseStatus; //to Batter
@@ -59,6 +60,8 @@ public class GameManager : MonoBehaviour
     private void OnEnable()
     {
         outBatterEvent.onEventRaised += OutBatter;
+        
+        addBallCountEvent.onEventRaised += AddBallCount;
         strikeEvent.onEventRaised += AddStrike;
         allTrackingOffEvent.onEventRaised += AllTrackingOff;
         addScore.onEventRaised += AddScore;
@@ -72,6 +75,8 @@ public class GameManager : MonoBehaviour
     private void OnDisable()
     {
         outBatterEvent.onEventRaised -= OutBatter;
+        
+        addBallCountEvent.onEventRaised -= AddBallCount;
         strikeEvent.onEventRaised -= AddStrike;
         allTrackingOffEvent.onEventRaised -= AllTrackingOff;
         addScore.onEventRaised -= AddScore;
@@ -263,6 +268,11 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void AddBallCount()
+    {
+        BallCount++;
+    }
+    
     private void AddIsBaseStatus(int index)
     {
         Batter batter = runners[index].Dequeue();

@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 3348083917368950874}
   m_Layer: 0
   m_Name: BallZone_MiddleLeft_Out
-  m_TagString: Untagged
+  m_TagString: BallZone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -206,7 +206,7 @@ GameObject:
   - component: {fileID: 8377789179231258928}
   m_Layer: 0
   m_Name: BallZone_TopCenter_Out
-  m_TagString: Untagged
+  m_TagString: BallZone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -311,7 +311,7 @@ GameObject:
   - component: {fileID: 7441914063872889671}
   m_Layer: 0
   m_Name: BallZone_TopRight_Mid
-  m_TagString: Untagged
+  m_TagString: BallZone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -416,7 +416,7 @@ GameObject:
   - component: {fileID: 3875215502855851638}
   m_Layer: 0
   m_Name: BallZone_BottomRight_Out2
-  m_TagString: Untagged
+  m_TagString: BallZone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -521,7 +521,7 @@ GameObject:
   - component: {fileID: 2696395274925212373}
   m_Layer: 0
   m_Name: BallZone_TopLeft_Mid
-  m_TagString: Untagged
+  m_TagString: BallZone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -626,7 +626,7 @@ GameObject:
   - component: {fileID: 4517970815515133723}
   m_Layer: 0
   m_Name: BallZone_MiddleRight_Out
-  m_TagString: Untagged
+  m_TagString: BallZone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -731,7 +731,7 @@ GameObject:
   - component: {fileID: 5914051690105210193}
   m_Layer: 0
   m_Name: BallZone_CenterRight_Out
-  m_TagString: Untagged
+  m_TagString: BallZone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -836,7 +836,7 @@ GameObject:
   - component: {fileID: 2482665705738919913}
   m_Layer: 0
   m_Name: BallZone_TopLeft_Out
-  m_TagString: Untagged
+  m_TagString: BallZone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -939,7 +939,7 @@ GameObject:
   - component: {fileID: 2389452222932907485}
   m_Layer: 0
   m_Name: MiddleRight
-  m_TagString: Untagged
+  m_TagString: StrikeZone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -994,7 +994,7 @@ GameObject:
   - component: {fileID: 9004304454004700624}
   m_Layer: 0
   m_Name: BallZone_BottomLeft_Mid
-  m_TagString: Untagged
+  m_TagString: BallZone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1097,7 +1097,7 @@ GameObject:
   - component: {fileID: 8732273680862313705}
   m_Layer: 0
   m_Name: TopLeft
-  m_TagString: Untagged
+  m_TagString: StrikeZone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1150,7 +1150,7 @@ GameObject:
   - component: {fileID: 3012817008063775849}
   m_Layer: 0
   m_Name: BottomCenter
-  m_TagString: Untagged
+  m_TagString: StrikeZone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1205,7 +1205,7 @@ GameObject:
   - component: {fileID: 1161509949807798732}
   m_Layer: 0
   m_Name: BallZone_TopRight_Out
-  m_TagString: Untagged
+  m_TagString: BallZone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1308,7 +1308,7 @@ GameObject:
   - component: {fileID: 2944453273934148088}
   m_Layer: 0
   m_Name: BottomLeft
-  m_TagString: Untagged
+  m_TagString: StrikeZone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1361,7 +1361,7 @@ GameObject:
   - component: {fileID: 2396683449367971675}
   m_Layer: 0
   m_Name: TopCenter
-  m_TagString: Untagged
+  m_TagString: StrikeZone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1416,7 +1416,7 @@ GameObject:
   - component: {fileID: 3337998207492915522}
   m_Layer: 0
   m_Name: BallZone_BottomRight_Mid
-  m_TagString: Untagged
+  m_TagString: BallZone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1519,7 +1519,7 @@ GameObject:
   - component: {fileID: 6626054920864935230}
   m_Layer: 0
   m_Name: BottomRight
-  m_TagString: Untagged
+  m_TagString: StrikeZone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1574,7 +1574,7 @@ GameObject:
   - component: {fileID: 6099683244606502590}
   m_Layer: 0
   m_Name: BallZone_BottomCenter_Out
-  m_TagString: Untagged
+  m_TagString: BallZone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1679,7 +1679,7 @@ GameObject:
   - component: {fileID: 7243435258048799045}
   m_Layer: 0
   m_Name: BallZone_BottomLeft_Out
-  m_TagString: Untagged
+  m_TagString: BallZone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1782,7 +1782,7 @@ GameObject:
   - component: {fileID: 5395331003164131823}
   m_Layer: 0
   m_Name: TopRight
-  m_TagString: Untagged
+  m_TagString: StrikeZone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1837,7 +1837,7 @@ GameObject:
   - component: {fileID: 2449712705512296879}
   m_Layer: 0
   m_Name: BallZone_BottomRight_Out
-  m_TagString: Untagged
+  m_TagString: BallZone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2046,7 +2046,7 @@ GameObject:
   - component: {fileID: 7359238308825629532}
   m_Layer: 0
   m_Name: StrikeZone
-  m_TagString: StrikeZone
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2125,7 +2125,7 @@ GameObject:
   - component: {fileID: 4160558075761229875}
   m_Layer: 0
   m_Name: BallZone_BottomLeft_Out2
-  m_TagString: Untagged
+  m_TagString: BallZone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2228,7 +2228,7 @@ GameObject:
   - component: {fileID: 6743599087886833738}
   m_Layer: 0
   m_Name: MiddleLeft
-  m_TagString: Untagged
+  m_TagString: StrikeZone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2281,7 +2281,7 @@ GameObject:
   - component: {fileID: 8300602237083868395}
   m_Layer: 0
   m_Name: MiddleCenter
-  m_TagString: Untagged
+  m_TagString: StrikeZone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2336,7 +2336,7 @@ GameObject:
   - component: {fileID: 5893293725062818385}
   m_Layer: 0
   m_Name: BallZone_CenterLeft_Out
-  m_TagString: Untagged
+  m_TagString: BallZone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

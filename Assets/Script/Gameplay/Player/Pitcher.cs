@@ -55,7 +55,7 @@ public class Pitcher : Defender
 
         _ball.IsGroundBall = false;
         _ball.IsPassing = false;
-        _ball.IsSZ = false;
+        _ball.IsZone = false;
         StartCoroutine(WaitBatting());
         //transform.LookAt(_ball.transform, Vector3.up);
     }

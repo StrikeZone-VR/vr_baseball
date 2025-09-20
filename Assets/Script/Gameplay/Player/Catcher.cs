@@ -7,7 +7,6 @@ public class Catcher : Baseman
     [SerializeField] private Pitcher pitcher;
     
     [Header("Listening to Event")]
-    [SerializeField] private VoidEventSO strikeEvent;
     [SerializeField] private VoidEventSO backToPitcherEvent;
     
     public override void SetMyBall(Baseball myBall)
@@ -20,7 +19,6 @@ public class Catcher : Baseman
     IEnumerator WaitThrowToPitcher()
     {
         LookAtPlayer(pitcher.transform.position);
-        strikeEvent.RaiseEvent();
         
         yield return new WaitForSeconds(4.0f);
         

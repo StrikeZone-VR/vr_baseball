@@ -50,24 +50,17 @@ public class BallZone : MonoBehaviour
     // ==============================================
     // 🎯 충돌 처리
     // ==============================================
-    void OnTriggerEnter(Collider other)
+    void OnTriggerEnter(Collider collider)
     {
-        Baseball baseball = other.GetComponent<Baseball>();
-        if (baseball != null && baseball.IsThrown)
+        if (collider.gameObject.CompareTag("Ball"))
         {
-            HandleBallHit(baseball);
+            Baseball baseball = collider.gameObject.GetComponent<Baseball>();
+            if (baseball != null && baseball.IsThrown)
+            {
+                HandleBallHit(baseball);
+            }
         }
     }
-
-    void OnCollisionEnter(Collision collision)
-    {
-        Baseball baseball = collision.gameObject.GetComponent<Baseball>();
-        if (baseball != null && baseball.IsThrown)
-        {
-            HandleBallHit(baseball);
-        }
-    }
-
     // ==============================================
     // 🎾 볼 처리
     // ==============================================
