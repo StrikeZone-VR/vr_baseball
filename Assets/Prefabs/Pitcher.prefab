@@ -1018,11 +1018,11 @@ GameObject:
   m_Component:
   - component: {fileID: 8547017398472936520}
   - component: {fileID: 6315543549437933360}
-  - component: {fileID: 6142322011544035025}
-  - component: {fileID: 384613193238860426}
-  - component: {fileID: -2223903063539352654}
+  - component: {fileID: 4403092210914809006}
+  - component: {fileID: 5805730531534017014}
+  - component: {fileID: 4159997157328688465}
   m_Layer: 0
-  m_Name: Batter
+  m_Name: Pitcher
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1072,29 +1072,24 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!195 &6142322011544035025
-NavMeshAgent:
+--- !u!114 &4403092210914809006
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6807072103778800797}
   m_Enabled: 1
-  m_AgentTypeID: 0
-  m_Radius: 0.5
-  m_Speed: 3.5
-  m_Acceleration: 8
-  avoidancePriority: 50
-  m_AngularSpeed: 120
-  m_StoppingDistance: 0
-  m_AutoTraverseOffMeshLink: 1
-  m_AutoBraking: 1
-  m_AutoRepath: 1
-  m_Height: 2
-  m_BaseOffset: 0
-  m_WalkableMask: 4294967295
-  m_ObstacleAvoidanceType: 4
---- !u!136 &384613193238860426
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 253178376e4fd574aa4d68a3cbe0d9e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _ball: {fileID: 0}
+  defenderTransform: {fileID: 7574430193138191903}
+  outBatterEventSO: {fileID: 11400000, guid: a7e00550afa182d4594b424474b58e00, type: 2}
+  isTracking: 0
+  isInPosition: 0
+--- !u!136 &5805730531534017014
 CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1117,21 +1112,28 @@ CapsuleCollider:
   m_Height: 1.6
   m_Direction: 1
   m_Center: {x: 0, y: 0.8, z: 0}
---- !u!114 &-2223903063539352654
-MonoBehaviour:
+--- !u!195 &4159997157328688465
+NavMeshAgent:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6807072103778800797}
   m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 741907a70a8d7c74dbf43804ef181468, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _ball: {fileID: 0}
-  addScore: {fileID: 11400000, guid: 07585d6d7215d0b47a54c479469de714, type: 2}
-  addIsBaseStatus: {fileID: 11400000, guid: 6c8aee89795cc5b4f92d38e717d670d4, type: 2}
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 0
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
 --- !u!1 &6984959160471811420
 GameObject:
   m_ObjectHideFlags: 0

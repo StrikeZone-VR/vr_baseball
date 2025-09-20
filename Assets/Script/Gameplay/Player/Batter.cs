@@ -6,22 +6,53 @@ using UnityEngine;
 
 public class Batter : Player
 {
+    public AnimationCurve rotationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+
     //[SerializeField] private Baseball _ball;
     private int base_index = 0;
     private Transform[] bases;
+    [SerializeField] private GameObject bat;
 
-    private bool isMove = false;
-    //private bool isInBase = false;
     
     [SerializeField] private VoidEventSO addScore; //From GameManager
     [SerializeField] private IntEventSO addIsBaseStatus; //From GameManager
 
-    public void DebugHitting()
-    {
-        //_ball.RemovePlayer();
+    
+    private bool isMove = false;
+    //private bool isInBase = false;
+    
+    const float rotationTime = 0.25f;
+    float elapsed = 0f;
+    
 
-        //_myBall.transform.position = transform.position + new Vector3(0.0f, 0.5f, 0.0f);
-        IsMove = true;
+
+    public void StartSwing()
+    {
+        if(elapsed != 0) return;
+        
+        StartCoroutine(RotateWithCurveSwing(new Vector3(0, 0, -120), new Vector3(135, 135, -120)));
+    }
+
+    
+    IEnumerator RotateWithCurveSwing(Vector3 start, Vector3 end)
+    {
+        // Quaternion startRotation = Quaternion.Euler(start);
+        Quaternion endRotation = Quaternion.Euler(end);
+
+        while (elapsed < rotationTime)
+        {
+            elapsed += Time.deltaTime;
+            float progress = elapsed / rotationTime;
+
+            // Animation Curve
+            float curveValue = rotationCurve.Evaluate(progress);
+
+            bat.transform.localRotation = Quaternion.Euler(start * (1 - curveValue) + end * curveValue);
+            yield return null;
+        }
+
+        elapsed = 0;
+        bat.transform.rotation = endRotation;
     }
 
     private void MoveBase()
@@ -49,6 +80,8 @@ public class Batter : Player
             }
         }
     }
+
+
 
 
     public bool IsMove

@@ -91,6 +91,8 @@ public class PitchingSystemManager : MonoBehaviour
         Debug.Log($"✅ 시스템 초기화 완료! 스트라이크: {strikeZones.Count}개, 볼: {ballZones.Count}개, 총: {allZones.Count}개");
     }
     
+    /// <summary> ballZone Clear
+    /// </summary>
     private void ClearExistingSystems()
     {
         // 기존 볼존 제거
@@ -300,7 +302,7 @@ public class PitchingSystemManager : MonoBehaviour
     // ==============================================
     // 🎯 공 결과 처리
     // ==============================================
-    public void OnBallLanded(VRBaseball ball, bool isStrike)
+    public void OnBallLanded(Baseball ball, bool isStrike)
     {
         string resultText = isStrike ? "스트라이크!" : "볼!";
         Debug.Log($"🎾 공 착지 결과: {resultText} 위치: {ball.transform.position}");

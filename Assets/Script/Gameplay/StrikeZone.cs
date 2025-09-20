@@ -8,6 +8,7 @@ using UnityEngine.UI;
 public class StrikeZone : MonoBehaviour
 {
     [Header("스트라이크 존 설정")]
+    [SerializeField] private Transform[] zones; 
     public Vector3 zoneSize = new Vector3(0.5f, 1.0f, 0.1f);
     public Color normalColor = Color.white;
     public Color strikeColor = Color.green;
@@ -21,7 +22,7 @@ public class StrikeZone : MonoBehaviour
     [Header("오디오")]
     public AudioClip strikeSound;
     public AudioClip ballSound;
-
+    
     private Renderer zoneRenderer;
     private AudioSource audioSource;
     private Collider zoneCollider;
@@ -31,6 +32,9 @@ public class StrikeZone : MonoBehaviour
 
     public System.Action<bool> OnPitchResult; // true = strike, false = ball
 
+    [Header("Listening to events")] 
+    [SerializeField] private VoidEventSO strikeEvent; //from GameManager 
+    
     void Start()
     {
         SetupStrikeZone();
@@ -39,7 +43,7 @@ public class StrikeZone : MonoBehaviour
     private void SetupStrikeZone()
     {
         // 태그 설정
-        gameObject.tag = "StrikeZone";
+        //gameObject.tag = "StrikeZone";
 
         // 컴포넌트 가져오기/추가
         zoneRenderer = GetComponent<Renderer>();
@@ -70,7 +74,7 @@ public class StrikeZone : MonoBehaviour
             audioSource = gameObject.AddComponent<AudioSource>();
 
         // 재질 설정
-        SetupMaterial();
+        //SetupMaterial();
     }
 
     private void SetupMaterial()
@@ -132,7 +136,7 @@ public class StrikeZone : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        VRBaseball baseball = other.GetComponent<VRBaseball>();
+        Baseball baseball = other.GetComponent<Baseball>();
         if (baseball != null)
         {
             HandleStrike(baseball);
@@ -142,7 +146,7 @@ public class StrikeZone : MonoBehaviour
     void OnCollisionEnter(Collision collision)
     {
         // 공이 스트라이크 존 근처에 떨어졌을 때
-        VRBaseball baseball = collision.gameObject.GetComponent<VRBaseball>();
+        Baseball baseball = collision.gameObject.GetComponent<Baseball>();
         if (baseball != null)
         {
             // 공의 위치가 스트라이크 존 범위 내인지 확인
@@ -167,7 +171,7 @@ public class StrikeZone : MonoBehaviour
         return bounds.Contains(position);
     }
 
-    private void HandleStrike(VRBaseball baseball)
+    private void HandleStrike(Baseball baseball)
     {
         Debug.Log("스트라이크!");
 
@@ -182,7 +186,7 @@ public class StrikeZone : MonoBehaviour
         OnPitchResult?.Invoke(true);
     }
 
-    private void HandleBall(VRBaseball baseball)
+    private void HandleBall(Baseball baseball)
     {
         Debug.Log("볼!");
 
@@ -233,5 +237,10 @@ public class StrikeZone : MonoBehaviour
         Gizmos.color = Color.yellow;
         Gizmos.matrix = transform.localToWorldMatrix;
         Gizmos.DrawCube(Vector3.zero, zoneSize);
+    }
+
+    public Transform GetZone(int index)
+    {
+        return zones[index];
     }
 }

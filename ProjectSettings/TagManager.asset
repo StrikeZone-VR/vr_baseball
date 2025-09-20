@@ -11,6 +11,9 @@ TagManager:
   - Bat
   - left
   - right
+  - BallZone
+  - Homerun
+  - Paul
   layers:
   - Default
   - TransparentFX

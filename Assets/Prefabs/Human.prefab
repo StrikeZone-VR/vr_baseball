@@ -1020,9 +1020,8 @@ GameObject:
   - component: {fileID: 6315543549437933360}
   - component: {fileID: 6142322011544035025}
   - component: {fileID: 384613193238860426}
-  - component: {fileID: -2223903063539352654}
   m_Layer: 0
-  m_Name: Batter
+  m_Name: Human
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1117,21 +1116,6 @@ CapsuleCollider:
   m_Height: 1.6
   m_Direction: 1
   m_Center: {x: 0, y: 0.8, z: 0}
---- !u!114 &-2223903063539352654
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6807072103778800797}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 741907a70a8d7c74dbf43804ef181468, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _ball: {fileID: 0}
-  addScore: {fileID: 11400000, guid: 07585d6d7215d0b47a54c479469de714, type: 2}
-  addIsBaseStatus: {fileID: 11400000, guid: 6c8aee89795cc5b4f92d38e717d670d4, type: 2}
 --- !u!1 &6984959160471811420
 GameObject:
   m_ObjectHideFlags: 0
