@@ -41,11 +41,16 @@ public class GameManager : MonoBehaviour
     [Header("Broadcasting on EventChannels")]
     [SerializeField] private IntEventSO outBatterEvent; //Defender, Baseman
     [SerializeField] private VoidEventSO addBallCountEvent; //to Baseball
-    [SerializeField] private VoidEventSO strikeEvent; // toStrikeZone
+    [SerializeField] private VoidEventSO strikeEvent; // toStrikeZone, batter
+    [SerializeField] private VoidEventSO paulEvent; // toStrikeZone
+    [SerializeField] private VoidEventSO homerunEvent; // toStrikeZone
+    
+    [Space]
     [SerializeField] private VoidEventSO allTrackingOffEvent; //to baseball
     [SerializeField] private VoidEventSO addScore; //to Batter
     [SerializeField] private IntEventSO addIsBaseStatus; //to Batter
     
+    [Space]
     [SerializeField] private VoidEventSO swingEvent; //to Pitcher
     [SerializeField] private VoidEventSO pitchEvent; //to PitchingBallController
     [SerializeField] private VoidEventSO backToPitcherEvent; //baseball
@@ -63,6 +68,9 @@ public class GameManager : MonoBehaviour
         
         addBallCountEvent.onEventRaised += AddBallCount;
         strikeEvent.onEventRaised += AddStrike;
+        paulEvent.onEventRaised += Paul;
+        homerunEvent.onEventRaised += Homerun;
+        
         allTrackingOffEvent.onEventRaised += AllTrackingOff;
         addScore.onEventRaised += AddScore;
         
@@ -78,6 +86,10 @@ public class GameManager : MonoBehaviour
         
         addBallCountEvent.onEventRaised -= AddBallCount;
         strikeEvent.onEventRaised -= AddStrike;
+        paulEvent.onEventRaised -= Paul;
+        homerunEvent.onEventRaised += Homerun;
+
+
         allTrackingOffEvent.onEventRaised -= AllTrackingOff;
         addScore.onEventRaised -= AddScore;
 
@@ -159,6 +171,10 @@ public class GameManager : MonoBehaviour
             int index = FindClosestDefenderIndex();
             AllTrackingOff();
             //closestDefender set tracking
+            if (index == -1)
+            {
+                return;
+            }
             defenders[index].IsTracking = true;
         }
         
@@ -175,7 +191,9 @@ public class GameManager : MonoBehaviour
         set
         {
             out_count = value;
-            
+
+            BallCount = 0;
+            Strike = 0;
             if (out_count >= MAX_OUT_COUNT)
             {
                 out_count = 0;
@@ -284,7 +302,6 @@ public class GameManager : MonoBehaviour
         Strike++;
     }
     
-
     private void AddScore()
     {
         Batter batter = runners[3].Dequeue();
@@ -293,6 +310,30 @@ public class GameManager : MonoBehaviour
         SetScore(inning % 2, ++_teamStatus[inning % 2].Score);
     }
 
+    private void Paul()
+    {
+        PitcherGetBall();
+        //strike == 2
+        if (Strike == MAX_STRIKE_COUNT - 1)
+        {
+            return;
+        }
+        AddStrike();
+    }
+
+    private void Homerun()
+    {
+        PitcherGetBall();
+        SetScore(inning % 2, ++_teamStatus[inning % 2].Score);
+        for (int i = 0; i < runners.Length; i++)
+        {
+            _teamStatus[inning % 2].Score += runners[i].Count; 
+            SetScore(inning % 2, _teamStatus[inning % 2].Score);
+        }
+        ClearRunners();
+    }
+    
+    
     private void SetScore(int teamIndex, int score)
     {
         _teamStatus[teamIndex].Score = score;
@@ -304,8 +345,16 @@ public class GameManager : MonoBehaviour
         BallCount = 0;
         Strike = 0;
         OutCount = 0;
-        
-        //runner clear
+
+        ClearRunners();
+    }
+
+    // *************************************************************end
+    #endregion
+
+    /// <summary> runner clear </summary>
+    private void ClearRunners()
+    {
         for (int i = 0; i < runners.Length; i++)
         {
             while (runners[i].Count > 0)
@@ -315,27 +364,25 @@ public class GameManager : MonoBehaviour
             }
         }
     }
-
-    // *************************************************************end
-    #endregion
-
     private void StartBatter()
     {
         Debug.Log("타자 Mode On");
 
         pitchingManager.EndPitchingGame();
         defenders[0].gameObject.SetActive(true);
-        
+        defenders[0].SetMyBall(_ball);
+            
         //방망이 중력, rotation position 풀기
         batter.gameObject.SetActive(false);
-        playerOrigin.MoveCameraToWorldLocation(new Vector3(0, 1.0f, 0));
+        playerOrigin.MoveCameraToWorldLocation(new Vector3(0, 1.0f, 0)); //시점 타자 시점
     }
 
     private void StartPitcher()
     {
         //pitcher stop
         Debug.Log("투수 Mode On");
-
+        
+        defenders[0].IsTracking = false;
         pitchingManager.StartPitchingGame();
         defenders[0].gameObject.SetActive(false);
         
@@ -443,7 +490,11 @@ public class GameManager : MonoBehaviour
                 index = i;
             }
         }
-
+        if (!defenders[index].gameObject.activeSelf)
+        {
+            return -1;
+        }
+        
         _ball.DefenderDis = min;
         return index;
     }

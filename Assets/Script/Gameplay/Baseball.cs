@@ -22,9 +22,8 @@ public class Baseball : MonoBehaviour
     [SerializeField] private VoidEventSO allTrackingOffEvent;
     [SerializeField] private VoidEventSO addBallCountEvent;
     [SerializeField] private VoidEventSO addStrikeEvent;
-    [SerializeField] private VoidEventSO PaulEvent;
-    [SerializeField] private VoidEventSO HomerunEvent;
-    [SerializeField] private VoidEventSO backToPitcherEvent; //from gamemanager
+    [SerializeField] private VoidEventSO paulEvent;
+    [SerializeField] private VoidEventSO homerunEvent;
     [SerializeField] private VoidEventSO pitchEvent; //from Gamemanager
 
     [Header("물리 설정")]
@@ -134,15 +133,14 @@ public class Baseball : MonoBehaviour
         //paul
         else if (collider.CompareTag("Paul"))
         {
-            backToPitcherEvent.RaiseEvent();
-            Debug.Log("paul");
+            paulEvent.RaiseEvent();
         }
         //homerun
         else if (collider.CompareTag("Homerun"))
         {
             //HomerunEvent.event
-            backToPitcherEvent.RaiseEvent();
-            Debug.Log("homerun");
+            homerunEvent.RaiseEvent();
+
         }
     }
 
@@ -419,7 +417,7 @@ public class Baseball : MonoBehaviour
     {
         if (isThrown) return;
         isThrown = true;
-
+        isBatTouch = false;
         
         // XR 비활성화
         grabInteractable.enabled = false;

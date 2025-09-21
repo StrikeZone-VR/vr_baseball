@@ -141,7 +141,7 @@ public class Defender : Player
             {
                  nav.ResetPath();
             }
-            else
+            else //istracking 
             {
                 nav.SetDestination(_ball.transform.position);
             }

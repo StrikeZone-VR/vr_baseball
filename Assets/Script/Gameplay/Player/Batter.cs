@@ -15,6 +15,7 @@ public class Batter : Player
 
     
     [SerializeField] private VoidEventSO addScore; //From GameManager
+    [SerializeField] private VoidEventSO strikeEvent; //From GameManager
     [SerializeField] private IntEventSO addIsBaseStatus; //From GameManager
 
     
@@ -31,6 +32,8 @@ public class Batter : Player
         if(elapsed != 0) return;
         
         StartCoroutine(RotateWithCurveSwing(new Vector3(0, 0, -120), new Vector3(135, 135, -120)));
+        
+        //
     }
 
     
@@ -53,6 +56,12 @@ public class Batter : Player
 
         elapsed = 0;
         bat.transform.rotation = endRotation;
+        
+        //스윙했는데 만약 공에 안 닿았다면
+        if (!_ball.IsBatTouch)
+        {
+            strikeEvent.RaiseEvent();
+        }
     }
 
     private void MoveBase()
