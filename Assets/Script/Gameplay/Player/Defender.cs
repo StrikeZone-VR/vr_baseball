@@ -48,7 +48,7 @@ public class Defender : Player
             baseball.MyDefender = this;
             isTracking = false;
             
-            OutRunner();
+            FlyingOutRunner();
         }
     }
     
@@ -114,7 +114,7 @@ public class Defender : Player
 
 
     //out decision
-    protected virtual void OutRunner()
+    protected virtual void FlyingOutRunner()
     {
         bool isGroundball = _myBall.IsGroundBall;
         bool isBatTouch = _myBall.IsBatTouch;

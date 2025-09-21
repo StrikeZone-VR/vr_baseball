@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class Batter : Player
 {
@@ -11,9 +12,11 @@ public class Batter : Player
     //[SerializeField] private Baseball _ball;
     private int base_index = 0;
     private Transform[] bases;
-    [SerializeField] private GameObject bat;
+    GameObject bat;
 
-    
+    [FormerlySerializedAs("pitchStartEvent")]
+    [Header("Listening to Events")]
+    [SerializeField] private VoidEventSO startPitchEvent; //From GameManager
     [SerializeField] private VoidEventSO addScore; //From GameManager
     [SerializeField] private VoidEventSO strikeEvent; //From GameManager
     [SerializeField] private IntEventSO addIsBaseStatus; //From GameManager
@@ -24,19 +27,21 @@ public class Batter : Player
     
     const float rotationTime = 0.25f;
     float elapsed = 0f;
-    
 
+    public void SetBat(GameObject bat)
+    {
+        this.bat = bat;
+    }
 
     public void StartSwing()
     {
         if(elapsed != 0) return;
         
-        StartCoroutine(RotateWithCurveSwing(new Vector3(0, 0, -120), new Vector3(135, 135, -120)));
+        StartCoroutine(RotateWithCurveSwing(new Vector3(0, 0, -120), new Vector3(-65, -135, -120)));
         
         //
     }
 
-    
     IEnumerator RotateWithCurveSwing(Vector3 start, Vector3 end)
     {
         // Quaternion startRotation = Quaternion.Euler(start);
@@ -66,8 +71,7 @@ public class Batter : Player
 
     private void MoveBase()
     {
-        nav.SetDestination(bases[base_index].position);
-        LookAtPlayer(bases[base_index].position);
+        MovePlayer(bases[base_index].position);
     }
 
     private void OnTriggerEnter(Collider collision)
@@ -88,14 +92,23 @@ public class Batter : Player
                 }
             }
         }
+
+        if (collision.gameObject.CompareTag("BatterPos"))
+        {
+            StopMove();
+        }
     }
 
+    private void StopMove()
+    {
+        nav.ResetPath();
+        startPitchEvent.RaiseEvent();
+        LookAtPlayer(new Vector3(-1, 0, -1));
+    }
 
-
-
+    #region PROPERTYS
     public bool IsMove
     {
-        
         get => isMove;
         set
         {
@@ -147,4 +160,5 @@ public class Batter : Player
     {
         this.bases = bases;
     }
+    #endregion
 }

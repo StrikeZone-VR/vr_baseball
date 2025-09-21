@@ -25,11 +25,6 @@ public class Catcher : Baseman
         //batterMode
         if (pitcher.gameObject.activeSelf)
             ThrowBall(pitcher.transform.position);
-        else
-        {
-            backToPitcherEvent.RaiseEvent();
-            //_ball.GetComponent<PitchingBallController>().ResetBall();
-        }
     }
     
     
