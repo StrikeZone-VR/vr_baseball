@@ -38,6 +38,7 @@ public class Defender : Player
     //touch ball
     void OnCollisionEnter(Collision collision)
     {
+        //flyout 
         if (collision.gameObject.CompareTag("Ball") && _ball.MyDefender == null)
         {
             //owner ball
@@ -71,7 +72,7 @@ public class Defender : Player
         //Debug.Log(dis);
 
         //have ball
-        if (position == transform.position)
+        if (Vector3.Distance(position, transform.position) <= 0.3f)
         {
             return;
         }
@@ -92,10 +93,12 @@ public class Defender : Player
         float distance = directionXZ.magnitude;
 
         float yOffset = direction.y;
+        
 
         float velocity = Mathf.Sqrt((gravity * distance * distance) / 
                                     (2 * (yOffset - Mathf.Tan(angle) * distance) * Mathf.Pow(Mathf.Cos(angle), 2)));
-
+        
+        
         Vector3 launchVelocity = directionXZ.normalized;
         launchVelocity *= velocity * Mathf.Cos(angle);
         launchVelocity.y = velocity * Mathf.Sin(angle);
@@ -113,17 +116,23 @@ public class Defender : Player
     }
 
 
-    //out decision
+    /// <summary>
+    /// 플라잉아웃
+    /// </summary>
     protected virtual void FlyingOutRunner()
     {
         bool isGroundball = _myBall.IsGroundBall;
         bool isBatTouch = _myBall.IsBatTouch;
 
         //flying out
-        if (isBatTouch && !isGroundball)
-        {
-            outBatterEventSO.RaiseEvent(0);
-        }
+        // if (isBatTouch && !isGroundball)
+        // {
+        //     Debug.Log("flying out");
+        //     _myBall.IsGroundBall = true; //어차피 플라잉 아웃 한번 잡으면 돌아가야함
+        //     //알고리즘 좀 복잡한데
+        //     
+        //     outBatterEventSO.RaiseEvent(0);
+        // }
     }
 
     #region PROPERTIES

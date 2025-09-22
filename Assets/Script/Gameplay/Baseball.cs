@@ -134,15 +134,16 @@ public class Baseball : MonoBehaviour
             //addStrikeEvent.RaiseEvent();
         }
         //paul
-        else if (collider.CompareTag("Paul"))
+        if (collider.CompareTag("Paul"))
         {
-            //paulEvent.RaiseEvent();
+            if(isBatTouch)
+                paulEvent.RaiseEvent();
         }
         //homerun
-        else if (collider.CompareTag("Homerun"))
+        if (collider.CompareTag("Homerun"))
         {
-            //HomerunEvent.event
-            homerunEvent.RaiseEvent();
+            if(isBatTouch)
+                homerunEvent.RaiseEvent();
 
         }
     }
@@ -162,18 +163,21 @@ public class Baseball : MonoBehaviour
         if(collision.collider.CompareTag("Ground") || collision.collider.CompareTag("Base"))
         {
             IsPassing = false;
+            IsThrown = false;
 
             if (!isBatTouch)
             {
+                //throw ball but swing miss
                 return;
             }
             //paul, homerun check
-            if (!isGroundBall) //groundball or flyingball
+            if (!isGroundBall) //groundball or flying ball
             {
                 if (this.transform.position.y > 0 || this.transform.position.y > 0)
                 {
                     paulEvent.RaiseEvent();
                 }
+                Debug.Log("not paul => inplaygame");
                 IsGroundBall = true;
             }
             
@@ -181,7 +185,9 @@ public class Baseball : MonoBehaviour
         //in play game
         if (collision.collider.CompareTag("Bat"))
         {
+            Debug.Log("인 플레이 게임");
             IsBatTouch = true;
+            IsThrown = false;
 
             // 공의 Rigidbody 컴포넌트 가져오기
             Rigidbody batRb = collision.gameObject.GetComponent<Rigidbody>();

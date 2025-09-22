@@ -10,7 +10,7 @@ public class Batter : Player
     public AnimationCurve rotationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
     //[SerializeField] private Baseball _ball;
-    private int base_index = 0;
+    [SerializeField] private int base_index = 0;
     private Transform[] bases;
     GameObject bat;
 
@@ -22,7 +22,8 @@ public class Batter : Player
     [SerializeField] private IntEventSO addIsBaseStatus; //From GameManager
 
     
-    private bool isMove = false;
+    //debug serializeField
+    [SerializeField] private bool isMove = false;
     //private bool isInBase = false;
     
     const float rotationTime = 0.25f;
@@ -36,15 +37,17 @@ public class Batter : Player
     public void StartSwing()
     {
         if(elapsed != 0) return;
-        
-        StartCoroutine(RotateWithCurveSwing(new Vector3(0, 0, -120), new Vector3(-65, -135, -120)));
-        
-        //
+
+        Vector3 start = new Vector3(0, 0, -120);
+        Quaternion startRotation = Quaternion.Euler(start);
+        bat.transform.rotation = startRotation;
+
+        StartCoroutine(RotateWithCurveSwing(start, new Vector3(-65, -135, -120)));
     }
 
     IEnumerator RotateWithCurveSwing(Vector3 start, Vector3 end)
     {
-        // Quaternion startRotation = Quaternion.Euler(start);
+        Quaternion startRotation = Quaternion.Euler(start);
         Quaternion endRotation = Quaternion.Euler(end);
 
         while (elapsed < rotationTime)
@@ -65,7 +68,8 @@ public class Batter : Player
         //스윙했는데 만약 공에 안 닿았다면
         if (!_ball.IsBatTouch)
         {
-            strikeEvent.RaiseEvent();
+            Debug.Log("스트라이크 막아놓음");
+            //strikeEvent.RaiseEvent();
         }
     }
 
@@ -115,11 +119,14 @@ public class Batter : Player
             isMove = value;
             if (isMove)
             {
+                //Debug.Log("움직...");
                 MoveBase();
             }
             else
             {
                 //stop moving
+                //Debug.Log("안 움직...");
+
                 nav.ResetPath();
             }
         }

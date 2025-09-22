@@ -4,9 +4,6 @@ using System.Collections.Generic;
 using TMPro;
 using Unity.XR.CoreUtils;
 using UnityEngine;
-using UnityEngine.Serialization;
-using UnityEngine.UIElements;
-using Random = UnityEngine.Random;
 
 //게임 시작할때 실행되는 GameManager
 public class GameManager : MonoBehaviour
@@ -157,9 +154,11 @@ public class GameManager : MonoBehaviour
         //has ball and ball batting
         if (_ball.MyDefender && _ball.IsBatTouch)
         {
-            if (ThrowBallAlgorithm())
+            //던질 곳 없으면 복귀
+            if (!ThrowBallAlgorithm())
             {
                 PitcherGetBall();
+
                 //투수일 경우 + currentBatter가 null인 경우
                 if (!currentBatter && inning % 2 == 1)
                 {
@@ -191,8 +190,8 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        //tracking
-        if (!_ball.IsPassing && _ball.IsGroundBall)
+        //tracking => 혹시 포수가 못 잡을 수 있으니 isBatTouch는 넣지말자
+        if (!_ball.IsPassing && _ball.IsGroundBall && !_ball.IsThrown)
         {
             int index = FindClosestDefenderIndex();
             AllTrackingOff();
@@ -201,7 +200,8 @@ public class GameManager : MonoBehaviour
             {
                 return;
             }
-
+            
+            //Debug.Log("트래킹 잠시 무효화");
             defenders[index].IsTracking = true;
         }
     }
@@ -219,6 +219,7 @@ public class GameManager : MonoBehaviour
             BallCount = 0;
             Strike = 0;
 
+            Debug.Log("아웃 : " + out_count);
             if (out_count >= MAX_OUT_COUNT)
             {
                 out_count = 0;
@@ -283,7 +284,11 @@ public class GameManager : MonoBehaviour
                 strike_count = 0;
 
                 DeleteRunner();
-                OutCount++;
+                AddOut();
+            }
+            else
+            {
+                //아니 근데 여기서 달리기를 되돌리는건 좀
             }
 
             //ui
@@ -386,6 +391,8 @@ public class GameManager : MonoBehaviour
 
     private void RerollBeforeStatus()
     {
+        Debug.Log("back to the future");
+
         //되돌아가자
         for (int i = 1; i < runners.Length; i++)
         {
@@ -396,6 +403,7 @@ public class GameManager : MonoBehaviour
                 batter.transform.position = bases[i].position;
             }
         }
+
         Batter b = runners[0].Dequeue();
         b.IsMove = false;
         b.transform.position = batterPosition.position;
@@ -417,7 +425,6 @@ public class GameManager : MonoBehaviour
 
     private void DeleteRunner()
     {
-        Debug.Log("제발 ");
         Destroy(currentBatter.gameObject);
         currentBatter = null;
         CreateBatter();
@@ -453,6 +460,7 @@ public class GameManager : MonoBehaviour
 
     void PitcherGetBall()
     {
+        Debug.Log("공공이 돌아옴");
         pitchingManager.ResetBall();
     }
 
@@ -477,6 +485,14 @@ public class GameManager : MonoBehaviour
     /// <summary> runner clear </summary>
     private void ClearRunners()
     {
+        if (currentBatter)
+        {
+            if (currentBatter.gameObject)
+            {
+                Destroy(currentBatter.gameObject);
+                currentBatter = null;
+            }
+        }
         for (int i = 0; i < runners.Length; i++)
         {
             while (runners[i].Count > 0)
@@ -501,11 +517,12 @@ public class GameManager : MonoBehaviour
 
     private void CreateBatter() //AI
     {
-        Debug.Log("엄준식");
+        Debug.Log("타자 생성");
         Batter batter = Instantiate(batterPrefab, batterCreatePosition.position, Quaternion.identity);
 
         batter.SetBall(_ball);
         batter.SetBat(_bat);
+        batter.transform.parent = batterCreatePosition;
 
         //베트 자리로 이동
         batter.MovePlayer(batterPosition.position);
@@ -567,7 +584,10 @@ public class GameManager : MonoBehaviour
     private void ThrowToBase(int index)
     {
         if (_ball.MyDefender)
+        {
+            Debug.Log(index + "번에 던질까요");
             _ball.MyDefender.ThrowBall(bases[index].position + new Vector3(0, 0.5f, 0));
+        }
     }
 
     public int FindClosestDefenderIndex()
@@ -610,6 +630,7 @@ public class GameManager : MonoBehaviour
 
     private void OutBatter(int index)
     {
+        //Debug.Log(runners[index].Count);
         //don't have runner
         if (runners[index].Count == 0)
         {
@@ -624,7 +645,8 @@ public class GameManager : MonoBehaviour
         }
 
         AddOut();
-
+        
+        runners[index].Dequeue();
         if (currentBatter == batter)
         {
             currentBatter = null;

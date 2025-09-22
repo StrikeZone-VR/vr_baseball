@@ -64,14 +64,14 @@ public class PitchingManager : MonoBehaviour
     // 디버그용 키보드 컨트롤
     void Update()
     {
-#if UNITY_EDITOR
-        if (Input.GetKeyDown(KeyCode.R))
-            ResetGame();
-        if (Input.GetKeyDown(KeyCode.U))
-            ToggleUI();
-        if (Input.GetKeyDown(KeyCode.N))
-            ResetBall();
-#endif
+// #if UNITY_EDITOR
+//         if (Input.GetKeyDown(KeyCode.R))
+//             ResetGame();
+//         if (Input.GetKeyDown(KeyCode.U))
+//             ToggleUI();
+//         if (Input.GetKeyDown(KeyCode.N))
+//             ResetBall();
+// #endif
     }
     
     #endregion
@@ -98,10 +98,14 @@ public class PitchingManager : MonoBehaviour
         pitchSelectionUI.HideUI();
     }
 
-    //SpawnNewBall => InitBall
+    /// <summary>
+    /// init, ball status init 
+    /// </summary>
     public void ResetBall()
     {
         ball.RemovePlayer();
+        ball.IsBatTouch = false;
+        ball.IsGroundBall = false;
         
         // **한 프레임 뒤에 물리 설정 - VRBaseball Start() 후에 실행되도록!**
         //StartCoroutine(SetupBallAfterFrame());
