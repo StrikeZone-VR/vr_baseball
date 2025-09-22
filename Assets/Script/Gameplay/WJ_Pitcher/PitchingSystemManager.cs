@@ -2,8 +2,10 @@
 /// 🎯 투수 연습 시스템 통합 관리자 - 스트라이크존 9개 + 볼존 16개 (25존 시스템)
 /// </summary>
 
+using System;
 using UnityEngine;
 using System.Collections.Generic;
+using Random = UnityEngine.Random;
 
 /// <summary>
 /// 🎯 투수 연습 시스템 통합 관리자
@@ -14,6 +16,7 @@ using System.Collections.Generic;
 /// </summary>
 public class PitchingSystemManager : MonoBehaviour
 {
+    [SerializeField] private Batter batter;
     [Header("🎯 존 설정")]
     public Transform strikeZoneParent;
     
@@ -51,6 +54,7 @@ public class PitchingSystemManager : MonoBehaviour
             probability = prob;
         }
     }
+    [SerializeField] private PitchingManager pitchingManager;
     
     private List<PitchZone> allZones = new List<PitchZone>();
     private List<PitchZone> strikeZones = new List<PitchZone>();
@@ -61,6 +65,23 @@ public class PitchingSystemManager : MonoBehaviour
     private Vector3 strikeZoneCenter;
     private Vector3 strikeZoneBounds;
     
+    [SerializeField] private VoidEventSO backToPitcherEvent; //baseball
+    [SerializeField] private VoidEventSO pitchEvent;
+
+
+    private void OnEnable()
+    {
+        backToPitcherEvent.onEventRaised += BackPitcherBall;
+        pitchEvent.onEventRaised += SwingBat;
+        //swingEvent.onEventRaised;
+    }
+
+    private void OnDisable()
+    {
+        backToPitcherEvent.onEventRaised -= BackPitcherBall;
+        pitchEvent.onEventRaised -= SwingBat;
+    }
+
     void Start()
     {
         InitializeSystem();
@@ -71,24 +92,7 @@ public class PitchingSystemManager : MonoBehaviour
     // ==============================================
     public void InitializeSystem()
     {
-        Debug.Log("🚀 투수 시스템 초기화 시작!");
-        
-        // 기존 시스템 정리
-        ClearExistingSystems();
-        
-        // 스트라이크존 분석
-        AnalyzeExistingStrikeZones();
-        
-        // 볼존 생성
-        CreateBallZones();
-        
-        // 확률 계산
-        CalculateProbabilities();
-        
-        // 시각화
-        UpdateVisualization();
-        
-        Debug.Log($"✅ 시스템 초기화 완료! 스트라이크: {strikeZones.Count}개, 볼: {ballZones.Count}개, 총: {allZones.Count}개");
+        pitchingManager.StartPitchingGame();
     }
     
     /// <summary> ballZone Clear
@@ -420,6 +424,17 @@ public class PitchingSystemManager : MonoBehaviour
     {
         showZonesInEditor = !showZonesInEditor;
         UpdateVisualization();
+    }
+
+    private void BackPitcherBall()
+    {
+        pitchingManager.ResetBall();
+    }
+
+    private void SwingBat()
+    {
+        
+        batter.StartSwing();
     }
     
     // ==============================================

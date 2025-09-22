@@ -2081,6 +2081,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 019fbe4d8ddc3a54cab87bcba6387fd2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  zones:
+  - {fileID: 6576572971797229173}
+  - {fileID: 1935056253001214446}
+  - {fileID: 8099412092665101610}
+  - {fileID: 1115605670138567179}
+  - {fileID: 20157791363179501}
+  - {fileID: 2150746474995789522}
+  - {fileID: 4998614192096452724}
+  - {fileID: 2893831419235961819}
+  - {fileID: 1896830990916713555}
+  - {fileID: 5240951353645157342}
+  - {fileID: 2851193966905956674}
+  - {fileID: 7950934213790769343}
+  - {fileID: 6747666469018189098}
+  - {fileID: 3907206233299691637}
+  - {fileID: 4188478508260267970}
+  - {fileID: 212396830254251678}
+  - {fileID: 1530450474472405370}
+  - {fileID: 4673084748046590329}
+  - {fileID: 7471510777211100509}
+  - {fileID: 6194328003240000589}
+  - {fileID: 5535360496001217047}
+  - {fileID: 3104436564965724626}
+  - {fileID: 4694030184634458644}
+  - {fileID: 4557671340195529087}
+  - {fileID: 3832504089980360284}
   zoneSize: {x: 0.5, y: 1, z: 0.1}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
   strikeColor: {r: 0, g: 1, b: 0, a: 1}
@@ -2090,6 +2116,7 @@ MonoBehaviour:
   ballEffect: {fileID: 0}
   strikeSound: {fileID: 8300000, guid: 2dd5ded3493241240821683dc83f70a2, type: 3}
   ballSound: {fileID: 8300000, guid: 93eb1ac1497333e49921eb4930664a16, type: 3}
+  strikeEvent: {fileID: 0}
 --- !u!65 &7359238308825629532
 BoxCollider:
   m_ObjectHideFlags: 0

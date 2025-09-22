@@ -12,7 +12,7 @@ public class Batter : Player
     //[SerializeField] private Baseball _ball;
     [SerializeField] private int base_index = 0;
     private Transform[] bases;
-    GameObject bat;
+    [SerializeField] private GameObject bat;
 
     [FormerlySerializedAs("pitchStartEvent")]
     [Header("Listening to Events")]

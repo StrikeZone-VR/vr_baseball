@@ -73,7 +73,8 @@ public class Pitcher : Defender
     //공 던지는 함수
     public void PitchingBall()
     {
-        _myBall.IsThrown = true;
+        _ball.IsThrown = true;
+        _ball.IsBatTouch = false;
         //Debug.Log("Throwing ball" + transform.rotation.eulerAngles.x + ", " + transform.rotation.eulerAngles.z);
         //transform.rotation.eulerAngles.x, ADDFORCE, transform.rotation.eulerAngles.z => you should be setting cos sin
         

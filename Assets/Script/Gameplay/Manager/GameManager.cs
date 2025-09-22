@@ -59,7 +59,7 @@ public class GameManager : MonoBehaviour
     [Space] [SerializeField] private VoidEventSO startPitchEvent; //to batter
     [SerializeField] private VoidEventSO swingEvent; //to Pitcher
     [SerializeField] private VoidEventSO pitchEvent; //to PitchingBallController
-    [SerializeField] private VoidEventSO backToPitcherEvent; //baseball
+    [SerializeField] private VoidEventSO backToPitcherEvent; //?
 
     //Define
     private const int MAX_BALL_COUNT = 4;
