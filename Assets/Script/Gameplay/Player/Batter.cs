@@ -167,5 +167,7 @@ public class Batter : Player
     {
         this.bases = bases;
     }
+
+    
     #endregion
 }

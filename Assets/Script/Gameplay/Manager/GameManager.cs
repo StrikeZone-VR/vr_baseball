@@ -184,6 +184,10 @@ public class GameManager : MonoBehaviour
         {
             Inning++;
         }
+        if (Input.GetKeyDown(KeyCode.V))
+        {
+            DebugBaseStatus();
+        }
 
         if (_ball.MyDefender)
         {
@@ -322,6 +326,7 @@ public class GameManager : MonoBehaviour
 
     private void AddIsBaseStatus(int index)
     {
+        Debug.Log("나오면 안돼");
         Batter batter = runners[index].Dequeue();
         runners[index + 1].Enqueue(batter);
     }
@@ -404,6 +409,11 @@ public class GameManager : MonoBehaviour
             }
         }
 
+        //그냥 아웃처리하자
+        if (runners[0].Count == 0)
+        {
+            return;
+        }
         Batter b = runners[0].Dequeue();
         b.IsMove = false;
         b.transform.position = batterPosition.position;
@@ -506,6 +516,7 @@ public class GameManager : MonoBehaviour
 
     private void RunRunner()
     {
+        Debug.Log("이 메세지가 두번 나온다면");
         runners[0].Enqueue(currentBatter);
 
         currentBatter.SetBases(bases);
@@ -581,13 +592,20 @@ public class GameManager : MonoBehaviour
 
     #region ALGORITHM
 
-    private void ThrowToBase(int index)
+    private bool ThrowToBase(int index)
     {
         if (_ball.MyDefender)
         {
-            Debug.Log(index + "번에 던질까요");
+            if (_ball.MyDefender == defenders[index + 1] && (0 <= index && index < 4) ) //1루수 ~ 4루수
+            {
+                return false;
+            }
+            
             _ball.MyDefender.ThrowBall(bases[index].position + new Vector3(0, 0.5f, 0));
+            return true;
         }
+
+        return false;
     }
 
     public int FindClosestDefenderIndex()
@@ -620,8 +638,10 @@ public class GameManager : MonoBehaviour
             //has runner and run
             if (runners[i].Count > 0 && runners[i].Peek().IsMove)
             {
-                ThrowToBase(i);
-                return true;
+                if (ThrowToBase(i))
+                {
+                    return true;
+                }
             }
         }
 
@@ -630,7 +650,6 @@ public class GameManager : MonoBehaviour
 
     private void OutBatter(int index)
     {
-        //Debug.Log(runners[index].Count);
         //don't have runner
         if (runners[index].Count == 0)
         {
@@ -638,6 +657,7 @@ public class GameManager : MonoBehaviour
         }
 
         Batter batter = runners[index].Peek();
+        
         //has runner and don't run
         if (!batter.IsMove)
         {
@@ -652,7 +672,6 @@ public class GameManager : MonoBehaviour
             currentBatter = null;
         }
         Destroy(batter.gameObject);
-        runners[index].Dequeue();
     }
 
     //move one base
@@ -688,6 +707,11 @@ public class GameManager : MonoBehaviour
         for (int i = 0; i < runners.Length; i++)
         {
             Debug.Log(i + " : " + runners[i].Count);
+            if (runners[i].Count != 0)
+            {
+                Debug.Log("Null뜨면 애초에 Runners.push가 두번된거");
+                Debug.Log(i + " : " + runners[i].Peek().name);
+            }
         }
     }
 
