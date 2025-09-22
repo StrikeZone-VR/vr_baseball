@@ -53,4 +53,10 @@ public class Player : MonoBehaviour
     {
         _ball = ball;
     }
+
+    public void MovePlayer(Vector3 pos)
+    {
+        nav.SetDestination(pos);
+        LookAtPlayer(pos);
+    }
 }

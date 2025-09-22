@@ -45,6 +45,8 @@ public class Pitcher : Defender
     //        PitchBall();
     //}
 
+    
+    //이걸로 공 설정해라
     public override void SetMyBall(Baseball myBall)
     {
         base.SetMyBall(myBall);

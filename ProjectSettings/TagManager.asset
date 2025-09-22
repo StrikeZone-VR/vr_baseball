@@ -14,6 +14,7 @@ TagManager:
   - BallZone
   - Homerun
   - Paul
+  - BatterPos
   layers:
   - Default
   - TransparentFX

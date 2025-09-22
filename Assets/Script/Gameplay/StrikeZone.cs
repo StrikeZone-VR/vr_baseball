@@ -173,8 +173,6 @@ public class StrikeZone : MonoBehaviour
 
     private void HandleStrike(Baseball baseball)
     {
-        Debug.Log("스트라이크!");
-
         FlashZone(strikeColor);
 
         if (strikeEffect != null)

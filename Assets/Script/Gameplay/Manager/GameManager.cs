@@ -4,9 +4,6 @@ using System.Collections.Generic;
 using TMPro;
 using Unity.XR.CoreUtils;
 using UnityEngine;
-using UnityEngine.Serialization;
-using UnityEngine.UIElements;
-using Random = UnityEngine.Random;
 
 //게임 시작할때 실행되는 GameManager
 public class GameManager : MonoBehaviour
@@ -18,71 +15,97 @@ public class GameManager : MonoBehaviour
     private int strike_count = 0;
     private int out_count = 0;
 
-    [Header("Manager")]
-    [SerializeField] private PitchingManager pitchingManager;
-    
-    
+    [Header("Manager")] [SerializeField] private PitchingManager pitchingManager;
+
+
     [SerializeField] private XROrigin playerOrigin;
 
     [SerializeField] private UIGameStatus[] _UIGameStatusElements;
-    [SerializeField] private TextMeshProUGUI [] _scoreTexts ;
-    [SerializeField] private TextMeshProUGUI _inningText ;
-    
+    [SerializeField] private TextMeshProUGUI[] _scoreTexts;
+    [SerializeField] private TextMeshProUGUI _inningText;
+
     [SerializeField] private Defender[] defenders; // pitcher => 0
     [SerializeField] private Transform[] bases;
     [SerializeField] private Baseball _ball; //일단 PitchingBallController도 여깄음
 
-    private Queue<Batter> [] runners = new Queue<Batter>[MAX_BASE_COUNT + 1]; //
-    [SerializeField] private Batter batterPrefab; 
-    [SerializeField] private Batter batter;
+    private Queue<Batter>[] runners = new Queue<Batter>[MAX_BASE_COUNT + 1];
 
-    private TeamStatus []_teamStatus = new TeamStatus[2];
+    [Header("Batter")] 
+    [SerializeField] private Batter batterPrefab;
+    [SerializeField] private Transform batterCreatePosition;
+    [SerializeField] private Transform batterPosition;
+    [SerializeField] private Batter currentBatter;
+    [SerializeField] private GameObject _bat;
 
-    [Header("Broadcasting on EventChannels")]
-    [SerializeField] private IntEventSO outBatterEvent; //Defender, Baseman
+    private TeamStatus[] _teamStatus = new TeamStatus[2];
+    private int beforeScore = 0;
+    private bool [] isBeforeBaseStatus = { false, false, false };
+
+    [Header("Broadcasting on EventChannels")] [SerializeField]
+    private IntEventSO outBatterEvent; //Defender, Baseman
+
     [SerializeField] private VoidEventSO addBallCountEvent; //to Baseball
-    [SerializeField] private VoidEventSO strikeEvent; // toStrikeZone
-    [SerializeField] private VoidEventSO allTrackingOffEvent; //to baseball
+    [SerializeField] private VoidEventSO strikeEvent; // toStrikeZone, batter
+    [SerializeField] private VoidEventSO paulEvent; // toStrikeZone
+    [SerializeField] private VoidEventSO homerunEvent; // toStrikeZone
+
+    
+    [Space] [SerializeField] private VoidEventSO allTrackingOffEvent; //to baseball
     [SerializeField] private VoidEventSO addScore; //to Batter
     [SerializeField] private IntEventSO addIsBaseStatus; //to Batter
+    [SerializeField] private VoidEventSO runSignalEvent;
+
     
+    [Space] [SerializeField] private VoidEventSO startPitchEvent; //to batter
     [SerializeField] private VoidEventSO swingEvent; //to Pitcher
     [SerializeField] private VoidEventSO pitchEvent; //to PitchingBallController
     [SerializeField] private VoidEventSO backToPitcherEvent; //baseball
 
     //Define
-    private const int MAX_BALL_COUNT = 4; 
-    private const int MAX_STRIKE_COUNT = 3; 
-    private const int MAX_OUT_COUNT = 3; 
-    private const int MAX_INNING_COUNT = 18; 
+    private const int MAX_BALL_COUNT = 4;
+    private const int MAX_STRIKE_COUNT = 3;
+    private const int MAX_OUT_COUNT = 3;
+    private const int MAX_INNING_COUNT = 18;
     private const int MAX_BASE_COUNT = 3;
 
     private void OnEnable()
     {
         outBatterEvent.onEventRaised += OutBatter;
-        
+
         addBallCountEvent.onEventRaised += AddBallCount;
         strikeEvent.onEventRaised += AddStrike;
+        paulEvent.onEventRaised += Paul;
+        homerunEvent.onEventRaised += Homerun;
+
         allTrackingOffEvent.onEventRaised += AllTrackingOff;
         addScore.onEventRaised += AddScore;
-        
+        startPitchEvent.onEventRaised += OnTouchBall;
+        runSignalEvent.onEventRaised += RunRunner;
+
         addIsBaseStatus.onEventRaised += AddIsBaseStatus;
-        
+
         swingEvent.onEventRaised += DebugBatting;
         pitchEvent.onEventRaised += SwingSignalToBatter;
         backToPitcherEvent.onEventRaised += PitcherGetBall;
     }
+
     private void OnDisable()
     {
         outBatterEvent.onEventRaised -= OutBatter;
-        
+
         addBallCountEvent.onEventRaised -= AddBallCount;
         strikeEvent.onEventRaised -= AddStrike;
+        paulEvent.onEventRaised -= Paul;
+        homerunEvent.onEventRaised -= Homerun;
+
+
         allTrackingOffEvent.onEventRaised -= AllTrackingOff;
         addScore.onEventRaised -= AddScore;
+        startPitchEvent.onEventRaised -= OnTouchBall;
+        runSignalEvent.onEventRaised -= RunRunner;
 
         addIsBaseStatus.onEventRaised -= AddIsBaseStatus;
-        
+
         swingEvent.onEventRaised -= DebugBatting;
         pitchEvent.onEventRaised -= SwingSignalToBatter;
         backToPitcherEvent.onEventRaised -= PitcherGetBall;
@@ -99,10 +122,11 @@ public class GameManager : MonoBehaviour
         {
             runners[i] = new Queue<Batter>();
         }
+
         SetScore(0, 0);
         SetScore(1, 0);
         Inning = 0;
-        
+
         //pitcher has ball
         //_ball.RemovePlayer();
         //defenders[0].SetMyBall(_ball);
@@ -117,74 +141,95 @@ public class GameManager : MonoBehaviour
             defenders[0].SetMyBall(_ball);
             //_ball.MyDefender.ThrowBall(defenders[0].transform.position);
         }
-        if(Input.GetKeyDown(KeyCode.Alpha1))
+
+        if (Input.GetKeyDown(KeyCode.Alpha1))
             ThrowToBase(0);
         else if (Input.GetKeyDown(KeyCode.Alpha2))
             ThrowToBase(1);
-        else if(Input.GetKeyDown(KeyCode.Alpha3))
+        else if (Input.GetKeyDown(KeyCode.Alpha3))
             ThrowToBase(2);
-        else if(Input.GetKeyDown(KeyCode.Alpha4))
+        else if (Input.GetKeyDown(KeyCode.Alpha4))
             ThrowToBase(3);
-        
+
         //has ball and ball batting
         if (_ball.MyDefender && _ball.IsBatTouch)
         {
-            ThrowBallAlgorithm();
-        }
-        
+            //던질 곳 없으면 복귀
+            if (!ThrowBallAlgorithm())
+            {
+                PitcherGetBall();
 
-        
+                //투수일 경우 + currentBatter가 null인 경우
+                if (!currentBatter && inning % 2 == 1)
+                {
+                    CreateBatter();
+                }
+            }
+        }
+
 
         if (Input.GetKeyDown(KeyCode.B))
         {
-            BallCount++;
+            //_ball.OnTouchBall();
+            PitcherGetBall();
         }
+
         //batter run
         if (Input.GetKeyDown(KeyCode.C))
         {
             MoveOneBase();
         }
+
         if (Input.GetKeyDown(KeyCode.X))
         {
             Inning++;
         }
-        
+
         if (_ball.MyDefender)
         {
             return;
         }
-        //tracking
-        if (!_ball.IsPassing && _ball.IsGroundBall)
+
+        //tracking => 혹시 포수가 못 잡을 수 있으니 isBatTouch는 넣지말자
+        if (!_ball.IsPassing && _ball.IsGroundBall && !_ball.IsThrown)
         {
             int index = FindClosestDefenderIndex();
             AllTrackingOff();
             //closestDefender set tracking
+            if (index == -1)
+            {
+                return;
+            }
+            
+            //Debug.Log("트래킹 잠시 무효화");
             defenders[index].IsTracking = true;
         }
-        
     }
 
     #region PROPERTY
+
     //*************************************************************************************** property
     public int OutCount
     {
-        get
-        {
-            return out_count;
-        }
+        get { return out_count; }
         set
         {
             out_count = value;
-            
+
+            BallCount = 0;
+            Strike = 0;
+
+            Debug.Log("아웃 : " + out_count);
             if (out_count >= MAX_OUT_COUNT)
             {
                 out_count = 0;
                 Inning++;
             }
+
             _UIGameStatusElements[2].SetIndex(out_count);
         }
     }
-    
+
     private void AddOut()
     {
         OutCount++;
@@ -192,22 +237,20 @@ public class GameManager : MonoBehaviour
 
     public int Inning
     {
-        get
-        {
-            return inning;
-        }
+        get { return inning; }
         set
         {
             if (value >= MAX_INNING_COUNT)
             {
                 Debug.Log("Game Over, back to the menu...");
-                
+
                 //GameEnd
                 return;
             }
+
             inning = value;
             InitInning();
-            
+
 
             int num = inning % 2;
 
@@ -229,19 +272,25 @@ public class GameManager : MonoBehaviour
 
     public int Strike
     {
-        get
-        {
-            return strike_count;
-        }
+        get { return strike_count; }
         set
         {
+            //상태저장
             strike_count = value;
+            
+            //out
             if (strike_count >= MAX_STRIKE_COUNT)
             {
                 strike_count = 0;
-                OutCount++;
+
+                DeleteRunner();
+                AddOut();
             }
-            
+            else
+            {
+                //아니 근데 여기서 달리기를 되돌리는건 좀
+            }
+
             //ui
             _UIGameStatusElements[1].SetIndex(strike_count);
         }
@@ -249,10 +298,7 @@ public class GameManager : MonoBehaviour
 
     public int BallCount
     {
-        get
-        {
-            return ball_count;
-        }
+        get { return ball_count; }
         set
         {
             ball_count = value;
@@ -260,10 +306,11 @@ public class GameManager : MonoBehaviour
             {
                 ball_count = 0;
                 _ball.IsBatTouch = false;
-                
+
                 //AddBaseStatus();
                 MoveOneBase();
             }
+
             _UIGameStatusElements[0].SetIndex(ball_count);
         }
     }
@@ -272,7 +319,7 @@ public class GameManager : MonoBehaviour
     {
         BallCount++;
     }
-    
+
     private void AddIsBaseStatus(int index)
     {
         Batter batter = runners[index].Dequeue();
@@ -283,15 +330,45 @@ public class GameManager : MonoBehaviour
     {
         Strike++;
     }
-    
 
     private void AddScore()
     {
         Batter batter = runners[3].Dequeue();
         Destroy(batter.gameObject);
-        
+
         SetScore(inning % 2, ++_teamStatus[inning % 2].Score);
     }
+
+    private void Paul()
+    {
+        PitcherGetBall();
+
+        Debug.Log("Paul");
+        //만약에 점수를 냈다면?
+        RerollBeforeStatus();
+        
+        //strike == 2
+        if (Strike == MAX_STRIKE_COUNT - 1)
+        {
+            return;
+        }
+
+        AddStrike();
+    }
+
+    private void Homerun()
+    {
+        PitcherGetBall();
+        SetScore(inning % 2, ++_teamStatus[inning % 2].Score);
+        for (int i = 0; i < runners.Length; i++)
+        {
+            _teamStatus[inning % 2].Score += runners[i].Count;
+            SetScore(inning % 2, _teamStatus[inning % 2].Score);
+        }
+
+        ClearRunners();
+    }
+
 
     private void SetScore(int teamIndex, int score)
     {
@@ -304,47 +381,87 @@ public class GameManager : MonoBehaviour
         BallCount = 0;
         Strike = 0;
         OutCount = 0;
-        
-        //runner clear
-        for (int i = 0; i < runners.Length; i++)
+
+        ClearRunners();
+    }
+
+    // ********************************************************************************************************************************************end
+
+    #endregion
+
+    private void RerollBeforeStatus()
+    {
+        Debug.Log("back to the future");
+
+        //되돌아가자
+        for (int i = 1; i < runners.Length; i++)
         {
             while (runners[i].Count > 0)
             {
-                Batter batter = runners[i].Dequeue();
-                Destroy(batter.gameObject);
+                Batter batter = runners[i].Peek();
+                batter.IsMove = false;
+                batter.transform.position = bases[i].position;
             }
         }
+
+        Batter b = runners[0].Dequeue();
+        b.IsMove = false;
+        b.transform.position = batterPosition.position;
+    }
+    
+
+    private bool IsCheckBeforeStatus()
+    {
+        for (int i = 0; i < runners.Length; i++)
+        {
+            if (isBeforeBaseStatus[i] != (runners[i].Count != 0))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
-    // *************************************************************end
-    #endregion
-
+    private void DeleteRunner()
+    {
+        Destroy(currentBatter.gameObject);
+        currentBatter = null;
+        CreateBatter();
+    }
+    
     private void StartBatter()
     {
         Debug.Log("타자 Mode On");
 
         pitchingManager.EndPitchingGame();
         defenders[0].gameObject.SetActive(true);
-        
+        defenders[0].SetMyBall(_ball);
+
         //방망이 중력, rotation position 풀기
-        batter.gameObject.SetActive(false);
-        playerOrigin.MoveCameraToWorldLocation(new Vector3(0, 1.0f, 0));
+        playerOrigin.MoveCameraToWorldLocation(new Vector3(0, 1.0f, 0)); //시점 타자 시점
     }
 
     private void StartPitcher()
     {
-        //pitcher stop
         Debug.Log("투수 Mode On");
 
+        defenders[0].IsTracking = false;
         pitchingManager.StartPitchingGame();
         defenders[0].gameObject.SetActive(false);
-        
+
         //방망이 위치 Vector3(-0.660000026,1.37,0.150000006) 여기로
         //방망이 중력, rotation position 얼리기
-        batter.gameObject.SetActive(true);
+        CreateBatter();
 
         playerOrigin.MoveCameraToWorldLocation(new Vector3(-10, 1.0f, -10));
         playerOrigin.MatchOriginUpCameraForward(Vector3.up, new Vector3(1, 0, 1));
+    }
+
+    void PitcherGetBall()
+    {
+        Debug.Log("공공이 돌아옴");
+        pitchingManager.ResetBall();
     }
 
 
@@ -358,32 +475,76 @@ public class GameManager : MonoBehaviour
     {
         for (int i = 0; i < defenders.Length; i++)
         {
-            if(defenders[i].gameObject.activeSelf)
+            if (defenders[i].gameObject.activeSelf)
                 defenders[i].IsTracking = false;
         }
     }
 
-    private void CreateBatter()
-    {
-        Batter batter = Instantiate(batterPrefab, transform);
-        
-        runners[0].Enqueue(batter);
-        
-        batter.SetBall(_ball);
-        batter.SetBases(bases);
-        
-        batter.transform.position = bases[3].position;
-        batter.BaseIndex = 0;
-        batter.IsMove = true;
-        
-        //runners[0].transform.rotation = Quaternion.LookRotation(bases[2].position);
+    #region BATTER
 
+    /// <summary> runner clear </summary>
+    private void ClearRunners()
+    {
+        if (currentBatter)
+        {
+            if (currentBatter.gameObject)
+            {
+                Destroy(currentBatter.gameObject);
+                currentBatter = null;
+            }
+        }
+        for (int i = 0; i < runners.Length; i++)
+        {
+            while (runners[i].Count > 0)
+            {
+                Batter batter = runners[i].Dequeue();
+                if(!batter)
+                    Destroy(batter.gameObject);
+            }
+        }
+    }
+
+    private void RunRunner()
+    {
+        runners[0].Enqueue(currentBatter);
+
+        currentBatter.SetBases(bases);
+
+        currentBatter.transform.position = bases[3].position;
+        currentBatter.BaseIndex = 0;
+        currentBatter.IsMove = true;
+    }
+
+    private void CreateBatter() //AI
+    {
+        Debug.Log("타자 생성");
+        Batter batter = Instantiate(batterPrefab, batterCreatePosition.position, Quaternion.identity);
+
+        batter.SetBall(_ball);
+        batter.SetBat(_bat);
+        batter.transform.parent = batterCreatePosition;
+
+        //베트 자리로 이동
+        batter.MovePlayer(batterPosition.position);
+
+        currentBatter = batter;
+        _ball.OffTouchBall();
+
+        //batter
+
+        //runners[0].transform.rotation = Quaternion.LookRotation(bases[2].position);
+    }
+
+
+    private void OnTouchBall()
+    {
+        _ball.OnTouchBall();
     }
 
     private void DebugBatting()
     {
         //batter.DebugHitting();
-        
+
         // float x = Random.Range(-1.0f, 0f);
         // float z = Random.Range(-1.0f, 0f);
         // Vector3 view = new Vector3(-1, 1, -1).normalized;
@@ -408,26 +569,25 @@ public class GameManager : MonoBehaviour
     {
         StartCoroutine(Swing());
     }
-    
+
     IEnumerator Swing()
     {
-        yield return new WaitForSeconds(1.0f); 
-        batter.StartSwing();
+        yield return new WaitForSeconds(1.0f);
+        currentBatter.StartSwing();
     }
 
-    void PitcherGetBall()
-    {
-        pitchingManager.ResetBall();
-    }
-    
+    #endregion
+
 
     #region ALGORITHM
-    
-    
+
     private void ThrowToBase(int index)
     {
-        if(_ball.MyDefender)
-            _ball.MyDefender.ThrowBall(bases[index].position + new Vector3(0,0.5f,0));
+        if (_ball.MyDefender)
+        {
+            Debug.Log(index + "번에 던질까요");
+            _ball.MyDefender.ThrowBall(bases[index].position + new Vector3(0, 0.5f, 0));
+        }
     }
 
     public int FindClosestDefenderIndex()
@@ -444,12 +604,16 @@ public class GameManager : MonoBehaviour
             }
         }
 
+        if (!defenders[index].gameObject.activeSelf)
+        {
+            return -1;
+        }
+
         _ball.DefenderDis = min;
         return index;
     }
-
     
-    private void ThrowBallAlgorithm() //SO
+    private bool ThrowBallAlgorithm() //SO
     {
         for (int i = runners.Length - 1; i >= 0; i--)
         {
@@ -457,12 +621,16 @@ public class GameManager : MonoBehaviour
             if (runners[i].Count > 0 && runners[i].Peek().IsMove)
             {
                 ThrowToBase(i);
-                break;
+                return true;
             }
         }
+
+        return false;
     }
+
     private void OutBatter(int index)
     {
+        //Debug.Log(runners[index].Count);
         //don't have runner
         if (runners[index].Count == 0)
         {
@@ -475,9 +643,14 @@ public class GameManager : MonoBehaviour
         {
             return;
         }
-        
-        AddOut();
 
+        AddOut();
+        
+        runners[index].Dequeue();
+        if (currentBatter == batter)
+        {
+            currentBatter = null;
+        }
         Destroy(batter.gameObject);
         runners[index].Dequeue();
     }
@@ -486,11 +659,11 @@ public class GameManager : MonoBehaviour
     void MoveOneBase()
     {
         MoveBase();
-            
+
         //don't have Runner
         if (runners[0].Count == 0)
         {
-            CreateBatter();
+            RunRunner();
         }
     }
 
@@ -505,6 +678,7 @@ public class GameManager : MonoBehaviour
             }
         }
     }
+
     #endregion
 
     #region DEBUG
@@ -516,20 +690,19 @@ public class GameManager : MonoBehaviour
             Debug.Log(i + " : " + runners[i].Count);
         }
     }
+
     #endregion
-    
-    
 }
 
 struct TeamStatus
 {
     private int score;
-    
+
     //타순 0 ~ 8
     public int batting_order;
 
     //Define
-    private const int MAX_BATTING_ORDER = 9; 
+    private const int MAX_BATTING_ORDER = 9;
 
     public int BattingOrder
     {
@@ -544,16 +717,13 @@ struct TeamStatus
         }
     }
 
+    /// <summary>
+    ///only AddScore function
+    /// </summary>
     public int Score
     {
         get => score;
-        
-        //only AddScore function
-        set
-        {
-            score = value;
-            
-        }
-    }
 
+        set { score = value; }
+    }
 }

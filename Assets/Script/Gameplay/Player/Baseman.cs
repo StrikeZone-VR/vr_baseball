@@ -29,9 +29,9 @@ public class Baseman : Defender
         }
     }
 
-    protected override void OutRunner()
+    protected override void FlyingOutRunner()
     {
-        base.OutRunner(); //isFlying out
+        base.FlyingOutRunner(); //isFlying out
         
         if (!_ball.IsBatTouch || !isInPosition)
         {

@@ -64,14 +64,14 @@ public class PitchingManager : MonoBehaviour
     // 디버그용 키보드 컨트롤
     void Update()
     {
-#if UNITY_EDITOR
-        if (Input.GetKeyDown(KeyCode.R))
-            ResetGame();
-        if (Input.GetKeyDown(KeyCode.U))
-            ToggleUI();
-        if (Input.GetKeyDown(KeyCode.N))
-            ResetBall();
-#endif
+// #if UNITY_EDITOR
+//         if (Input.GetKeyDown(KeyCode.R))
+//             ResetGame();
+//         if (Input.GetKeyDown(KeyCode.U))
+//             ToggleUI();
+//         if (Input.GetKeyDown(KeyCode.N))
+//             ResetBall();
+// #endif
     }
     
     #endregion
@@ -98,13 +98,17 @@ public class PitchingManager : MonoBehaviour
         pitchSelectionUI.HideUI();
     }
 
-    //SpawnNewBall => InitBall
+    /// <summary>
+    /// init, ball status init 
+    /// </summary>
     public void ResetBall()
     {
         ball.RemovePlayer();
+        ball.IsBatTouch = false;
+        ball.IsGroundBall = false;
         
         // **한 프레임 뒤에 물리 설정 - VRBaseball Start() 후에 실행되도록!**
-        StartCoroutine(SetupBallAfterFrame());
+        //StartCoroutine(SetupBallAfterFrame());
 
         // XR Grab Interactable 강제 활성화 (새 공이 잡힐 수 있도록)
         XRGrabInteractable grabComponent = ball.GetComponent<XRGrabInteractable>();
@@ -138,69 +142,6 @@ public class PitchingManager : MonoBehaviour
         Vector3 finalPosition = ballResetPosition;
         ball.ResetBall(finalPosition);
     }
-
-    //ball setting => 제거할 예정, 볼 자체에 넣거나 뭔가 할 예정 ★★★
-    private IEnumerator SetupBallAfterFrame()
-    {
-        yield return null; // 한 프레임 대기
-        yield return null; // 한 프레임 더 대기 (안정성 추가)
-
-        try
-        {
-            // 공이 아직 유효한지 확인
-            if (ball == null)
-            {
-                Debug.LogWarning("SetupBallAfterFrame: currentBall이 null 상태입니다!");
-                yield break;
-            }
-
-            // get components
-            XRGrabInteractable grabInteractable = ball.GetComponent<XRGrabInteractable>();
-            Baseball vrBallScript = ball.GetComponent<Baseball>();
-
-            // Baseball 스크립트가 활성화되어 있는지 확인
-            if (vrBallScript != null)
-            {
-                vrBallScript.enabled = true;
-                Debug.Log($"VRBaseball 스크립트 상태: {vrBallScript.enabled} (한 프레임 후 확인)");
-            }
-            else
-            {
-                Debug.LogError("VRBaseball 스크립트가 없습니다! 공 생성에 문제가 있습니다.");
-            }
-
-            // XRGrabInteractable 설정
-            if (grabInteractable != null)
-            {
-                grabInteractable.throwOnDetach = false;  //throwOnDetach 비활성화 (isKinematic과의 충돌 방지)
-                grabInteractable.enabled = true;        // 확실히 활성화
-
-                Debug.Log($"🔧 XRGrabInteractable 설정 완료! throwOnDetach: {grabInteractable.throwOnDetach}, enabled: {grabInteractable.enabled}");
-            }
-            else
-            {
-                Debug.LogError("XRGrabInteractable 컴포넌트가 없습니다!");
-            }
-            ball.OffBallPhysics();
-
-            // AudioSource 확인
-            AudioSource audioSrc = ball.GetComponent<AudioSource>();
-            if (audioSrc != null)
-            {
-                audioSrc.enabled = true;
-                Debug.Log("AudioSource 활성화됨");
-            }
-
-            // 위치 재확인
-            Vector3 finalPosition = ballResetPosition;
-            ball.transform.position = finalPosition;
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"SetupBallAfterFrame 오류: {e.Message}\n{e.StackTrace}");
-        }
-    }
-
     //
     private void SetupExistingBall()
     {
