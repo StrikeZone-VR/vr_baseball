@@ -34,6 +34,8 @@ public class Baseball : MonoBehaviour
     [SerializeField] private VoidEventSO homerunEvent;
     [SerializeField] private VoidEventSO pitchEvent;
     [SerializeField] private VoidEventSO runSignalEvent;
+    [SerializeField] private VoidEventSO backToPitcherEvent; //?
+
 
 
     [Header("물리 설정")] public float baseThrowForce = 1f; // Inspector 덮어쓰기 방지: 1f로 더 낮춤
@@ -139,6 +141,10 @@ public class Baseball : MonoBehaviour
         {
             if (isBatTouch)
                 paulEvent.RaiseEvent();
+            else
+            {
+                backToPitcherEvent.RaiseEvent();
+            }
         }
 
         //homerun
@@ -455,18 +461,8 @@ public class Baseball : MonoBehaviour
         //     Debug.Log($"🎯 새로운 투수 시스템에서 랜덤 타겟 선택: {targetPosition}");
         // }
 
+        targetPosition = strikeZone.position;
 
-        if (strikeZone != null)
-        {
-            // **정확한 StrikeZone 위치만 사용! 임의 보정 금지!**
-            targetPosition = strikeZone.position;
-            Debug.Log($"🎯 정확한 StrikeZone 타겟: {targetPosition}");
-        }
-        else
-        {
-            // 완전 못찾으면 씬 기준 고정 위치 (StrikeZone 위치)
-            targetPosition = new Vector3(0f, 0.5f, 0f);
-        }
 
         // **완전 무시하고 강제 방향!**
         Vector3 forceDirection = (targetPosition - transform.position).normalized;
@@ -699,7 +695,8 @@ private void StartCurveEffect()
 
         OffBallPhysics();
 
-        // 위치 설정
+        // 위치 설정 => 
+        Debug.Log("분명 위치 설정했는데" + position);
         transform.position = position;
         lastPosition = position;
 
@@ -787,6 +784,10 @@ private void StartCurveEffect()
 
     public void OffBallPhysics()
     {
+        if (_rigidbody == null)
+        {
+            _rigidbody = GetComponent<Rigidbody>();
+        }
         // **이미 kinematic이면 먼저 해제하고 velocity 설정!**
         _rigidbody.isKinematic = false;  // 먼저 kinematic 해제
 

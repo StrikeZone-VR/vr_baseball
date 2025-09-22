@@ -28,6 +28,8 @@ public class MenuConfirmManager : MonoBehaviour
     [Space]
     [Header("Scenes")]
     [SerializeField] private AssetReference gameScene;
+    [SerializeField] private AssetReference pitcherScene;
+    [SerializeField] private AssetReference batterScene;
 
     [Header("KBO 정보 UI")]
     [SerializeField] private GameObject kboInfoPanel;
@@ -116,12 +118,13 @@ public class MenuConfirmManager : MonoBehaviour
     void OnPitchingPractice()
     {
         Debug.Log("투수 연습 시작!");
-        // TODO: 투수 연습 씬 로드
+        sceneEventSO.RaiseEvent(pitcherScene);
     }
 
     void OnHittingPractice()
     {
         Debug.Log("타자 연습 시작!");
+        sceneEventSO.RaiseEvent(batterScene);
         // TODO: 타자 연습 씬 로드
     }
 

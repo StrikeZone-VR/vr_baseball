@@ -21,7 +21,7 @@ public class PitchingManager : MonoBehaviour
 
     
     [Header("게임 설정")]
-    private Vector3 ballResetPosition = new Vector3(-9f, 0.5f, -9f); 
+    [SerializeField] private Transform ballResetPosition; 
     public int maxBalls = 10;               // 최대 공 개수 (5에서 10으로 증가)
     public float ballResetDelay = 3.0f;     // 공 리셋 딜레이 (착지 후 3초간 보여줌)
 
@@ -111,17 +111,7 @@ public class PitchingManager : MonoBehaviour
         //StartCoroutine(SetupBallAfterFrame());
 
         // XR Grab Interactable 강제 활성화 (새 공이 잡힐 수 있도록)
-        XRGrabInteractable grabComponent = ball.GetComponent<XRGrabInteractable>();
-        if (grabComponent != null)
-        {
-            grabComponent.enabled = true;
-            
-            // kinematic 충돌 방지를 위해 throwOnDetach 비활성화
-            grabComponent.throwOnDetach = false;
-            
-            ball.OffBallPhysics();
-            
-        } 
+        ball.OffBallPhysics();
         
         // AudioSource가 있는지 확인하고 필요하면 추가
         AudioSource audioSrc = ball.GetComponent<AudioSource>();
@@ -139,7 +129,7 @@ public class PitchingManager : MonoBehaviour
         ballsThrown++;
 
         // init ball
-        Vector3 finalPosition = ballResetPosition;
+        Vector3 finalPosition = ballResetPosition.position;
         ball.ResetBall(finalPosition);
     }
     //
