@@ -5,68 +5,66 @@ using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.XR.Interaction.Toolkit;
 
-[RequireComponent( typeof(Rigidbody), typeof(XRGrabInteractable))]
+[RequireComponent(typeof(Rigidbody), typeof(XRGrabInteractable))]
 public class Baseball : MonoBehaviour
 {
     [SerializeField] private Defender myDefender; //handling player
     private Rigidbody _rigidbody;
     private XRGrabInteractable grabInteractable;
 
-    [SerializeField] bool isGroundBall = false; 
+    [SerializeField] bool isGroundBall = false;
     [SerializeField] bool isBatTouch = false;
     [SerializeField] bool isPassing = false;
     bool isZone = false;
+
+    bool isStrike = false;
+
+    // is Pitcher throw?
+    private bool isThrown = false;
     [SerializeField] private float defenderDis = 0.0f;
-    
+    [SerializeField] private GameObject bat;
+
     //from GameManager
-    [Header("Listening to Events")]
-    [SerializeField] private VoidEventSO allTrackingOffEvent;
+    [Header("Listening to Events")] [SerializeField]
+    private VoidEventSO allTrackingOffEvent;
+
     [SerializeField] private VoidEventSO addBallCountEvent;
     [SerializeField] private VoidEventSO addStrikeEvent;
     [SerializeField] private VoidEventSO paulEvent;
     [SerializeField] private VoidEventSO homerunEvent;
-    [SerializeField] private VoidEventSO pitchEvent; 
-    [SerializeField] private VoidEventSO runSignalEvent; 
+    [SerializeField] private VoidEventSO pitchEvent;
+    [SerializeField] private VoidEventSO runSignalEvent;
 
-    
-    [Header("물리 설정")]
-    public float baseThrowForce = 1f;      // Inspector 덮어쓰기 방지: 1f로 더 낮춤
-    public float maxThrowForce = 2f;       // Inspector 덮어쓰기 방지: 2f로 더 낮춤
+
+    [Header("물리 설정")] public float baseThrowForce = 1f; // Inspector 덮어쓰기 방지: 1f로 더 낮춤
+    public float maxThrowForce = 2f; // Inspector 덮어쓰기 방지: 2f로 더 낮춤
     public AnimationCurve throwSmoothingCurve = AnimationCurve.Linear(0, 0, 1, 1);
 
-    [Header("구종 설정")]
-    public PitchType selectedPitchType = PitchType.FastBall;
+    [Header("구종 설정")] public PitchType selectedPitchType = PitchType.FastBall;
     private PitchData currentPitchData;
 
-    [Header("이펙트")]
-    public ParticleSystem trailEffect;                  // 메인 트레일
-    public ParticleSystem fastBallSpeedLines;          // 직구 전용
-    public ParticleSystem curveSpinEffect;             // 커브 전용
-    public ParticleSystem sliderSideEffect;            // 슬라이더 전용
-    public ParticleSystem forkDropEffect;              // 포크볼 전용
+    [Header("이펙트")] public ParticleSystem trailEffect; // 메인 트레일
+    public ParticleSystem fastBallSpeedLines; // 직구 전용
+    public ParticleSystem curveSpinEffect; // 커브 전용
+    public ParticleSystem sliderSideEffect; // 슬라이더 전용
+    public ParticleSystem forkDropEffect; // 포크볼 전용
     public LineRenderer trajectoryLine;
 
-    [Header("오디오")]
-    public AudioSource audioSource;
+    [Header("오디오")] public AudioSource audioSource;
     public AudioClip throwSound;
     public AudioClip bounceSound;
 
-    [Header("참조")]
-    public Transform strikeZone;
+    [Header("참조")] public Transform strikeZone;
     //public PitchingSystemManager pitchingSystemManager;    // 새로운 통합 시스템
 
-    [Header("투구 보정 설정")]
-    [Range(0f, 1f)]
-    public float aimAssistStrength = 0.8f;     // 보정 강도 높임 (0=보정없음, 1=완전보정)
-    public bool enableRandomTargeting = true;   // 랜덤 타겟팅 활성화
+    [Header("투구 보정 설정")] [Range(0f, 1f)] public float aimAssistStrength = 0.8f; // 보정 강도 높임 (0=보정없음, 1=완전보정)
+    public bool enableRandomTargeting = true; // 랜덤 타겟팅 활성화
 
-    // is Pitcher throw?
-    private bool isThrown = false;
-    
+
     /// <summary> 공이 투구되었는지 확인 </summary>  <returns>투구 상태</returns>
-    
+
     // 사용하지 않는 변수들 제거: isCurveActive, throwTime, curveTimer
-    private Vector3 targetPosition;             // 실제 목표 위치
+    private Vector3 targetPosition; // 실제 목표 위치
 
     // 속도 추적
     private Vector3 throwVelocity;
@@ -75,9 +73,10 @@ public class Baseball : MonoBehaviour
 
     // 이벤트 한 번만 발생시키기 위한 플래그
     private bool eventFired = false;
-    
-    
+
+
     #region EventFunction
+
     private void Start()
     {
         _rigidbody = GetComponent<Rigidbody>();
@@ -87,7 +86,7 @@ public class Baseball : MonoBehaviour
         UpdatePitchData();
     }
 
-    
+
     void FixedUpdate()
     {
         if (isThrown)
@@ -131,18 +130,21 @@ public class Baseball : MonoBehaviour
         if (collider.gameObject.CompareTag("StrikeZone") && !IsZone)
         {
             IsZone = true;
+            IsStrike = true;
             //addStrikeEvent.RaiseEvent();
         }
+
         //paul
         if (collider.CompareTag("Paul"))
         {
-            if(isBatTouch)
+            if (isBatTouch)
                 paulEvent.RaiseEvent();
         }
+
         //homerun
         if (collider.CompareTag("Homerun"))
         {
-            if(isBatTouch)
+            if (isBatTouch)
                 homerunEvent.RaiseEvent();
 
         }
@@ -153,15 +155,17 @@ public class Baseball : MonoBehaviour
         if (collider.gameObject.CompareTag("BallZone") && !IsZone)
         {
             IsZone = true;
-            addBallCountEvent.RaiseEvent();
+            //addBallCountEvent.RaiseEvent();
         }
-        
+
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        if(collision.collider.CompareTag("Ground") || collision.collider.CompareTag("Base"))
+        if (collision.collider.CompareTag("Ground") || collision.collider.CompareTag("Base"))
         {
+            PitchResult();
+            
             IsPassing = false;
             IsThrown = false;
 
@@ -170,28 +174,24 @@ public class Baseball : MonoBehaviour
                 //throw ball but swing miss
                 return;
             }
-            //paul, homerun check
-            if (!isGroundBall) //groundball or flying ball
-            {
-                if (this.transform.position.y > 0 || this.transform.position.y > 0)
-                {
-                    paulEvent.RaiseEvent();
-                }
-                Debug.Log("not paul => inplaygame");
-                IsGroundBall = true;
-            }
-            
+            isGroundBall = true;
         }
+
         //in play game
         if (collision.collider.CompareTag("Bat"))
         {
+            //두번 건드리는거 방지
+            if (isBatTouch)
+            {
+                return;
+            }
             Debug.Log("인 플레이 게임");
             IsBatTouch = true;
             IsThrown = false;
 
             // 공의 Rigidbody 컴포넌트 가져오기
             Rigidbody batRb = collision.gameObject.GetComponent<Rigidbody>();
-            
+
             //force ball
             if (batRb != null)
             {
@@ -201,12 +201,12 @@ public class Baseball : MonoBehaviour
 
                 float speed = collision.transform.GetComponent<Bat>().GetSwingSpeed();
                 // Debug.Log("방향 :" + hitDirection);
-                Debug.Log("스피드 :" +speed);
+                Debug.Log("스피드 :" + speed);
 
                 this._rigidbody.AddForce(hitDirection * speed * 2.5f, ForceMode.Impulse);
                 this._rigidbody.useGravity = true;
             }
-            
+
             //signal
             runSignalEvent.RaiseEvent();
         }
@@ -221,45 +221,49 @@ public class Baseball : MonoBehaviour
 
     }
 
-    
+
     void OnDestroy()
     {
         if (grabInteractable != null)
         {
             grabInteractable.selectExited.RemoveListener(OnRelease);
-            grabInteractable.selectEntered.RemoveListener(OnGrab);  // **잡기 이벤트도 해제**
+            grabInteractable.selectEntered.RemoveListener(OnGrab); // **잡기 이벤트도 해제**
         }
     }
+
     #endregion
-    
+
     public void ThrowBall(Vector3 force)
     {
         RemovePlayer();
         IsPassing = true;
-        
+
         //rotation zero
         _rigidbody.velocity = Vector3.zero;
         _rigidbody.velocity = force;
     }
 
     #region PROPERTY
+
     public bool IsThrown
     {
         get => isThrown;
         set => isThrown = value;
     }
-    
+
     public bool IsPassing
     {
         get => isPassing;
         set => isPassing = value;
     }
-    public bool IsGroundBall 
+
+    public bool IsGroundBall
     {
         get => isGroundBall;
         set => isGroundBall = value;
     }
-    public bool IsBatTouch 
+
+    public bool IsBatTouch
     {
         get => isBatTouch;
         set => isBatTouch = value;
@@ -292,6 +296,7 @@ public class Baseball : MonoBehaviour
         {
             return;
         }
+
         myDefender.RemoveBall();
         myDefender = null;
     }
@@ -301,10 +306,16 @@ public class Baseball : MonoBehaviour
         get => isZone;
         set => isZone = value;
     }
-    
+
+    public bool IsStrike
+    {
+        get => isStrike;
+        set => isStrike = value;
+    }
+
     #endregion
-    
-    
+
+
     private void InitializeComponents()
     {
         // XRGrabInteractable 설정 확인
@@ -315,7 +326,8 @@ public class Baseball : MonoBehaviour
             // ThrowOnDetach와 isKinematic이 충돌하는지 확인
             if (_rigidbody != null && _rigidbody.isKinematic && grabInteractable.throwOnDetach)
             {
-                Debug.LogWarning($"⚠️ 경고: Kinematic Rigidbody ({_rigidbody.isKinematic})와 ThrowOnDetach ({grabInteractable.throwOnDetach})가 충돌합니다! 이 문제를 해결하려면 둘 중 하나를 변경해야 합니다.");
+                Debug.LogWarning(
+                    $"⚠️ 경고: Kinematic Rigidbody ({_rigidbody.isKinematic})와 ThrowOnDetach ({grabInteractable.throwOnDetach})가 충돌합니다! 이 문제를 해결하려면 둘 중 하나를 변경해야 합니다.");
                 // 해결 방법 1: throwOnDetach 비활성화
                 // grabInteractable.throwOnDetach = false;
 
@@ -330,7 +342,7 @@ public class Baseball : MonoBehaviour
 
         // XR 이벤트 연결
         grabInteractable.selectExited.AddListener(OnRelease);
-        grabInteractable.selectEntered.AddListener(OnGrab);  // **잡을 때 이벤트 추가!**
+        grabInteractable.selectEntered.AddListener(OnGrab); // **잡을 때 이벤트 추가!**
 
         // 중력 저장
         originalGravity = Physics.gravity;
@@ -352,9 +364,10 @@ public class Baseball : MonoBehaviour
 
         // **충돌 감지 강화 설정**
         _rigidbody.collisionDetectionMode = CollisionDetectionMode.Continuous; // 바닥 뚫림 방지
-        _rigidbody.interpolation = RigidbodyInterpolation.Interpolate;          // 부드러운 움직임
+        _rigidbody.interpolation = RigidbodyInterpolation.Interpolate; // 부드러운 움직임
 
-        Debug.Log($"⚙️ VRBaseball 초기화 완료! Kinematic: {_rigidbody.isKinematic}, ThrowOnDetach: {grabInteractable?.throwOnDetach} (그랩할 때까지 고정)");
+        Debug.Log(
+            $"⚙️ VRBaseball 초기화 완료! Kinematic: {_rigidbody.isKinematic}, ThrowOnDetach: {grabInteractable?.throwOnDetach} (그랩할 때까지 고정)");
 
         // 궤도선 설정
         if (trajectoryLine != null)
@@ -429,11 +442,11 @@ public class Baseball : MonoBehaviour
         if (isThrown) return;
         isThrown = true;
         isBatTouch = false;
-        
+
         // XR 비활성화
         grabInteractable.enabled = false;
         pitchEvent.RaiseEvent();
-        
+
         // **새로운 통합 25구역 시스템 사용** - 랜덤 타겟 위치 가져오기 ★★★★★★★★★★★★★★★★★★★★
         // if (enableRandomTargeting && pitchingSystemManager != null)
         // {
@@ -441,8 +454,8 @@ public class Baseball : MonoBehaviour
         //     targetPosition = pitchingSystemManager.GetTargetPosition();
         //     Debug.Log($"🎯 새로운 투수 시스템에서 랜덤 타겟 선택: {targetPosition}");
         // }
-        
-        
+
+
         if (strikeZone != null)
         {
             // **정확한 StrikeZone 위치만 사용! 임의 보정 금지!**
@@ -459,7 +472,7 @@ public class Baseball : MonoBehaviour
         Vector3 forceDirection = (targetPosition - transform.position).normalized;
 
         // **속도 설정 - 느린 투구 속도로 조정**
-        float targetSpeed = 8.0f;  // 12.0f에서 8.0f로 감소 (약 29km/h, 더 여유있게)
+        float targetSpeed = 8.0f; // 12.0f에서 8.0f로 감소 (약 29km/h, 더 여유있게)
 
         OnBallPhysics();
 
@@ -483,22 +496,85 @@ public class Baseball : MonoBehaviour
         // 이펙트
         PlayThrowEffects();
         // OnBallThrown 이벤트는 충돌 시에만 발생하도록 수정!
-    }    // 구 버전 보정 메서드 제거됨 - 단순화
+    } // 구 버전 보정 메서드 제거됨 - 단순화
 
     public void OnTouchBall()
     {
         grabInteractable.enabled = true;
     }
+
     public void OffTouchBall()
     {
-        Debug.Log($"XRGrabInteractable 설정 확인: enabled={grabInteractable.enabled}, throwOnDetach={grabInteractable.throwOnDetach}");
+        Debug.Log(
+            $"XRGrabInteractable 설정 확인: enabled={grabInteractable.enabled}, throwOnDetach={grabInteractable.throwOnDetach}");
         grabInteractable.enabled = false;
-        
+
         // kinematic 충돌 방지를 위해 throwOnDetach 비활성화
         //grabInteractable.throwOnDetach = false;
     }
+
+    //피칭 결과 알려주는 함수
+    private void PitchResult()
+    {
+        //투수가 공을 안 던진경우
+        if (!isThrown)
+        {
+            return;
+        }
+
+        
+        //볼을 맞춘 경우
+        if (isBatTouch)
+        {
+            //Paul
+            if (this.transform.position.y > 0 || this.transform.position.y > 0)
+            {
+                paulEvent.RaiseEvent();
+            }
+            //in play
+            if (!isGroundBall) //groundball or flying ball
+            {
+                Debug.Log("inplaygame");
+                IsGroundBall = true;
+            }
+        }
+        //스윙 여부는 방망이의 회전값?
+        else if (GetIsSwing()) //스윙여부 == true => 스윙했는데 방망이를 건들지 않은 경우
+        {
+            Debug.Log("스트라이크");
+            addStrikeEvent.RaiseEvent();
+        }
+        else if(isStrike) //스윙 안했는데 스트라이크인 경우
+        {
+            Debug.Log("스트라이크");
+            addStrikeEvent.RaiseEvent();
+        }
+        else //스트라이크 존에도 안 닿았고 스윙도 안했다면
+        {
+            Debug.Log("볼");
+            addBallCountEvent.RaiseEvent();
+        }
+    }
     
-    private void StartCurveEffect()
+    
+    public bool GetIsSwing()
+    {
+        Debug.Log("회전한 값 : " + bat.transform.rotation.eulerAngles.y);
+        if (-180f < bat.transform.rotation.eulerAngles.y && bat.transform.rotation.eulerAngles.y < -90f)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool IsInplayGame()
+    {
+        return false;
+    }
+
+
+private void StartCurveEffect()
     {
         // 단순화 - 커브 효과 비활성화
     }
@@ -518,6 +594,7 @@ public class Baseball : MonoBehaviour
         }
     }
 
+    
     private Vector3[] PredictTrajectory(Vector3 startPos, Vector3 startVel, int steps, float timeStep)
     {
         // 단순화 - 빈 배열 반환
