@@ -6,7 +6,7 @@ using System;
 using UnityEngine;
 using System.Collections.Generic;
 using Random = UnityEngine.Random;
-
+using System.Collections;
 /// <summary>
 /// 🎯 투수 연습 시스템 통합 관리자
 /// - 스트라이크존 9개 (3x3 중앙)
@@ -65,25 +65,30 @@ public class PitchingSystemManager : MonoBehaviour
     private Vector3 strikeZoneCenter;
     private Vector3 strikeZoneBounds;
     
+    [Header("Events")] 
     [SerializeField] private VoidEventSO backToPitcherEvent; //baseball
     [SerializeField] private VoidEventSO pitchEvent;
-
+    [SerializeField] private Vector3EventSO moveOriginEvent;
+    [SerializeField] private Vector3EventSO rotateOriginEvent;
 
     private void OnEnable()
     {
         backToPitcherEvent.onEventRaised += BackPitcherBall;
-        pitchEvent.onEventRaised += SwingBat;
+        pitchEvent.onEventRaised += WaitingSwing;
         //swingEvent.onEventRaised;
     }
 
     private void OnDisable()
     {
         backToPitcherEvent.onEventRaised -= BackPitcherBall;
-        pitchEvent.onEventRaised -= SwingBat;
+        pitchEvent.onEventRaised -= WaitingSwing;
     }
 
     void Start()
-    {
+    {       
+        moveOriginEvent.RaiseEvent(new Vector3(0,0.2f,-4.8f));
+        rotateOriginEvent.RaiseEvent(new Vector3(0, 180.0f, 0));
+
         InitializeSystem();
     }
     
@@ -431,11 +436,19 @@ public class PitchingSystemManager : MonoBehaviour
         pitchingManager.ResetBall();
     }
 
-    private void SwingBat()
+    private void WaitingSwing()
     {
-        
-        batter.StartSwing();
+        Debug.Log("타자 필요 없을지도?");
+        //StartCoroutine(StartSwing());
     }
+
+    private IEnumerator StartSwing()
+    {
+        yield return new WaitForSeconds(1.5f);
+        batter.StartSwing();
+        
+    }
+    
     
     // ==============================================
     // 📊 정보 제공

@@ -83,7 +83,7 @@ public class Pitcher : Defender
         Debug.Log(index);
         Transform SZTransform = strikeZone.GetZone(index);
 
-        Vector3 velocity = CalculateLaunchVelocity(transform.position, SZTransform.position - new Vector3(0,0.67f,0), 45f);
+        Vector3 velocity = CalculateLaunchVelocity(transform.position, SZTransform.position - new Vector3(0,0.9f,0), 45f);
         
         float x = ADDFORCE * Mathf.Sin(transform.rotation.eulerAngles.y * Mathf.PI / 180);
         float z = ADDFORCE * Mathf.Cos(transform.rotation.eulerAngles.y * Mathf.PI / 180);
