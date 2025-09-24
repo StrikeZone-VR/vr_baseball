@@ -6,7 +6,8 @@ using System;
 using UnityEngine;
 using System.Collections.Generic;
 using Random = UnityEngine.Random;
-
+using System.Collections;
+using TMPro;
 /// <summary>
 /// 🎯 투수 연습 시스템 통합 관리자
 /// - 스트라이크존 9개 (3x3 중앙)
@@ -19,6 +20,9 @@ public class PitchingSystemManager : MonoBehaviour
     [SerializeField] private Batter batter;
     [Header("🎯 존 설정")]
     public Transform strikeZoneParent;
+
+    private int strike = 0;
+    private int ball_count = 0;
     
     [Header("📊 확률 설정")]
     [Range(0, 100)]
@@ -55,7 +59,8 @@ public class PitchingSystemManager : MonoBehaviour
         }
     }
     [SerializeField] private PitchingManager pitchingManager;
-    
+    [SerializeField] private PitchSelectionUI pitchSelectionUI;
+
     private List<PitchZone> allZones = new List<PitchZone>();
     private List<PitchZone> strikeZones = new List<PitchZone>();
     private List<PitchZone> ballZones = new List<PitchZone>();
@@ -65,25 +70,39 @@ public class PitchingSystemManager : MonoBehaviour
     private Vector3 strikeZoneCenter;
     private Vector3 strikeZoneBounds;
     
+    [Header("Events")] 
     [SerializeField] private VoidEventSO backToPitcherEvent; //baseball
     [SerializeField] private VoidEventSO pitchEvent;
-
+    [SerializeField] private Vector3EventSO moveOriginEvent;
+    [SerializeField] private Vector3EventSO rotateOriginEvent;
+    [SerializeField] private FloatEventSO getVelocityEvent;
+    [SerializeField] private VoidEventSO strikeEvent;
+    [SerializeField] private VoidEventSO addBallCountEvent;
+    
 
     private void OnEnable()
     {
         backToPitcherEvent.onEventRaised += BackPitcherBall;
-        pitchEvent.onEventRaised += SwingBat;
+        pitchEvent.onEventRaised += WaitingSwing;
+        getVelocityEvent.onEventRaised += GetVelocityToText;
+
+        strikeEvent.onEventRaised += AddStrike;
+        addBallCountEvent.onEventRaised += AddBallCount;
         //swingEvent.onEventRaised;
     }
 
     private void OnDisable()
     {
         backToPitcherEvent.onEventRaised -= BackPitcherBall;
-        pitchEvent.onEventRaised -= SwingBat;
+        pitchEvent.onEventRaised -= WaitingSwing;
+        getVelocityEvent.onEventRaised -= GetVelocityToText;
     }
 
     void Start()
-    {
+    {       
+        moveOriginEvent.RaiseEvent(new Vector3(0,0.43f,-4.8f));
+        rotateOriginEvent.RaiseEvent(new Vector3(0, 180.0f, 0));
+
         InitializeSystem();
     }
     
@@ -93,6 +112,9 @@ public class PitchingSystemManager : MonoBehaviour
     public void InitializeSystem()
     {
         pitchingManager.StartPitchingGame();
+
+        //ui
+        GetVelocityToText(0);
     }
     
     /// <summary> ballZone Clear
@@ -429,13 +451,66 @@ public class PitchingSystemManager : MonoBehaviour
     private void BackPitcherBall()
     {
         pitchingManager.ResetBall();
+    
     }
 
-    private void SwingBat()
+    private void GetVelocityToText(float velocity)
     {
-        
-        batter.StartSwing();
+        pitchSelectionUI.SetBallVelocityUI(velocity);
+        //velocityText.text = "시속 : " + velocity.ToString() + "km/h";
     }
+    private void SetStrikeToText(int strike)
+    {
+        pitchSelectionUI.SetStrikeUI(strike);
+        //velocityText.text = "시속 : " + velocity.ToString() + "km/h";
+    }
+    private void SetBallCountToText(int ballCount)
+    {
+        pitchSelectionUI.SetBallCountUI(ballCount);
+        //velocityText.text = "시속 : " + velocity.ToString() + "km/h";
+    }
+
+    private void WaitingSwing()
+    {
+        Debug.Log("타자 필요 없을지도?");
+        //StartCoroutine(StartSwing());
+    }
+
+
+    private IEnumerator StartSwing()
+    {
+        yield return new WaitForSeconds(1.5f);
+        batter.StartSwing();
+        
+    }
+
+    private void AddStrike()
+    {
+        Strike++;
+    }
+    private void AddBallCount()
+    {
+        BallCount++;
+    }
+    public int Strike
+    {
+        get { return strike; }
+        set
+        {
+            strike = value;
+            SetStrikeToText(strike);
+        }
+    }
+    public int BallCount
+    {
+        get { return ball_count; }
+        set
+        {
+            ball_count = value;
+            SetBallCountToText(ball_count);
+        }
+    }
+    
     
     // ==============================================
     // 📊 정보 제공

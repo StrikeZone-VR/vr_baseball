@@ -25,12 +25,6 @@ public class PitchingManager : MonoBehaviour
     public int maxBalls = 10;               // 최대 공 개수 (5에서 10으로 증가)
     public float ballResetDelay = 3.0f;     // 공 리셋 딜레이 (착지 후 3초간 보여줌)
 
-    [Header("오디오")]
-    public AudioClip gameStartSound;
-    public AudioClip strikeSound;
-    public AudioClip ballSound;
-
-    private AudioSource audioSource;
     private int ballsThrown = 0;
     private List<GameObject> thrownBalls = new List<GameObject>();  // 던진 공들 관리
 
@@ -40,7 +34,10 @@ public class PitchingManager : MonoBehaviour
 
     [Header("broadcasting on Events")]
     public System.Action<int, int> OnCountChanged; // strikes, balls
-    public System.Action<bool> OnPitchResult;      // isStrike
+    public System.Action<bool> OnPitchResult;// isStrike  
+    
+    [Header("Listening on Events")]
+    [SerializeField] private IntEventSO playAudioClipEvent;
 
     #region EventFunction
 
@@ -54,26 +51,6 @@ public class PitchingManager : MonoBehaviour
         pitchSelectionUI.OnPitchSelected -= OnPitchTypeSelected;
     }
 
-    void Start()
-    {
-        audioSource = GetComponent<AudioSource>();
-        if (audioSource == null)
-            audioSource = gameObject.AddComponent<AudioSource>();
-    }
-    
-    // 디버그용 키보드 컨트롤
-    void Update()
-    {
-// #if UNITY_EDITOR
-//         if (Input.GetKeyDown(KeyCode.R))
-//             ResetGame();
-//         if (Input.GetKeyDown(KeyCode.U))
-//             ToggleUI();
-//         if (Input.GetKeyDown(KeyCode.N))
-//             ResetBall();
-// #endif
-    }
-    
     #endregion
 
     //pitch start
@@ -89,8 +66,7 @@ public class PitchingManager : MonoBehaviour
         }
 
         // 게임 시작 사운드
-        if (audioSource != null && gameStartSound != null)
-            audioSource.PlayOneShot(gameStartSound);
+        //playAudioClipEvent.RaiseEvent(2);
     }
 
     public void EndPitchingGame()
@@ -112,15 +88,6 @@ public class PitchingManager : MonoBehaviour
 
         // XR Grab Interactable 강제 활성화 (새 공이 잡힐 수 있도록)
         ball.OffBallPhysics();
-        
-        // AudioSource가 있는지 확인하고 필요하면 추가
-        AudioSource audioSrc = ball.GetComponent<AudioSource>();
-        if (audioSrc == null)
-        {
-            audioSrc = ball.gameObject.AddComponent<AudioSource>();
-            Debug.Log("AudioSource 컴포넌트 추가됨");
-        }
-        audioSrc.enabled = true;
 
         // UI에 공 등록 ★ => 굳이,,,?
         if (pitchSelectionUI != null)
@@ -208,13 +175,13 @@ public class PitchingManager : MonoBehaviour
         if (isStrike)
         {
             strikes++;
-            PlayAudio(strikeSound);
+            //PlayAudio(strikeSound);
             Debug.Log($"⚾ Strike! 현재 카운트: {balls}-{strikes}");
         }
         else
         {
             balls++;
-            PlayAudio(ballSound);
+            //PlayAudio(ballSound);
             Debug.Log($"❌ Ball! 현재 카운트: {balls}-{strikes}");
         }
         
@@ -227,14 +194,6 @@ public class PitchingManager : MonoBehaviour
         {
             Debug.Log($"🔄 카운트 리셋! (볼: {balls}, 스트라이크: {strikes})");
             ResetCount();
-        }
-    }
-
-    private void PlayAudio(AudioClip clip)
-    {
-        if (audioSource != null && clip != null)
-        {
-            audioSource.PlayOneShot(clip);
         }
     }
 

@@ -38,14 +38,56 @@ public class SceneLoader : MonoBehaviour
 
     private void LoadScene(AssetReference scene)
     {
-        scene.LoadSceneAsync(LoadSceneMode.Additive, true).Completed += (AsyncOperationHandle<SceneInstance> op) => 
+        
+        //unload
+        if (currentScene != default)
         {
-            if(currentScene != default)
+            SceneManager.UnloadSceneAsync(currentScene);
+        }
+        // AssetReference가 이미 로드되었는지 확인
+        if (scene.OperationHandle.IsValid() && scene.OperationHandle.Status == AsyncOperationStatus.Succeeded)
+        {
+            Debug.Log("씬이 이미 로드됨 - 기존 씬 참조 사용");
+
+            // 이미 로드된 SceneInstance 가져오기
+            SceneInstance sceneInstance = (SceneInstance)scene.OperationHandle.Result;
+            Scene op = sceneInstance.Scene;
+        
+            // 씬이 비활성화되어 있다면 활성화
+            if (!op.isLoaded)
             {
-                SceneManager.UnloadSceneAsync(currentScene);
+                Debug.LogWarning("씬이 언로드된 상태입니다.");
+                return;
             }
-            currentScene = op.Result.Scene;
-        };
+
+            currentScene = op;
+            // 필요한 후처리 (씬 활성화, 카메라 설정 등)
+            Debug.Log($"씬 준비 완료: {currentScene.name}");
+        }
+        else
+        {
+            Debug.Log("새로운 씬 로드 시작");
+        
+            // 새로 로드
+            scene.LoadSceneAsync(LoadSceneMode.Additive, true).Completed += (AsyncOperationHandle<SceneInstance> op) => 
+            {
+                currentScene = op.Result.Scene;
+                if (op.Status == AsyncOperationStatus.Succeeded)
+                {
+                    Debug.Log($"씬 준비 완료: {currentScene.name}");
+                }
+            };
+        
+        }
+        
+        // if (currentScene != default)
+        // {
+        //     SceneManager.UnloadSceneAsync(currentScene);
+        // }
+        // scene.LoadSceneAsync(LoadSceneMode.Additive, true).Completed += (AsyncOperationHandle<SceneInstance> op) => 
+        // {
+        //     currentScene = op.Result.Scene;
+        // };
     }
 
     public void QuitGame()

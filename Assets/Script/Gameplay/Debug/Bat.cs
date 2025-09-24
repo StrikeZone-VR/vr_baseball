@@ -19,6 +19,7 @@ public class Bat : MonoBehaviour
     {
         float dis = Vector3.Distance(topBatPos.position, startPos);
         currentSwingSpeed = dis / Time.deltaTime;
+//        Debug.Log(IsSwing());
         // if (currentSwingSpeed >= 0.01f)
         // {
         //     Debug.Log(currentSwingSpeed+ " distance :" + dis);
@@ -26,13 +27,16 @@ public class Bat : MonoBehaviour
         startPos = topBatPos.position;
     }
 
+    public bool IsSwing()
+    {
+        if (transform.localEulerAngles.y <= 100)
+        {
+            return true;
+        }
+        return false;
+    }
     public float GetSwingSpeed()
     {
         return currentSwingSpeed;
-    }
-
-    public void GrabBat()
-    {
-        Debug.Log("잡혔어!");
     }
 }

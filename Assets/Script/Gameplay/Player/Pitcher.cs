@@ -4,9 +4,10 @@ using UnityEngine;
 public class Pitcher : Defender
 {
     private const float ADDFORCE = 20.0f;
-    
+    private Coroutine coroutine;
     [SerializeField] private StrikeZone strikeZone;
     [SerializeField] private VoidEventSO swingEvent; //from GameManager
+    [SerializeField] private IntEventSO waitPitcherEvent; //from BattingSystem
 
     //_myBall
 
@@ -51,11 +52,17 @@ public class Pitcher : Defender
     {
         base.SetMyBall(myBall);
 
+        Debug.Log("백백");
         _ball.IsThrown = false;
         _ball.IsGroundBall = false;
         _ball.IsPassing = false;
         _ball.IsZone = false;
-        StartCoroutine(WaitBatting());
+        _ball.IsStrike = false;
+        
+        if (coroutine == null)
+        {
+            coroutine = StartCoroutine(WaitBatting());
+        }
         //transform.LookAt(_ball.transform, Vector3.up);
     }
     
@@ -63,9 +70,11 @@ public class Pitcher : Defender
     {
         for (int i = 5; i > 0; i--)
         {
+            waitPitcherEvent.RaiseEvent(i);
             yield return new WaitForSeconds(1.0f);
         }
 
+        coroutine = null;
         PitchingBall();
     }
     
@@ -80,10 +89,9 @@ public class Pitcher : Defender
         
         //random value 0 ~ 24
         int index = Random.Range(0, 25);
-        Debug.Log(index);
         Transform SZTransform = strikeZone.GetZone(index);
 
-        Vector3 velocity = CalculateLaunchVelocity(transform.position, SZTransform.position - new Vector3(0,0.67f,0), 45f);
+        Vector3 velocity = CalculateLaunchVelocity(transform.position, SZTransform.position - new Vector3(0,0.9f,0), 45f);
         
         float x = ADDFORCE * Mathf.Sin(transform.rotation.eulerAngles.y * Mathf.PI / 180);
         float z = ADDFORCE * Mathf.Cos(transform.rotation.eulerAngles.y * Mathf.PI / 180);
