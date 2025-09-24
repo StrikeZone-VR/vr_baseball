@@ -161,10 +161,12 @@ MonoBehaviour:
   zoneSize: {x: 0.167, y: 0.33, z: 0.1}
   zoneSpacing: 0.167
   pitchingManager: {fileID: 976180239}
+  pitchSelectionUI: {fileID: 1260030965}
   backToPitcherEvent: {fileID: 11400000, guid: 38591f4b3ef079940be5f6a3e91e74ce, type: 2}
   pitchEvent: {fileID: 11400000, guid: 6ca9374e56161084ca2bd8dee328860a, type: 2}
   moveOriginEvent: {fileID: 11400000, guid: c0d00800716a55143911a6d8709ab8f3, type: 2}
   rotateOriginEvent: {fileID: 11400000, guid: d164c5b6bfab6604987cbe7b5a2ca409, type: 2}
+  getVelocityEvent: {fileID: 11400000, guid: c2305552fa4ae3741985e7e98ca99b92, type: 2}
 --- !u!4 &9797075
 Transform:
   m_ObjectHideFlags: 0
@@ -1272,7 +1274,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7313654230448209575, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9014170783728641054, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
       propertyPath: m_LocalPosition.y
@@ -2757,6 +2759,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 11400000, guid: 7980c5f1d20201f48891aba9f1727e76, type: 2}
     - target: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
+      propertyPath: inplayGameEvent
+      value: 
+      objectReference: {fileID: 11400000, guid: d31ece9de1f0ded4e95897cfa47eaa57, type: 2}
+    - target: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
       propertyPath: addBallCountEvent
       value: 
       objectReference: {fileID: 11400000, guid: 60c42e35457ecd34d8efad8431a9dc85, type: 2}
@@ -2764,6 +2770,10 @@ PrefabInstance:
       propertyPath: backToPitcherEvent
       value: 
       objectReference: {fileID: 11400000, guid: 38591f4b3ef079940be5f6a3e91e74ce, type: 2}
+    - target: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
+      propertyPath: getVelocityEventSO
+      value: 
+      objectReference: {fileID: 11400000, guid: c2305552fa4ae3741985e7e98ca99b92, type: 2}
     - target: {fileID: 8364105362300272789, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
       propertyPath: m_Name
       value: Baseball
@@ -3322,9 +3332,25 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1776650419}
     - target: {fileID: 1474943157002577863, guid: 6b632a987658c784fb8d018000345df0, type: 3}
+      propertyPath: backMainSceneEvent
+      value: 
+      objectReference: {fileID: 11400000, guid: 1614b16f3ac165a4095e5f466b87b7b6, type: 2}
+    - target: {fileID: 1474943157002577863, guid: 6b632a987658c784fb8d018000345df0, type: 3}
+      propertyPath: backMenuSceneEvent
+      value: 
+      objectReference: {fileID: 11400000, guid: 1614b16f3ac165a4095e5f466b87b7b6, type: 2}
+    - target: {fileID: 1474943157002577863, guid: 6b632a987658c784fb8d018000345df0, type: 3}
       propertyPath: rightRayInteractor
       value: 
       objectReference: {fileID: 1669849233}
+    - target: {fileID: 1474943157002577863, guid: 6b632a987658c784fb8d018000345df0, type: 3}
+      propertyPath: mainScene.m_AssetGUID
+      value: 649a1153b08a9334bb657f50f11d9b6a
+      objectReference: {fileID: 0}
+    - target: {fileID: 1474943157002577863, guid: 6b632a987658c784fb8d018000345df0, type: 3}
+      propertyPath: menuScene.m_AssetGUID
+      value: 649a1153b08a9334bb657f50f11d9b6a
+      objectReference: {fileID: 0}
     - target: {fileID: 2028349045886406842, guid: 6b632a987658c784fb8d018000345df0, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -3408,6 +3434,10 @@ PrefabInstance:
     - target: {fileID: 2048653189908155841, guid: 6b632a987658c784fb8d018000345df0, type: 3}
       propertyPath: m_Name
       value: PitchSelectionCanvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 3181986934083033553, guid: 6b632a987658c784fb8d018000345df0, type: 3}
+      propertyPath: m_text
+      value: "\uBA54\uC778\uC73C\uB85C"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

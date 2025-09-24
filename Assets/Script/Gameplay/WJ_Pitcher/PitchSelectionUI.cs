@@ -6,9 +6,11 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.AddressableAssets;
 
 public class PitchSelectionUI : MonoBehaviour
 {
+    [SerializeField] private AssetReference menuScene;
     [Header("UI 구성요소")]
     public Canvas pitchSelectionCanvas;
     public Button[] pitchButtons = new Button[4];
@@ -54,11 +56,13 @@ public class PitchSelectionUI : MonoBehaviour
     private int strikeCount = 0;
     private int ballCount = 0;
     private int[] pitchTypeUsage = new int[4]; // 구종별 사용 횟수
-    private float lastPitchSpeed = 0f;
     private bool lastPitchWasStrike = false;
 
     public System.Action<PitchType> OnPitchSelected;
     public System.Action OnGameReset;
+
+    [Header("Listenin to Events")]
+    [SerializeField] private SceneEventSO backMenuSceneEvent;
 
     void Start()
     {
@@ -149,6 +153,10 @@ public class PitchSelectionUI : MonoBehaviour
         UpdateGameStatusDisplay();
     }
 
+    public void SetBallVelocityUI(float velocity)
+    {
+        lastPitchSpeedText.text = "구속 : " + velocity + "km/h";
+    }
     private void UpdateCountDisplay()
     {
         if (strikeCountText != null)
@@ -156,9 +164,6 @@ public class PitchSelectionUI : MonoBehaviour
 
         if (ballCountText != null)
             ballCountText.text = $"볼: {ballCount}";
-
-        if (lastPitchSpeedText != null)
-            lastPitchSpeedText.text = $"투구 속도: {lastPitchSpeed:F1} km/h";
 
         if (lastPitchResultText != null)
         {
@@ -252,7 +257,6 @@ public class PitchSelectionUI : MonoBehaviour
     public void OnPitchResult(bool isStrike, float pitchSpeed)
     {
         totalPitches++;
-        lastPitchSpeed = pitchSpeed;
         lastPitchWasStrike = isStrike;
 
         if (isStrike)
@@ -274,25 +278,27 @@ public class PitchSelectionUI : MonoBehaviour
         Debug.Log($"투구 결과: {(isStrike ? "스트라이크" : "볼")}, 속도: {pitchSpeed:F1} km/h");
     }
 
+
+    //reset 
     public void ResetGame()
     {
-        totalPitches = 0;
-        strikeCount = 0;
-        ballCount = 0;
-        lastPitchSpeed = 0f;
-        lastPitchWasStrike = false;
+        //totalPitches = 0;
+        //strikeCount = 0;
+        //ballCount = 0;
+        //lastPitchWasStrike = false;
 
-        for (int i = 0; i < pitchTypeUsage.Length; i++)
-            pitchTypeUsage[i] = 0;
+        //for (int i = 0; i < pitchTypeUsage.Length; i++)
+        //    pitchTypeUsage[i] = 0;
 
-        UpdateAllUI();
-        OnGameReset?.Invoke();
+        //UpdateAllUI();
+        //OnGameReset?.Invoke();
+        backMenuSceneEvent.RaiseEvent(menuScene);
+        
 
         // 사운드 재생
-        if (audioSource != null && buttonClickSound != null)
-            audioSource.PlayOneShot(buttonClickSound);
+        //if (audioSource != null && buttonClickSound != null)
+        //    audioSource.PlayOneShot(buttonClickSound);
 
-        Debug.Log("게임 리셋!");
     }
 
     public void ToggleUI()
@@ -365,7 +371,6 @@ public class PitchSelectionUI : MonoBehaviour
     public int GetBallCount() => ballCount;
     public float GetStrikeRate() => totalPitches > 0 ? (float)strikeCount / totalPitches * 100f : 0f;
     public int[] GetPitchTypeUsage() => pitchTypeUsage;
-    public float GetLastPitchSpeed() => lastPitchSpeed;
     public bool GetLastPitchResult() => lastPitchWasStrike;
 
     private PitchData GetPitchData(PitchType pitchType)

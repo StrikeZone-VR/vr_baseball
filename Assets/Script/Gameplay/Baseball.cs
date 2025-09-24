@@ -77,6 +77,7 @@ public class Baseball : MonoBehaviour
 
     // 이벤트 한 번만 발생시키기 위한 플래그
     private bool eventFired = false;
+    const float targetSpeed = 8.0f; // 8.0 => 25? , 32 => 140
 
 
     #region EventFunction
@@ -136,10 +137,9 @@ public class Baseball : MonoBehaviour
         //Strike Zone
         if (collider.gameObject.CompareTag("StrikeZone") && !IsZone)
         {
-            Debug.Log("엄?");
             IsZone = true;
             IsStrike = true;
-            addStrikeEvent.RaiseEvent();
+            //addStrikeEvent.RaiseEvent();
         }
 
         //paul
@@ -322,7 +322,7 @@ public class Baseball : MonoBehaviour
         get => isZone;
         set
         {
-            BallVelocity();
+            PrintBallVelocity();
             isZone = value;
         }
     }
@@ -483,7 +483,6 @@ public class Baseball : MonoBehaviour
         Vector3 forceDirection = (targetPosition - transform.position).normalized;
 
         // **속도 설정 - 느린 투구 속도로 조정**
-        float targetSpeed = 8.0f; // 12.0f에서 8.0f로 감소 (약 29km/h, 더 여유있게)
 
         OnBallPhysics();
 
@@ -551,12 +550,12 @@ public class Baseball : MonoBehaviour
         //스윙 여부는 방망이의 회전값?
         else if (GetIsSwing()) //스윙여부 == true => 스윙했는데 방망이를 건들지 않은 경우
         {
-            Debug.Log("스트라이크");
+            Debug.Log("스트라이크1");
             addStrikeEvent.RaiseEvent();
         }
         else if(isStrike) //스윙 안했는데 스트라이크인 경우
         {
-            Debug.Log("스트라이크");
+            Debug.Log("스트라이크2");
             addStrikeEvent.RaiseEvent();
         }
         else //스트라이크 존에도 안 닿았고 스윙도 안했다면
@@ -569,7 +568,7 @@ public class Baseball : MonoBehaviour
     /// <summary>
     /// isZone 앞에 둬라
     /// </summary>
-    private void BallVelocity()
+    private void PrintBallVelocity()
     {
         if(IsZone)
         {
@@ -584,8 +583,9 @@ public class Baseball : MonoBehaviour
         // {
         //     return;
         // }
-        getVelocityEventSO.RaiseEvent(_rigidbody.velocity.magnitude * 3.6f);
-        //Debug.Log(_rigidbody.velocity.magnitude  * 3.6f+ "km/h"); //수치 재미를 위해 * 4.5 할듯
+        float velocity = _rigidbody.velocity.magnitude * 3.6f; //40
+        getVelocityEventSO.RaiseEvent(velocity);
+        Debug.Log(velocity+ "km/h"); //수치 재미를 위해 * 4.5 할듯
     }
     
     

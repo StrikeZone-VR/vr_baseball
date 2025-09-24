@@ -84,7 +84,6 @@ public class BattingSystem : MonoBehaviour
     private void WaitPitchingToText(int time)
     {
         waitText.text = time.ToString();
-        Debug.Log(time);
         if (time == 1)
         {
             if(_ball.IsBatTouch)

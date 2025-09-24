@@ -7,6 +7,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using Random = UnityEngine.Random;
 using System.Collections;
+using TMPro;
 /// <summary>
 /// 🎯 투수 연습 시스템 통합 관리자
 /// - 스트라이크존 9개 (3x3 중앙)
@@ -55,7 +56,8 @@ public class PitchingSystemManager : MonoBehaviour
         }
     }
     [SerializeField] private PitchingManager pitchingManager;
-    
+    [SerializeField] private PitchSelectionUI pitchSelectionUI;
+
     private List<PitchZone> allZones = new List<PitchZone>();
     private List<PitchZone> strikeZones = new List<PitchZone>();
     private List<PitchZone> ballZones = new List<PitchZone>();
@@ -70,11 +72,13 @@ public class PitchingSystemManager : MonoBehaviour
     [SerializeField] private VoidEventSO pitchEvent;
     [SerializeField] private Vector3EventSO moveOriginEvent;
     [SerializeField] private Vector3EventSO rotateOriginEvent;
+    [SerializeField] private FloatEventSO getVelocityEvent;
 
     private void OnEnable()
     {
         backToPitcherEvent.onEventRaised += BackPitcherBall;
         pitchEvent.onEventRaised += WaitingSwing;
+        getVelocityEvent.onEventRaised += GetVelocityToText;
         //swingEvent.onEventRaised;
     }
 
@@ -82,6 +86,7 @@ public class PitchingSystemManager : MonoBehaviour
     {
         backToPitcherEvent.onEventRaised -= BackPitcherBall;
         pitchEvent.onEventRaised -= WaitingSwing;
+        getVelocityEvent.onEventRaised -= GetVelocityToText;
     }
 
     void Start()
@@ -98,6 +103,9 @@ public class PitchingSystemManager : MonoBehaviour
     public void InitializeSystem()
     {
         pitchingManager.StartPitchingGame();
+
+        //ui
+        GetVelocityToText(0);
     }
     
     /// <summary> ballZone Clear
@@ -434,6 +442,13 @@ public class PitchingSystemManager : MonoBehaviour
     private void BackPitcherBall()
     {
         pitchingManager.ResetBall();
+    
+    }
+
+    private void GetVelocityToText(float velocity)
+    {
+        pitchSelectionUI.SetBallVelocityUI(velocity);
+        //velocityText.text = "시속 : " + velocity.ToString() + "km/h";
     }
 
     private void WaitingSwing()
@@ -441,6 +456,7 @@ public class PitchingSystemManager : MonoBehaviour
         Debug.Log("타자 필요 없을지도?");
         //StartCoroutine(StartSwing());
     }
+
 
     private IEnumerator StartSwing()
     {
