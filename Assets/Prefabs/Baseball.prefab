@@ -304,6 +304,9 @@ MonoBehaviour:
   isGroundBall: 0
   isBatTouch: 0
   isPassing: 0
+  isZone: 0
+  isStrike: 0
+  isThrown: 0
   defenderDis: 0
   bat: {fileID: 0}
   allTrackingOffEvent: {fileID: 11400000, guid: eb943823faaa14e4b87ec836d9d214f4, type: 2}
@@ -313,6 +316,10 @@ MonoBehaviour:
   homerunEvent: {fileID: 11400000, guid: 2c50fa93d15b0bd469de3b987b91d592, type: 2}
   pitchEvent: {fileID: 11400000, guid: 6ca9374e56161084ca2bd8dee328860a, type: 2}
   runSignalEvent: {fileID: 11400000, guid: 2f8b5c598135ebb49bd8c25de9d4678c, type: 2}
+  backToPitcherEvent: {fileID: 11400000, guid: 38591f4b3ef079940be5f6a3e91e74ce, type: 2}
+  inplayGameEvent: {fileID: 11400000, guid: d31ece9de1f0ded4e95897cfa47eaa57, type: 2}
+  getVelocityEventSO: {fileID: 11400000, guid: c2305552fa4ae3741985e7e98ca99b92, type: 2}
+  playAudioClipEvent: {fileID: 11400000, guid: d945dac53f32b4d47a9561b9d8dac9a6, type: 2}
   baseThrowForce: 1
   maxThrowForce: 2
   throwSmoothingCurve:
@@ -346,9 +353,6 @@ MonoBehaviour:
   sliderSideEffect: {fileID: 0}
   forkDropEffect: {fileID: 0}
   trajectoryLine: {fileID: 0}
-  audioSource: {fileID: 0}
-  throwSound: {fileID: 0}
-  bounceSound: {fileID: 0}
   strikeZone: {fileID: 0}
   aimAssistStrength: 0.8
   enableRandomTargeting: 1

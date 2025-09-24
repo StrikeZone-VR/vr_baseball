@@ -23,7 +23,7 @@ public class Baseball : MonoBehaviour
     // is Pitcher throw?
     [SerializeField] private bool isThrown = false;
     [SerializeField] private float defenderDis = 0.0f;
-    [SerializeField] private GameObject bat;
+    [SerializeField] private Bat bat;
 
     //from GameManager
     [Header("Listening to Events")] [SerializeField]
@@ -38,13 +38,14 @@ public class Baseball : MonoBehaviour
     [SerializeField] private VoidEventSO backToPitcherEvent; //?
     [SerializeField] private VoidEventSO inplayGameEvent; //from BattingSystem
     [SerializeField] private FloatEventSO getVelocityEventSO; //from BattingSystem
-
+    [SerializeField] private IntEventSO playAudioClipEvent; //from AudioManager
 
     [Header("물리 설정")] public float baseThrowForce = 1f; // Inspector 덮어쓰기 방지: 1f로 더 낮춤
     public float maxThrowForce = 2f; // Inspector 덮어쓰기 방지: 2f로 더 낮춤
     public AnimationCurve throwSmoothingCurve = AnimationCurve.Linear(0, 0, 1, 1);
 
-    [Header("구종 설정")] public PitchType selectedPitchType = PitchType.FastBall;
+    [Header("구종 설정")] 
+    public PitchType selectedPitchType = PitchType.FastBall;
     private PitchData currentPitchData;
 
     [Header("이펙트")] public ParticleSystem trailEffect; // 메인 트레일
@@ -53,10 +54,6 @@ public class Baseball : MonoBehaviour
     public ParticleSystem sliderSideEffect; // 슬라이더 전용
     public ParticleSystem forkDropEffect; // 포크볼 전용
     public LineRenderer trajectoryLine;
-
-    [Header("오디오")] public AudioSource audioSource;
-    public AudioClip throwSound;
-    public AudioClip bounceSound;
 
     [Header("참조")] public StrikeZone strikeZone;
     //public PitchingSystemManager pitchingSystemManager;    // 새로운 통합 시스템
@@ -198,7 +195,9 @@ public class Baseball : MonoBehaviour
             {
                 return;
             }
-            Debug.Log("인 플레이 게임");
+            playAudioClipEvent.RaiseEvent(1); //hit
+            
+            //Debug.Log("인 플레이 게임");
             IsBatTouch = true;
             IsThrown = false;
 
@@ -356,9 +355,6 @@ public class Baseball : MonoBehaviour
             }
         }
 
-        if (audioSource == null)
-            audioSource = GetComponent<AudioSource>();
-
 
         // XR 이벤트 연결
         grabInteractable.selectExited.AddListener(OnRelease);
@@ -472,7 +468,6 @@ public class Baseball : MonoBehaviour
         grabInteractable.enabled = false;
         pitchEvent.RaiseEvent();
 
-        //엄준식
         int index = Random.Range(0, 25);
         Debug.Log(index);
         
@@ -502,7 +497,7 @@ public class Baseball : MonoBehaviour
 
         Debug.Log($"🎯 중력 제거 직선 투구! 거리: {distance:F2}m, 속도: {adjustedSpeed:F1}m/s");
         Debug.Log($"🎯 시작: {transform.position}, 타겟: {targetPosition}, 속도벡터: {velocity}");
-
+        playAudioClipEvent.RaiseEvent(0);
         // 이펙트
         PlayThrowEffects();
         // OnBallThrown 이벤트는 충돌 시에만 발생하도록 수정!
@@ -550,12 +545,12 @@ public class Baseball : MonoBehaviour
         //스윙 여부는 방망이의 회전값?
         else if (GetIsSwing()) //스윙여부 == true => 스윙했는데 방망이를 건들지 않은 경우
         {
-            Debug.Log("스트라이크1");
+            playAudioClipEvent.RaiseEvent(3);
             addStrikeEvent.RaiseEvent();
         }
         else if(isStrike) //스윙 안했는데 스트라이크인 경우
         {
-            Debug.Log("스트라이크2");
+            playAudioClipEvent.RaiseEvent(3);
             addStrikeEvent.RaiseEvent();
         }
         else //스트라이크 존에도 안 닿았고 스윙도 안했다면
@@ -593,12 +588,7 @@ public class Baseball : MonoBehaviour
     public bool GetIsSwing()
     {
         //Debug.Log("회전한 값 : " + bat.transform.rotation.eulerAngles.y);
-        if (-180f < bat.transform.rotation.eulerAngles.y && bat.transform.rotation.eulerAngles.y < -90f)
-        {
-            return true;
-        }
-
-        return false;
+        return bat.IsSwing();
     }
 
     private bool IsInplayGame()
@@ -685,20 +675,8 @@ private void StartCurveEffect()
                     break;
             }
 
-            // 안전하게 오디오 실행
-            if (throwSound != null && audioSource != null)
-            {
-                if (audioSource.enabled)
-                {
-                    audioSource.PlayOneShot(throwSound);
-                }
-                else
-                {
-                    Debug.Log("오디오 소스가 비활성화 상태입니다. 강제 활성화 시도.");
-                    audioSource.enabled = true;
-                    audioSource.PlayOneShot(throwSound);
-                }
-            }
+            // 안전하게 오디오 실행 => 던지는 소리
+            
         }
         catch (System.Exception e)
         {

@@ -22,13 +22,14 @@ public class BattingSystem : MonoBehaviour
     [SerializeField] private TextMeshProUGUI homerunText;
     [SerializeField] private TextMeshProUGUI waitText;
     [SerializeField] private TextMeshProUGUI velocityText;
-
+    
     [Space] 
     [Header("Events")] 
     [SerializeField] private Vector3EventSO moveOriginEvent;
     [SerializeField] private Vector3EventSO rotateOriginEvent;
     [SerializeField] private IntEventSO waitPitcherEvent;
     [SerializeField] private SceneEventSO sceneEventSO;
+    [SerializeField] private IntEventSO playAudioClipEvent;
 
     [Space] 
     [Header("BallEvents")] 
@@ -62,7 +63,7 @@ public class BattingSystem : MonoBehaviour
 
     private void Start()
     {
-        moveOriginEvent.RaiseEvent(new Vector3(0, 1.3f, 0));
+        moveOriginEvent.RaiseEvent(new Vector3(0.75f, 1.3f, -0.95f));
         rotateOriginEvent.RaiseEvent(new Vector3(0, -135f, 0));
         pitcher.SetMyBall(_ball);
 
@@ -84,6 +85,10 @@ public class BattingSystem : MonoBehaviour
     private void WaitPitchingToText(int time)
     {
         waitText.text = time.ToString();
+        if (time == 3)
+        {
+            playAudioClipEvent.RaiseEvent(2);
+        }
         if (time == 1)
         {
             if(_ball.IsBatTouch)
@@ -107,6 +112,7 @@ public class BattingSystem : MonoBehaviour
 
     public void BackMenuScene()
     {
+        playAudioClipEvent.RaiseEvent(0); //play click sound
         sceneEventSO.RaiseEvent(menuScene);
     }
 
@@ -123,8 +129,10 @@ public class BattingSystem : MonoBehaviour
         }
     }
 
+    //안타
     void AddHit()
     {
+        StartCoroutine(BackPitching());
         HitCount++;
     }
 
@@ -135,11 +143,13 @@ public class BattingSystem : MonoBehaviour
 
     void AddHomerun()
     {
+        StartCoroutine(BackPitching());
         HomerunCount++;
     }
 
     void AddFoul()
     {
+        StartCoroutine(BackPitching());
         FoulCount++;
     }
 

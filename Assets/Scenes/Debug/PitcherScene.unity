@@ -167,6 +167,8 @@ MonoBehaviour:
   moveOriginEvent: {fileID: 11400000, guid: c0d00800716a55143911a6d8709ab8f3, type: 2}
   rotateOriginEvent: {fileID: 11400000, guid: d164c5b6bfab6604987cbe7b5a2ca409, type: 2}
   getVelocityEvent: {fileID: 11400000, guid: c2305552fa4ae3741985e7e98ca99b92, type: 2}
+  strikeEvent: {fileID: 11400000, guid: 7980c5f1d20201f48891aba9f1727e76, type: 2}
+  addBallCountEvent: {fileID: 11400000, guid: 60c42e35457ecd34d8efad8431a9dc85, type: 2}
 --- !u!4 &9797075
 Transform:
   m_ObjectHideFlags: 0
@@ -1306,7 +1308,6 @@ GameObject:
   m_Component:
   - component: {fileID: 976180240}
   - component: {fileID: 976180239}
-  - component: {fileID: 976180238}
   m_Layer: 0
   m_Name: VRPitchingManager
   m_TagString: Untagged
@@ -1314,102 +1315,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!82 &976180238
-AudioSource:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 976180237}
-  m_Enabled: 1
-  serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 0}
-  m_PlayOnAwake: 1
-  m_Volume: 0.4
-  m_Pitch: 1
-  Loop: 0
-  Mute: 0
-  Spatialize: 0
-  SpatializePostEffects: 0
-  Priority: 128
-  DopplerLevel: 1
-  MinDistance: 1
-  MaxDistance: 500
-  Pan2D: 0
-  rolloffMode: 0
-  BypassEffects: 0
-  BypassListenerEffects: 0
-  BypassReverbZones: 0
-  rolloffCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  panLevelCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  spreadCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  reverbZoneMixCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
 --- !u!114 &976180239
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1427,9 +1332,7 @@ MonoBehaviour:
   ballResetPosition: {fileID: 1464780507}
   maxBalls: 5
   ballResetDelay: 3
-  gameStartSound: {fileID: 8300000, guid: ef0c3ac94ac15e14684872e0c9b50a72, type: 3}
-  strikeSound: {fileID: 8300000, guid: 2dd5ded3493241240821683dc83f70a2, type: 3}
-  ballSound: {fileID: 8300000, guid: c266be4e2c80ce84281b80d8981c176e, type: 3}
+  playAudioClipEvent: {fileID: 11400000, guid: d945dac53f32b4d47a9561b9d8dac9a6, type: 2}
 --- !u!4 &976180240
 Transform:
   m_ObjectHideFlags: 0
@@ -3327,6 +3230,10 @@ PrefabInstance:
       propertyPath: m_Camera
       value: 
       objectReference: {fileID: 1192059981}
+    - target: {fileID: 1072695466578493562, guid: 6b632a987658c784fb8d018000345df0, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1474943157002577863, guid: 6b632a987658c784fb8d018000345df0, type: 3}
       propertyPath: leftRayInteractor
       value: 
@@ -3339,6 +3246,10 @@ PrefabInstance:
       propertyPath: backMenuSceneEvent
       value: 
       objectReference: {fileID: 11400000, guid: 1614b16f3ac165a4095e5f466b87b7b6, type: 2}
+    - target: {fileID: 1474943157002577863, guid: 6b632a987658c784fb8d018000345df0, type: 3}
+      propertyPath: playAudioClipEvent
+      value: 
+      objectReference: {fileID: 11400000, guid: d945dac53f32b4d47a9561b9d8dac9a6, type: 2}
     - target: {fileID: 1474943157002577863, guid: 6b632a987658c784fb8d018000345df0, type: 3}
       propertyPath: rightRayInteractor
       value: 
@@ -3438,6 +3349,14 @@ PrefabInstance:
     - target: {fileID: 3181986934083033553, guid: 6b632a987658c784fb8d018000345df0, type: 3}
       propertyPath: m_text
       value: "\uBA54\uC778\uC73C\uB85C"
+      objectReference: {fileID: 0}
+    - target: {fileID: 7514160923248352345, guid: 6b632a987658c784fb8d018000345df0, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8123444723495614060, guid: 6b632a987658c784fb8d018000345df0, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

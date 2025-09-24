@@ -42,12 +42,7 @@ public class PitchSelectionUI : MonoBehaviour
     public XRRayInteractor leftRayInteractor;
     public XRRayInteractor rightRayInteractor;
 
-    [Header("오디오")]
-    public AudioClip buttonClickSound;
-    public AudioClip strikeSound;
-    public AudioClip ballSound;
 
-    private AudioSource audioSource;
     private PitchType currentSelectedPitch = PitchType.FastBall;
     private Baseball currentBaseball;
 
@@ -63,12 +58,9 @@ public class PitchSelectionUI : MonoBehaviour
 
     [Header("Listenin to Events")]
     [SerializeField] private SceneEventSO backMenuSceneEvent;
-
+    [SerializeField] private IntEventSO playAudioClipEvent;
     void Start()
     {
-        audioSource = GetComponent<AudioSource>();
-        if (audioSource == null)
-            audioSource = gameObject.AddComponent<AudioSource>();
 
         InitializePitchData();
         SetupUI();
@@ -153,18 +145,20 @@ public class PitchSelectionUI : MonoBehaviour
         UpdateGameStatusDisplay();
     }
 
+    public void SetStrikeUI(int strike)
+    {
+        lastPitchSpeedText.text = "스트라이크 : " + strike;
+    }
     public void SetBallVelocityUI(float velocity)
     {
         lastPitchSpeedText.text = "구속 : " + velocity + "km/h";
     }
+    public void SetBallCountUI(float ballCount)
+    {
+        ballCountText.text = "볼 : " + ballCount;
+    }
     private void UpdateCountDisplay()
     {
-        if (strikeCountText != null)
-            strikeCountText.text = $"스트라이크: {strikeCount}";
-
-        if (ballCountText != null)
-            ballCountText.text = $"볼: {ballCount}";
-
         if (lastPitchResultText != null)
         {
             string resultText = totalPitches == 0 ? "투구 대기 중..." :
@@ -236,9 +230,7 @@ public class PitchSelectionUI : MonoBehaviour
         if (currentBaseball != null)
             currentBaseball.SetPitchType(pitchType);
 
-        // 사운드 재생
-        if (audioSource != null && buttonClickSound != null)
-            audioSource.PlayOneShot(buttonClickSound);
+        playAudioClipEvent.RaiseEvent(0);
 
         OnPitchSelected?.Invoke(pitchType);
 
@@ -253,35 +245,12 @@ public class PitchSelectionUI : MonoBehaviour
         Debug.Log($"구종 선택: {selectedData.pitchName}");
     }
 
-    // 투구 결과 처리 (VRPitchingManager에서 호출)
-    public void OnPitchResult(bool isStrike, float pitchSpeed)
-    {
-        totalPitches++;
-        lastPitchWasStrike = isStrike;
-
-        if (isStrike)
-            strikeCount++;
-        else
-            ballCount++;
-
-        // 사운드 재생
-        if (audioSource != null)
-        {
-            if (isStrike && strikeSound != null)
-                audioSource.PlayOneShot(strikeSound);
-            else if (!isStrike && ballSound != null)
-                audioSource.PlayOneShot(ballSound);
-        }
-
-        UpdateAllUI();
-
-        Debug.Log($"투구 결과: {(isStrike ? "스트라이크" : "볼")}, 속도: {pitchSpeed:F1} km/h");
-    }
-
 
     //reset 
     public void ResetGame()
     {
+        playAudioClipEvent.RaiseEvent(0); //play click sound
+
         //totalPitches = 0;
         //strikeCount = 0;
         //ballCount = 0;
@@ -306,9 +275,7 @@ public class PitchSelectionUI : MonoBehaviour
         bool isActive = pitchSelectionCanvas.gameObject.activeInHierarchy;
         pitchSelectionCanvas.gameObject.SetActive(!isActive);
 
-        // 사운드 재생
-        if (audioSource != null && buttonClickSound != null)
-            audioSource.PlayOneShot(buttonClickSound);
+        playAudioClipEvent.RaiseEvent(0);
 
         Debug.Log($"UI {(!isActive ? "표시" : "숨김")}");
     }

@@ -20,6 +20,9 @@ public class PitchingSystemManager : MonoBehaviour
     [SerializeField] private Batter batter;
     [Header("🎯 존 설정")]
     public Transform strikeZoneParent;
+
+    private int strike = 0;
+    private int ball_count = 0;
     
     [Header("📊 확률 설정")]
     [Range(0, 100)]
@@ -73,12 +76,18 @@ public class PitchingSystemManager : MonoBehaviour
     [SerializeField] private Vector3EventSO moveOriginEvent;
     [SerializeField] private Vector3EventSO rotateOriginEvent;
     [SerializeField] private FloatEventSO getVelocityEvent;
+    [SerializeField] private VoidEventSO strikeEvent;
+    [SerializeField] private VoidEventSO addBallCountEvent;
+    
 
     private void OnEnable()
     {
         backToPitcherEvent.onEventRaised += BackPitcherBall;
         pitchEvent.onEventRaised += WaitingSwing;
         getVelocityEvent.onEventRaised += GetVelocityToText;
+
+        strikeEvent.onEventRaised += AddStrike;
+        addBallCountEvent.onEventRaised += AddBallCount;
         //swingEvent.onEventRaised;
     }
 
@@ -450,6 +459,16 @@ public class PitchingSystemManager : MonoBehaviour
         pitchSelectionUI.SetBallVelocityUI(velocity);
         //velocityText.text = "시속 : " + velocity.ToString() + "km/h";
     }
+    private void SetStrikeToText(int strike)
+    {
+        pitchSelectionUI.SetStrikeUI(strike);
+        //velocityText.text = "시속 : " + velocity.ToString() + "km/h";
+    }
+    private void SetBallCountToText(int ballCount)
+    {
+        pitchSelectionUI.SetBallVelocityUI(ballCount);
+        //velocityText.text = "시속 : " + velocity.ToString() + "km/h";
+    }
 
     private void WaitingSwing()
     {
@@ -463,6 +482,33 @@ public class PitchingSystemManager : MonoBehaviour
         yield return new WaitForSeconds(1.5f);
         batter.StartSwing();
         
+    }
+
+    private void AddStrike()
+    {
+        Strike++;
+    }
+    private void AddBallCount()
+    {
+        BallCount++;
+    }
+    public int Strike
+    {
+        get { return strike; }
+        set
+        {
+            strike = value;
+            SetStrikeToText(strike);
+        }
+    }
+    public int BallCount
+    {
+        get { return ball_count; }
+        set
+        {
+            ball_count = value;
+            SetBallCountToText(ball_count);
+        }
     }
     
     

@@ -3179,9 +3179,7 @@ MonoBehaviour:
   ballResetPosition: {fileID: 413101417}
   maxBalls: 10
   ballResetDelay: 3
-  gameStartSound: {fileID: 0}
-  strikeSound: {fileID: 0}
-  ballSound: {fileID: 0}
+  playAudioClipEvent: {fileID: 0}
 --- !u!1001 &877522167
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5666,7 +5664,7 @@ Transform:
   m_GameObject: {fileID: 1782397045}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -36.9, y: 258.6, z: -37}
+  m_LocalPosition: {x: -8.5, y: 258.6, z: -5.5}
   m_LocalScale: {x: 100, y: 1, z: 100}
   m_ConstrainProportionsScale: 0
   m_Children: []

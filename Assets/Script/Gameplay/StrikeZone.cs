@@ -7,6 +7,8 @@ using UnityEngine.UI;
 
 public class StrikeZone : MonoBehaviour
 {
+    //이거 사운드 설정 안할거임
+    
     [Header("스트라이크 존 설정")]
     [SerializeField] private Transform[] zones; 
     public Vector3 zoneSize = new Vector3(0.5f, 1.0f, 0.1f);
@@ -18,13 +20,8 @@ public class StrikeZone : MonoBehaviour
     public float flashDuration = 0.5f;
     public ParticleSystem strikeEffect;
     public ParticleSystem ballEffect;
-
-    [Header("오디오")]
-    public AudioClip strikeSound;
-    public AudioClip ballSound;
     
     private Renderer zoneRenderer;
-    private AudioSource audioSource;
     private Collider zoneCollider;
     private Material zoneMaterial;
     private Color originalColor;
@@ -68,11 +65,6 @@ public class StrikeZone : MonoBehaviour
             noBounceMaterial.staticFriction = 1f;
             boxCollider.material = noBounceMaterial;
         }
-
-        audioSource = GetComponent<AudioSource>();
-        if (audioSource == null)
-            audioSource = gameObject.AddComponent<AudioSource>();
-
         // 재질 설정
         //SetupMaterial();
     }
@@ -178,8 +170,6 @@ public class StrikeZone : MonoBehaviour
         if (strikeEffect != null)
             strikeEffect.Play();
 
-        if (audioSource != null && strikeSound != null)
-            audioSource.PlayOneShot(strikeSound);
 
         OnPitchResult?.Invoke(true);
     }
@@ -192,9 +182,6 @@ public class StrikeZone : MonoBehaviour
 
         if (ballEffect != null)
             ballEffect.Play();
-
-        if (audioSource != null && ballSound != null)
-            audioSource.PlayOneShot(ballSound);
 
         OnPitchResult?.Invoke(false);
     }

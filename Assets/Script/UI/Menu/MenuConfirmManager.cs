@@ -24,6 +24,9 @@ public class MenuConfirmManager : MonoBehaviour
 
     [Header("Listening to Event")]
     [SerializeField] private SceneEventSO sceneEventSO;
+    [SerializeField] private Vector3EventSO moveOriginEvent;
+    [SerializeField] private Vector3EventSO rotateOriginEvent;
+    [SerializeField] private IntEventSO playAudioClipEvent;
 
     [Space]
     [Header("Scenes")]
@@ -48,6 +51,9 @@ public class MenuConfirmManager : MonoBehaviour
         // 대화상자 초기 상태는 비활성화
         if (confirmationDialogPanel != null)
             confirmationDialogPanel.SetActive(false);
+        
+        moveOriginEvent.RaiseEvent(new Vector3(0, 1.46f, -0.16f));
+        rotateOriginEvent.RaiseEvent(Vector3.zero);
     }
 
     void SetupButtonEvents()
@@ -79,6 +85,7 @@ public class MenuConfirmManager : MonoBehaviour
 
     void ShowConfirmation(string message, System.Action onConfirmed)
     {
+        playAudioClipEvent.RaiseEvent(0); //play click sound
         if (confirmationMessageText != null)
             confirmationMessageText.text = message;
 
@@ -118,6 +125,7 @@ public class MenuConfirmManager : MonoBehaviour
     void OnPitchingPractice()
     {
         Debug.Log("투수 연습 시작!");
+        
         sceneEventSO.RaiseEvent(pitcherScene);
     }
 
@@ -130,7 +138,8 @@ public class MenuConfirmManager : MonoBehaviour
 
     void OnKBOInfo()
     {
-        Debug.Log("KBO 정보 보기");
+        playAudioClipEvent.RaiseEvent(0); //play click sound
+
         if (kboInfoPanel != null)
         {
             bool isActive = kboInfoPanel.activeInHierarchy;
