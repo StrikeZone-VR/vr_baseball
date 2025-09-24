@@ -4,7 +4,7 @@ using UnityEngine;
 public class Pitcher : Defender
 {
     private const float ADDFORCE = 20.0f;
-    
+    private Coroutine coroutine;
     [SerializeField] private StrikeZone strikeZone;
     [SerializeField] private VoidEventSO swingEvent; //from GameManager
     [SerializeField] private IntEventSO waitPitcherEvent; //from BattingSystem
@@ -58,7 +58,11 @@ public class Pitcher : Defender
         _ball.IsPassing = false;
         _ball.IsZone = false;
         _ball.IsStrike = false;
-        StartCoroutine(WaitBatting());
+        
+        if (coroutine == null)
+        {
+            coroutine = StartCoroutine(WaitBatting());
+        }
         //transform.LookAt(_ball.transform, Vector3.up);
     }
     
@@ -70,6 +74,7 @@ public class Pitcher : Defender
             yield return new WaitForSeconds(1.0f);
         }
 
+        coroutine = null;
         PitchingBall();
     }
     
@@ -84,7 +89,6 @@ public class Pitcher : Defender
         
         //random value 0 ~ 24
         int index = Random.Range(0, 25);
-        Debug.Log(index);
         Transform SZTransform = strikeZone.GetZone(index);
 
         Vector3 velocity = CalculateLaunchVelocity(transform.position, SZTransform.position - new Vector3(0,0.9f,0), 45f);

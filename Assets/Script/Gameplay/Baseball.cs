@@ -91,21 +91,19 @@ public class Baseball : MonoBehaviour
 
     void FixedUpdate()
     {
+        
         if (isThrown)
         {
             // 안전장치: 공이 너무 아래로 떨어지면 강제 멈춤 => ball
             if (transform.position.y < -2.0f) // Y=-2 이하로 떨어지면
             {
-
-                Debug.LogWarning($"⚠️ 공이 바닥을 뚫고 떨어짐! Y위치: {transform.position.y} - 볼 처리합니다.");
-
                 // 강제로 바닥에 착지한 것으로 처리
                 if (_rigidbody != null && !_rigidbody.isKinematic)
                 {
                     _rigidbody.velocity = Vector3.zero;
                     _rigidbody.angularVelocity = Vector3.zero;
                     _rigidbody.useGravity = false;
-                    _rigidbody.isKinematic = true;
+                    //_rigidbody.isKinematic = true;
                 }
 
                 Debug.Log("이 함수가 발동되면 그냥 없앰");
@@ -142,12 +140,13 @@ public class Baseball : MonoBehaviour
         //paul
         if (collider.CompareTag("Paul"))
         {
-            if (isBatTouch)
+            if (isBatTouch && isThrown && !IsGroundBall)
                 paulEvent.RaiseEvent();
             else
             {
                 PitchResult();
-                backToPitcherEvent.RaiseEvent();
+                if(backToPitcherEvent !=null)
+                    backToPitcherEvent.RaiseEvent();
             }
         }
 
@@ -174,24 +173,26 @@ public class Baseball : MonoBehaviour
     {
         if (collision.collider.CompareTag("Ground") || collision.collider.CompareTag("Base"))
         {
-            PitchResult();
-
-            IsPassing = false;
-            IsThrown = false;
-
-            if (!isBatTouch)
+            if (myDefender == null)
             {
-                //throw ball but swing miss
-                return;
+                PitchResult();
+
+                IsPassing = false;
+                IsThrown = false;
+
+                if (isBatTouch)
+                {
+                    IsGroundBall = true;
+                    //throw ball but swing miss
+                }
             }
-            isGroundBall = true;
         }
 
         //in play game
         if (collision.collider.CompareTag("Bat"))
         {
             //두번 건드리는거 방지
-            if (isBatTouch)
+            if (IsBatTouch)
             {
                 return;
             }
@@ -199,7 +200,7 @@ public class Baseball : MonoBehaviour
             
             //Debug.Log("인 플레이 게임");
             IsBatTouch = true;
-            IsThrown = false;
+            //IsThrown = true;
 
             // 공의 Rigidbody 컴포넌트 가져오기
             Rigidbody batRb = collision.gameObject.GetComponent<Rigidbody>();
@@ -215,7 +216,8 @@ public class Baseball : MonoBehaviour
                 // Debug.Log("방향 :" + hitDirection);
                 Debug.Log("스피드 :" + speed);
 
-                this._rigidbody.AddForce(hitDirection * speed * 2.5f, ForceMode.Impulse);
+                //4
+                this._rigidbody.AddForce(hitDirection * speed * 4f, ForceMode.Impulse);
                 this._rigidbody.useGravity = true;
             }
 
@@ -263,6 +265,7 @@ public class Baseball : MonoBehaviour
         set
         {
             isThrown = value;
+            //Debug.Log(isThrown);
         }
     }
 
@@ -281,7 +284,11 @@ public class Baseball : MonoBehaviour
     public bool IsBatTouch
     {
         get => isBatTouch;
-        set => isBatTouch = value;
+        set
+        {
+            isBatTouch = value;
+        } 
+            
     }
 
     public Defender MyDefender
@@ -524,20 +531,23 @@ public class Baseball : MonoBehaviour
         //투수가 공을 안 던진경우
         if (!IsThrown)
         {
+            // Debug.Log("엄엄");
             return;
         }
 
         //볼을 맞춘 경우
-        if (isBatTouch)
+        if (IsBatTouch)
         {
             //Paul
-            if (this.transform.position.y > 0 || this.transform.position.y > 0)
+            if (this.transform.position.x > -0.5f || this.transform.position.z > -0.5f)
             {
+                Debug.Log("파울");
                 paulEvent.RaiseEvent();
             }
             //in play
             if (!isGroundBall) //groundball or flying ball
             {
+                Debug.Log("안타");
                 inplayGameEvent.RaiseEvent();
                 IsGroundBall = true;
             }
@@ -546,11 +556,13 @@ public class Baseball : MonoBehaviour
         else if (GetIsSwing()) //스윙여부 == true => 스윙했는데 방망이를 건들지 않은 경우
         {
             playAudioClipEvent.RaiseEvent(3);
+            Debug.Log("스트라이크1");
             addStrikeEvent.RaiseEvent();
         }
         else if(isStrike) //스윙 안했는데 스트라이크인 경우
         {
             playAudioClipEvent.RaiseEvent(3);
+            Debug.Log("스트라이크2");
             addStrikeEvent.RaiseEvent();
         }
         else //스트라이크 존에도 안 닿았고 스윙도 안했다면
@@ -588,6 +600,10 @@ public class Baseball : MonoBehaviour
     public bool GetIsSwing()
     {
         //Debug.Log("회전한 값 : " + bat.transform.rotation.eulerAngles.y);
+        if (bat == null)
+        {
+            return false;
+        }
         return bat.IsSwing();
     }
 

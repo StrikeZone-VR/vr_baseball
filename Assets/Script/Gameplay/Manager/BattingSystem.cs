@@ -63,7 +63,7 @@ public class BattingSystem : MonoBehaviour
 
     private void Start()
     {
-        moveOriginEvent.RaiseEvent(new Vector3(0.75f, 1.3f, -0.95f));
+        moveOriginEvent.RaiseEvent(new Vector3(0.43f, 1.3f, -0.62f));
         rotateOriginEvent.RaiseEvent(new Vector3(0, -135f, 0));
         pitcher.SetMyBall(_ball);
 
@@ -77,8 +77,8 @@ public class BattingSystem : MonoBehaviour
 
     IEnumerator BackPitching()
     {
-        Debug.Log("5초후에 돌아옴");
-        yield return new WaitForSeconds(5f);
+        Debug.Log("7초후에 돌아옴");
+        yield return new WaitForSeconds(7f);
         pitcher.SetMyBall(_ball);
     }
 
@@ -91,14 +91,14 @@ public class BattingSystem : MonoBehaviour
         }
         if (time == 1)
         {
-            if(_ball.IsBatTouch)
-            {
-                Debug.Log("배트를 건드려서 일단 무시 -> 나중에 땅 건드리면 backPitching 함수 실행해야함");
-                return;
-            }
+            // if(_ball.IsBatTouch)
+            // {
+            //     return;
+            // }
             StartCoroutine(BackPitching());
         }
     }
+
 
     private void SetVelocityToText(float velocity)
     {
@@ -132,25 +132,23 @@ public class BattingSystem : MonoBehaviour
     //안타
     void AddHit()
     {
-        StartCoroutine(BackPitching());
-        HitCount++;
+        ++HitCount;
     }
 
     void AddStrike()
     {
-        StrikeCount++;
+        ++StrikeCount;
     }
 
     void AddHomerun()
-    {
-        StartCoroutine(BackPitching());
-        HomerunCount++;
+    {        
+
+        ++HomerunCount;
     }
 
     void AddFoul()
-    {
-        StartCoroutine(BackPitching());
-        FoulCount++;
+    {        
+        ++FoulCount;
     }
 
     public int StrikeCount

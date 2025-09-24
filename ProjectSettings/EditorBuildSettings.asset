@@ -5,10 +5,10 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/PersistentManager.unity
     guid: 8ff13d4333e168e409ce508cfa7d75a0
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/Menu.unity
     guid: 649a1153b08a9334bb657f50f11d9b6a
   - enabled: 0
@@ -17,10 +17,10 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/Gameplay.unity
     guid: 68d2e92b0016b5d478424d1178581a03
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/Debug/BatterScene.unity
     guid: ea76ba95fa8ec514c93538542ce4c7f3
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/Debug/PitcherScene.unity
     guid: 3b5d8c8385c8d38428656cd2b65c73e6
   m_configObjects:

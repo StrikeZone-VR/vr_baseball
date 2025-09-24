@@ -19,7 +19,7 @@ public class Bat : MonoBehaviour
     {
         float dis = Vector3.Distance(topBatPos.position, startPos);
         currentSwingSpeed = dis / Time.deltaTime;
-        Debug.Log(IsSwing());
+//        Debug.Log(IsSwing());
         // if (currentSwingSpeed >= 0.01f)
         // {
         //     Debug.Log(currentSwingSpeed+ " distance :" + dis);

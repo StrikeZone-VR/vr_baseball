@@ -1236,7 +1236,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4134505312059479865, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.239
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 4134505312059479865, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1276,7 +1276,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7313654230448209575, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9014170783728641054, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1941,6 +1941,17 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 6739404497294416181, guid: 7619a4777f860bd4ca3f693affa29280, type: 3}
   m_PrefabInstance: {fileID: 1316596320}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1316596322 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5227407209185059354, guid: 7619a4777f860bd4ca3f693affa29280, type: 3}
+  m_PrefabInstance: {fileID: 1316596320}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1316596321}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 675206bba58e25244bb2086758c27503, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1360496870
 GameObject:
   m_ObjectHideFlags: 0
@@ -2648,7 +2659,7 @@ PrefabInstance:
     - target: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
       propertyPath: bat
       value: 
-      objectReference: {fileID: 1316596321}
+      objectReference: {fileID: 1316596322}
     - target: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
       propertyPath: paulEvent
       value: 
@@ -3349,6 +3360,14 @@ PrefabInstance:
     - target: {fileID: 3181986934083033553, guid: 6b632a987658c784fb8d018000345df0, type: 3}
       propertyPath: m_text
       value: "\uBA54\uC778\uC73C\uB85C"
+      objectReference: {fileID: 0}
+    - target: {fileID: 3487937512085932298, guid: 6b632a987658c784fb8d018000345df0, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.000040617368
+      objectReference: {fileID: 0}
+    - target: {fileID: 3487937512085932298, guid: 6b632a987658c784fb8d018000345df0, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -0.000054152566
       objectReference: {fileID: 0}
     - target: {fileID: 7514160923248352345, guid: 6b632a987658c784fb8d018000345df0, type: 3}
       propertyPath: m_IsActive

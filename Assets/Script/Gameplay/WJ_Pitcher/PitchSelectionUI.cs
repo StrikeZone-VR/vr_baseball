@@ -145,17 +145,18 @@ public class PitchSelectionUI : MonoBehaviour
         UpdateGameStatusDisplay();
     }
 
+    public void SetBallCountUI(float ballCount)
+    {
+        ballCountText.text = "볼 : " + ballCount;
+    }
     public void SetStrikeUI(int strike)
     {
-        lastPitchSpeedText.text = "스트라이크 : " + strike;
+        playAudioClipEvent.RaiseEvent(3);
+        strikeCountText.text = "스트라이크 : " + strike;
     }
     public void SetBallVelocityUI(float velocity)
     {
         lastPitchSpeedText.text = "구속 : " + velocity + "km/h";
-    }
-    public void SetBallCountUI(float ballCount)
-    {
-        ballCountText.text = "볼 : " + ballCount;
     }
     private void UpdateCountDisplay()
     {

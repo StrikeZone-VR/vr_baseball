@@ -100,7 +100,7 @@ public class PitchingSystemManager : MonoBehaviour
 
     void Start()
     {       
-        moveOriginEvent.RaiseEvent(new Vector3(0,0.2f,-4.8f));
+        moveOriginEvent.RaiseEvent(new Vector3(0,0.43f,-4.8f));
         rotateOriginEvent.RaiseEvent(new Vector3(0, 180.0f, 0));
 
         InitializeSystem();
@@ -466,7 +466,7 @@ public class PitchingSystemManager : MonoBehaviour
     }
     private void SetBallCountToText(int ballCount)
     {
-        pitchSelectionUI.SetBallVelocityUI(ballCount);
+        pitchSelectionUI.SetBallCountUI(ballCount);
         //velocityText.text = "시속 : " + velocity.ToString() + "km/h";
     }
 

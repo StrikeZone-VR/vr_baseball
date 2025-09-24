@@ -39,18 +39,19 @@ public class Defender : Player
     void OnCollisionEnter(Collision collision)
     {
         //flyout 
-        if (collision.gameObject.CompareTag("Ball") && _ball.MyDefender == null)
-        {
-            //owner ball
-            SetMyBall(collision.gameObject.GetComponent<Baseball>());
-            Baseball baseball = _myBall;
-            
-            collision.rigidbody.velocity = Vector3.zero;
-            baseball.MyDefender = this;
-            isTracking = false;
-            
-            FlyingOutRunner();
-        }
+        
+        // if (collision.gameObject.CompareTag("Ball") && _ball.MyDefender == null)
+        // {
+        //     //owner ball
+        //     SetMyBall(collision.gameObject.GetComponent<Baseball>());
+        //     Baseball baseball = _myBall;
+        //     
+        //     collision.rigidbody.velocity = Vector3.zero;
+        //     baseball.MyDefender = this;
+        //     isTracking = false;
+        //     
+        //     FlyingOutRunner();
+        // }
     }
     
     
