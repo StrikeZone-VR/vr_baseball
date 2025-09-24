@@ -38,12 +38,12 @@ public class SceneLoader : MonoBehaviour
 
     private void LoadScene(AssetReference scene)
     {
+        if (currentScene != default)
+        {
+            SceneManager.UnloadSceneAsync(currentScene);
+        }
         scene.LoadSceneAsync(LoadSceneMode.Additive, true).Completed += (AsyncOperationHandle<SceneInstance> op) => 
         {
-            if(currentScene != default)
-            {
-                SceneManager.UnloadSceneAsync(currentScene);
-            }
             currentScene = op.Result.Scene;
         };
     }

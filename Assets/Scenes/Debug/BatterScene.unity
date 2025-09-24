@@ -184,7 +184,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1921409}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -564,7 +564,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 125842860}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -669,7 +669,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 276571245}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -1181,13 +1181,17 @@ MonoBehaviour:
   foulText: {fileID: 1782404898}
   strikeText: {fileID: 1566211575}
   homerunText: {fileID: 1098228682}
+  waitText: {fileID: 759851225}
+  velocityText: {fileID: 1905530062}
   moveOriginEvent: {fileID: 11400000, guid: c0d00800716a55143911a6d8709ab8f3, type: 2}
   rotateOriginEvent: {fileID: 11400000, guid: d164c5b6bfab6604987cbe7b5a2ca409, type: 2}
+  waitPitcherEvent: {fileID: 11400000, guid: adc39812077ff9249bd346c0a7444b86, type: 2}
   sceneEventSO: {fileID: 11400000, guid: 1614b16f3ac165a4095e5f466b87b7b6, type: 2}
   hitEventSO: {fileID: 11400000, guid: d31ece9de1f0ded4e95897cfa47eaa57, type: 2}
   foulEventSO: {fileID: 11400000, guid: 92f9d4b8ff2a53147a913724e0def414, type: 2}
   strikeEventSO: {fileID: 11400000, guid: 7980c5f1d20201f48891aba9f1727e76, type: 2}
   homerunEventSO: {fileID: 11400000, guid: 2c50fa93d15b0bd469de3b987b91d592, type: 2}
+  getVelocityEventSO: {fileID: 11400000, guid: c2305552fa4ae3741985e7e98ca99b92, type: 2}
 --- !u!4 &701417565
 Transform:
   m_ObjectHideFlags: 0
@@ -1225,15 +1229,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 269362957165950876, guid: e77c829e69c78ae44b86c93845b1c9df, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 538581688704956045, guid: e77c829e69c78ae44b86c93845b1c9df, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 551516798242031273, guid: e77c829e69c78ae44b86c93845b1c9df, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 796709977514557525, guid: e77c829e69c78ae44b86c93845b1c9df, type: 3}
       propertyPath: m_IsActive
@@ -1265,7 +1269,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1564901725084278016, guid: e77c829e69c78ae44b86c93845b1c9df, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1591624651440230293, guid: e77c829e69c78ae44b86c93845b1c9df, type: 3}
       propertyPath: m_IsActive
@@ -1277,7 +1281,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1683349818771036422, guid: e77c829e69c78ae44b86c93845b1c9df, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1756538420745258084, guid: e77c829e69c78ae44b86c93845b1c9df, type: 3}
       propertyPath: m_IsActive
@@ -1353,7 +1357,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3230138565124686470, guid: e77c829e69c78ae44b86c93845b1c9df, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3337998207492915522, guid: e77c829e69c78ae44b86c93845b1c9df, type: 3}
       propertyPath: m_IsTrigger
@@ -1369,7 +1373,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3798619776665404740, guid: e77c829e69c78ae44b86c93845b1c9df, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3875215502855851638, guid: e77c829e69c78ae44b86c93845b1c9df, type: 3}
       propertyPath: m_IsTrigger
@@ -1393,11 +1397,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4239887279258212916, guid: e77c829e69c78ae44b86c93845b1c9df, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4279869234975611089, guid: e77c829e69c78ae44b86c93845b1c9df, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4517970815515133723, guid: e77c829e69c78ae44b86c93845b1c9df, type: 3}
       propertyPath: m_IsTrigger
@@ -1525,7 +1529,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5377546546913762180, guid: e77c829e69c78ae44b86c93845b1c9df, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5718842889430379354, guid: e77c829e69c78ae44b86c93845b1c9df, type: 3}
       propertyPath: m_IsActive
@@ -1533,7 +1537,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5799747112061388508, guid: e77c829e69c78ae44b86c93845b1c9df, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5893293725062818385, guid: e77c829e69c78ae44b86c93845b1c9df, type: 3}
       propertyPath: m_IsTrigger
@@ -1549,7 +1553,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6230522203995466438, guid: e77c829e69c78ae44b86c93845b1c9df, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6576572971797229173, guid: e77c829e69c78ae44b86c93845b1c9df, type: 3}
       propertyPath: m_LocalScale.x
@@ -1573,7 +1577,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7168715495955950588, guid: e77c829e69c78ae44b86c93845b1c9df, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7243435258048799045, guid: e77c829e69c78ae44b86c93845b1c9df, type: 3}
       propertyPath: m_IsTrigger
@@ -1589,7 +1593,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7659638894215965084, guid: e77c829e69c78ae44b86c93845b1c9df, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7731781576823329885, guid: e77c829e69c78ae44b86c93845b1c9df, type: 3}
       propertyPath: m_IsActive
@@ -1597,7 +1601,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7805584036358284562, guid: e77c829e69c78ae44b86c93845b1c9df, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7827348897834795618, guid: e77c829e69c78ae44b86c93845b1c9df, type: 3}
       propertyPath: m_Name
@@ -1605,7 +1609,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7910901789015475497, guid: e77c829e69c78ae44b86c93845b1c9df, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8004618884490698196, guid: e77c829e69c78ae44b86c93845b1c9df, type: 3}
       propertyPath: m_IsActive
@@ -2538,6 +2542,7 @@ MonoBehaviour:
   runSignalEvent: {fileID: 11400000, guid: 2f8b5c598135ebb49bd8c25de9d4678c, type: 2}
   backToPitcherEvent: {fileID: 0}
   inplayGameEvent: {fileID: 11400000, guid: d31ece9de1f0ded4e95897cfa47eaa57, type: 2}
+  getVelocityEventSO: {fileID: 11400000, guid: c2305552fa4ae3741985e7e98ca99b92, type: 2}
   baseThrowForce: 1
   maxThrowForce: 2
   throwSmoothingCurve:
@@ -2773,7 +2778,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1109826662}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -2908,7 +2913,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1129105961}
   m_LocalRotation: {x: 0, y: 0.9238796, z: -0, w: -0.38268325}
-  m_LocalPosition: {x: 0, y: 0, z: -0.38}
+  m_LocalPosition: {x: 0, y: 0, z: -0.496}
   m_LocalScale: {x: 0.008031, y: 0.009441, z: 0.010035}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2917,7 +2922,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 225, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: -2.4, y: 2.709}
+  m_AnchoredPosition: {x: -2.284, y: 2.709}
   m_SizeDelta: {x: 676.25, y: 545.37}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1192551906
@@ -4330,7 +4335,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1907580054}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -4435,7 +4440,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1920211874}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -4650,7 +4655,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1952410901}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -4755,7 +4760,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1959844209}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -4959,6 +4964,10 @@ PrefabInstance:
       propertyPath: swingEvent
       value: 
       objectReference: {fileID: 11400000, guid: df19554b3a210624a8009953190bf9eb, type: 2}
+    - target: {fileID: 4403092210914809006, guid: 8f79d571a0dfeb940aeb614b71be5418, type: 3}
+      propertyPath: waitPitcherEvent
+      value: 
+      objectReference: {fileID: 11400000, guid: adc39812077ff9249bd346c0a7444b86, type: 2}
     - target: {fileID: 6807072103778800797, guid: 8f79d571a0dfeb940aeb614b71be5418, type: 3}
       propertyPath: m_Name
       value: Pitcher

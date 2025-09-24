@@ -7,6 +7,7 @@ public class Pitcher : Defender
     
     [SerializeField] private StrikeZone strikeZone;
     [SerializeField] private VoidEventSO swingEvent; //from GameManager
+    [SerializeField] private IntEventSO waitPitcherEvent; //from BattingSystem
 
     //_myBall
 
@@ -51,10 +52,12 @@ public class Pitcher : Defender
     {
         base.SetMyBall(myBall);
 
+        Debug.Log("백백");
         _ball.IsThrown = false;
         _ball.IsGroundBall = false;
         _ball.IsPassing = false;
         _ball.IsZone = false;
+        _ball.IsStrike = false;
         StartCoroutine(WaitBatting());
         //transform.LookAt(_ball.transform, Vector3.up);
     }
@@ -63,6 +66,7 @@ public class Pitcher : Defender
     {
         for (int i = 5; i > 0; i--)
         {
+            waitPitcherEvent.RaiseEvent(i);
             yield return new WaitForSeconds(1.0f);
         }
 

@@ -37,7 +37,7 @@ public class Baseball : MonoBehaviour
     [SerializeField] private VoidEventSO runSignalEvent;
     [SerializeField] private VoidEventSO backToPitcherEvent; //?
     [SerializeField] private VoidEventSO inplayGameEvent; //from BattingSystem
-
+    [SerializeField] private FloatEventSO getVelocityEventSO; //from BattingSystem
 
 
     [Header("물리 설정")] public float baseThrowForce = 1f; // Inspector 덮어쓰기 방지: 1f로 더 낮춤
@@ -571,17 +571,21 @@ public class Baseball : MonoBehaviour
     /// </summary>
     private void BallVelocity()
     {
-        if (isZone) return;
+        if(IsZone)
+        {
+            return;
+        }
         if (!_rigidbody)
         {
+            Debug.Log("rigidbdoy 없음");
             return;
         }
         // if (_rigidbody.velocity.magnitude == 0)
         // {
         //     return;
         // }
-        Debug.Log(_rigidbody.velocity.magnitude  * 3.6f+ "km/h"); //수치 재미를 위해 * 4.5 할듯
-
+        getVelocityEventSO.RaiseEvent(_rigidbody.velocity.magnitude * 3.6f);
+        //Debug.Log(_rigidbody.velocity.magnitude  * 3.6f+ "km/h"); //수치 재미를 위해 * 4.5 할듯
     }
     
     

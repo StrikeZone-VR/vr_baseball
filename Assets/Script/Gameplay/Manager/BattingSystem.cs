@@ -20,11 +20,14 @@ public class BattingSystem : MonoBehaviour
     [SerializeField] private TextMeshProUGUI foulText;
     [SerializeField] private TextMeshProUGUI strikeText;
     [SerializeField] private TextMeshProUGUI homerunText;
+    [SerializeField] private TextMeshProUGUI waitText;
+    [SerializeField] private TextMeshProUGUI velocityText;
 
     [Space] 
     [Header("Events")] 
     [SerializeField] private Vector3EventSO moveOriginEvent;
     [SerializeField] private Vector3EventSO rotateOriginEvent;
+    [SerializeField] private IntEventSO waitPitcherEvent;
     [SerializeField] private SceneEventSO sceneEventSO;
 
     [Space] 
@@ -33,6 +36,7 @@ public class BattingSystem : MonoBehaviour
     [SerializeField] private VoidEventSO foulEventSO;
     [SerializeField] private VoidEventSO strikeEventSO;
     [SerializeField] private VoidEventSO homerunEventSO;
+    [SerializeField] private FloatEventSO getVelocityEventSO;
 
     private void OnEnable()
     {
@@ -40,6 +44,9 @@ public class BattingSystem : MonoBehaviour
         foulEventSO.onEventRaised += AddFoul;
         strikeEventSO.onEventRaised += AddStrike;
         homerunEventSO.onEventRaised += AddHomerun;
+
+        waitPitcherEvent.onEventRaised += WaitPitchingToText;
+        getVelocityEventSO.onEventRaised += SetVelocityToText;
     }
 
     private void OnDisable()
@@ -48,6 +55,9 @@ public class BattingSystem : MonoBehaviour
         foulEventSO.onEventRaised -= AddFoul;
         strikeEventSO.onEventRaised -= AddStrike;
         homerunEventSO.onEventRaised -= AddHomerun;
+
+        waitPitcherEvent.onEventRaised -= WaitPitchingToText;
+        getVelocityEventSO.onEventRaised -= SetVelocityToText;
     }
 
     private void Start()
@@ -61,15 +71,37 @@ public class BattingSystem : MonoBehaviour
         HomerunCount = 0;
         FoulCount = 0;
 
-        StartCoroutine(WaitPitching());
+        //StartCoroutine(BackPitching());
     }
 
-    IEnumerator WaitPitching()
+    IEnumerator BackPitching()
     {
+        Debug.Log("5초후에 돌아옴");
         yield return new WaitForSeconds(5f);
         pitcher.SetMyBall(_ball);
-        StartCoroutine(WaitPitching());
     }
+
+    private void WaitPitchingToText(int time)
+    {
+        waitText.text = time.ToString();
+        Debug.Log(time);
+        if (time == 1)
+        {
+            if(_ball.IsBatTouch)
+            {
+                Debug.Log("배트를 건드려서 일단 무시 -> 나중에 땅 건드리면 backPitching 함수 실행해야함");
+                return;
+            }
+            StartCoroutine(BackPitching());
+        }
+    }
+
+    private void SetVelocityToText(float velocity)
+    {
+        velocityText.text = "시속 : " +velocity.ToString() + "km/h";
+    }
+
+
     //all base ball script
     //paul to gamemanager
     //
@@ -78,6 +110,9 @@ public class BattingSystem : MonoBehaviour
     {
         sceneEventSO.RaiseEvent(menuScene);
     }
+
+    #region PROTERTYS
+
 
     public int HitCount
     {
@@ -138,4 +173,5 @@ public class BattingSystem : MonoBehaviour
             foulText.text = foulCount.ToString();
         }
     }
+    #endregion
 }
