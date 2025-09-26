@@ -545,7 +545,7 @@ public class Baseball : MonoBehaviour
                 paulEvent.RaiseEvent();
             }
             //in play
-            if (!isGroundBall) //groundball or flying ball
+            else if (!isGroundBall) //groundball or flying ball
             {
                 Debug.Log("안타");
                 inplayGameEvent.RaiseEvent();
