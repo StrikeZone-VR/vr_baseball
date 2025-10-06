@@ -63,7 +63,7 @@ public class BattingSystem : MonoBehaviour
 
     private void Start()
     {
-        moveOriginEvent.RaiseEvent(new Vector3(0.43f, 1.3f, -0.62f));
+        moveOriginEvent.RaiseEvent(new Vector3(0.6f, 1.3f, -0.98f));
         rotateOriginEvent.RaiseEvent(new Vector3(0, -135f, 0));
         pitcher.SetMyBall(_ball);
 

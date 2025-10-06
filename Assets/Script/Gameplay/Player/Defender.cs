@@ -94,14 +94,25 @@ public class Defender : Player
         float distance = directionXZ.magnitude;
 
         float yOffset = direction.y;
+        Vector3 launchVelocity = directionXZ.normalized;
         
+        // Debug.Log("정제되지 않은 yOffset : "+yOffset); 
+        // Debug.Log("정제되지 않은 Tan : "+Mathf.Tan(angle)); 
+        // Debug.Log("정제되지 않은 distance : "+distance); 
+        //
+        // Debug.Log("정제되지 않은 a : "+2 * (yOffset - Mathf.Tan(angle) * distance)); //진짜 음수 => a 자체가 양수임
+        // Debug.Log("정제되지 않은 분모 : "+2 * (yOffset - Mathf.Tan(angle) * distance) * Mathf.Pow(Mathf.Cos(angle), 2)); //여기가 음수가 나와야지
+        // Debug.Log("정제되지 않은 제곱 : "+(gravity * distance * distance) / 
+        //     (2 * (yOffset - Mathf.Tan(angle) * distance) * Mathf.Pow(Mathf.Cos(angle), 2)));
+        
+        // Debug.Log("정제되지 않은 제곱 : "+(gravity * distance * distance) / (2 * (yOffset - Mathf.Tan(angle) * distance) * Mathf.Pow(Mathf.Cos(angle), 2)));
 
         float velocity = Mathf.Sqrt((gravity * distance * distance) / 
                                     (2 * (yOffset - Mathf.Tan(angle) * distance) * Mathf.Pow(Mathf.Cos(angle), 2)));
         
+
         
-        Vector3 launchVelocity = directionXZ.normalized;
-        launchVelocity *= velocity * Mathf.Cos(angle);
+        launchVelocity *= velocity * Mathf.Cos(angle); //속력 추가, 단 y는 제외
         launchVelocity.y = velocity * Mathf.Sin(angle);
 
         return launchVelocity;

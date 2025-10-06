@@ -328,7 +328,8 @@ public class Baseball : MonoBehaviour
         get => isZone;
         set
         {
-            PrintBallVelocity();
+            if (value)
+                PrintBallVelocity();
             isZone = value;
         }
     }
@@ -389,8 +390,9 @@ public class Baseball : MonoBehaviour
         _rigidbody.collisionDetectionMode = CollisionDetectionMode.Continuous; // 바닥 뚫림 방지
         _rigidbody.interpolation = RigidbodyInterpolation.Interpolate; // 부드러운 움직임
 
-        Debug.Log(
-            $"⚙️ VRBaseball 초기화 완료! Kinematic: {_rigidbody.isKinematic}, ThrowOnDetach: {grabInteractable?.throwOnDetach} (그랩할 때까지 고정)");
+        
+        // Debug.Log(
+        //     $"⚙️ VRBaseball 초기화 완료! Kinematic: {_rigidbody.isKinematic}, ThrowOnDetach: {grabInteractable?.throwOnDetach} (그랩할 때까지 고정)");
 
         // 궤도선 설정
         if (trajectoryLine != null)
@@ -462,6 +464,7 @@ public class Baseball : MonoBehaviour
         // }
     }
 
+    //player
     private void ThrowBall()
     {
         if (IsThrown) return;
@@ -590,7 +593,8 @@ public class Baseball : MonoBehaviour
         // {
         //     return;
         // }
-        float velocity = _rigidbody.velocity.magnitude * 3.6f; //40
+        Vector3 v = new Vector3(_rigidbody.velocity.x, 0, _rigidbody.velocity.z);
+        float velocity = v.magnitude * 3.6f; //40
         getVelocityEventSO.RaiseEvent(velocity);
         Debug.Log(velocity+ "km/h"); //수치 재미를 위해 * 4.5 할듯
     }
@@ -613,7 +617,7 @@ public class Baseball : MonoBehaviour
     }
 
 
-private void StartCurveEffect()
+    private void StartCurveEffect()
     {
         // 단순화 - 커브 효과 비활성화
     }
