@@ -79,7 +79,7 @@ public class Pitcher : Defender
     }
     
     
-    //공 던지는 함수
+    //AI 공 던지는 함수
     public void PitchingBall()
     {
         _ball.IsThrown = true;
@@ -91,10 +91,11 @@ public class Pitcher : Defender
         int index = Random.Range(0, 25);
         Transform SZTransform = strikeZone.GetZone(index);
 
-        Vector3 velocity = CalculateLaunchVelocity(transform.position, SZTransform.position - new Vector3(0,0.9f,0), 45f);
+        //0.8 => 157km/h, 
+        //Vector3 velocity = CalculateLaunchVelocity(transform.position, SZTransform.position - new Vector3(0,0.9f,0), 0.9f);
+        Vector3 velocity = CalculateVelocity(transform.position, SZTransform.position - new Vector3(0,0.9f,0), 140f);
         
-        float x = ADDFORCE * Mathf.Sin(transform.rotation.eulerAngles.y * Mathf.PI / 180);
-        float z = ADDFORCE * Mathf.Cos(transform.rotation.eulerAngles.y * Mathf.PI / 180);
+        //Debug.Log("속력 : " + velocity.magnitude * 3.6f);
 
         //player's
         // _ball.RemovePlayer(); => throw ball => new Vector3(x, ADDFORCE * 0.2f ,z) 
@@ -107,5 +108,27 @@ public class Pitcher : Defender
         yield return new WaitForSeconds(0.5f); 
         swingEvent.RaiseEvent();
     }
+
+    public Vector3 CalculateVelocity(Vector3 start, Vector3 target, float velocity_xy)
+    {
+        velocity_xy /= 3.6f;
+        float g = Mathf.Abs(Physics.gravity.y); // 9.81 (양수)
+        Vector3 diff = target - start;
+        Vector3 dirXZ = new Vector3(diff.x, 0, diff.z).normalized;
+        float d = new Vector2(diff.x, diff.z).magnitude; // 수평 거리
+        float h = diff.y; // 높이차
+
+        // 비행 시간 계산: t = d / velocity_xy
+        float t = d / velocity_xy;
+
+        // y방향 초기 속도 Vy = (h + 0.5 * g * t^2) / t
+        float vy = (h + g * t * t) / t;
+
+        // 최종 속도 벡터
+        Vector3 velocity = dirXZ * velocity_xy;
+        velocity.y = vy;
+        return velocity;
+    }
+
 
 }
