@@ -12,19 +12,10 @@ public class StrikeZone : MonoBehaviour
     [Header("스트라이크 존 설정")]
     [SerializeField] private Transform[] zones; 
     public Vector3 zoneSize = new Vector3(0.5f, 1.0f, 0.1f);
-    public Color normalColor = Color.white;
-    public Color strikeColor = Color.green;
-    public Color ballColor = Color.red;
-
-    [Header("시각적 피드백")]
-    public float flashDuration = 0.5f;
-    public ParticleSystem strikeEffect;
-    public ParticleSystem ballEffect;
     
     private Renderer zoneRenderer;
     private Collider zoneCollider;
     private Material zoneMaterial;
-    private Color originalColor;
     private bool isFlashing = false;
 
     public System.Action<bool> OnPitchResult; // true = strike, false = ball
@@ -34,9 +25,10 @@ public class StrikeZone : MonoBehaviour
     
     void Start()
     {
-        SetupStrikeZone();
+        //SetupStrikeZone();
     }
 
+    //무슨 이상한 핑크색 타일 만듬  
     private void SetupStrikeZone()
     {
         // 태그 설정
@@ -68,31 +60,6 @@ public class StrikeZone : MonoBehaviour
         // 재질 설정
         //SetupMaterial();
     }
-
-    private void SetupMaterial()
-    {
-        if (zoneRenderer != null)
-        {
-            zoneMaterial = new Material(Shader.Find("Standard"));
-            zoneMaterial.color = normalColor;
-            zoneMaterial.SetFloat("_Mode", 3); // Transparent mode
-            zoneMaterial.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-            zoneMaterial.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-            zoneMaterial.SetInt("_ZWrite", 0);
-            zoneMaterial.DisableKeyword("_ALPHATEST_ON");
-            zoneMaterial.EnableKeyword("_ALPHABLEND_ON");
-            zoneMaterial.DisableKeyword("_ALPHAPREMULTIPLY_ON");
-            zoneMaterial.renderQueue = 3000;
-
-            Color transparentColor = normalColor;
-            transparentColor.a = 0.3f; // 반투명
-            zoneMaterial.color = transparentColor;
-            originalColor = transparentColor;
-
-            zoneRenderer.material = zoneMaterial;
-        }
-    }
-
     private Mesh CreateStrikeZoneMesh()
     {
         Mesh mesh = new Mesh();
@@ -126,102 +93,11 @@ public class StrikeZone : MonoBehaviour
         return mesh;
     }
 
-    void OnTriggerEnter(Collider other)
-    {
-        Baseball baseball = other.GetComponent<Baseball>();
-        if (baseball != null)
-        {
-            HandleStrike(baseball);
-        }
-    }
-
-    void OnCollisionEnter(Collision collision)
-    {
-        // 공이 스트라이크 존 근처에 떨어졌을 때
-        Baseball baseball = collision.gameObject.GetComponent<Baseball>();
-        if (baseball != null)
-        {
-            // 공의 위치가 스트라이크 존 범위 내인지 확인
-            Vector3 ballPosition = collision.contacts[0].point;
-            bool isInStrikeZone = IsPositionInStrikeZone(ballPosition);
-
-            if (isInStrikeZone)
-            {
-                HandleStrike(baseball);
-            }
-            else
-            {
-                HandleBall(baseball);
-            }
-        }
-    }
-
     private bool IsPositionInStrikeZone(Vector3 position)
     {
         // 스트라이크 존 범위 체크
         Bounds bounds = new Bounds(transform.position, zoneSize);
         return bounds.Contains(position);
-    }
-
-    private void HandleStrike(Baseball baseball)
-    {
-        FlashZone(strikeColor);
-
-        if (strikeEffect != null)
-            strikeEffect.Play();
-
-
-        OnPitchResult?.Invoke(true);
-    }
-
-    private void HandleBall(Baseball baseball)
-    {
-        Debug.Log("볼!");
-
-        FlashZone(ballColor);
-
-        if (ballEffect != null)
-            ballEffect.Play();
-
-        OnPitchResult?.Invoke(false);
-    }
-
-    private void FlashZone(Color flashColor)
-    {
-        if (isFlashing || zoneMaterial == null) return;
-
-        isFlashing = true;
-        StartCoroutine(FlashCoroutine(flashColor));
-    }
-
-    private System.Collections.IEnumerator FlashCoroutine(Color flashColor)
-    {
-        Color targetColor = flashColor;
-        targetColor.a = 0.7f; // 더 불투명하게
-
-        // 색상 변경
-        zoneMaterial.color = targetColor;
-
-        yield return new WaitForSeconds(flashDuration);
-
-        // 원래 색상으로 복원
-        zoneMaterial.color = originalColor;
-        isFlashing = false;
-    }
-
-    // 에디터에서 기즈모 그리기
-    void OnDrawGizmos()
-    {
-        Gizmos.color = normalColor;
-        Gizmos.matrix = transform.localToWorldMatrix;
-        Gizmos.DrawWireCube(Vector3.zero, zoneSize);
-    }
-
-    void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.yellow;
-        Gizmos.matrix = transform.localToWorldMatrix;
-        Gizmos.DrawCube(Vector3.zero, zoneSize);
     }
 
     public Transform GetZone(int index)

@@ -14,12 +14,16 @@ public class BattingSystem : MonoBehaviour
     private int foulCount = 0;
     private int strikeCount = 0;
     private int homerunCount = 0;
+    private int ballCount = 0;
 
+    [Header("UI")]
     [SerializeField] private AssetReference menuScene;
     [SerializeField] private TextMeshProUGUI hitText;
     [SerializeField] private TextMeshProUGUI foulText;
     [SerializeField] private TextMeshProUGUI strikeText;
     [SerializeField] private TextMeshProUGUI homerunText;
+    [SerializeField] private TextMeshProUGUI ballCountText;
+    
     [SerializeField] private TextMeshProUGUI waitText;
     [SerializeField] private TextMeshProUGUI velocityText;
     
@@ -32,10 +36,11 @@ public class BattingSystem : MonoBehaviour
     [SerializeField] private IntEventSO playAudioClipEvent;
 
     [Space] 
-    [Header("BallEvents")] 
+    [Header("Listening to BallEvents")] 
     [SerializeField] private VoidEventSO hitEventSO;
     [SerializeField] private VoidEventSO foulEventSO;
     [SerializeField] private VoidEventSO strikeEventSO;
+    [SerializeField] private VoidEventSO ballEventSO;
     [SerializeField] private VoidEventSO homerunEventSO;
     [SerializeField] private FloatEventSO getVelocityEventSO;
 
@@ -45,6 +50,7 @@ public class BattingSystem : MonoBehaviour
         foulEventSO.onEventRaised += AddFoul;
         strikeEventSO.onEventRaised += AddStrike;
         homerunEventSO.onEventRaised += AddHomerun;
+        ballEventSO.onEventRaised += AddBallCount;
 
         waitPitcherEvent.onEventRaised += WaitPitchingToText;
         getVelocityEventSO.onEventRaised += SetVelocityToText;
@@ -56,6 +62,7 @@ public class BattingSystem : MonoBehaviour
         foulEventSO.onEventRaised -= AddFoul;
         strikeEventSO.onEventRaised -= AddStrike;
         homerunEventSO.onEventRaised -= AddHomerun;
+        ballEventSO.onEventRaised -= AddBallCount;
 
         waitPitcherEvent.onEventRaised -= WaitPitchingToText;
         getVelocityEventSO.onEventRaised -= SetVelocityToText;
@@ -117,8 +124,6 @@ public class BattingSystem : MonoBehaviour
     }
 
     #region PROTERTYS
-
-
     public int HitCount
     {
         get { return hitCount; }
@@ -142,7 +147,6 @@ public class BattingSystem : MonoBehaviour
 
     void AddHomerun()
     {        
-
         ++HomerunCount;
     }
 
@@ -150,7 +154,22 @@ public class BattingSystem : MonoBehaviour
     {        
         ++FoulCount;
     }
+    void AddBallCount()
+    {        
+        ++BallCount;
+    }
 
+    
+    public int BallCount
+    {
+        get { return ballCount; }
+        set
+        {
+            ballCount = value;
+            ballCountText.text = ballCount.ToString();
+        }
+    }
+    
     public int StrikeCount
     {
         get { return strikeCount; }
