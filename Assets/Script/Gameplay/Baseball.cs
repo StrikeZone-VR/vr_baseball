@@ -129,6 +129,12 @@ public class Baseball : MonoBehaviour
 
     private void OnTriggerEnter(Collider collider)
     {
+        if (collider.gameObject.CompareTag("VelocityZone"))
+        {
+            PrintBallVelocity();
+        }
+
+    
         //Strike Zone
         if (collider.gameObject.CompareTag("StrikeZone") && !IsZone)
         {
@@ -328,8 +334,6 @@ public class Baseball : MonoBehaviour
         get => isZone;
         set
         {
-            if (value)
-                PrintBallVelocity();
             isZone = value;
         }
     }

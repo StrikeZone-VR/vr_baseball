@@ -15,6 +15,7 @@ TagManager:
   - Homerun
   - Paul
   - BatterPos
+  - VelocityZone
   layers:
   - Default
   - TransparentFX

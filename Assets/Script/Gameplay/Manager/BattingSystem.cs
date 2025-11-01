@@ -42,7 +42,7 @@ public class BattingSystem : MonoBehaviour
     [SerializeField] private VoidEventSO strikeEventSO;
     [SerializeField] private VoidEventSO ballEventSO;
     [SerializeField] private VoidEventSO homerunEventSO;
-    [SerializeField] private FloatEventSO getVelocityEventSO;
+    [SerializeField] private FloatEventSO getVelocityEventSO; //ball?
 
     private void OnEnable()
     {
