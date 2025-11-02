@@ -491,8 +491,6 @@ public class Baseball : MonoBehaviour
         // **완전 무시하고 강제 방향!**
         Vector3 forceDirection = (targetPosition - transform.position).normalized;
 
-        // **속도 설정 - 느린 투구 속도로 조정**
-
         OnBallPhysics();
 
         // **정확한 직선 투구 - 스트라이크존 (0, 0.605, -14.06) 조준**
@@ -506,7 +504,6 @@ public class Baseball : MonoBehaviour
 
         // **중력을 완전히 무시하고 직선으로!**
         _rigidbody.useGravity = false; // 중력 완전 제거
-
         _rigidbody.velocity = velocity;
 
         Debug.Log($"🎯 중력 제거 직선 투구! 거리: {distance:F2}m, 속도: {adjustedSpeed:F1}m/s");
@@ -598,7 +595,7 @@ public class Baseball : MonoBehaviour
         //     return;
         // }
         Vector3 v = new Vector3(_rigidbody.velocity.x, 0, _rigidbody.velocity.z);
-        float velocity = v.magnitude * 3.6f; //40
+        float velocity = v.magnitude * 3.6f; 
         getVelocityEventSO.RaiseEvent(velocity);
         Debug.Log(velocity+ "km/h"); //수치 재미를 위해 * 4.5 할듯
     }

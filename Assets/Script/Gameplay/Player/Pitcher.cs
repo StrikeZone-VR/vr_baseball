@@ -91,9 +91,12 @@ public class Pitcher : Defender
         int index = Random.Range(0, 25);
         Transform SZTransform = strikeZone.GetZone(index);
 
-        //0.8 => 157km/h, 
         //Vector3 velocity = CalculateLaunchVelocity(transform.position, SZTransform.position - new Vector3(0,0.9f,0), 0.9f);
-        Vector3 velocity = CalculateVelocity(transform.position, SZTransform.position - new Vector3(0,0.9f,0), 140f);
+        Vector3 velocity = CalculateVelocity(
+            transform.position,
+            SZTransform.position - new Vector3(0,0.9f,0),
+            100f
+        );
         
         //Debug.Log("속력 : " + velocity.magnitude * 3.6f);
 
