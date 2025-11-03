@@ -78,13 +78,27 @@ public class Baseball : MonoBehaviour
 
         InitializeComponents();
         UpdatePitchData();
+
     }
 
 
     void FixedUpdate()
     {
-    }
+        if (_rigidbody != null)
+        {
+            float dis = _rigidbody.velocity.magnitude * Time.deltaTime;
+            Ray ray = new Ray(this.transform.position, _rigidbody.velocity);
 
+            if (Physics.Raycast(ray.origin, ray.direction, out RaycastHit rayHit, dis))
+            {
+                //Debug.DrawRay(ray.origin, ray.direction, Color.red, 0.5f);
+                if(rayHit.transform.CompareTag("StrikeZone"))
+                {
+                    IsStrike = true;
+                }
+            }
+        }
+    }
     private void OnTriggerEnter(Collider collider)
     {
         if (collider.gameObject.CompareTag("VelocityZone"))
@@ -92,7 +106,6 @@ public class Baseball : MonoBehaviour
             PrintBallVelocity();
         }
 
-        Debug.Log("건드린 물체 : " + collider.gameObject.name + " - " + collider.gameObject.tag);
         //into Strike Zone
         if (collider.gameObject.CompareTag("StrikeZone"))
         {
@@ -101,7 +114,8 @@ public class Baseball : MonoBehaviour
             //Debug.Log("스트라이크 : " + IsStrike);
             //addStrikeEvent.RaiseEvent();
         }
-
+        //Debug.Log("건드린 물체 : " + collider.gameObject.name + " - " + collider.gameObject.tag);
+        //Debug.Log("모드 : " + _rigidbody.collisionDetectionMode);
         //paul
         if (collider.CompareTag("Paul"))
         {
@@ -110,8 +124,8 @@ public class Baseball : MonoBehaviour
             else
             {
                 //PitchResult(); -> 이거 왜 넣었더라
-                if(backToPitcherEvent !=null)
-                    backToPitcherEvent.RaiseEvent();
+                //if(backToPitcherEvent !=null)
+                //    backToPitcherEvent.RaiseEvent();
             }
         }
 
@@ -126,6 +140,7 @@ public class Baseball : MonoBehaviour
 
     private void OnTriggerExit(Collider collider)
     {
+
         if (collider.gameObject.CompareTag("BallZone") && !IsZone)
         {
             IsZone = true;
@@ -303,9 +318,7 @@ public class Baseball : MonoBehaviour
         get => isStrike;
         set
         {
-            Debug.Log("스트라이크 : " + value);
             isStrike = value;
-
         }
     }
 
@@ -326,10 +339,9 @@ public class Baseball : MonoBehaviour
         grabInteractable.selectEntered.AddListener(OnGrab); // **잡을 때 이벤트 추가!**
 
         // **충돌 감지 강화 설정**
-        _rigidbody.collisionDetectionMode = CollisionDetectionMode.Continuous; // 바닥 뚫림 방지
+        //_rigidbody.collisionDetectionMode = CollisionDetectionMode.Continuous; // 바닥 뚫림 방지
         _rigidbody.interpolation = RigidbodyInterpolation.Interpolate; // 부드러운 움직임
-
-        // 초기 위치 설정
+        _rigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic; // 충돌 감지 개선
     }
 
     //구종
@@ -528,18 +540,22 @@ public class Baseball : MonoBehaviour
             playAudioClipEvent.RaiseEvent(3);
             Debug.Log("스트라이크1");
             addStrikeEvent.RaiseEvent();
+            //backToPitcherEvent.RaiseEvent();
         }
         else if(IsStrike) //스윙 안했는데 스트라이크존에 들어간 경우
         {
             playAudioClipEvent.RaiseEvent(3);
             Debug.Log("스트라이크2");
             addStrikeEvent.RaiseEvent();
+            //backToPitcherEvent.RaiseEvent();
         }
         else //스트라이크 존에도 안 닿았고 스윙도 안했다면
         {
             Debug.Log("볼");
             addBallCountEvent.RaiseEvent();
+            //backToPitcherEvent.RaiseEvent();
         }
+        IsThrown = false;
     }
 
     /// <summary>

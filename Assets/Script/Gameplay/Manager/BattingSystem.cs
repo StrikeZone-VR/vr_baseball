@@ -42,6 +42,8 @@ public class BattingSystem : MonoBehaviour
     [SerializeField] private VoidEventSO strikeEventSO;
     [SerializeField] private VoidEventSO ballEventSO;
     [SerializeField] private VoidEventSO homerunEventSO;
+    [SerializeField] private VoidEventSO backToPitcherEvent; //to baseball
+
     [SerializeField] private FloatEventSO getVelocityEventSO; //ball?
 
     private void OnEnable()
@@ -51,6 +53,7 @@ public class BattingSystem : MonoBehaviour
         strikeEventSO.onEventRaised += AddStrike;
         homerunEventSO.onEventRaised += AddHomerun;
         ballEventSO.onEventRaised += AddBallCount;
+        backToPitcherEvent.onEventRaised += BackBallToPitcher;
 
         waitPitcherEvent.onEventRaised += WaitPitchingToText;
         getVelocityEventSO.onEventRaised += SetVelocityToText;
@@ -63,6 +66,8 @@ public class BattingSystem : MonoBehaviour
         strikeEventSO.onEventRaised -= AddStrike;
         homerunEventSO.onEventRaised -= AddHomerun;
         ballEventSO.onEventRaised -= AddBallCount;
+        backToPitcherEvent.onEventRaised -= BackBallToPitcher;
+
 
         waitPitcherEvent.onEventRaised -= WaitPitchingToText;
         getVelocityEventSO.onEventRaised -= SetVelocityToText;
@@ -82,9 +87,14 @@ public class BattingSystem : MonoBehaviour
         //StartCoroutine(BackPitching());
     }
 
-    IEnumerator BackPitching()
+    private void BackBallToPitcher()
     {
-        Debug.Log("7초후에 돌아옴");
+        StartCoroutine(WaitingBackToPitcher());
+    }
+    IEnumerator WaitingBackToPitcher()
+    {
+        //StartCoroutine(BackPitching());
+
         yield return new WaitForSeconds(7f);
         pitcher.SetMyBall(_ball);
     }
@@ -95,14 +105,6 @@ public class BattingSystem : MonoBehaviour
         if (time == 3)
         {
             playAudioClipEvent.RaiseEvent(2);
-        }
-        if (time == 1)
-        {
-            // if(_ball.IsBatTouch)
-            // {
-            //     return;
-            // }
-            StartCoroutine(BackPitching());
         }
     }
 
@@ -138,25 +140,30 @@ public class BattingSystem : MonoBehaviour
     void AddHit()
     {
         ++HitCount;
+        BackBallToPitcher();
     }
 
     void AddStrike()
     {
         ++StrikeCount;
+        BackBallToPitcher();
     }
 
     void AddHomerun()
-    {        
+    {
         ++HomerunCount;
+        BackBallToPitcher();
     }
 
     void AddFoul()
     {        
         ++FoulCount;
+        BackBallToPitcher();
     }
     void AddBallCount()
     {        
         ++BallCount;
+        BackBallToPitcher();
     }
 
     

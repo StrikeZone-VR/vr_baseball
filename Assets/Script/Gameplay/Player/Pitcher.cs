@@ -53,12 +53,13 @@ public class Pitcher : Defender
     {
         base.SetMyBall(myBall);
 
-        Debug.Log("백백");
         _ball.IsThrown = false;
         _ball.IsGroundBall = false;
         _ball.IsPassing = false;
         _ball.IsZone = false;
         _ball.IsStrike = false;
+
+        Debug.Log("back");
 
         if (coroutine == null)
         {
@@ -87,8 +88,8 @@ public class Pitcher : Defender
         _ball.IsBatTouch = false;
 
         //random value 0 ~ 24
-        int index = Random.Range(0, 9);
-        
+        int index = Random.Range(0, 25);
+        //index = 4; //한 가운데
 
         Transform SZTransform = strikeZone.GetZone(index);
 
