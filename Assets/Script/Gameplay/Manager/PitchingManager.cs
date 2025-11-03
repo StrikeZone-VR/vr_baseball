@@ -82,9 +82,6 @@ public class PitchingManager : MonoBehaviour
         ball.RemovePlayer();
         ball.IsBatTouch = false;
         ball.IsGroundBall = false;
-        
-        // **한 프레임 뒤에 물리 설정 - VRBaseball Start() 후에 실행되도록!**
-        //StartCoroutine(SetupBallAfterFrame());
 
         // XR Grab Interactable 강제 활성화 (새 공이 잡힐 수 있도록)
         ball.OffBallPhysics();
@@ -97,36 +94,14 @@ public class PitchingManager : MonoBehaviour
 
         // init ball
         Vector3 finalPosition = ballResetPosition.position;
-        ball.ResetBall(finalPosition);
+        transform.position = finalPosition;
     }
-    //
-    private void SetupExistingBall()
-    {
-        if (ball == null) return;
-
-        ball.OffBallPhysics();
-
-        // XR Grab Interactable 강제 활성화 및 설정
-        XRGrabInteractable grabComponent = ball.GetComponent<XRGrabInteractable>();
-        if (grabComponent != null)
-        {
-            grabComponent.enabled = true;
-            // 첫 번째 공은 제대로 동작하므로 기본 설정 유지
-            // 씬에 있는 초기 공은 throwOnDetach가 올바르게 설정되어 있을 것임
-        }
-
-
-        // UI에 공 등록
-        if (pitchSelectionUI != null)
-            pitchSelectionUI.RegisterBaseball(ball);
-    }
-
+    
     private void OnPitchTypeSelected(PitchType pitchType)
     {
         if (ball != null)
             ball.SetPitchType(pitchType);
     }
-
 
     private void ResetCount()
     {

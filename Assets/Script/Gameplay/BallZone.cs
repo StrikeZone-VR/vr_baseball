@@ -78,7 +78,7 @@ public class BallZone : MonoBehaviour
         }
 
         // VRBaseball에 결과 전달
-        baseball.OnBallLandedInZone(false, gameObject.name); // false = 볼
+        //baseball.OnBallLandedInZone(false, gameObject.name); // false = 볼
     }
 
     // ==============================================

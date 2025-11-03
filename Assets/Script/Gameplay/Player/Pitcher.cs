@@ -92,16 +92,15 @@ public class Pitcher : Defender
         Transform SZTransform = strikeZone.GetZone(index);
 
         //Vector3 velocity = CalculateLaunchVelocity(transform.position, SZTransform.position - new Vector3(0,0.9f,0), 0.9f);
-        Vector3 velocity = CalculateVelocity(
-            transform.position,
-            SZTransform.position - new Vector3(0,0.9f,0),
-            100f
-        );
+        // Vector3 velocity = CalculateVelocity(
+        //     transform.position,
+        //     SZTransform.position - new Vector3(0,0.9f,0),
+        //     140f
+        // );
+        Vector3 velocity = CalculateSimpleVelocity(, 40f);
         
         //Debug.Log("속력 : " + velocity.magnitude * 3.6f);
 
-        //player's
-        // _ball.RemovePlayer(); => throw ball => new Vector3(x, ADDFORCE * 0.2f ,z) 
         _ball.ThrowBall(velocity);
         StartCoroutine(Swing());
     }
@@ -131,6 +130,15 @@ public class Pitcher : Defender
         Vector3 velocity = dirXZ * velocity_xy;
         velocity.y = vy;
         return velocity;
+    }
+    public Vector3 CalculateSimpleVelocity(Vector3 start, Vector3 target, float velocityXZ)
+    {
+        velocityXZ /= 3.6f; //시속 평준화
+        float g = Mathf.Abs(Physics.gravity.y); // 9.81 (양수)
+        Vector3 diff = target - start;
+
+        Vector3 result = target - start;
+        return result;
     }
 
 
