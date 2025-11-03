@@ -6,9 +6,11 @@ public class Pitcher : Defender
     private const float ADDFORCE = 20.0f;
     private Coroutine coroutine;
     [SerializeField] private StrikeZone strikeZone;
+
     [SerializeField] private VoidEventSO swingEvent; //from GameManager
     [SerializeField] private IntEventSO waitPitcherEvent; //from BattingSystem
 
+    [SerializeField] private float velocityXZ = 40;
     //_myBall
 
 
@@ -19,14 +21,13 @@ public class Pitcher : Defender
         //keeping
         if (Input.GetKeyDown(KeyCode.Z))
         {
-            if (!_ball.MyDefender)
-            {
-                SetMyBall(_ball);
-                _ball.IsGroundBall = false;
-                _ball.IsPassing = false;
-            }
+            VelocityXZ -= 20;
         }
-        
+        if (Input.GetKeyDown(KeyCode.B))
+        {
+            VelocityXZ += 20;
+        }
+
         if (dis <= 1.0f)
         {
             isInPosition = true;
@@ -38,7 +39,7 @@ public class Pitcher : Defender
 
         base.Update();
     }
-    
+
     //protected override void Update()
     //{
     //    base.Update();
@@ -46,7 +47,7 @@ public class Pitcher : Defender
     //        PitchBall();
     //}
 
-    
+
     //이걸로 공 설정해라
     public override void SetMyBall(Baseball myBall)
     {
@@ -58,14 +59,14 @@ public class Pitcher : Defender
         _ball.IsPassing = false;
         _ball.IsZone = false;
         _ball.IsStrike = false;
-        
+
         if (coroutine == null)
         {
             coroutine = StartCoroutine(WaitBatting());
         }
         //transform.LookAt(_ball.transform, Vector3.up);
     }
-    
+
     IEnumerator WaitBatting()
     {
         for (int i = 5; i > 0; i--)
@@ -77,18 +78,18 @@ public class Pitcher : Defender
         coroutine = null;
         PitchingBall();
     }
-    
-    
+
+
     //AI 공 던지는 함수
     public void PitchingBall()
     {
         _ball.IsThrown = true;
         _ball.IsBatTouch = false;
-        //Debug.Log("Throwing ball" + transform.rotation.eulerAngles.x + ", " + transform.rotation.eulerAngles.z);
-        //transform.rotation.eulerAngles.x, ADDFORCE, transform.rotation.eulerAngles.z => you should be setting cos sin
-        
+
         //random value 0 ~ 24
-        int index = Random.Range(0, 25);
+        int index = Random.Range(0, 9);
+        
+
         Transform SZTransform = strikeZone.GetZone(index);
 
         //Vector3 velocity = CalculateLaunchVelocity(transform.position, SZTransform.position - new Vector3(0,0.9f,0), 0.9f);
@@ -97,8 +98,12 @@ public class Pitcher : Defender
         //     SZTransform.position - new Vector3(0,0.9f,0),
         //     140f
         // );
-        Vector3 velocity = CalculateSimpleVelocity(, 40f);
-        
+
+        //Debug.Log("투수 : " + _ball.transform.position);
+        Debug.Log("스트라이크 존 " + index + " : "+ SZTransform.position);
+
+        Vector3 velocity = CalculateSimpleVelocity(_ball.transform.position, SZTransform.position, velocityXZ);
+
         //Debug.Log("속력 : " + velocity.magnitude * 3.6f);
 
         _ball.ThrowBall(velocity);
@@ -107,7 +112,7 @@ public class Pitcher : Defender
 
     IEnumerator Swing()
     {
-        yield return new WaitForSeconds(0.5f); 
+        yield return new WaitForSeconds(0.5f);
         swingEvent.RaiseEvent();
     }
 
@@ -135,10 +140,25 @@ public class Pitcher : Defender
     {
         velocityXZ /= 3.6f; //시속 평준화
         float g = Mathf.Abs(Physics.gravity.y); // 9.81 (양수)
-        Vector3 diff = target - start;
+        Vector3 dis = target - start;
 
-        Vector3 result = target - start;
+        float mytime = dis.magnitude / velocityXZ;
+
+        float velocityY = mytime / 2 * g;
+        Vector3 velocityXZ_normal = dis.normalized;
+        velocityXZ_normal *= velocityXZ;
+
+        Vector3 result = velocityXZ_normal + new Vector3(0, velocityY, 0);
         return result;
+    }
+
+    public float VelocityXZ
+    {
+        set {
+            velocityXZ = value;
+            Debug.Log("속력 설정 : " + velocityXZ);
+        }
+        get { return velocityXZ; }
     }
 
 

@@ -9,6 +9,7 @@ public class Bat : MonoBehaviour
     private Vector3 startPos = Vector3.zero;
 
     private float currentSwingSpeed;
+    private bool isSwing = false;
 
     private void Start()
     {
@@ -19,7 +20,7 @@ public class Bat : MonoBehaviour
     {
         float dis = Vector3.Distance(topBatPos.position, startPos);
         currentSwingSpeed = dis / Time.deltaTime;
-//        Debug.Log(IsSwing());
+        // Debug.Log(IsSwing());
         // if (currentSwingSpeed >= 0.01f)
         // {
         //     Debug.Log(currentSwingSpeed+ " distance :" + dis);
@@ -27,13 +28,19 @@ public class Bat : MonoBehaviour
         startPos = topBatPos.position;
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        isSwing = true;
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        isSwing = false;
+    }
+
     public bool IsSwing()
     {
-        if (transform.localEulerAngles.y <= 100)
-        {
-            return true;
-        }
-        return false;
+        return isSwing;
     }
     public float GetSwingSpeed()
     {

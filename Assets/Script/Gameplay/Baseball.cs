@@ -92,11 +92,13 @@ public class Baseball : MonoBehaviour
             PrintBallVelocity();
         }
 
-        //Strike Zone
-        if (collider.gameObject.CompareTag("StrikeZone") && !IsZone)
+        Debug.Log("건드린 물체 : " + collider.gameObject.name + " - " + collider.gameObject.tag);
+        //into Strike Zone
+        if (collider.gameObject.CompareTag("StrikeZone"))
         {
             IsZone = true;
             IsStrike = true;
+            //Debug.Log("스트라이크 : " + IsStrike);
             //addStrikeEvent.RaiseEvent();
         }
 
@@ -107,7 +109,7 @@ public class Baseball : MonoBehaviour
                 paulEvent.RaiseEvent();
             else
             {
-                PitchResult();
+                //PitchResult(); -> 이거 왜 넣었더라
                 if(backToPitcherEvent !=null)
                     backToPitcherEvent.RaiseEvent();
             }
@@ -136,6 +138,7 @@ public class Baseball : MonoBehaviour
     {
         if (collision.collider.CompareTag("Ground") || collision.collider.CompareTag("Base"))
         {
+            //공 잡으면 계속 땅을 터치함. => 왜 그런지는 모름
             if (myDefender == null)
             {
                 PitchResult();
@@ -298,7 +301,12 @@ public class Baseball : MonoBehaviour
     public bool IsStrike
     {
         get => isStrike;
-        set => isStrike = value;
+        set
+        {
+            Debug.Log("스트라이크 : " + value);
+            isStrike = value;
+
+        }
     }
 
     #endregion
@@ -436,7 +444,7 @@ public class Baseball : MonoBehaviour
     {
         if (IsThrown) return;
 
-        isStrike = false;
+        IsStrike = false;
         IsThrown = true;
         isBatTouch = false;
         IsZone = false;
@@ -494,7 +502,6 @@ public class Baseball : MonoBehaviour
         //투수가 공을 안 던진경우
         if (!IsThrown)
         {
-            // Debug.Log("엄엄");
             return;
         }
 
@@ -522,7 +529,7 @@ public class Baseball : MonoBehaviour
             Debug.Log("스트라이크1");
             addStrikeEvent.RaiseEvent();
         }
-        else if(isStrike) //스윙 안했는데 스트라이크인 경우
+        else if(IsStrike) //스윙 안했는데 스트라이크존에 들어간 경우
         {
             playAudioClipEvent.RaiseEvent(3);
             Debug.Log("스트라이크2");

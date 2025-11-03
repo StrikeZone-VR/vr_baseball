@@ -1253,7 +1253,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 10a046e1a32a5a44c95213f4b88f9c8f, type: 2}
+  - {fileID: 2100000, guid: 303ab11c82075b94fa76df94cc47e161, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1939,7 +1939,6 @@ GameObject:
   - component: {fileID: 1517640321287600458}
   - component: {fileID: 5523338588581237971}
   - component: {fileID: 6493766561699655208}
-  - component: {fileID: 3895436846224663602}
   m_Layer: 0
   m_Name: MainZoneVisual
   m_TagString: Untagged
@@ -2012,27 +2011,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &3895436846224663602
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7790912212022912492}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &7827348897834795618
 GameObject:
   m_ObjectHideFlags: 0
@@ -2043,7 +2021,6 @@ GameObject:
   m_Component:
   - component: {fileID: 9068506256526734597}
   - component: {fileID: 4702459728456321645}
-  - component: {fileID: 7359238308825629532}
   m_Layer: 0
   m_Name: StrikeZone
   m_TagString: Untagged
@@ -2108,36 +2085,7 @@ MonoBehaviour:
   - {fileID: 4557671340195529087}
   - {fileID: 3832504089980360284}
   zoneSize: {x: 0.5, y: 1, z: 0.1}
-  normalColor: {r: 1, g: 1, b: 1, a: 1}
-  strikeColor: {r: 0, g: 1, b: 0, a: 1}
-  ballColor: {r: 1, g: 0, b: 0, a: 1}
-  flashDuration: 0.5
-  strikeEffect: {fileID: 0}
-  ballEffect: {fileID: 0}
-  strikeSound: {fileID: 8300000, guid: 2dd5ded3493241240821683dc83f70a2, type: 3}
-  ballSound: {fileID: 8300000, guid: 93eb1ac1497333e49921eb4930664a16, type: 3}
   strikeEvent: {fileID: 0}
---- !u!65 &7359238308825629532
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7827348897834795618}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.5, y: 1, z: 0.1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &8004618884490698196
 GameObject:
   m_ObjectHideFlags: 0
