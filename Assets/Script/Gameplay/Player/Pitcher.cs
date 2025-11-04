@@ -13,20 +13,12 @@ public class Pitcher : Defender
     [SerializeField] private float velocityXZ = 40;
     //_myBall
 
+    const int WAIT_TIME = 2; //5.0f
 
     protected override void Update()
     {
         float dis = Vector3.Distance(defenderTransform.position, transform.position);
 
-        //keeping
-        if (Input.GetKeyDown(KeyCode.Z))
-        {
-            VelocityXZ -= 20;
-        }
-        if (Input.GetKeyDown(KeyCode.B))
-        {
-            VelocityXZ += 20;
-        }
 
         if (dis <= 1.0f)
         {
@@ -59,7 +51,7 @@ public class Pitcher : Defender
         _ball.IsZone = false;
         _ball.IsStrike = false;
 
-        Debug.Log("back");
+        //Debug.Log("back");
 
         if (coroutine == null)
         {
@@ -70,7 +62,8 @@ public class Pitcher : Defender
 
     IEnumerator WaitBatting()
     {
-        for (int i = 5; i > 0; i--)
+        //5임
+        for (int i = WAIT_TIME; i > 0; i--)
         {
             waitPitcherEvent.RaiseEvent(i);
             yield return new WaitForSeconds(1.0f);
@@ -89,7 +82,7 @@ public class Pitcher : Defender
 
         //random value 0 ~ 24
         int index = Random.Range(0, 25);
-        //index = 4; //한 가운데
+        //index = 22; //한 가운데
 
         Transform SZTransform = strikeZone.GetZone(index);
 
@@ -103,7 +96,7 @@ public class Pitcher : Defender
         //Debug.Log("투수 : " + _ball.transform.position);
         Debug.Log("스트라이크 존 " + index + " : "+ SZTransform.position);
 
-        Vector3 velocity = CalculateSimpleVelocity(_ball.transform.position, SZTransform.position, velocityXZ);
+        Vector3 velocity = CalculateCurveVelocity(_ball.transform.position, SZTransform.position, velocityXZ);
 
         //Debug.Log("속력 : " + velocity.magnitude * 3.6f);
 
@@ -152,10 +145,30 @@ public class Pitcher : Defender
         Vector3 result = velocityXZ_normal + new Vector3(0, velocityY, 0);
         return result;
     }
+    public Vector3 CalculateCurveVelocity(Vector3 start, Vector3 target, float velocityXZ)
+    {
+        velocityXZ /= 3.6f; //시속 평준화
+        float g = Mathf.Abs(Physics.gravity.y); // 9.81 (양수)
+        Vector3 dis = target - start;
+
+        float mytime = dis.magnitude / velocityXZ;
+
+        float velocityY = mytime / 2 * g;
+        Vector3 velocityXZ_normal = dis.normalized;
+        velocityXZ_normal *= velocityXZ;
+
+        Vector3 result = velocityXZ_normal + new Vector3(0, velocityY, 0);
+        return result;
+    }
 
     public float VelocityXZ
     {
-        set {
+        set
+        {
+            if (value <= 0 || 200 <= value)
+            {
+                return;
+            }
             velocityXZ = value;
             Debug.Log("속력 설정 : " + velocityXZ);
         }

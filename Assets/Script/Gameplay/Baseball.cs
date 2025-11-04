@@ -9,6 +9,13 @@ using Random = UnityEngine.Random;
 [RequireComponent(typeof(Rigidbody), typeof(XRGrabInteractable))]
 public class Baseball : MonoBehaviour
 {
+
+    [Header("Physical Parameters")]
+    public float ballMass = 0.145f; // kg
+    public float ballRadius = 0.037f; // m
+    public float airDensity = 1.225f; // kg/m³
+
+
     [SerializeField] private Defender myDefender; //handling player
     private Rigidbody _rigidbody;
     private XRGrabInteractable grabInteractable;
@@ -84,6 +91,7 @@ public class Baseball : MonoBehaviour
 
     void FixedUpdate()
     {
+        
         if (_rigidbody != null)
         {
             float dis = _rigidbody.velocity.magnitude * Time.deltaTime;
@@ -97,8 +105,44 @@ public class Baseball : MonoBehaviour
                     IsStrike = true;
                 }
             }
+
+            ApplyMagnusForce();
+            ApplyDrag();
+            //_rigidbody.velocity += Physics.gravity * Time.deltaTime; //커브
         }
     }
+
+    void ApplyMagnusForce()
+    {
+        Vector3 v = _rigidbody.velocity;
+        Vector3 omega = _rigidbody.angularVelocity;
+
+        float speed = v.magnitude;
+        float spinRate = omega.magnitude;
+
+        if(speed == 0 || spinRate == 0)
+        {
+            return;
+        }
+        // 양력 계수 (실험적 근사)
+        float CL = 1.0f / (2.32f + 0.4f / (spinRate * ballRadius / speed));
+
+        // 마그누스 힘
+        float magnusMagnitude = 0.5f * CL * airDensity * Mathf.PI * ballRadius * ballRadius * speed * speed;
+        Vector3 magnusDirection = Vector3.Cross(omega.normalized, v.normalized);
+
+        _rigidbody.AddForce(magnusDirection * magnusMagnitude);
+    }
+
+    void ApplyDrag()
+    {
+        float dragCoefficient = 0.4f;
+        float speed = _rigidbody.velocity.magnitude;
+        float dragMagnitude = 0.5f * dragCoefficient * airDensity * Mathf.PI * ballRadius * ballRadius * speed * speed;
+
+        _rigidbody.AddForce(-_rigidbody.velocity.normalized * dragMagnitude);
+    }
+
     private void OnTriggerEnter(Collider collider)
     {
         if (collider.gameObject.CompareTag("VelocityZone"))
