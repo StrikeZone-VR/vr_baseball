@@ -27,6 +27,6 @@ VR 컨트롤러 기반 야구 시뮬레이션 게임입니다.
 ![bandicam 2025-11-14 14-04-26-322](https://github.com/user-attachments/assets/c843d020-e9be-4904-9b7b-d8df1b67220b)
 - 타격
 
-<img width="905" height="398" alt="image" src="https://github.com/user-attachments/assets/9875f4a7-16ac-4562-8afb-0a47ed262a90" />
+<img width="905" height="398" alt="image" src="https://github.com/user-attachments/assets/9875f4a7-16ac-4562-8afb-0a47ed262a90" /><br>
 - 구속 설정 UI
 - 타격 지표 스텟 확인하는 UI
