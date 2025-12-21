@@ -221,6 +221,7 @@ public class Baseball : MonoBehaviour
             {
                 return;
             }
+            
             playAudioClipEvent.RaiseEvent(1); //hit
             
             //Debug.Log("인 플레이 게임");
@@ -242,7 +243,6 @@ public class Baseball : MonoBehaviour
                 float speed = bat.GetSwingSpeed();
                 bat.Vibrate();
                 
-                Debug.Log("스피드 :" + speed);
 
                 //4
                 this._rigidbody.AddForce(hitDirection * speed * 4f, ForceMode.Impulse);

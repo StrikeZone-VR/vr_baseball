@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit;
 
 public class Bat : MonoBehaviour
 {
@@ -51,6 +52,10 @@ public class Bat : MonoBehaviour
 
     public void Vibrate()
     {
-        //_farNearGrab.leftHandGrip
+        List<XRBaseController> controllers = _farNearGrab.GetController();
+        for (int i = 0; i < controllers.Count; i++)
+        {
+            controllers[i].SendHapticImpulse(0.7f, 0.1f);
+        }
     }
 }
