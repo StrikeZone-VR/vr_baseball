@@ -236,9 +236,12 @@ public class Baseball : MonoBehaviour
                 //계산이 잘못된 듯?
                 // 충돌 방향 계산 (배트에서 공으로의 방향)
                 Vector3 hitDirection = (collision.GetContact(0).point - transform.position).normalized;
-
-                float speed = collision.transform.GetComponent<Bat>().GetSwingSpeed();
-                // Debug.Log("방향 :" + hitDirection);
+                Bat bat = collision.transform.GetComponent<Bat>();
+                
+                //배트 터치
+                float speed = bat.GetSwingSpeed();
+                bat.Vibrate();
+                
                 Debug.Log("스피드 :" + speed);
 
                 //4

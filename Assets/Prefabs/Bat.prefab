@@ -326,7 +326,7 @@ GameObject:
   - component: {fileID: 5227407209185059354}
   - component: {fileID: 3571394563336093665}
   m_Layer: 0
-  m_Name: Baseball_Bat_10
+  m_Name: Bat
   m_TagString: Bat
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -8,12 +8,14 @@ public class Bat : MonoBehaviour
     [SerializeField] private Transform topBatPos;
     private Vector3 startPos = Vector3.zero;
 
+    private FarNearGrab _farNearGrab;
+
     private float currentSwingSpeed;
     private bool isSwing = false;
 
     private void Start()
     {
-        Rigidbody rb = GetComponent<Rigidbody>();
+        _farNearGrab = GetComponent<FarNearGrab>();
     }
 
     void Update()
@@ -45,5 +47,10 @@ public class Bat : MonoBehaviour
     public float GetSwingSpeed()
     {
         return currentSwingSpeed;
+    }
+
+    public void Vibrate()
+    {
+        //_farNearGrab.leftHandGrip
     }
 }

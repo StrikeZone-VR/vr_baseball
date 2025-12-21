@@ -7,11 +7,9 @@ using UnityEngine.XR.Interaction.Toolkit;
 //IFarAttachProvider
 public class FarNearGrab : XRGrabInteractable
 {
-    
     [Header("grip settings")]
     public Transform leftHandGrip;   // 왼손용 그립
     public Transform rightHandGrip;  // 오른손용 그립
-    
     
     protected override void OnHoverEntering(HoverEnterEventArgs args)
     {
