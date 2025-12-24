@@ -9,7 +9,6 @@ using Random = UnityEngine.Random;
 [RequireComponent(typeof(Rigidbody), typeof(XRGrabInteractable))]
 public class Baseball : MonoBehaviour
 {
-
     [Header("Physical Parameters")]
     public float ballMass = 0.145f; // kg
     public float ballRadius = 0.037f; // m
@@ -71,10 +70,13 @@ public class Baseball : MonoBehaviour
 
     // 사용하지 않는 변수들 제거: isCurveActive, throwTime, curveTimer
     private Vector3 targetPosition; // 실제 목표 위치
+    private Vector3 velocityXY; // 실제 목표 위치
 
+    public readonly float MAGNUS = 60.0f; //100 기준
+    
     // 속도 추적
     const float targetSpeed = 8.0f; // 8.0 => 25? , 32 => 140
-
+    private float beforeTime = 0f;
 
     #region EventFunction
 
@@ -85,15 +87,17 @@ public class Baseball : MonoBehaviour
 
         InitializeComponents();
         UpdatePitchData();
-
     }
 
 
     void FixedUpdate()
     {
+        //커브
         
         if (_rigidbody != null)
         {
+
+            //스트라이크 판정
             float dis = _rigidbody.velocity.magnitude * Time.deltaTime;
             Ray ray = new Ray(this.transform.position, _rigidbody.velocity);
 
@@ -106,41 +110,14 @@ public class Baseball : MonoBehaviour
                 }
             }
 
-            ApplyMagnusForce();
-            ApplyDrag();
-            //_rigidbody.velocity += Physics.gravity * Time.deltaTime; //커브
+            //curve
+            if (isThrown && SelectPitchType == PitchType.Curve)
+            {
+                float deltaTime = Time.time - beforeTime;
+                beforeTime = Time.time;
+                _rigidbody.velocity += new Vector3(0, -deltaTime * velocityXY.magnitude / 100 * MAGNUS,0);
+            }
         }
-    }
-
-    void ApplyMagnusForce()
-    {
-        Vector3 v = _rigidbody.velocity;
-        Vector3 omega = _rigidbody.angularVelocity;
-
-        float speed = v.magnitude;
-        float spinRate = omega.magnitude;
-
-        if(speed == 0 || spinRate == 0)
-        {
-            return;
-        }
-        // 양력 계수 (실험적 근사)
-        float CL = 1.0f / (2.32f + 0.4f / (spinRate * ballRadius / speed));
-
-        // 마그누스 힘
-        float magnusMagnitude = 0.5f * CL * airDensity * Mathf.PI * ballRadius * ballRadius * speed * speed;
-        Vector3 magnusDirection = Vector3.Cross(omega.normalized, v.normalized);
-
-        _rigidbody.AddForce(magnusDirection * magnusMagnitude);
-    }
-
-    void ApplyDrag()
-    {
-        float dragCoefficient = 0.4f;
-        float speed = _rigidbody.velocity.magnitude;
-        float dragMagnitude = 0.5f * dragCoefficient * airDensity * Mathf.PI * ballRadius * ballRadius * speed * speed;
-
-        _rigidbody.AddForce(-_rigidbody.velocity.normalized * dragMagnitude);
     }
 
     private void OnTriggerEnter(Collider collider)
@@ -283,6 +260,8 @@ public class Baseball : MonoBehaviour
         //rotation zero
         _rigidbody.velocity = Vector3.zero;
         _rigidbody.velocity = force;
+        beforeTime = Time.time;
+        velocityXY = new Vector3(_rigidbody.velocity.x, 0, _rigidbody.velocity.z);
     }
 
     #region PROPERTY
@@ -636,6 +615,17 @@ public class Baseball : MonoBehaviour
         return bat.IsSwing();
     }
 
+    public PitchType SelectPitchType
+    {
+        get
+        {
+            return selectedPitchType;
+        }
+        set
+        {
+            selectedPitchType = value;
+        }
+    }
     
     //Rigidbody
     #region PHYSICS

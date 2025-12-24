@@ -86,17 +86,27 @@ public class Pitcher : Defender
 
         Transform SZTransform = strikeZone.GetZone(index);
 
-        //Vector3 velocity = CalculateLaunchVelocity(transform.position, SZTransform.position - new Vector3(0,0.9f,0), 0.9f);
-        // Vector3 velocity = CalculateVelocity(
-        //     transform.position,
-        //     SZTransform.position - new Vector3(0,0.9f,0),
-        //     140f
-        // );
-
         //Debug.Log("투수 : " + _ball.transform.position);
         Debug.Log("스트라이크 존 " + index + " : "+ SZTransform.position);
-
-        Vector3 velocity = CalculateCurveVelocity(_ball.transform.position, SZTransform.position, velocityXZ);
+        Vector3 velocity = new Vector3();
+        
+        int pitchTypeIndex = Random.Range(0, 10);
+        if (pitchTypeIndex <= 2)
+        {
+            _ball.SelectPitchType = PitchType.Curve;
+            Debug.Log("커브");
+        }
+        else
+        {
+            _ball.SelectPitchType = PitchType.FastBall;
+            Debug.Log("직구");
+        }
+        
+        if(_ball.SelectPitchType == PitchType.FastBall)
+            velocity = CalculateSimpleVelocity(_ball.transform.position, SZTransform.position, velocityXZ);
+        //else if(_ball.SelectPitchType == PitchType.Curve)
+        else
+            velocity = CalculateCurveVelocity(_ball.transform.position, SZTransform.position, velocityXZ);
 
         //Debug.Log("속력 : " + velocity.magnitude * 3.6f);
 
@@ -145,10 +155,10 @@ public class Pitcher : Defender
         Vector3 result = velocityXZ_normal + new Vector3(0, velocityY, 0);
         return result;
     }
-    public Vector3 CalculateCurveVelocity(Vector3 start, Vector3 target, float velocityXZ)
+    private Vector3 CalculateCurveVelocity(Vector3 start, Vector3 target, float velocityXZ)
     {
         velocityXZ /= 3.6f; //시속 평준화
-        float g = Mathf.Abs(Physics.gravity.y); // 9.81 (양수)
+        float g = Mathf.Abs(Physics.gravity.y) + (velocityXZ / 100 * _ball.MAGNUS); // 9.81 (양수)
         Vector3 dis = target - start;
 
         float mytime = dis.magnitude / velocityXZ;
