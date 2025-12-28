@@ -15,18 +15,21 @@ public class BattingSystem : MonoBehaviour
     private int strikeCount = 0;
     private int homerunCount = 0;
     private int ballCount = 0;
+    private int groundBallCount= 0;
 
     [Header("UI")]
     [SerializeField] private AssetReference menuScene;
     [SerializeField] private TextMeshProUGUI hitText;
+    [SerializeField] private TextMeshProUGUI groundBallText;
     [SerializeField] private TextMeshProUGUI foulText;
     [SerializeField] private TextMeshProUGUI strikeText;
     [SerializeField] private TextMeshProUGUI homerunText;
     [SerializeField] private TextMeshProUGUI ballCountText;
     
     [SerializeField] private TextMeshProUGUI waitText;
+    [SerializeField] private TextMeshProUGUI velocityControllerText;
     [SerializeField] private TextMeshProUGUI velocityText;
-    
+
     [Space] 
     [Header("Events")] 
     [SerializeField] private Vector3EventSO moveOriginEvent;
@@ -40,17 +43,25 @@ public class BattingSystem : MonoBehaviour
     [SerializeField] private VoidEventSO hitEventSO;
     [SerializeField] private VoidEventSO foulEventSO;
     [SerializeField] private VoidEventSO strikeEventSO;
+    [SerializeField] private VoidEventSO groundEventSO;
     [SerializeField] private VoidEventSO ballEventSO;
     [SerializeField] private VoidEventSO homerunEventSO;
-    [SerializeField] private FloatEventSO getVelocityEventSO;
+    [SerializeField] private VoidEventSO backToPitcherEvent; //to baseball
+
+    [SerializeField] private FloatEventSO getVelocityEventSO; //ball?
+
+    const float WAIT_TIME = 2.0f; //원래 7임
 
     private void OnEnable()
     {
-        hitEventSO.onEventRaised += AddHit;
         foulEventSO.onEventRaised += AddFoul;
-        strikeEventSO.onEventRaised += AddStrike;
+        groundEventSO .onEventRaised += AddGroundBallCount;
+        hitEventSO.onEventRaised += AddHit;
         homerunEventSO.onEventRaised += AddHomerun;
+
+        strikeEventSO.onEventRaised += AddStrike;
         ballEventSO.onEventRaised += AddBallCount;
+        backToPitcherEvent.onEventRaised += BackBallToPitcher;
 
         waitPitcherEvent.onEventRaised += WaitPitchingToText;
         getVelocityEventSO.onEventRaised += SetVelocityToText;
@@ -58,11 +69,15 @@ public class BattingSystem : MonoBehaviour
 
     private void OnDisable()
     {
-        hitEventSO.onEventRaised -= AddHit;
         foulEventSO.onEventRaised -= AddFoul;
-        strikeEventSO.onEventRaised -= AddStrike;
+        groundEventSO.onEventRaised -= AddGroundBallCount;
+        hitEventSO.onEventRaised -= AddHit;
         homerunEventSO.onEventRaised -= AddHomerun;
+
+        strikeEventSO.onEventRaised -= AddStrike;
         ballEventSO.onEventRaised -= AddBallCount;
+        backToPitcherEvent.onEventRaised -= BackBallToPitcher;
+
 
         waitPitcherEvent.onEventRaised -= WaitPitchingToText;
         getVelocityEventSO.onEventRaised -= SetVelocityToText;
@@ -82,10 +97,15 @@ public class BattingSystem : MonoBehaviour
         //StartCoroutine(BackPitching());
     }
 
-    IEnumerator BackPitching()
+    private void BackBallToPitcher()
     {
-        Debug.Log("7초후에 돌아옴");
-        yield return new WaitForSeconds(7f);
+        StartCoroutine(WaitingBackToPitcher());
+    }
+    IEnumerator WaitingBackToPitcher()
+    {
+        //StartCoroutine(BackPitching());
+
+        yield return new WaitForSeconds(WAIT_TIME);
         pitcher.SetMyBall(_ball);
     }
 
@@ -95,14 +115,6 @@ public class BattingSystem : MonoBehaviour
         if (time == 3)
         {
             playAudioClipEvent.RaiseEvent(2);
-        }
-        if (time == 1)
-        {
-            // if(_ball.IsBatTouch)
-            // {
-            //     return;
-            // }
-            StartCoroutine(BackPitching());
         }
     }
 
@@ -138,28 +150,49 @@ public class BattingSystem : MonoBehaviour
     void AddHit()
     {
         ++HitCount;
+        BackBallToPitcher();
     }
 
     void AddStrike()
     {
         ++StrikeCount;
+        BackBallToPitcher();
     }
 
     void AddHomerun()
-    {        
+    {
         ++HomerunCount;
+        BackBallToPitcher();
     }
 
     void AddFoul()
     {        
         ++FoulCount;
+        BackBallToPitcher();
     }
     void AddBallCount()
-    {        
+    {
         ++BallCount;
+        BackBallToPitcher();
+    }
+    void AddGroundBallCount()
+    {
+        ++groundBallCount;
+        BackBallToPitcher();
     }
 
-    
+    public void PlusVelocityBall()
+    {
+        pitcher.VelocityXZ += 10;
+        velocityControllerText.text = "시속 " +pitcher.VelocityXZ.ToString() + "km/h";
+    }
+    public void MinusVelocityBall()
+    {
+        pitcher.VelocityXZ -= 10;
+        velocityControllerText.text = "시속 " + pitcher.VelocityXZ.ToString() + "km/h";
+    }
+
+
     public int BallCount
     {
         get { return ballCount; }
@@ -197,6 +230,15 @@ public class BattingSystem : MonoBehaviour
         {
             foulCount = value;
             foulText.text = foulCount.ToString();
+        }
+    }
+    public int GroundBallCount
+    {
+        get { return groundBallCount; }
+        set
+        {
+            groundBallCount = value;
+            groundBallText.text = groundBallCount.ToString();
         }
     }
     #endregion

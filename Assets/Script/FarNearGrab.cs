@@ -1,18 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 
 
 //IFarAttachProvider
 public class FarNearGrab : XRGrabInteractable
 {
-    
-    [Header("grip settings")]
-    public Transform leftHandGrip;   // 왼손용 그립
-    public Transform rightHandGrip;  // 오른손용 그립
-    
-    
     protected override void OnHoverEntering(HoverEnterEventArgs args)
     {
         base.OnHoverEntering(args);
@@ -33,5 +28,24 @@ public class FarNearGrab : XRGrabInteractable
         {
             rayInteractor.useForceGrab = false;
         }
+    }
+
+    public List<XRBaseController> GetController()
+    {
+        List<XRBaseController> list = new List<XRBaseController>();
+        
+        Debug.Log("사이즈 : " + interactorsSelecting.Count);
+        foreach (IXRSelectInteractor interactor in interactorsSelecting)
+        {
+            //애초에 부모가 XRController이고 매개변수는 RayInteractor임
+            XRBaseController controller = interactor.transform.parent.GetComponent<XRBaseController>();
+            if (controller != null)
+            {
+                list.Add(controller);
+
+            }
+        }
+
+        return list;
     }
 }
