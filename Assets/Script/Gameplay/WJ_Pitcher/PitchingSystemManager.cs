@@ -9,11 +9,7 @@ using Random = UnityEngine.Random;
 using System.Collections;
 using TMPro;
 /// <summary>
-/// 🎯 투수 연습 시스템 통합 관리자
-/// - 스트라이크존 9개 (3x3 중앙)
-/// - 볼존 16개 (5x5 그리드의 바깥쪽)
-/// - 확률 기반 타겟팅
-/// - 시각적 피드백
+/// pitcher mode
 /// </summary>
 public class PitchingSystemManager : MonoBehaviour
 {
@@ -96,6 +92,9 @@ public class PitchingSystemManager : MonoBehaviour
         backToPitcherEvent.onEventRaised -= BackPitcherBall;
         pitchEvent.onEventRaised -= WaitingSwing;
         getVelocityEvent.onEventRaised -= GetVelocityToText;
+        
+        strikeEvent.onEventRaised -= AddStrike;
+        addBallCountEvent.onEventRaised -= AddBallCount;
     }
 
     void Start()

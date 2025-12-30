@@ -1,16 +1,13 @@
-/// <summary>
-/// 🎯 VR 투수 게임 메인 매니저 - 공 생성, 던지기, 카운트 관리
-/// </summary>
-
 using System;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using Unity.XR.CoreUtils;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine.Serialization;
 
-
+/// 그냥 단순한 VR 피쳐 매니저. Gameplay PitcherScene에서 필요하다.
 //pitcherManager ---(SO)---> PitchingBallController
 //               ---(SO)---> UI
 public class PitchingManager : MonoBehaviour
@@ -18,7 +15,8 @@ public class PitchingManager : MonoBehaviour
     [Header("게임 오브젝트 참조")]
     public PitchSelectionUI pitchSelectionUI; // 구종 선택 UI
     [SerializeField] private Baseball ball;
-
+    [SerializeField] private TextMeshProUGUI _velocityText;
+    
     
     [Header("게임 설정")]
     [SerializeField] private Transform ballResetPosition; 
@@ -35,6 +33,7 @@ public class PitchingManager : MonoBehaviour
     [Header("broadcasting on Events")]
     public System.Action<int, int> OnCountChanged; // strikes, balls
     public System.Action<bool> OnPitchResult;// isStrike  
+    [SerializeField] private FloatEventSO _getVelocityEventSO;
     
     [Header("Listening on Events")]
     [SerializeField] private IntEventSO playAudioClipEvent;
@@ -44,11 +43,13 @@ public class PitchingManager : MonoBehaviour
     private void OnEnable()
     {
         pitchSelectionUI.OnPitchSelected += OnPitchTypeSelected;
+        _getVelocityEventSO.onEventRaised += SetVelocityUI;
     }
 
     private void OnDisable()
     {
         pitchSelectionUI.OnPitchSelected -= OnPitchTypeSelected;
+        _getVelocityEventSO.onEventRaised -= SetVelocityUI;
     }
 
     #endregion
@@ -84,7 +85,7 @@ public class PitchingManager : MonoBehaviour
         ball.IsGroundBall = false;
 
         // XR Grab Interactable 강제 활성화 (새 공이 잡힐 수 있도록)
-        ball.OffBallPhysics();
+        //ball.OffBallPhysics();
 
         // UI에 공 등록 ★ => 굳이,,,?
         if (pitchSelectionUI != null)
@@ -135,8 +136,6 @@ public class PitchingManager : MonoBehaviour
         }
     }
 
-    public Baseball GetCurrentBall() => ball;
-
     /// <summary>
     /// 공이 특정 구역에 착지했을 때 호출되는 메서드
     /// </summary>
@@ -170,6 +169,12 @@ public class PitchingManager : MonoBehaviour
             Debug.Log($"🔄 카운트 리셋! (볼: {balls}, 스트라이크: {strikes})");
             ResetCount();
         }
+    }
+
+    void SetVelocityUI(float velocity)
+    {
+        velocity *= 3.6f;
+        _velocityText.text = velocity.ToString();
     }
 
 }
