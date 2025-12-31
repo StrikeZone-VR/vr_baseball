@@ -6,7 +6,7 @@
 using UnityEngine;
 using UnityEditor;
 
-[CustomEditor(typeof(PitchingSystemManager))]
+[CustomEditor(typeof(PitchingModeManager))]
 public class PitchingSystemManagerEditor : Editor
 {
     public override void OnInspectorGUI()
@@ -15,7 +15,7 @@ public class PitchingSystemManagerEditor : Editor
         
         GUILayout.Space(10);
         
-        PitchingSystemManager manager = (PitchingSystemManager)target;
+        PitchingModeManager manager = (PitchingModeManager)target;
         
         // 정보 표시
         EditorGUILayout.LabelField("📊 시스템 정보", EditorStyles.boldLabel);

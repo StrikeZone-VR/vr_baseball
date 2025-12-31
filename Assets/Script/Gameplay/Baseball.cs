@@ -355,6 +355,12 @@ public class Baseball : MonoBehaviour
         }
     }
 
+    public void SetVelocity(Vector3 velocity)
+    {
+        if(_rigidbody != null)
+            _rigidbody.velocity = velocity;
+    }
+
     #endregion
 
 

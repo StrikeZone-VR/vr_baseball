@@ -9,11 +9,12 @@ using Random = UnityEngine.Random;
 using System.Collections;
 using TMPro;
 /// <summary>
-/// pitcher mode
+/// pitcher mode. 되도록 많은 부분을 없애면 된다.
 /// </summary>
-public class PitchingSystemManager : MonoBehaviour
+public class PitchingModeManager : MonoBehaviour
 {
     [SerializeField] private Batter batter;
+    [SerializeField] private Baseball baseball;
     [Header("🎯 존 설정")]
     public Transform strikeZoneParent;
 
@@ -34,9 +35,6 @@ public class PitchingSystemManager : MonoBehaviour
     public Vector3 zoneSize = new Vector3(0.167f, 0.33f, 0.1f);
     public float zoneSpacing = 0.167f;
     
-    // ==============================================
-    // 💾 내부 데이터
-    // ==============================================
     [System.Serializable]
     public class PitchZone
     {
@@ -71,19 +69,11 @@ public class PitchingSystemManager : MonoBehaviour
     [SerializeField] private VoidEventSO pitchEvent;
     [SerializeField] private Vector3EventSO moveOriginEvent;
     [SerializeField] private Vector3EventSO rotateOriginEvent;
-    [SerializeField] private FloatEventSO getVelocityEvent;
-    [SerializeField] private VoidEventSO strikeEvent;
-    [SerializeField] private VoidEventSO addBallCountEvent;
-    
 
     private void OnEnable()
     {
         backToPitcherEvent.onEventRaised += BackPitcherBall;
         pitchEvent.onEventRaised += WaitingSwing;
-        getVelocityEvent.onEventRaised += GetVelocityToText;
-
-        strikeEvent.onEventRaised += AddStrike;
-        addBallCountEvent.onEventRaised += AddBallCount;
         //swingEvent.onEventRaised;
     }
 
@@ -91,10 +81,6 @@ public class PitchingSystemManager : MonoBehaviour
     {
         backToPitcherEvent.onEventRaised -= BackPitcherBall;
         pitchEvent.onEventRaised -= WaitingSwing;
-        getVelocityEvent.onEventRaised -= GetVelocityToText;
-        
-        strikeEvent.onEventRaised -= AddStrike;
-        addBallCountEvent.onEventRaised -= AddBallCount;
     }
 
     void Start()
@@ -104,6 +90,14 @@ public class PitchingSystemManager : MonoBehaviour
 
         InitializeSystem();
     }
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Z))
+        {
+            pitchingManager.StartPitchingGame();
+        }
+    }
     
     // ==============================================
     // 🚀 시스템 초기화
@@ -111,9 +105,6 @@ public class PitchingSystemManager : MonoBehaviour
     public void InitializeSystem()
     {
         pitchingManager.StartPitchingGame();
-
-        //ui
-        GetVelocityToText(0);
     }
     
     /// <summary> ballZone Clear
@@ -453,22 +444,6 @@ public class PitchingSystemManager : MonoBehaviour
     
     }
 
-    private void GetVelocityToText(float velocity)
-    {
-        pitchSelectionUI.SetBallVelocityUI(velocity);
-        //velocityText.text = "시속 : " + velocity.ToString() + "km/h";
-    }
-    private void SetStrikeToText(int strike)
-    {
-        pitchSelectionUI.SetStrikeUI(strike);
-        //velocityText.text = "시속 : " + velocity.ToString() + "km/h";
-    }
-    private void SetBallCountToText(int ballCount)
-    {
-        pitchSelectionUI.SetBallCountUI(ballCount);
-        //velocityText.text = "시속 : " + velocity.ToString() + "km/h";
-    }
-
     private void WaitingSwing()
     {
         Debug.Log("타자 필요 없을지도?");
@@ -483,32 +458,6 @@ public class PitchingSystemManager : MonoBehaviour
         
     }
 
-    private void AddStrike()
-    {
-        Strike++;
-    }
-    private void AddBallCount()
-    {
-        BallCount++;
-    }
-    public int Strike
-    {
-        get { return strike; }
-        set
-        {
-            strike = value;
-            SetStrikeToText(strike);
-        }
-    }
-    public int BallCount
-    {
-        get { return ball_count; }
-        set
-        {
-            ball_count = value;
-            SetBallCountToText(ball_count);
-        }
-    }
     
     
     // ==============================================

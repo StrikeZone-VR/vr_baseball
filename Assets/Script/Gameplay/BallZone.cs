@@ -18,7 +18,7 @@ public class BallZone : MonoBehaviour
     [Header("오디오")]
     public AudioClip ballSound;
 
-    private PitchingSystemManager systemManager;
+    private PitchingModeManager _modeManager;
     private Renderer zoneRenderer;
     private AudioSource audioSource;
     private Material originalMaterial;
@@ -27,9 +27,9 @@ public class BallZone : MonoBehaviour
     // ==============================================
     // 🏗️ 초기화
     // ==============================================
-    public void SetupBallZone(PitchingSystemManager manager)
+    public void SetupBallZone(PitchingModeManager manager)
     {
-        systemManager = manager;
+        _modeManager = manager;
 
         // 컴포넌트 설정
         zoneRenderer = GetComponent<Renderer>();

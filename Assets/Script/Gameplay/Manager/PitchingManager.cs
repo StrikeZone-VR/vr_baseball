@@ -4,27 +4,23 @@ using UnityEngine.XR.Interaction.Toolkit;
 using Unity.XR.CoreUtils;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using TMPro;
 using UnityEngine.Serialization;
+using Debug = UnityEngine.Debug;
 
 /// 그냥 단순한 VR 피쳐 매니저. Gameplay PitcherScene에서 필요하다.
+/// Gameplay 씬에서도 UI가 필요하니 피쳐의 UI는 무조건 여기서 관리해야 한다.
 //pitcherManager ---(SO)---> PitchingBallController
 //               ---(SO)---> UI
 public class PitchingManager : MonoBehaviour
 {
     [Header("게임 오브젝트 참조")]
-    public PitchSelectionUI pitchSelectionUI; // 구종 선택 UI
+    [SerializeField] PitchSelectionUI pitchSelectionUI; // 구종 선택 UI
     [SerializeField] private Baseball ball;
-    [SerializeField] private TextMeshProUGUI _velocityText;
-    
     
     [Header("게임 설정")]
     [SerializeField] private Transform ballResetPosition; 
-    public int maxBalls = 10;               // 최대 공 개수 (5에서 10으로 증가)
-    public float ballResetDelay = 3.0f;     // 공 리셋 딜레이 (착지 후 3초간 보여줌)
-
-    private int ballsThrown = 0;
-    private List<GameObject> thrownBalls = new List<GameObject>();  // 던진 공들 관리
 
     // 통계
     private int strikes = 0;
@@ -33,23 +29,26 @@ public class PitchingManager : MonoBehaviour
     [Header("broadcasting on Events")]
     public System.Action<int, int> OnCountChanged; // strikes, balls
     public System.Action<bool> OnPitchResult;// isStrike  
-    [SerializeField] private FloatEventSO _getVelocityEventSO;
     
-    [Header("Listening on Events")]
+    [Header("Listening to Events")]
     [SerializeField] private IntEventSO playAudioClipEvent;
-
+    [SerializeField] private FloatEventSO getVelocityEvent;
+    [SerializeField] private VoidEventSO strikeEvent; //근데 그냥 GameManager이나 PitchingModeManager에서 가져오자
+    [SerializeField] private VoidEventSO addBallCountEvent; //근데 그냥 GameManager이나 PitchingModeManager에서 가져오자
+    
+    
     #region EventFunction
 
     private void OnEnable()
     {
         pitchSelectionUI.OnPitchSelected += OnPitchTypeSelected;
-        _getVelocityEventSO.onEventRaised += SetVelocityUI;
+        getVelocityEvent.onEventRaised += SetVelocityUI;
     }
 
     private void OnDisable()
     {
         pitchSelectionUI.OnPitchSelected -= OnPitchTypeSelected;
-        _getVelocityEventSO.onEventRaised -= SetVelocityUI;
+        getVelocityEvent.onEventRaised -= SetVelocityUI;
     }
 
     #endregion
@@ -57,7 +56,6 @@ public class PitchingManager : MonoBehaviour
     //pitch start
     public void StartPitchingGame()
     {
-        ballsThrown = 0; // 기존 공은 카운트하지 않음
         ResetBall();
         
         // UI 초기화
@@ -91,11 +89,9 @@ public class PitchingManager : MonoBehaviour
         if (pitchSelectionUI != null)
             pitchSelectionUI.RegisterBaseball(ball);
 
-        ballsThrown++;
-
         // init ball
-        Vector3 finalPosition = ballResetPosition.position;
-        transform.position = finalPosition;
+        ball.transform.position = ballResetPosition.position;
+        ball.SetVelocity(Vector3.zero);
     }
     
     private void OnPitchTypeSelected(PitchType pitchType)
@@ -118,7 +114,6 @@ public class PitchingManager : MonoBehaviour
             Destroy(ball.gameObject);
 
         // 통계 리셋
-        ballsThrown = 0;
         ResetCount();
 
         // 새 게임 시작
@@ -174,7 +169,7 @@ public class PitchingManager : MonoBehaviour
     void SetVelocityUI(float velocity)
     {
         velocity *= 3.6f;
-        _velocityText.text = velocity.ToString();
+        pitchSelectionUI.SetBallVelocityUI(velocity);
     }
 
 }
