@@ -19,9 +19,6 @@ public class PitchingSystemManagerEditor : Editor
         
         // 정보 표시
         EditorGUILayout.LabelField("📊 시스템 정보", EditorStyles.boldLabel);
-        EditorGUILayout.LabelField($"스트라이크존: {manager.GetStrikeZoneCount()}개");
-        EditorGUILayout.LabelField($"볼존: {manager.GetBallZoneCount()}개");
-        EditorGUILayout.LabelField($"총 영역: {manager.GetTotalZoneCount()}개");
         
         GUILayout.Space(10);
         
@@ -31,11 +28,6 @@ public class PitchingSystemManagerEditor : Editor
         if (GUILayout.Button("🚀 시스템 초기화", GUILayout.Height(30)))
         {
             manager.InitializeSystem();
-        }
-        
-        if (GUILayout.Button("👁️ 볼존 가시성 토글", GUILayout.Height(25)))
-        {
-            manager.ToggleBallZoneVisibility();
         }
         
         GUILayout.Space(10);

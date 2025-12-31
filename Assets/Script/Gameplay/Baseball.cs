@@ -515,8 +515,8 @@ public class Baseball : MonoBehaviour
         // **정확한 직선 투구 - 스트라이크존 (0, 0.605, -14.06) 조준**
         Vector3 direction = (targetPosition - transform.position).normalized;
         
-        _rigidbody.velocity = ( direction) * _rigidbody.velocity.magnitude;
-        //_rigidbody.velocity = (_rigidbody.velocity.normalized + direction) * _rigidbody.velocity.magnitude;
+        //_rigidbody.velocity = ( direction) * _rigidbody.velocity.magnitude;
+        _rigidbody.velocity = (_rigidbody.velocity.normalized + direction) * _rigidbody.velocity.magnitude;
 
         playAudioClipEvent.RaiseEvent(0);
         
