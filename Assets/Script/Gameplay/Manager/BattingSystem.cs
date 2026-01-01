@@ -121,12 +121,12 @@ public class BattingSystem : MonoBehaviour
 
     private void SetVelocityToText(float velocity)
     {
-        velocityText.text = "시속 : " +velocity.ToString() + "km/h";
+        velocityText.text = "시속 : " +velocity.ToString("F2") + "km/h";
     }
 
 
     //all base ball script
-    //paul to gamemanager
+    //foul to gamemanager
     //
 
     public void BackMenuScene()
@@ -150,46 +150,40 @@ public class BattingSystem : MonoBehaviour
     void AddHit()
     {
         ++HitCount;
-        BackBallToPitcher();
     }
 
     void AddStrike()
     {
         ++StrikeCount;
-        BackBallToPitcher();
     }
 
     void AddHomerun()
     {
         ++HomerunCount;
-        BackBallToPitcher();
     }
 
     void AddFoul()
     {        
         ++FoulCount;
-        BackBallToPitcher();
     }
     void AddBallCount()
     {
         ++BallCount;
-        BackBallToPitcher();
     }
     void AddGroundBallCount()
     {
         ++groundBallCount;
-        BackBallToPitcher();
     }
 
     public void PlusVelocityBall()
     {
         pitcher.VelocityXZ += 10;
-        velocityControllerText.text = "시속 " +pitcher.VelocityXZ.ToString() + "km/h";
+        velocityControllerText.text = "시속 " +pitcher.VelocityXZ.ToString("F2") + "km/h";
     }
     public void MinusVelocityBall()
     {
         pitcher.VelocityXZ -= 10;
-        velocityControllerText.text = "시속 " + pitcher.VelocityXZ.ToString() + "km/h";
+        velocityControllerText.text = "시속 " + pitcher.VelocityXZ.ToString("F2") + "km/h";
     }
 
 

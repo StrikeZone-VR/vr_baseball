@@ -15,25 +15,9 @@ public class PitchingModeManager : MonoBehaviour
 {
     [SerializeField] private Batter batter;
     [SerializeField] private Baseball baseball;
-    [Header("🎯 존 설정")]
-    public Transform strikeZoneParent;
 
     private int strike = 0;
     private int ball_count = 0;
-    
-    [Header("📊 확률 설정")]
-    [Range(0, 100)]
-    public float strikeProbability = 60f;
-    
-    [Header("🎨 시각화")]
-    public bool showZonesInEditor = true;
-    public bool showZonesInPlay = false;
-    public Material strikeZoneMaterial;
-    public Material ballZoneMaterial;
-    
-    [Header("⚙️ 존 크기")]
-    public Vector3 zoneSize = new Vector3(0.167f, 0.33f, 0.1f);
-    public float zoneSpacing = 0.167f;
     
     [SerializeField] private PitchingManager pitchingManager;
     [SerializeField] private PitchSelectionUI pitchSelectionUI;
@@ -45,20 +29,30 @@ public class PitchingModeManager : MonoBehaviour
     private Vector3 strikeZoneBounds;
     
     [Header("Events")] 
+    [SerializeField] private VoidEventSO strikeEventSO;
+    [SerializeField] private VoidEventSO ballEventSO;
+    
     [SerializeField] private VoidEventSO backToPitcherEvent; //baseball
     [SerializeField] private VoidEventSO pitchEvent;
     [SerializeField] private Vector3EventSO moveOriginEvent;
     [SerializeField] private Vector3EventSO rotateOriginEvent;
 
+    const float WAIT_TIME = 2.0f; //원래 7임
+    
     private void OnEnable()
     {
+        ballEventSO.onEventRaised += AddBallCount;
+        strikeEventSO.onEventRaised += AddStrike;
+        
         backToPitcherEvent.onEventRaised += BackPitcherBall;
         pitchEvent.onEventRaised += WaitingSwing;
-        //swingEvent.onEventRaised;
     }
 
     private void OnDisable()
     {
+        ballEventSO.onEventRaised -= AddBallCount;
+        strikeEventSO.onEventRaised -= AddStrike;
+        
         backToPitcherEvent.onEventRaised -= BackPitcherBall;
         pitchEvent.onEventRaised -= WaitingSwing;
     }
@@ -68,6 +62,8 @@ public class PitchingModeManager : MonoBehaviour
         moveOriginEvent.RaiseEvent(new Vector3(0.6f, 1.3f, -0.98f));
         rotateOriginEvent.RaiseEvent(new Vector3(0, -135f, 0));
 
+        Strike = 0;
+        BallCount = 0;
         InitializeSystem();
     }
 
@@ -75,7 +71,7 @@ public class PitchingModeManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Z))
         {
-            pitchingManager.StartPitchingGame();
+            pitchingManager.ResetBall();
         }
     }
     
@@ -89,8 +85,14 @@ public class PitchingModeManager : MonoBehaviour
     
     private void BackPitcherBall()
     {
-        pitchingManager.ResetBall();
+        StartCoroutine(WaitingBackToPitcher());
+    }
     
+    IEnumerator WaitingBackToPitcher()
+    {
+        yield return new WaitForSeconds(WAIT_TIME);
+        pitchingManager.ResetBall();
+
     }
 
     private void WaitingSwing()
@@ -106,5 +108,33 @@ public class PitchingModeManager : MonoBehaviour
         batter.StartSwing();
         
     }
+
+    private void AddBallCount()
+    {
+        BallCount++;
+    }
     
+    private void AddStrike()
+    {
+        Strike++;
+    }
+
+    public int Strike
+    {
+        get => strike;
+        set
+        {
+            strike = value;
+            pitchSelectionUI.SetStrikeUI(strike);
+        }
+    }
+    public int BallCount
+    {
+        get => ball_count;
+        set
+        {
+            ball_count = value;
+            pitchSelectionUI.SetBallCountUI(ball_count);
+        }
+    }
 }

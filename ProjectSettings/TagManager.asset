@@ -13,10 +13,10 @@ TagManager:
   - right
   - BallZone
   - Homerun
-  - Paul
   - BatterPos
   - VelocityZone
   - SwingZone
+  - Foul
   layers:
   - Default
   - TransparentFX

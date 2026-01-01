@@ -3378,9 +3378,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da16bbf45d769d64a83046e0ce1c89ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ballMass: 0.145
-  ballRadius: 0.037
-  airDensity: 1.225
   myDefender: {fileID: 0}
   defenderDis: 0
   bat: {fileID: 8736714377106309096}
@@ -3390,10 +3387,11 @@ MonoBehaviour:
   isZone: 0
   isStrike: 0
   isThrown: 0
+  isBack: 0
   allTrackingOffEvent: {fileID: 11400000, guid: eb943823faaa14e4b87ec836d9d214f4, type: 2}
   addBallCountEvent: {fileID: 11400000, guid: 60c42e35457ecd34d8efad8431a9dc85, type: 2}
   addStrikeEvent: {fileID: 11400000, guid: 7980c5f1d20201f48891aba9f1727e76, type: 2}
-  paulEvent: {fileID: 11400000, guid: 92f9d4b8ff2a53147a913724e0def414, type: 2}
+  foulEvent: {fileID: 11400000, guid: 92f9d4b8ff2a53147a913724e0def414, type: 2}
   homerunEvent: {fileID: 11400000, guid: 2c50fa93d15b0bd469de3b987b91d592, type: 2}
   pitchEvent: {fileID: 11400000, guid: 6ca9374e56161084ca2bd8dee328860a, type: 2}
   runSignalEvent: {fileID: 11400000, guid: 2f8b5c598135ebb49bd8c25de9d4678c, type: 2}
@@ -5673,7 +5671,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7313654230448209575, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7696548424635294048, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
       propertyPath: m_IsActive
@@ -6205,7 +6203,7 @@ GameObject:
   - component: {fileID: 1854931015}
   m_Layer: 0
   m_Name: Cube (3)
-  m_TagString: Paul
+  m_TagString: Foul
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -6874,7 +6872,7 @@ GameObject:
   - component: {fileID: 2083269024}
   m_Layer: 0
   m_Name: Cube (4)
-  m_TagString: Paul
+  m_TagString: Foul
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

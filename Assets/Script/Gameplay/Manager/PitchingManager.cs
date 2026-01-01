@@ -90,8 +90,8 @@ public class PitchingManager : MonoBehaviour
             pitchSelectionUI.RegisterBaseball(ball);
 
         // init ball
-        ball.transform.position = ballResetPosition.position;
         ball.SetVelocity(Vector3.zero);
+        ball.transform.position = ballResetPosition.position;
     }
     
     private void OnPitchTypeSelected(PitchType pitchType)
@@ -168,7 +168,6 @@ public class PitchingManager : MonoBehaviour
 
     void SetVelocityUI(float velocity)
     {
-        velocity *= 3.6f;
         pitchSelectionUI.SetBallVelocityUI(velocity);
     }
 

@@ -28,6 +28,7 @@ public class Baseball : MonoBehaviour
     [SerializeField] private bool isZone = false;
     [SerializeField] private bool isStrike = false;
     [SerializeField] private bool isThrown = false;
+    [SerializeField] private bool isBack = false;
     
     
     [Space]
@@ -36,11 +37,11 @@ public class Baseball : MonoBehaviour
     [SerializeField] private VoidEventSO allTrackingOffEvent;
     [SerializeField] private VoidEventSO addBallCountEvent;
     [SerializeField] private VoidEventSO addStrikeEvent;
-    [SerializeField] private VoidEventSO paulEvent;
+    [SerializeField] private VoidEventSO foulEvent;
     [SerializeField] private VoidEventSO homerunEvent;
     [SerializeField] private VoidEventSO pitchEvent;
     [SerializeField] private VoidEventSO runSignalEvent;
-    [SerializeField] private VoidEventSO backToPitcherEvent; //?
+    [SerializeField] private VoidEventSO backToPitcherEvent; //? => 일단 안쓰임
     [SerializeField] private VoidEventSO inplayGameEvent; //from BattingSystem
     [SerializeField] private FloatEventSO getVelocityEventSO; //from BattingSystem
     [SerializeField] private IntEventSO playAudioClipEvent; //from AudioManager
@@ -133,31 +134,37 @@ public class Baseball : MonoBehaviour
         }
         //Debug.Log("건드린 물체 : " + collider.gameObject.name + " - " + collider.gameObject.tag);
         //Debug.Log("모드 : " + _rigidbody.collisionDetectionMode);
-        //paul
-        if (collider.CompareTag("Paul"))
+        //foul
+        if (collider.CompareTag("Foul"))
         {
-            if (isBatTouch && isThrown && !IsGroundBall)
-                paulEvent.RaiseEvent();
-            else
+            if (isBatTouch && isThrown && !IsGroundBall )
             {
-                //PitchResult(); -> 이거 왜 넣었더라
-                //if(backToPitcherEvent !=null)
-                //    backToPitcherEvent.RaiseEvent();
+                foulEvent.RaiseEvent();
+            }
+            if(!isBack)
+            {
+                isBack = true;
+                backToPitcherEvent.RaiseEvent();
             }
         }
 
         //homerun
         if (collider.CompareTag("Homerun"))
         {
-            if (isBatTouch)
+            if (isBatTouch && !IsGroundBall)
                 homerunEvent.RaiseEvent();
-
+            
+            //만약에 홈런의 두 벽을 맞은 경우 => 두 번 호출 될지도
+            if(!isBack)
+            {
+                isBack = true;
+                backToPitcherEvent.RaiseEvent();
+            }
         }
     }
 
     private void OnTriggerExit(Collider collider)
     {
-
         if (collider.gameObject.CompareTag("BallZone") && !IsZone)
         {
             IsZone = true;
@@ -174,7 +181,7 @@ public class Baseball : MonoBehaviour
             if (myDefender == null)
             {
                 PitchResult();
-
+                
                 IsPassing = false;
                 IsThrown = false;
 
@@ -183,6 +190,8 @@ public class Baseball : MonoBehaviour
                     IsGroundBall = true;
                     //throw ball but swing miss
                 }
+                
+                
             }
         }
 
@@ -279,6 +288,12 @@ public class Baseball : MonoBehaviour
         set
         {
             isThrown = value;
+            
+            //true면 던지는 경우.
+            if (isThrown)
+            {
+                isBack = false;
+            }
             //Debug.Log(isThrown);
         }
     }
@@ -498,16 +513,16 @@ public class Baseball : MonoBehaviour
         if (IsThrown) return;
 
         IsStrike = false;
-        IsThrown = true;
         isBatTouch = false;
         IsZone = false;
+        IsThrown = true;
+        IsPassing = true;
 
         pitchEvent.RaiseEvent();
 
-        int index = Random.Range(0, 25);
-        Debug.Log(index);
+        //int index = Random.Range(0, 25);
         
-        targetPosition = strikeZone.GetZone(index).position;
+        targetPosition = strikeZone.GetZone(4).position;
         
         //아래는 직구
         //OnBallPhysics();
@@ -516,7 +531,7 @@ public class Baseball : MonoBehaviour
         Vector3 direction = (targetPosition - transform.position).normalized;
         
         //_rigidbody.velocity = ( direction) * _rigidbody.velocity.magnitude;
-        _rigidbody.velocity = (_rigidbody.velocity.normalized + direction) * _rigidbody.velocity.magnitude;
+        //_rigidbody.velocity = (_rigidbody.velocity.normalized + direction) * _rigidbody.velocity.magnitude;
 
         playAudioClipEvent.RaiseEvent(0);
         
@@ -595,14 +610,19 @@ public class Baseball : MonoBehaviour
             return;
         }
 
+        if(!isBack)
+        {
+            isBack = true;
+            backToPitcherEvent.RaiseEvent();
+        }
+        
         //볼을 맞춘 경우
         if (IsBatTouch)
         {
-            //Paul
             if (this.transform.position.x > -0.5f || this.transform.position.z > -0.5f)
             {
                 Debug.Log("파울");
-                paulEvent.RaiseEvent();
+                foulEvent.RaiseEvent();
             }
             //in play
             else if (!isGroundBall) //groundball or flying ball
