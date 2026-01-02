@@ -72,6 +72,7 @@ public class Baseball : MonoBehaviour
     private Vector3 velocityXY; // 실제 목표 위치
 
     public readonly float MAGNUS = 60.0f; //100 기준
+    private float ball_accuracy_weight = 1.0f; //0~1, 1일수록 보정값이 매우 높음
     
     // 속도 추적
     const float targetSpeed = 8.0f; // 8.0 => 25? , 32 => 140
@@ -498,7 +499,8 @@ public class Baseball : MonoBehaviour
     private void OnRelease(SelectExitEventArgs args)
     {
         Debug.Log("🎾 공을 놓았습니다! 던지기 시작!");
-        Invoke(nameof(ThrowPlayerBall), 0.1f);
+        Invoke(nameof(ThrowPlayerBall), 0.05f);
+        
     }
 
     private void OnGrab(SelectEnterEventArgs args)
@@ -531,7 +533,9 @@ public class Baseball : MonoBehaviour
         Vector3 direction = (targetPosition - transform.position).normalized;
         
         //_rigidbody.velocity = ( direction) * _rigidbody.velocity.magnitude;
-        //_rigidbody.velocity = (_rigidbody.velocity.normalized + direction) * _rigidbody.velocity.magnitude;
+        _rigidbody.velocity = ((1.0f - ball_accuracy_weight) * _rigidbody.velocity.normalized
+                               + ball_accuracy_weight * direction)
+                              * _rigidbody.velocity.magnitude;
 
         playAudioClipEvent.RaiseEvent(0);
         
