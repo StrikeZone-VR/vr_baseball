@@ -690,4 +690,11 @@ public class Baseball : MonoBehaviour
         }
         return bat.IsSwing();
     }
+
+
+    public float Ball_Accuracy_Weight
+    {
+        get;
+        set;
+    }
 }
