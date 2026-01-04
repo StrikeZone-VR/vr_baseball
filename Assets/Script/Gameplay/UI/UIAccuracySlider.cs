@@ -17,6 +17,5 @@ public class UIAccuracySlider : MonoBehaviour
     public void ChangedValue()
     {
         _baseball.Ball_Accuracy_Weight = slider.value;
-        Debug.Log(slider.value);
     }
 }

@@ -72,7 +72,7 @@ public class Baseball : MonoBehaviour
     private Vector3 velocityXY; // 실제 목표 위치
 
     public readonly float MAGNUS = 60.0f; //100 기준
-    private float ball_accuracy_weight = 1.0f; //0~1, 1일수록 보정값이 매우 높음
+    private float ball_accuracy_weight = 0.0f; //0~1, 1일수록 보정값이 매우 높음
     
     // 속도 추적
     const float targetSpeed = 8.0f; // 8.0 => 25? , 32 => 140
@@ -373,8 +373,18 @@ public class Baseball : MonoBehaviour
 
     public void SetVelocity(Vector3 velocity)
     {
-        if(_rigidbody != null)
+        if (_rigidbody != null)
+        {
             _rigidbody.velocity = velocity;
+            _rigidbody.angularVelocity = velocity;
+        }
+    }
+    public void SetPosition(Vector3 position)
+    {
+        if (_rigidbody != null)
+        {
+            _rigidbody.position = position;
+        }
     }
 
     #endregion
@@ -677,7 +687,7 @@ public class Baseball : MonoBehaviour
         Vector3 v = new Vector3(_rigidbody.velocity.x, 0, _rigidbody.velocity.z);
         float velocity = v.magnitude * 3.6f; 
         getVelocityEventSO.RaiseEvent(velocity);
-        Debug.Log(velocity+ "km/h"); //수치 재미를 위해 * 4.5 할듯
+        //Debug.Log(velocity+ "km/h"); //수치 재미를 위해 * 4.5 할듯
     }
     
     
@@ -694,7 +704,13 @@ public class Baseball : MonoBehaviour
 
     public float Ball_Accuracy_Weight
     {
-        get;
-        set;
+        get
+        {
+            return ball_accuracy_weight;
+        }
+        set
+        {
+            ball_accuracy_weight = value;
+        }
     }
 }

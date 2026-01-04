@@ -342,14 +342,4 @@ public class PitchSelectionUI : MonoBehaviour
         return pitchDataArray[0]; // 기본값
     }
 
-    // 키보드 단축키 (에디터 테스트용)
-    void Update()
-    {
-#if UNITY_EDITOR
-        if (Input.GetKeyDown(KeyCode.Alpha1)) SelectPitch(PitchType.FastBall);
-        if (Input.GetKeyDown(KeyCode.Alpha2)) SelectPitch(PitchType.Curve);
-        if (Input.GetKeyDown(KeyCode.Alpha3)) SelectPitch(PitchType.Slider);
-        if (Input.GetKeyDown(KeyCode.Alpha4)) SelectPitch(PitchType.ForkBall);
-#endif
-    }
 }

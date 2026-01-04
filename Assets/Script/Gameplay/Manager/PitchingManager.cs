@@ -91,7 +91,7 @@ public class PitchingManager : MonoBehaviour
 
         // init ball
         ball.SetVelocity(Vector3.zero);
-        ball.transform.position = ballResetPosition.position;
+        ball.SetPosition(ballResetPosition.position);
     }
     
     private void OnPitchTypeSelected(PitchType pitchType)
