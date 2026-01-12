@@ -15,11 +15,12 @@ public class GameManager : MonoBehaviour
     private int strike_count = 0;
     private int out_count = 0;
 
-    [Header("Manager")] [SerializeField] private PitchingManager pitchingManager;
-
+    [Header("Manager")]
+    [SerializeField] private PitchingManager pitchingManager;
 
     [SerializeField] private XROrigin playerOrigin;
 
+    [Header("UI")]
     [SerializeField] private UIGameStatus[] _UIGameStatusElements;
     [SerializeField] private TextMeshProUGUI[] _scoreTexts;
     [SerializeField] private TextMeshProUGUI _inningText;
@@ -113,10 +114,6 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        Debug.Log("Game start");
-        BallCount = 0;
-        Strike = 0;
-        OutCount = 0;
 
         for (int i = 0; i < MAX_BASE_COUNT + 1; i++)
         {

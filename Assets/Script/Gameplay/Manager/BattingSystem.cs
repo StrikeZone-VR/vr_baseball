@@ -178,12 +178,12 @@ public class BattingSystem : MonoBehaviour
     public void PlusVelocityBall()
     {
         pitcher.VelocityXZ += 10;
-        velocityControllerText.text = "시속 " +pitcher.VelocityXZ.ToString("F2") + "km/h";
+        velocityControllerText.text = "시속 " +pitcher.VelocityXZ.ToString() + "km/h";
     }
     public void MinusVelocityBall()
     {
         pitcher.VelocityXZ -= 10;
-        velocityControllerText.text = "시속 " + pitcher.VelocityXZ.ToString("F2") + "km/h";
+        velocityControllerText.text = "시속 " + pitcher.VelocityXZ.ToString() + "km/h";
     }
 
 
