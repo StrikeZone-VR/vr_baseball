@@ -8,82 +8,35 @@ using UnityEngine;
 //게임 시작할때 실행되는 GameManager
 public class GameManager : MonoBehaviour
 {
-    //0 1 => 1이닝 공격 수비, => 0~17 => 짝수면 원정, 홀수면 홈 
-    private int inning = 0;
-
-    private int ball_count = 0;
-    private int strike_count = 0;
-    private int out_count = 0;
-
-    [Header("Manager")]
-    [SerializeField] private PitchingManager pitchingManager;
-
     [SerializeField] private XROrigin playerOrigin;
-
-    [Header("UI")]
-    [SerializeField] private UIGameStatus[] _UIGameStatusElements;
-    [SerializeField] private TextMeshProUGUI[] _scoreTexts;
-    [SerializeField] private TextMeshProUGUI _inningText;
-
-    [SerializeField] private Defender[] defenders; // pitcher => 0
-    [SerializeField] private Transform[] bases;
+    
     [SerializeField] private Baseball _ball; //일단 PitchingBallController도 여깄음
 
-    private Queue<Batter>[] runners = new Queue<Batter>[MAX_BASE_COUNT + 1];
-
-    [Header("Batter")] 
-    [SerializeField] private Batter batterPrefab;
-    [SerializeField] private Transform batterCreatePosition;
-    [SerializeField] private Transform batterPosition;
-    [SerializeField] private Batter currentBatter;
-    [SerializeField] private GameObject _bat;
-
-    private TeamStatus[] _teamStatus = new TeamStatus[2];
-    private int beforeScore = 0;
-    private bool [] isBeforeBaseStatus = { false, false, false };
-
-    [Header("Broadcasting on EventChannels")] [SerializeField]
-    private IntEventSO outBatterEvent; //Defender, Baseman
-
+    [Header("Broadcasting on EventChannels")] 
     [SerializeField] private VoidEventSO addBallCountEvent; //to Baseball
     [SerializeField] private VoidEventSO strikeEvent; // toStrikeZone, batter
-    [SerializeField] private VoidEventSO paulEvent; // toStrikeZone
+    [SerializeField] private VoidEventSO foulEvent; // toStrikeZone
     [SerializeField] private VoidEventSO homerunEvent; // toStrikeZone
 
-    
-    [Space] [SerializeField] private VoidEventSO allTrackingOffEvent; //to baseball
-    [SerializeField] private VoidEventSO addScore; //to Batter
-    [SerializeField] private IntEventSO addIsBaseStatus; //to Batter
-    [SerializeField] private VoidEventSO runSignalEvent;
-
-    
-    [Space] [SerializeField] private VoidEventSO startPitchEvent; //to batter
-    [SerializeField] private VoidEventSO swingEvent; //to Pitcher
+    [Space]
+    [SerializeField] private VoidEventSO startPitchEvent; //to batter
+    [SerializeField] private VoidEventSO swingEvent; //to Pitcher, auto swing
     [SerializeField] private VoidEventSO pitchEvent; //to PitchingBallController
     [SerializeField] private VoidEventSO backToPitcherEvent; //?
 
-    //Define
-    private const int MAX_BALL_COUNT = 4;
-    private const int MAX_STRIKE_COUNT = 3;
-    private const int MAX_OUT_COUNT = 3;
-    private const int MAX_INNING_COUNT = 18;
-    private const int MAX_BASE_COUNT = 3;
+    [Header("Manager")]
+    [SerializeField] private PitchingManager pitchingManager; //todo : 아직 안봄
 
+    protected List<GameModel> gameModels = new List<GameModel>();
+    
     private void OnEnable()
     {
-        outBatterEvent.onEventRaised += OutBatter;
-
         addBallCountEvent.onEventRaised += AddBallCount;
         strikeEvent.onEventRaised += AddStrike;
-        paulEvent.onEventRaised += Paul;
+        foulEvent.onEventRaised += Paul;
         homerunEvent.onEventRaised += Homerun;
 
-        allTrackingOffEvent.onEventRaised += AllTrackingOff;
-        addScore.onEventRaised += AddScore;
         startPitchEvent.onEventRaised += OnTouchBall;
-        runSignalEvent.onEventRaised += RunRunner;
-
-        addIsBaseStatus.onEventRaised += AddIsBaseStatus;
 
         swingEvent.onEventRaised += DebugBatting;
         pitchEvent.onEventRaised += SwingSignalToBatter;
@@ -92,20 +45,12 @@ public class GameManager : MonoBehaviour
 
     private void OnDisable()
     {
-        outBatterEvent.onEventRaised -= OutBatter;
-
         addBallCountEvent.onEventRaised -= AddBallCount;
         strikeEvent.onEventRaised -= AddStrike;
-        paulEvent.onEventRaised -= Paul;
+        foulEvent.onEventRaised -= Paul;
         homerunEvent.onEventRaised -= Homerun;
 
-
-        allTrackingOffEvent.onEventRaised -= AllTrackingOff;
-        addScore.onEventRaised -= AddScore;
         startPitchEvent.onEventRaised -= OnTouchBall;
-        runSignalEvent.onEventRaised -= RunRunner;
-
-        addIsBaseStatus.onEventRaised -= AddIsBaseStatus;
 
         swingEvent.onEventRaised -= DebugBatting;
         pitchEvent.onEventRaised -= SwingSignalToBatter;
@@ -114,12 +59,6 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-
-        for (int i = 0; i < MAX_BASE_COUNT + 1; i++)
-        {
-            runners[i] = new Queue<Batter>();
-        }
-
         SetScore(0, 0);
         SetScore(1, 0);
         Inning = 0;
@@ -129,112 +68,7 @@ public class GameManager : MonoBehaviour
         //defenders[0].SetMyBall(_ball);
     }
 
-    private void Update()
-    {
-        //debug
-        //to pitcher
-        if (Input.GetKeyDown(KeyCode.Alpha0))
-        {
-            defenders[0].SetMyBall(_ball);
-            //_ball.MyDefender.ThrowBall(defenders[0].transform.position);
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-            ThrowToBase(0);
-        else if (Input.GetKeyDown(KeyCode.Alpha2))
-            ThrowToBase(1);
-        else if (Input.GetKeyDown(KeyCode.Alpha3))
-            ThrowToBase(2);
-        else if (Input.GetKeyDown(KeyCode.Alpha4))
-            ThrowToBase(3);
-
-        //has ball and ball batting
-        if (_ball.MyDefender && _ball.IsBatTouch)
-        {
-            //던질 곳 없으면 복귀
-            if (!ThrowBallAlgorithm())
-            {
-                PitcherGetBall();
-
-                //투수일 경우 + currentBatter가 null인 경우
-                if (!currentBatter && inning % 2 == 1)
-                {
-                    CreateBatter();
-                }
-            }
-        }
-
-
-        if (Input.GetKeyDown(KeyCode.B))
-        {
-            //_ball.OnTouchBall();
-            PitcherGetBall();
-        }
-
-        //batter run
-        if (Input.GetKeyDown(KeyCode.C))
-        {
-            MoveOneBase();
-        }
-
-        if (Input.GetKeyDown(KeyCode.X))
-        {
-            Inning++;
-        }
-        if (Input.GetKeyDown(KeyCode.V))
-        {
-            DebugBaseStatus();
-        }
-
-        if (_ball.MyDefender)
-        {
-            return;
-        }
-
-        //tracking => 혹시 포수가 못 잡을 수 있으니 isBatTouch는 넣지말자
-        if (!_ball.IsPassing && _ball.IsGroundBall && !_ball.IsThrown)
-        {
-            int index = FindClosestDefenderIndex();
-            AllTrackingOff();
-            //closestDefender set tracking
-            if (index == -1)
-            {
-                return;
-            }
-            
-            //Debug.Log("트래킹 잠시 무효화");
-            defenders[index].IsTracking = true;
-        }
-    }
-
     #region PROPERTY
-
-    //*************************************************************************************** property
-    public int OutCount
-    {
-        get { return out_count; }
-        set
-        {
-            out_count = value;
-
-            BallCount = 0;
-            Strike = 0;
-
-            Debug.Log("아웃 : " + out_count);
-            if (out_count >= MAX_OUT_COUNT)
-            {
-                out_count = 0;
-                Inning++;
-            }
-
-            _UIGameStatusElements[2].SetIndex(out_count);
-        }
-    }
-
-    private void AddOut()
-    {
-        OutCount++;
-    }
 
     public int Inning
     {
@@ -713,38 +547,4 @@ public class GameManager : MonoBehaviour
     }
 
     #endregion
-}
-
-struct TeamStatus
-{
-    private int score;
-
-    //타순 0 ~ 8
-    public int batting_order;
-
-    //Define
-    private const int MAX_BATTING_ORDER = 9;
-
-    public int BattingOrder
-    {
-        get => batting_order;
-        set
-        {
-            batting_order = value;
-            if (batting_order >= MAX_BATTING_ORDER)
-            {
-                batting_order = 0;
-            }
-        }
-    }
-
-    /// <summary>
-    ///only AddScore function
-    /// </summary>
-    public int Score
-    {
-        get => score;
-
-        set { score = value; }
-    }
 }
