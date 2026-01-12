@@ -131,36 +131,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9797075}
-  - component: {fileID: 9797074}
+  - component: {fileID: 9797076}
   m_Layer: 0
-  m_Name: PitchingModeManager
+  m_Name: PitchingController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &9797074
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9797073}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e000973a0c9e08c4ba20718b83ffc33b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  batter: {fileID: 814416831}
-  baseball: {fileID: 2044365753}
-  pitchingManager: {fileID: 976180239}
-  pitchSelectionUI: {fileID: 1260030965}
-  strikeEventSO: {fileID: 11400000, guid: 7980c5f1d20201f48891aba9f1727e76, type: 2}
-  ballEventSO: {fileID: 11400000, guid: 60c42e35457ecd34d8efad8431a9dc85, type: 2}
-  backToPitcherEvent: {fileID: 11400000, guid: 38591f4b3ef079940be5f6a3e91e74ce, type: 2}
-  pitchEvent: {fileID: 11400000, guid: 6ca9374e56161084ca2bd8dee328860a, type: 2}
-  moveOriginEvent: {fileID: 11400000, guid: c0d00800716a55143911a6d8709ab8f3, type: 2}
-  rotateOriginEvent: {fileID: 11400000, guid: d164c5b6bfab6604987cbe7b5a2ca409, type: 2}
 --- !u!4 &9797075
 Transform:
   m_ObjectHideFlags: 0
@@ -176,6 +154,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 976180240}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &9797076
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9797073}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccb2ab3804d25fb468e5ff017ba82bd4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pitchSelectionUI: {fileID: 1260030965}
+  _ball: {fileID: 2044365753}
+  ballResetPosition: {fileID: 1464780507}
 --- !u!1 &248055997
 GameObject:
   m_ObjectHideFlags: 0
@@ -573,17 +566,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
---- !u!114 &814416831 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: -2223903063539352654, guid: 022e049949df0ed47a134ea64e62c95d, type: 3}
-  m_PrefabInstance: {fileID: 1254903314}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 741907a70a8d7c74dbf43804ef181468, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &885463932
 GameObject:
   m_ObjectHideFlags: 0
@@ -728,7 +710,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4134505312059479865, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -10
+      value: -13.21
       objectReference: {fileID: 0}
     - target: {fileID: 4134505312059479865, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
       propertyPath: m_LocalPosition.y
@@ -736,7 +718,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4134505312059479865, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -10
+      value: -13.35
       objectReference: {fileID: 0}
     - target: {fileID: 4134505312059479865, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
       propertyPath: m_LocalRotation.w
@@ -794,6 +776,17 @@ PrefabInstance:
       addedObject: {fileID: 523548593}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
+--- !u!114 &895308233 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7873184977108000993, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
+  m_PrefabInstance: {fileID: 895308232}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e0cb9aa70a22847b5925ee5f067c10a9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &976180237
 GameObject:
   m_ObjectHideFlags: 0
@@ -823,13 +816,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f13226d5984bcc64a8371e346910bc21, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pitchSelectionUI: {fileID: 1260030965}
-  ball: {fileID: 2044365753}
-  ballResetPosition: {fileID: 1464780507}
-  playAudioClipEvent: {fileID: 11400000, guid: d945dac53f32b4d47a9561b9d8dac9a6, type: 2}
-  getVelocityEvent: {fileID: 11400000, guid: c2305552fa4ae3741985e7e98ca99b92, type: 2}
-  strikeEvent: {fileID: 11400000, guid: 7980c5f1d20201f48891aba9f1727e76, type: 2}
+  playerOrigin: {fileID: 895308233}
+  _ball: {fileID: 2044365753}
   addBallCountEvent: {fileID: 11400000, guid: 60c42e35457ecd34d8efad8431a9dc85, type: 2}
+  strikeEvent: {fileID: 11400000, guid: 7980c5f1d20201f48891aba9f1727e76, type: 2}
+  foulEvent: {fileID: 11400000, guid: 92f9d4b8ff2a53147a913724e0def414, type: 2}
+  homerunEvent: {fileID: 11400000, guid: 2c50fa93d15b0bd469de3b987b91d592, type: 2}
+  backToPitcherEvent: {fileID: 11400000, guid: 38591f4b3ef079940be5f6a3e91e74ce, type: 2}
+  moveOriginEvent: {fileID: 11400000, guid: c0d00800716a55143911a6d8709ab8f3, type: 2}
+  rotateOriginEvent: {fileID: 11400000, guid: d164c5b6bfab6604987cbe7b5a2ca409, type: 2}
+  getVelocityEvent: {fileID: 11400000, guid: c2305552fa4ae3741985e7e98ca99b92, type: 2}
+  pitcherController: {fileID: 9797076}
 --- !u!4 &976180240
 Transform:
   m_ObjectHideFlags: 0
@@ -969,7 +966,7 @@ Transform:
   m_GameObject: {fileID: 1464780506}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -9, y: 0.41, z: -9}
+  m_LocalPosition: {x: -12.58, y: 0.41, z: -12.73}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1233,7 +1230,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9040452230717059448, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -9
+      value: -12.58
       objectReference: {fileID: 0}
     - target: {fileID: 9040452230717059448, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1241,7 +1238,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9040452230717059448, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -9
+      value: -12.73
       objectReference: {fileID: 0}
     - target: {fileID: 9040452230717059448, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
       propertyPath: m_LocalRotation.w
