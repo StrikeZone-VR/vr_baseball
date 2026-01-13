@@ -9,6 +9,8 @@ using UnityEngine.Serialization;
 //게임 시작할때 실행되는 GameManager
 public class GameManager : MonoBehaviour
 {
+
+    
     [SerializeField] protected XROrigin playerOrigin; //debug용
     [SerializeField] protected Baseball _ball; //일단 PitchingBallController도 여깄음
 
@@ -20,12 +22,17 @@ public class GameManager : MonoBehaviour
 
     [Space]
     [SerializeField] private VoidEventSO backToPitcherEvent; //?
-    
-    
+    [SerializeField] private FloatEventSO getVelocityEvent; //ball?
+    [SerializeField] private IntEventSO waitPitcherEvent;
+
+    //가져오기
     [Header("Listening to EventChannels")] 
     [SerializeField] protected Vector3EventSO moveOriginEvent;
     [SerializeField] protected Vector3EventSO rotateOriginEvent;
+    [SerializeField] protected SceneEventSO sceneEventSO;
+    [SerializeField] protected IntEventSO playAudioClipEvent;
 
+    
     protected BaseballModel baseballModel = new BaseballModel();
 
     protected virtual void OnEnable()
@@ -36,6 +43,8 @@ public class GameManager : MonoBehaviour
         homerunEvent.onEventRaised += Homerun;
 
         backToPitcherEvent.onEventRaised += PitcherGetBall;
+        getVelocityEvent.onEventRaised += SetVelocityToText;
+        waitPitcherEvent.onEventRaised += WaitPitchingToText;
     }
 
     protected virtual void OnDisable()
@@ -46,6 +55,8 @@ public class GameManager : MonoBehaviour
         homerunEvent.onEventRaised -= Homerun;
 
         backToPitcherEvent.onEventRaised -= PitcherGetBall;
+        getVelocityEvent.onEventRaised -= SetVelocityToText;
+        waitPitcherEvent.onEventRaised -= WaitPitchingToText;
     }
 
     protected virtual void Start()
@@ -84,6 +95,9 @@ public class GameManager : MonoBehaviour
 
     //Gameplay에서는 알아서 사용
     protected virtual void PitcherGetBall() { }
-
+    protected virtual void SetVelocityToText(float velocity) {}
+    
+    //PitchingManager에서는 안 쓰일 예정. 투수 대기 함수
+    protected virtual void WaitPitchingToText(int time) { }
 
 }

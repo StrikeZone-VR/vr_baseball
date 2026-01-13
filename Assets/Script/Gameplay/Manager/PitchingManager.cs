@@ -9,8 +9,6 @@ using Debug = UnityEngine.Debug;
 public class PitchingManager : GameManager
 {
     [Header("Broadcasting to Events")]
-    [SerializeField] private FloatEventSO getVelocityEvent;
-    
     [SerializeField] private PitchingController pitcherController;
     
     const float WAIT_TIME = 2.0f; //원래 7임
@@ -20,13 +18,11 @@ public class PitchingManager : GameManager
     protected override void OnEnable()
     {
         base.OnEnable();
-        getVelocityEvent.onEventRaised += SetVelocityUI;
     }
 
     protected override void OnDisable()
     {
         base.OnDisable();
-        getVelocityEvent.onEventRaised -= SetVelocityUI;
     }
 
     protected override void Start()
@@ -72,11 +68,9 @@ public class PitchingManager : GameManager
         }
     }
     
-    
-
-    private void SetVelocityUI(float value)
+    protected override void SetVelocityToText(float velocity)
     {
-        pitcherController.SetVelocityUI(value);
+        pitcherController.SetVelocityUI(velocity);
     }
     
     protected override void PitcherGetBall()
@@ -89,5 +83,7 @@ public class PitchingManager : GameManager
         yield return new WaitForSeconds(WAIT_TIME);
         pitcherController.ResetBall();
     }
+    
+    
 
 }

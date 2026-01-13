@@ -2,17 +2,34 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BattingModel : MonoBehaviour
+public class BattingModel : GameModel
 {
-    // Start is called before the first frame update
-    void Start()
+    private int hit;
+    private int homerun;
+    private int foul;
+    private int ground_ball; //땅볼
+
+    public int Hit
     {
-        
+        get => hit;
+        set => hit = value;
     }
 
-    // Update is called once per frame
-    void Update()
+    public int Homerun
     {
-        
+        get => homerun;
+        set => homerun = value;
+    }
+
+    public int Foul
+    {
+        get => foul;
+        set => foul = value;
+    }
+
+    public int GroundBall
+    {
+        get => ground_ball;
+        set => ground_ball = value;
     }
 }

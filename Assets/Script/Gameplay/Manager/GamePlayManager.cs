@@ -1,22 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 
 public class GamePlayManager : GameManager
 {
-    [Header("UI")]
-    [SerializeField] private UIGameStatus[] _UIGameStatusElements;
-    [SerializeField] private TextMeshProUGUI[] _scoreTexts;
-    [SerializeField] private TextMeshProUGUI _inningText;
-    
     [Header("Objects")]
     [SerializeField] private Defender[] defenders; // pitcher => 0
     [SerializeField] private Transform[] bases;
     
     [Header("Controllers")]
+    [SerializeField] private GamePlayController gamePlayController;
     [SerializeField] private PitchingController pitchingController;
-
+    [SerializeField] private BattingController battingController;
     [Header("Batter")] 
     [SerializeField] private Batter batterPrefab;
     [SerializeField] private Transform batterCreatePosition;
@@ -35,12 +30,13 @@ public class GamePlayManager : GameManager
     [SerializeField] private VoidEventSO addScore; //to Batter
     [SerializeField] private IntEventSO addIsBaseStatus; //to Batter
     [SerializeField] private VoidEventSO runSignalEvent;
-    
+    const float WAIT_TIME = 7.0f; 
 
     private int beforeScore = 0;
     private bool [] isBeforeBaseStatus = { false, false, false };
     
     private GamePlayModel gamePlayModel = new GamePlayModel();
+    private BattingModel battingModel = new BattingModel();
     
     protected override void OnEnable()
     {
@@ -74,6 +70,7 @@ public class GamePlayManager : GameManager
 
     protected override void Start()
     {
+        base.Start();
         SetScore(0, 0);
         SetScore(1, 0);
         Inning = 0;
@@ -115,26 +112,26 @@ public class GamePlayManager : GameManager
         }
 
 
-        if (Input.GetKeyDown(KeyCode.B))
-        {
-            //_ball.OnTouchBall();
-            PitcherGetBall();
-        }
-
-        //batter run
-        if (Input.GetKeyDown(KeyCode.C))
-        {
-            MoveOneBase();
-        }
-
-        if (Input.GetKeyDown(KeyCode.X))
-        {
-            Inning++;
-        }
-        if (Input.GetKeyDown(KeyCode.V))
-        {
-            DebugBaseStatus();
-        }
+        // if (Input.GetKeyDown(KeyCode.B))
+        // {
+        //     //_ball.OnTouchBall();
+        //     PitcherGetBall();
+        // }
+        //
+        // //batter run
+        // if (Input.GetKeyDown(KeyCode.C))
+        // {
+        //     MoveOneBase();
+        // }
+        //
+        // if (Input.GetKeyDown(KeyCode.X))
+        // {
+        //     Inning++;
+        // }
+        // if (Input.GetKeyDown(KeyCode.V))
+        // {
+        //     DebugBaseStatus();
+        // }
 
         if (_ball.MyDefender)
         {
@@ -186,10 +183,8 @@ public class GamePlayManager : GameManager
             {
                 StartPitcher();
             }
-
-            string t = value % 2 == 0 ? "▲" : "▼";
-            t += " " + (value / 2 + 1) + "이닝";
-            _inningText.text = t;
+            
+            gamePlayController.SetInningText(value);
         }
     }
     
@@ -209,7 +204,7 @@ public class GamePlayManager : GameManager
             }
             gamePlayModel.OutCount = value;
 
-            _UIGameStatusElements[2].SetIndex(value);
+            gamePlayController.SetUIGameStatusIndex(2, value);
         }
     }
     
@@ -234,7 +229,8 @@ public class GamePlayManager : GameManager
             baseballModel.Strike = value;
             
             //ui
-            _UIGameStatusElements[1].SetIndex(value);
+            gamePlayController.SetUIGameStatusIndex(1, value);
+            battingController.SetStrikeToText(value);
         }
     }
     
@@ -252,7 +248,8 @@ public class GamePlayManager : GameManager
                 MoveOneBase();
             }
             baseballModel.BallCount = value;
-            _UIGameStatusElements[0].SetIndex(value);
+            gamePlayController.SetUIGameStatusIndex(0, value);
+            battingController.SetBallCountToText(value);
         }
     }
 
@@ -277,12 +274,10 @@ public class GamePlayManager : GameManager
 
     protected override void Foul()
     {
-        PitcherGetBall();
-
-        Debug.Log("Foul");
         //만약에 점수를 냈다면?
         RerollBeforeStatus();
-        
+        ++FoulCount;
+
         //strike == 2
         if (Strike == BaseballModel.MAX_STRIKE_COUNT - 1)
         {
@@ -294,11 +289,9 @@ public class GamePlayManager : GameManager
 
     protected override void Homerun()
     {
-        PitcherGetBall();
-
         AddScore(gamePlayModel.EstimateRunners());
-        
         ClearRunners();
+        ++HomerunCount;
     }
 
     private void AddScore(int value)
@@ -309,9 +302,39 @@ public class GamePlayManager : GameManager
     
     private void SetScore(int teamIndex, int score)
     {
-        _scoreTexts[teamIndex].text = score.ToString();
+        gamePlayController.SetScoreText(teamIndex, score);
+    }
+    public int HomerunCount
+    {
+        get { return battingModel.Homerun; }
+        set
+        {
+            battingModel.Homerun = value;
+            battingController.SetHomerunToText(value);
+        }
     }
 
+    public int FoulCount
+    {
+        get { return battingModel.Foul; }
+        set
+        {
+            battingModel.Foul = value;
+            battingController.SetFoulToText(value);
+        }
+    }
+    public int GroundBallCount
+    {
+        get { return battingModel.GroundBall; }
+        set
+        {
+            battingModel.GroundBall = value;
+            battingController.SetGroundballToText(value);
+        }
+    }
+
+    #endregion
+    
     private void InitInning()
     {
         BallCount = 0;
@@ -320,9 +343,7 @@ public class GamePlayManager : GameManager
 
         ClearRunners();
     }
-    
-    #endregion
-    
+
     
     //주자 돌아가는 함수 => 이게 가장 문제다.
     private void RerollBeforeStatus()
@@ -366,6 +387,10 @@ public class GamePlayManager : GameManager
 
     private void DeleteRunner()
     {
+        if (currentBatter == null)
+        {
+            return;
+        }
         Destroy(currentBatter.gameObject);
         currentBatter = null;
         CreateBatter();
@@ -419,7 +444,7 @@ public class GamePlayManager : GameManager
     {
         if (gamePlayModel.GetTeamIndex() % 2 == 0)
         {
-            
+            StartCoroutine(WaitingBackToPitcher());
         }
         else
         {
@@ -637,6 +662,31 @@ public class GamePlayManager : GameManager
     {
         _ball.OnTouchBall();
     }
+    
+    //override
+    protected override void SetVelocityToText(float velocity)
+    {
+        battingController.SetVelocityToText(velocity);
+    }
+    
+    protected override void WaitPitchingToText(int time)
+    {
+        battingController.WaitPitchingToText(time);
+        if (time == 3)
+        {
+            playAudioClipEvent.RaiseEvent(2);
+        }
+    }
+    
+    IEnumerator WaitingBackToPitcher()
+    {
+        //StartCoroutine(BackPitching());
+
+        yield return new WaitForSeconds(WAIT_TIME);
+        battingController.PitcherGetBall();
+    }
+
+    
     #region DEBUG
 
     void DebugBaseStatus()

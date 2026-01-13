@@ -256,6 +256,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 15468582}
   m_CullTransparentMesh: 1
+--- !u!4 &48931140 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7320533085372412384, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
+  m_PrefabInstance: {fileID: 2031423780}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &58442965
 GameObject:
   m_ObjectHideFlags: 0
@@ -1138,6 +1143,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: BatStatusCanvas
       objectReference: {fileID: 0}
+    - target: {fileID: 3287026240662051651, guid: 458e51f90f20699478a19d6b30f2cb37, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1480665834}
+    - target: {fileID: 3287026240662051651, guid: 458e51f90f20699478a19d6b30f2cb37, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: MinusVelocityBall
+      objectReference: {fileID: 0}
+    - target: {fileID: 3287026240662051651, guid: 458e51f90f20699478a19d6b30f2cb37, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: BattingController, Assembly-CSharp
+      objectReference: {fileID: 0}
     - target: {fileID: 3842580889318180093, guid: 458e51f90f20699478a19d6b30f2cb37, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -1185,6 +1202,18 @@ PrefabInstance:
     - target: {fileID: 5352765167789127086, guid: 458e51f90f20699478a19d6b30f2cb37, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5655330956172226307, guid: 458e51f90f20699478a19d6b30f2cb37, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1480665834}
+    - target: {fileID: 5655330956172226307, guid: 458e51f90f20699478a19d6b30f2cb37, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: PlusVelocityBall
+      objectReference: {fileID: 0}
+    - target: {fileID: 5655330956172226307, guid: 458e51f90f20699478a19d6b30f2cb37, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: BattingController, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 5923238637637229643, guid: 458e51f90f20699478a19d6b30f2cb37, type: 3}
       propertyPath: m_AnchorMax.y
@@ -1300,6 +1329,94 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 6071083956271410505, guid: 458e51f90f20699478a19d6b30f2cb37, type: 3}
   m_PrefabInstance: {fileID: 157293153}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &157293155 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8363597865209672204, guid: 458e51f90f20699478a19d6b30f2cb37, type: 3}
+  m_PrefabInstance: {fileID: 157293153}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &157293156 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2488684815311991569, guid: 458e51f90f20699478a19d6b30f2cb37, type: 3}
+  m_PrefabInstance: {fileID: 157293153}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &157293157 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1467624413933653416, guid: 458e51f90f20699478a19d6b30f2cb37, type: 3}
+  m_PrefabInstance: {fileID: 157293153}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &157293158 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 289137115777398510, guid: 458e51f90f20699478a19d6b30f2cb37, type: 3}
+  m_PrefabInstance: {fileID: 157293153}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &157293159 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8007082809159687112, guid: 458e51f90f20699478a19d6b30f2cb37, type: 3}
+  m_PrefabInstance: {fileID: 157293153}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &157293160 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4985574181748522121, guid: 458e51f90f20699478a19d6b30f2cb37, type: 3}
+  m_PrefabInstance: {fileID: 157293153}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &157293161 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 659954215022225875, guid: 458e51f90f20699478a19d6b30f2cb37, type: 3}
+  m_PrefabInstance: {fileID: 157293153}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &157293162 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7563335439332683990, guid: 458e51f90f20699478a19d6b30f2cb37, type: 3}
+  m_PrefabInstance: {fileID: 157293153}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &170363101
 GameObject:
   m_ObjectHideFlags: 0
@@ -1392,6 +1509,63 @@ MeshFilter:
 --- !u!4 &199028641 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4216586149187231679, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
+  m_PrefabInstance: {fileID: 2031423780}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &213368711
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 213368712}
+  - component: {fileID: 213368713}
+  m_Layer: 0
+  m_Name: GamePlayController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &213368712
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 213368711}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1208688575}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &213368713
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 213368711}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a584eab5dcb9b674cafe6e5b8e5c7a78, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _UIGameStatusElements:
+  - {fileID: 67701808}
+  - {fileID: 1941328974}
+  - {fileID: 1955174652}
+  _scoreTexts:
+  - {fileID: 1086991458}
+  - {fileID: 15468584}
+  _inningText: {fileID: 644519350}
+--- !u!4 &267951508 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 883660392356964306, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
   m_PrefabInstance: {fileID: 2031423780}
   m_PrefabAsset: {fileID: 0}
 --- !u!4 &297649370 stripped
@@ -1876,37 +2050,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 389312990}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &413101416
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 413101417}
-  m_Layer: 0
-  m_Name: GameObject
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &413101417
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 413101416}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -9, y: 0.5, z: -9}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 853712789}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &438403317
 GameObject:
   m_ObjectHideFlags: 0
@@ -2055,6 +2198,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5306da554498b56448f16fa366c57249, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!4 &577640461 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3678344045543860982, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
+  m_PrefabInstance: {fileID: 2031423780}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &582308468
 GameObject:
   m_ObjectHideFlags: 0
@@ -2148,7 +2296,7 @@ GameObject:
   - component: {fileID: 590389628}
   - component: {fileID: 590389627}
   m_Layer: 5
-  m_Name: Canvas
+  m_Name: GamePlayCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2806,7 +2954,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 761965507}
   m_CullTransparentMesh: 1
---- !u!1 &853712788
+--- !u!1 &768156387
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2814,50 +2962,77 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 853712789}
-  - component: {fileID: 853712790}
+  - component: {fileID: 768156388}
+  - component: {fileID: 768156389}
   m_Layer: 0
-  m_Name: PitchingManager
+  m_Name: PitchingController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &853712789
+--- !u!4 &768156388
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 853712788}
+  m_GameObject: {fileID: 768156387}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 413101417}
+  - {fileID: 807353492}
   m_Father: {fileID: 1208688575}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &853712790
+--- !u!114 &768156389
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 853712788}
+  m_GameObject: {fileID: 768156387}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f13226d5984bcc64a8371e346910bc21, type: 3}
+  m_Script: {fileID: 11500000, guid: ccb2ab3804d25fb468e5ff017ba82bd4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   pitchSelectionUI: {fileID: 1998049268}
-  ball: {fileID: 683532152}
-  ballResetPosition: {fileID: 413101417}
-  playAudioClipEvent: {fileID: 11400000, guid: d945dac53f32b4d47a9561b9d8dac9a6, type: 2}
-  getVelocityEvent: {fileID: 11400000, guid: c2305552fa4ae3741985e7e98ca99b92, type: 2}
-  strikeEvent: {fileID: 11400000, guid: 7980c5f1d20201f48891aba9f1727e76, type: 2}
-  addBallCountEvent: {fileID: 11400000, guid: 60c42e35457ecd34d8efad8431a9dc85, type: 2}
+  _ball: {fileID: 683532152}
+  ballResetPosition: {fileID: 807353492}
+--- !u!1 &807353491
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 807353492}
+  m_Layer: 0
+  m_Name: BallResetPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &807353492
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 807353491}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -12.81, y: 0, z: -12.69}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 768156388}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &877522167
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2876,11 +3051,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4934351738625949845, guid: 7619a4777f860bd4ca3f693affa29280, type: 3}
       propertyPath: m_UseGravity
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4934351738625949845, guid: 7619a4777f860bd4ca3f693affa29280, type: 3}
       propertyPath: m_Constraints
-      value: 126
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4934351738625949845, guid: 7619a4777f860bd4ca3f693affa29280, type: 3}
+      propertyPath: m_ImplicitCom
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4934351738625949845, guid: 7619a4777f860bd4ca3f693affa29280, type: 3}
+      propertyPath: m_ImplicitTensor
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5240538323715969024, guid: 7619a4777f860bd4ca3f693affa29280, type: 3}
       propertyPath: m_LocalPosition.x
@@ -3392,6 +3575,37 @@ Transform:
   - {fileID: 2031267164}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1141369946
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1141369947}
+  m_Layer: 0
+  m_Name: =========UI=========
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1141369947
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1141369946}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1169513267 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8782142839265015892, guid: e77c829e69c78ae44b86c93845b1c9df, type: 3}
@@ -3779,7 +3993,9 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 853712789}
+  - {fileID: 213368712}
+  - {fileID: 1480665833}
+  - {fileID: 768156388}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1208688576
@@ -3791,19 +4007,22 @@ MonoBehaviour:
   m_GameObject: {fileID: 1208688574}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e5730fa4a2c0a1f4fbec61017dfb0ba5, type: 3}
+  m_Script: {fileID: 11500000, guid: 83128d486859def41b607406d3bc94bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pitchingManager: {fileID: 853712790}
   playerOrigin: {fileID: 1388435485}
-  _UIGameStatusElements:
-  - {fileID: 67701808}
-  - {fileID: 1941328974}
-  - {fileID: 1955174652}
-  _scoreTexts:
-  - {fileID: 1086991458}
-  - {fileID: 15468584}
-  _inningText: {fileID: 644519350}
+  _ball: {fileID: 683532152}
+  addBallCountEvent: {fileID: 11400000, guid: 60c42e35457ecd34d8efad8431a9dc85, type: 2}
+  strikeEvent: {fileID: 11400000, guid: 7980c5f1d20201f48891aba9f1727e76, type: 2}
+  foulEvent: {fileID: 11400000, guid: 92f9d4b8ff2a53147a913724e0def414, type: 2}
+  homerunEvent: {fileID: 11400000, guid: 2c50fa93d15b0bd469de3b987b91d592, type: 2}
+  backToPitcherEvent: {fileID: 11400000, guid: 38591f4b3ef079940be5f6a3e91e74ce, type: 2}
+  getVelocityEvent: {fileID: 11400000, guid: c2305552fa4ae3741985e7e98ca99b92, type: 2}
+  waitPitcherEvent: {fileID: 11400000, guid: adc39812077ff9249bd346c0a7444b86, type: 2}
+  moveOriginEvent: {fileID: 11400000, guid: c0d00800716a55143911a6d8709ab8f3, type: 2}
+  rotateOriginEvent: {fileID: 11400000, guid: d164c5b6bfab6604987cbe7b5a2ca409, type: 2}
+  sceneEventSO: {fileID: 11400000, guid: 1614b16f3ac165a4095e5f466b87b7b6, type: 2}
+  playAudioClipEvent: {fileID: 11400000, guid: d945dac53f32b4d47a9561b9d8dac9a6, type: 2}
   defenders:
   - {fileID: 1036175184}
   - {fileID: 1175599067}
@@ -3815,29 +4034,26 @@ MonoBehaviour:
   - {fileID: 2065011097}
   - {fileID: 1314148799}
   bases:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  _ball: {fileID: 683532152}
+  - {fileID: 577640461}
+  - {fileID: 267951508}
+  - {fileID: 48931140}
+  - {fileID: 1850962855}
+  gamePlayController: {fileID: 213368713}
+  pitchingController: {fileID: 768156389}
+  battingController: {fileID: 1480665834}
   batterPrefab: {fileID: -2223903063539352654, guid: 022e049949df0ed47a134ea64e62c95d, type: 3}
   batterCreatePosition: {fileID: 438403318}
   batterPosition: {fileID: 331307944}
   currentBatter: {fileID: 0}
   _bat: {fileID: 1398974280}
   outBatterEvent: {fileID: 11400000, guid: a7e00550afa182d4594b424474b58e00, type: 2}
-  addBallCountEvent: {fileID: 11400000, guid: 60c42e35457ecd34d8efad8431a9dc85, type: 2}
-  strikeEvent: {fileID: 11400000, guid: 7980c5f1d20201f48891aba9f1727e76, type: 2}
-  paulEvent: {fileID: 11400000, guid: 92f9d4b8ff2a53147a913724e0def414, type: 2}
-  homerunEvent: {fileID: 11400000, guid: 2c50fa93d15b0bd469de3b987b91d592, type: 2}
+  startPitcherModeEvent: {fileID: 11400000, guid: de4dabee6d962db4baf9d9791302d080, type: 2}
+  swingEvent: {fileID: 11400000, guid: df19554b3a210624a8009953190bf9eb, type: 2}
+  pitchEvent: {fileID: 11400000, guid: 6ca9374e56161084ca2bd8dee328860a, type: 2}
   allTrackingOffEvent: {fileID: 11400000, guid: eb943823faaa14e4b87ec836d9d214f4, type: 2}
   addScore: {fileID: 11400000, guid: 07585d6d7215d0b47a54c479469de714, type: 2}
   addIsBaseStatus: {fileID: 11400000, guid: 6c8aee89795cc5b4f92d38e717d670d4, type: 2}
   runSignalEvent: {fileID: 11400000, guid: 2f8b5c598135ebb49bd8c25de9d4678c, type: 2}
-  startPitchEvent: {fileID: 11400000, guid: de4dabee6d962db4baf9d9791302d080, type: 2}
-  swingEvent: {fileID: 11400000, guid: df19554b3a210624a8009953190bf9eb, type: 2}
-  pitchEvent: {fileID: 11400000, guid: 6ca9374e56161084ca2bd8dee328860a, type: 2}
-  backToPitcherEvent: {fileID: 11400000, guid: 38591f4b3ef079940be5f6a3e91e74ce, type: 2}
 --- !u!1 &1221257048
 GameObject:
   m_ObjectHideFlags: 0
@@ -3987,6 +4203,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 2660884621424939191, guid: 3cdad7a6e56df7a47a1e710007ae322c, type: 3}
   m_PrefabInstance: {fileID: 1234096177}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1234096179 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8042594053418005991, guid: 3cdad7a6e56df7a47a1e710007ae322c, type: 3}
+  m_PrefabInstance: {fileID: 1234096177}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1301521303
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4486,6 +4713,61 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1452048632}
   m_CullTransparentMesh: 1
+--- !u!1 &1480665832
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1480665833}
+  - component: {fileID: 1480665834}
+  m_Layer: 0
+  m_Name: BattingController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1480665833
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1480665832}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1208688575}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1480665834
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1480665832}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 154e349ae33554748b1af1d118cee7a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pitcher: {fileID: 1036175184}
+  ball: {fileID: 683532152}
+  hitText: {fileID: 157293160}
+  groundBallText: {fileID: 157293159}
+  foulText: {fileID: 157293158}
+  strikeText: {fileID: 157293156}
+  homerunText: {fileID: 157293161}
+  ballCountText: {fileID: 157293157}
+  waitText: {fileID: 1234096179}
+  velocityControllerText: {fileID: 157293155}
+  velocityText: {fileID: 157293162}
 --- !u!1 &1499312378
 GameObject:
   m_ObjectHideFlags: 0
@@ -5132,6 +5414,11 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1831808666}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!4 &1850962855 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6951407382816558454, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
+  m_PrefabInstance: {fileID: 2031423780}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1880230548 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6737460008216247830, guid: e77c829e69c78ae44b86c93845b1c9df, type: 3}
@@ -5368,6 +5655,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 170363102}
     m_Modifications:
+    - target: {fileID: 710517544278699637, guid: 6b632a987658c784fb8d018000345df0, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1740851937019210150, guid: 6b632a987658c784fb8d018000345df0, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -5479,6 +5770,10 @@ PrefabInstance:
     - target: {fileID: 2048653189908155841, guid: 6b632a987658c784fb8d018000345df0, type: 3}
       propertyPath: m_Name
       value: PitchSelectionCanvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 2822123616429602969, guid: 6b632a987658c784fb8d018000345df0, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3383114059373237428, guid: 6b632a987658c784fb8d018000345df0, type: 3}
       propertyPath: m_AnchorMax.y
@@ -6229,7 +6524,7 @@ PrefabInstance:
     - target: {fileID: 4967905421558346264, guid: 4c98c6ae2f898124bbd8ec166f02c936, type: 3}
       propertyPath: debug_pm
       value: 
-      objectReference: {fileID: 853712790}
+      objectReference: {fileID: 0}
     - target: {fileID: 4967905421558346264, guid: 4c98c6ae2f898124bbd8ec166f02c936, type: 3}
       propertyPath: defenderTransform
       value: 
@@ -6368,10 +6663,11 @@ SceneRoots:
   m_Roots:
   - {fileID: 1539566010}
   - {fileID: 1208688575}
+  - {fileID: 1301521303}
   - {fileID: 549453087}
   - {fileID: 2031423780}
   - {fileID: 1368692398}
   - {fileID: 1128552219}
+  - {fileID: 1141369947}
   - {fileID: 590389630}
   - {fileID: 170363102}
-  - {fileID: 1301521303}
