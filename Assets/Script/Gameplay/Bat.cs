@@ -7,6 +7,7 @@ using UnityEngine.XR.Interaction.Toolkit;
 public class Bat : MonoBehaviour
 {
     [SerializeField] private Transform topBatPos;
+    [SerializeField] private Transform axis;
     private Vector3 startPos = Vector3.zero;
 
     private FarNearGrab _farNearGrab;
@@ -16,6 +17,11 @@ public class Bat : MonoBehaviour
 
     private float swingDuration = 0.125f; // 스윙 지속 시간
     private float swingAngle = -360f; // 스윙 각도
+    
+    const float rotationTime = 0.25f;
+    float elapsed = 0f;
+    public AnimationCurve rotationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+
     private void Start()
     {
         _farNearGrab = GetComponent<FarNearGrab>();
@@ -31,27 +37,6 @@ public class Bat : MonoBehaviour
         //     Debug.Log(currentSwingSpeed+ " distance :" + dis);
         // }
         startPos = topBatPos.position;
-        
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            StartCoroutine(SwingBat());
-        }
-        //중력무시
-        if (Input.GetKeyDown(KeyCode.L))
-        {
-            Rigidbody rb = GetComponent<Rigidbody>();
-            rb.velocity = Vector3.zero;
-            rb.useGravity = false;
-            rb.freezeRotation = true;
-            transform.position = new Vector3(0.297f, 0.92f, -0.832f);
-            transform.rotation = Quaternion.Euler(-60f, 0f, 0f);
-            //회전값
-        }
-        //중력무시
-        if (Input.GetKeyDown(KeyCode.M))
-        {
-            swingAngle *= -1;
-        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -81,32 +66,50 @@ public class Bat : MonoBehaviour
             controllers[i].SendHapticImpulse(0.7f, 0.1f);
         }
     }
-
-    public void Swing()
+    
+    public void StartSwing()
     {
+        if(elapsed != 0) return;
+        
         isSwing = true;
-        //StartCoroutine();
+        StartCoroutine(Swing());
+        //StartCoroutine(RotateWithCurveSwing(start, new Vector3(-65, -135, -120)));
     }
-    
-    IEnumerator SwingBat()
+    IEnumerator Swing()
     {
-        isSwing = true;
-        Quaternion startRotation = transform.rotation;
-        Quaternion endRotation = startRotation * Quaternion.Euler(0, 0, swingAngle);
-    
-        // 스윙 전진
-        float elapsedTime = 0f;
-        while (elapsedTime < swingDuration)
-        {
-            elapsedTime += Time.deltaTime;
-            float t = elapsedTime / swingDuration;
-            Quaternion swingRotation = startRotation * Quaternion.Euler(0, 0, t * swingAngle);
+        Vector3 xWorld = axis.transform.TransformDirection(Vector3.right);
+        
+        Vector3 pivot = axis.transform.position;
+        Vector3 orbitAxis = axis.transform.up; // axis의 로컬 Y축을 월드로 
 
-            transform.rotation = swingRotation; 
+        transform.position = axis.transform.position+ xWorld * 0.5f;
+        transform.localRotation = Quaternion.Euler(0,0,-90f); //기울어라
+        
+        float prevCurve = 0f;
+        float totalOrbitAngle = -270f; // 공전 각도 (원하는 값으로)
+        
+        Quaternion start = transform.localRotation; 
+        //Quaternion end = Quaternion.AngleAxis(180f, axis.transform.up) * start; 
+
+        while (elapsed < rotationTime)
+        {
+            elapsed += Time.deltaTime;
+            float progress = elapsed / rotationTime;
+            float curveValue = rotationCurve.Evaluate(progress);
+            
+            // 1) 공전: 커브의 증가분만큼 RotateAround
+            float deltaCurve = curveValue - prevCurve;
+            float deltaAngle = deltaCurve * totalOrbitAngle;
+            prevCurve = curveValue;
+            
+            transform.RotateAround(pivot, orbitAxis, deltaAngle);
+            //transform.localRotation = Quaternion.Slerp(start, end, curveValue); ; // 회전 누적
             yield return null;
         }
-    
-        transform.rotation = endRotation;
+        
         isSwing = false;
+        elapsed = 0;
+        //transform.rotation = endRot;
+        //transform.localRotation = end;
     }
 }

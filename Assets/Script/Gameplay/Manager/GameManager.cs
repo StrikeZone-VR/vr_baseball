@@ -35,6 +35,7 @@ public class GameManager : MonoBehaviour
     
     protected BaseballModel baseballModel = new BaseballModel();
 
+    
     protected virtual void OnEnable()
     {
         addBallCountEvent.onEventRaised += AddBallCount;
@@ -91,6 +92,7 @@ public class GameManager : MonoBehaviour
     //pitcher에서는 안 쓰일거다. batter와 gameplay에서 쓰인다
     protected virtual void Foul() { }
     protected virtual void Homerun() {}
+
     #endregion
 
     //Gameplay에서는 알아서 사용
@@ -99,5 +101,6 @@ public class GameManager : MonoBehaviour
     
     //PitchingManager에서는 안 쓰일 예정. 투수 대기 함수
     protected virtual void WaitPitchingToText(int time) { }
+
 
 }

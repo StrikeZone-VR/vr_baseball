@@ -7,6 +7,7 @@ public class GamePlayManager : GameManager
     [Header("Objects")]
     [SerializeField] private Defender[] defenders; // pitcher => 0
     [SerializeField] private Transform[] bases;
+    private Pitcher pitcher;
     
     [Header("Controllers")]
     [SerializeField] private GamePlayController gamePlayController;
@@ -17,7 +18,8 @@ public class GamePlayManager : GameManager
     [SerializeField] private Transform batterCreatePosition;
     [SerializeField] private Transform batterPosition;
     [SerializeField] private Batter currentBatter;
-    [SerializeField] private GameObject _bat;
+    [SerializeField] private Bat _bat;
+    [SerializeField] private GameObject _axis;
     
     [Header("Broadcasting on EventChannels")] 
     [SerializeField] private IntEventSO outBatterEvent; //Defender, Baseman
@@ -37,6 +39,8 @@ public class GamePlayManager : GameManager
     
     private GamePlayModel gamePlayModel = new GamePlayModel();
     private BattingModel battingModel = new BattingModel();
+
+    private Coroutine waitPitcherCoroutine;
     
     protected override void OnEnable()
     {
@@ -71,8 +75,10 @@ public class GamePlayManager : GameManager
     protected override void Start()
     {
         base.Start();
+        pitcher = defenders[0] as Pitcher; 
         SetScore(0, 0);
         SetScore(1, 0);
+        
         Inning = 0;
     }
 
@@ -123,15 +129,22 @@ public class GamePlayManager : GameManager
         // {
         //     MoveOneBase();
         // }
-        //
-        // if (Input.GetKeyDown(KeyCode.X))
-        // {
-        //     Inning++;
-        // }
-        // if (Input.GetKeyDown(KeyCode.V))
-        // {
-        //     DebugBaseStatus();
-        // }
+
+        if (Input.GetKeyDown(KeyCode.X))
+        {
+            Inning++;
+        }
+
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            //스윙해라
+            currentBatter.Swing();
+        }
+        if (Input.GetKeyDown(KeyCode.V))
+        {
+            Debug.Log("투수 스토프");
+            pitcher.IsThrowBallStop = !pitcher.IsThrowBallStop;
+        }
 
         if (_ball.MyDefender)
         {
@@ -402,6 +415,8 @@ public class GamePlayManager : GameManager
 
         pitchingController.EndPitchingGame();
         defenders[0].gameObject.SetActive(true);
+        
+        pitcher.IsThrowBallStop = false;
         defenders[0].SetMyBall(_ball);
 
         //방망이 중력, rotation position 풀기
@@ -413,6 +428,7 @@ public class GamePlayManager : GameManager
         Debug.Log("투수 Mode On");
 
         defenders[0].IsTracking = false;
+        pitcher.IsThrowBallStop = true;
         pitchingController.StartPitchingGame();
         defenders[0].gameObject.SetActive(false);
 
@@ -442,13 +458,14 @@ public class GamePlayManager : GameManager
 
     protected override void PitcherGetBall()
     {
+        //batting mode
         if (gamePlayModel.GetTeamIndex() % 2 == 0)
         {
-            StartCoroutine(WaitingBackToPitcher());
+            waitPitcherCoroutine = StartCoroutine(WaitingBackToPitcher());
         }
+        //이게 그러니까 pitchermode
         else
         {
-            //이게 그러니까 pitchermode
             pitchingController.ResetBall();
         }
     }
@@ -543,7 +560,7 @@ public class GamePlayManager : GameManager
     IEnumerator Swing()
     {
         yield return new WaitForSeconds(1.0f);
-        currentBatter.StartSwing();
+        currentBatter.Swing();
     }
 
     #endregion
@@ -683,7 +700,12 @@ public class GamePlayManager : GameManager
         //StartCoroutine(BackPitching());
 
         yield return new WaitForSeconds(WAIT_TIME);
-        battingController.PitcherGetBall();
+        
+        //만약 돌아올때 비활성화 된 경우
+        if (defenders[0].gameObject.activeSelf)
+        {
+            battingController.PitcherGetBall();
+        }
     }
 
     
@@ -693,6 +715,7 @@ public class GamePlayManager : GameManager
     {
         //나중에 알아서 추가
     }
+
 
     #endregion
 }
