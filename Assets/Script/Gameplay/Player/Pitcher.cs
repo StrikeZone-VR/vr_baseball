@@ -14,6 +14,7 @@ public class Pitcher : Defender
     //_myBall
 
     const int WAIT_TIME = 2; //5.0f
+    protected bool isThrowBallStop = false; //debug
 
     protected override void Update()
     {
@@ -28,9 +29,11 @@ public class Pitcher : Defender
         {
             isInPosition = false;
         }
-
+        
         base.Update();
     }
+    
+
 
     //protected override void Update()
     //{
@@ -55,12 +58,12 @@ public class Pitcher : Defender
 
         if (coroutine == null)
         {
-            coroutine = StartCoroutine(WaitBatting());
+            coroutine = StartCoroutine(WaitPitching());
         }
         //transform.LookAt(_ball.transform, Vector3.up);
     }
 
-    IEnumerator WaitBatting()
+    IEnumerator WaitPitching()
     {
         //5임
         for (int i = WAIT_TIME; i > 0; i--)
@@ -68,7 +71,7 @@ public class Pitcher : Defender
             waitPitcherEvent.RaiseEvent(i);
             yield return new WaitForSeconds(1.0f);
         }
-
+        
         coroutine = null;
         PitchingBall();
     }
@@ -185,5 +188,27 @@ public class Pitcher : Defender
         get { return velocityXZ; }
     }
 
-
+    public bool IsThrowBallStop
+    {
+        get => isThrowBallStop;
+        set
+        {
+            isThrowBallStop = value;
+            
+            //일단 무조건 멈춰라
+            if (coroutine != null)
+            {
+                StopCoroutine(coroutine);
+            }
+            
+            if (!isThrowBallStop)
+            {
+                coroutine = StartCoroutine(WaitPitching());
+            }
+        }
+    }
+    public void StopPitching()
+    {
+        StopCoroutine(coroutine); 
+    }
 }

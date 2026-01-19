@@ -4,750 +4,103 @@ using System.Collections.Generic;
 using TMPro;
 using Unity.XR.CoreUtils;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 //게임 시작할때 실행되는 GameManager
 public class GameManager : MonoBehaviour
 {
-    //0 1 => 1이닝 공격 수비, => 0~17 => 짝수면 원정, 홀수면 홈 
-    private int inning = 0;
 
-    private int ball_count = 0;
-    private int strike_count = 0;
-    private int out_count = 0;
+    
+    [SerializeField] protected XROrigin playerOrigin; //debug용
+    [SerializeField] protected Baseball _ball; //일단 PitchingBallController도 여깄음
 
-    [Header("Manager")] [SerializeField] private PitchingManager pitchingManager;
-
-
-    [SerializeField] private XROrigin playerOrigin;
-
-    [SerializeField] private UIGameStatus[] _UIGameStatusElements;
-    [SerializeField] private TextMeshProUGUI[] _scoreTexts;
-    [SerializeField] private TextMeshProUGUI _inningText;
-
-    [SerializeField] private Defender[] defenders; // pitcher => 0
-    [SerializeField] private Transform[] bases;
-    [SerializeField] private Baseball _ball; //일단 PitchingBallController도 여깄음
-
-    private Queue<Batter>[] runners = new Queue<Batter>[MAX_BASE_COUNT + 1];
-
-    [Header("Batter")] 
-    [SerializeField] private Batter batterPrefab;
-    [SerializeField] private Transform batterCreatePosition;
-    [SerializeField] private Transform batterPosition;
-    [SerializeField] private Batter currentBatter;
-    [SerializeField] private GameObject _bat;
-
-    private TeamStatus[] _teamStatus = new TeamStatus[2];
-    private int beforeScore = 0;
-    private bool [] isBeforeBaseStatus = { false, false, false };
-
-    [Header("Broadcasting on EventChannels")] [SerializeField]
-    private IntEventSO outBatterEvent; //Defender, Baseman
-
+    [Header("Broadcasting on EventChannels")] 
     [SerializeField] private VoidEventSO addBallCountEvent; //to Baseball
     [SerializeField] private VoidEventSO strikeEvent; // toStrikeZone, batter
-    [SerializeField] private VoidEventSO paulEvent; // toStrikeZone
+    [SerializeField] private VoidEventSO foulEvent; // toStrikeZone
     [SerializeField] private VoidEventSO homerunEvent; // toStrikeZone
 
-    
-    [Space] [SerializeField] private VoidEventSO allTrackingOffEvent; //to baseball
-    [SerializeField] private VoidEventSO addScore; //to Batter
-    [SerializeField] private IntEventSO addIsBaseStatus; //to Batter
-    [SerializeField] private VoidEventSO runSignalEvent;
-
-    
-    [Space] [SerializeField] private VoidEventSO startPitchEvent; //to batter
-    [SerializeField] private VoidEventSO swingEvent; //to Pitcher
-    [SerializeField] private VoidEventSO pitchEvent; //to PitchingBallController
+    [Space]
     [SerializeField] private VoidEventSO backToPitcherEvent; //?
+    [SerializeField] private FloatEventSO getVelocityEvent; //ball?
+    [SerializeField] private IntEventSO waitPitcherEvent;
 
-    //Define
-    private const int MAX_BALL_COUNT = 4;
-    private const int MAX_STRIKE_COUNT = 3;
-    private const int MAX_OUT_COUNT = 3;
-    private const int MAX_INNING_COUNT = 18;
-    private const int MAX_BASE_COUNT = 3;
+    //가져오기
+    [Header("Listening to EventChannels")] 
+    [SerializeField] protected Vector3EventSO moveOriginEvent;
+    [SerializeField] protected Vector3EventSO rotateOriginEvent;
+    [SerializeField] protected SceneEventSO sceneEventSO;
+    [SerializeField] protected IntEventSO playAudioClipEvent;
 
-    private void OnEnable()
+    
+    protected BaseballModel baseballModel = new BaseballModel();
+
+    
+    protected virtual void OnEnable()
     {
-        outBatterEvent.onEventRaised += OutBatter;
-
         addBallCountEvent.onEventRaised += AddBallCount;
         strikeEvent.onEventRaised += AddStrike;
-        paulEvent.onEventRaised += Paul;
+        foulEvent.onEventRaised += Foul;
         homerunEvent.onEventRaised += Homerun;
 
-        allTrackingOffEvent.onEventRaised += AllTrackingOff;
-        addScore.onEventRaised += AddScore;
-        startPitchEvent.onEventRaised += OnTouchBall;
-        runSignalEvent.onEventRaised += RunRunner;
-
-        addIsBaseStatus.onEventRaised += AddIsBaseStatus;
-
-        swingEvent.onEventRaised += DebugBatting;
-        pitchEvent.onEventRaised += SwingSignalToBatter;
         backToPitcherEvent.onEventRaised += PitcherGetBall;
+        getVelocityEvent.onEventRaised += SetVelocityToText;
+        waitPitcherEvent.onEventRaised += WaitPitchingToText;
     }
 
-    private void OnDisable()
+    protected virtual void OnDisable()
     {
-        outBatterEvent.onEventRaised -= OutBatter;
-
         addBallCountEvent.onEventRaised -= AddBallCount;
         strikeEvent.onEventRaised -= AddStrike;
-        paulEvent.onEventRaised -= Paul;
+        foulEvent.onEventRaised -= Foul;
         homerunEvent.onEventRaised -= Homerun;
 
-
-        allTrackingOffEvent.onEventRaised -= AllTrackingOff;
-        addScore.onEventRaised -= AddScore;
-        startPitchEvent.onEventRaised -= OnTouchBall;
-        runSignalEvent.onEventRaised -= RunRunner;
-
-        addIsBaseStatus.onEventRaised -= AddIsBaseStatus;
-
-        swingEvent.onEventRaised -= DebugBatting;
-        pitchEvent.onEventRaised -= SwingSignalToBatter;
         backToPitcherEvent.onEventRaised -= PitcherGetBall;
+        getVelocityEvent.onEventRaised -= SetVelocityToText;
+        waitPitcherEvent.onEventRaised -= WaitPitchingToText;
     }
 
-    private void Start()
+    protected virtual void Start()
     {
-        Debug.Log("Game start");
-        BallCount = 0;
-        Strike = 0;
-        OutCount = 0;
 
-        for (int i = 0; i < MAX_BASE_COUNT + 1; i++)
-        {
-            runners[i] = new Queue<Batter>();
-        }
-
-        SetScore(0, 0);
-        SetScore(1, 0);
-        Inning = 0;
-
-        //pitcher has ball
-        //_ball.RemovePlayer();
-        //defenders[0].SetMyBall(_ball);
-    }
-
-    private void Update()
-    {
-        //debug
-        //to pitcher
-        if (Input.GetKeyDown(KeyCode.Alpha0))
-        {
-            defenders[0].SetMyBall(_ball);
-            //_ball.MyDefender.ThrowBall(defenders[0].transform.position);
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-            ThrowToBase(0);
-        else if (Input.GetKeyDown(KeyCode.Alpha2))
-            ThrowToBase(1);
-        else if (Input.GetKeyDown(KeyCode.Alpha3))
-            ThrowToBase(2);
-        else if (Input.GetKeyDown(KeyCode.Alpha4))
-            ThrowToBase(3);
-
-        //has ball and ball batting
-        if (_ball.MyDefender && _ball.IsBatTouch)
-        {
-            //던질 곳 없으면 복귀
-            if (!ThrowBallAlgorithm())
-            {
-                PitcherGetBall();
-
-                //투수일 경우 + currentBatter가 null인 경우
-                if (!currentBatter && inning % 2 == 1)
-                {
-                    CreateBatter();
-                }
-            }
-        }
-
-
-        if (Input.GetKeyDown(KeyCode.B))
-        {
-            //_ball.OnTouchBall();
-            PitcherGetBall();
-        }
-
-        //batter run
-        if (Input.GetKeyDown(KeyCode.C))
-        {
-            MoveOneBase();
-        }
-
-        if (Input.GetKeyDown(KeyCode.X))
-        {
-            Inning++;
-        }
-        if (Input.GetKeyDown(KeyCode.V))
-        {
-            DebugBaseStatus();
-        }
-
-        if (_ball.MyDefender)
-        {
-            return;
-        }
-
-        //tracking => 혹시 포수가 못 잡을 수 있으니 isBatTouch는 넣지말자
-        if (!_ball.IsPassing && _ball.IsGroundBall && !_ball.IsThrown)
-        {
-            int index = FindClosestDefenderIndex();
-            AllTrackingOff();
-            //closestDefender set tracking
-            if (index == -1)
-            {
-                return;
-            }
-            
-            //Debug.Log("트래킹 잠시 무효화");
-            defenders[index].IsTracking = true;
-        }
     }
 
     #region PROPERTY
 
-    //*************************************************************************************** property
-    public int OutCount
+    public virtual int Strike //나중에 battingSystem에서는 override
     {
-        get { return out_count; }
-        set
-        {
-            out_count = value;
-
-            BallCount = 0;
-            Strike = 0;
-
-            Debug.Log("아웃 : " + out_count);
-            if (out_count >= MAX_OUT_COUNT)
-            {
-                out_count = 0;
-                Inning++;
-            }
-
-            _UIGameStatusElements[2].SetIndex(out_count);
-        }
+        get => baseballModel.Strike;
+        set => baseballModel.Strike = value;
+    }
+    
+    public virtual int BallCount //나중에 battingSystem에서는 override
+    {
+        get => baseballModel.BallCount;
+        set => baseballModel.BallCount = value;
     }
 
-    private void AddOut()
-    {
-        OutCount++;
-    }
-
-    public int Inning
-    {
-        get { return inning; }
-        set
-        {
-            if (value >= MAX_INNING_COUNT)
-            {
-                Debug.Log("Game Over, back to the menu...");
-
-                //GameEnd
-                return;
-            }
-
-            inning = value;
-            InitInning();
-
-
-            int num = inning % 2;
-
-            //change 
-            if (num == 0)
-            {
-                StartBatter();
-            }
-            else
-            {
-                StartPitcher();
-            }
-
-            string t = inning % 2 == 0 ? "▲" : "▼";
-            t += " " + (inning / 2 + 1) + "이닝";
-            _inningText.text = t;
-        }
-    }
-
-    public int Strike
-    {
-        get { return strike_count; }
-        set
-        {
-            //상태저장
-            strike_count = value;
-            
-            //out
-            if (strike_count >= MAX_STRIKE_COUNT)
-            {
-                strike_count = 0;
-
-                DeleteRunner();
-                AddOut();
-            }
-            else
-            {
-                //아니 근데 여기서 달리기를 되돌리는건 좀
-            }
-
-            //ui
-            _UIGameStatusElements[1].SetIndex(strike_count);
-        }
-    }
-
-    public int BallCount
-    {
-        get { return ball_count; }
-        set
-        {
-            ball_count = value;
-            if (ball_count >= MAX_BALL_COUNT)
-            {
-                ball_count = 0;
-                _ball.IsBatTouch = false;
-
-                //AddBaseStatus();
-                MoveOneBase();
-            }
-
-            _UIGameStatusElements[0].SetIndex(ball_count);
-        }
-    }
-
-    private void AddBallCount()
+    protected void AddBallCount()
     {
         BallCount++;
     }
-
-    private void AddIsBaseStatus(int index)
-    {
-        Debug.Log("나오면 안돼");
-        Batter batter = runners[index].Dequeue();
-        runners[index + 1].Enqueue(batter);
-    }
-
-    void AddStrike()
+    
+    protected void AddStrike()
     {
         Strike++;
     }
 
-    private void AddScore()
-    {
-        Batter batter = runners[3].Dequeue();
-        Destroy(batter.gameObject);
-
-        SetScore(inning % 2, ++_teamStatus[inning % 2].Score);
-    }
-
-    private void Paul()
-    {
-        PitcherGetBall();
-
-        Debug.Log("Paul");
-        //만약에 점수를 냈다면?
-        RerollBeforeStatus();
-        
-        //strike == 2
-        if (Strike == MAX_STRIKE_COUNT - 1)
-        {
-            return;
-        }
-
-        AddStrike();
-    }
-
-    private void Homerun()
-    {
-        PitcherGetBall();
-        SetScore(inning % 2, ++_teamStatus[inning % 2].Score);
-        for (int i = 0; i < runners.Length; i++)
-        {
-            _teamStatus[inning % 2].Score += runners[i].Count;
-            SetScore(inning % 2, _teamStatus[inning % 2].Score);
-        }
-
-        ClearRunners();
-    }
-
-
-    private void SetScore(int teamIndex, int score)
-    {
-        _teamStatus[teamIndex].Score = score;
-        _scoreTexts[teamIndex].text = (_teamStatus[teamIndex].Score).ToString();
-    }
-
-    private void InitInning()
-    {
-        BallCount = 0;
-        Strike = 0;
-        OutCount = 0;
-
-        ClearRunners();
-    }
-
-    // ********************************************************************************************************************************************end
+    //pitcher에서는 안 쓰일거다. batter와 gameplay에서 쓰인다
+    protected virtual void Foul() { }
+    protected virtual void Homerun() {}
 
     #endregion
 
-    private void RerollBeforeStatus()
-    {
-        Debug.Log("back to the future");
-
-        //되돌아가자
-        for (int i = 1; i < runners.Length; i++)
-        {
-            while (runners[i].Count > 0)
-            {
-                Batter batter = runners[i].Peek();
-                batter.IsMove = false;
-                batter.transform.position = bases[i].position;
-            }
-        }
-
-        //그냥 아웃처리하자
-        if (runners[0].Count == 0)
-        {
-            return;
-        }
-        Batter b = runners[0].Dequeue();
-        b.IsMove = false;
-        b.transform.position = batterPosition.position;
-    }
+    //Gameplay에서는 알아서 사용
+    protected virtual void PitcherGetBall() { }
+    protected virtual void SetVelocityToText(float velocity) {}
     
-
-    private bool IsCheckBeforeStatus()
-    {
-        for (int i = 0; i < runners.Length; i++)
-        {
-            if (isBeforeBaseStatus[i] != (runners[i].Count != 0))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private void DeleteRunner()
-    {
-        Destroy(currentBatter.gameObject);
-        currentBatter = null;
-        CreateBatter();
-    }
-    
-    private void StartBatter()
-    {
-        Debug.Log("타자 Mode On");
-
-        pitchingManager.EndPitchingGame();
-        defenders[0].gameObject.SetActive(true);
-        defenders[0].SetMyBall(_ball);
-
-        //방망이 중력, rotation position 풀기
-        playerOrigin.MoveCameraToWorldLocation(new Vector3(0, 1.0f, 0)); //시점 타자 시점
-    }
-
-    private void StartPitcher()
-    {
-        Debug.Log("투수 Mode On");
-
-        defenders[0].IsTracking = false;
-        pitchingManager.StartPitchingGame();
-        defenders[0].gameObject.SetActive(false);
-
-        //방망이 위치 Vector3(-0.660000026,1.37,0.150000006) 여기로
-        //방망이 중력, rotation position 얼리기
-        CreateBatter();
-
-        playerOrigin.MoveCameraToWorldLocation(new Vector3(-10, 1.0f, -10));
-        playerOrigin.MatchOriginUpCameraForward(Vector3.up, new Vector3(1, 0, 1));
-    }
-
-    void PitcherGetBall()
-    {
-        Debug.Log("공공이 돌아옴");
-        pitchingManager.ResetBall();
-    }
+    //PitchingManager에서는 안 쓰일 예정. 투수 대기 함수
+    protected virtual void WaitPitchingToText(int time) { }
 
 
-    private float GetDistanceBetween(Vector3 a, Vector3 b)
-    {
-        float result = Vector3.Distance(a, b);
-        return result;
-    }
-
-    private void AllTrackingOff()
-    {
-        for (int i = 0; i < defenders.Length; i++)
-        {
-            if (defenders[i].gameObject.activeSelf)
-                defenders[i].IsTracking = false;
-        }
-    }
-
-    #region BATTER
-
-    /// <summary> runner clear </summary>
-    private void ClearRunners()
-    {
-        if (currentBatter)
-        {
-            if (currentBatter.gameObject)
-            {
-                Destroy(currentBatter.gameObject);
-                currentBatter = null;
-            }
-        }
-        for (int i = 0; i < runners.Length; i++)
-        {
-            while (runners[i].Count > 0)
-            {
-                Batter batter = runners[i].Dequeue();
-                if(!batter)
-                    Destroy(batter.gameObject);
-            }
-        }
-    }
-
-    private void RunRunner()
-    {
-        Debug.Log("이 메세지가 두번 나온다면");
-        runners[0].Enqueue(currentBatter);
-
-        currentBatter.SetBases(bases);
-
-        currentBatter.transform.position = bases[3].position;
-        currentBatter.BaseIndex = 0;
-        currentBatter.IsMove = true;
-    }
-
-    private void CreateBatter() //AI
-    {
-        Debug.Log("타자 생성");
-        Batter batter = Instantiate(batterPrefab, batterCreatePosition.position, Quaternion.identity);
-
-        batter.SetBall(_ball);
-        batter.SetBat(_bat);
-        batter.transform.parent = batterCreatePosition;
-
-        //베트 자리로 이동
-        batter.MovePlayer(batterPosition.position);
-
-        currentBatter = batter;
-        _ball.OffTouchBall();
-
-        //batter
-
-        //runners[0].transform.rotation = Quaternion.LookRotation(bases[2].position);
-    }
-
-
-    private void OnTouchBall()
-    {
-        _ball.OnTouchBall();
-    }
-
-    private void DebugBatting()
-    {
-        //batter.DebugHitting();
-
-        // float x = Random.Range(-1.0f, 0f);
-        // float z = Random.Range(-1.0f, 0f);
-        // Vector3 view = new Vector3(-1, 1, -1).normalized;
-        //
-        // _ball.IsBatTouch = true;
-        // _ball.IsGroundBall = false;
-        // _ball.IsPassing = false;
-        //
-        // _ball.RemovePlayer();
-        //
-        // float r = Random.Range(15.0f, 25.0f);
-        //
-        // view *= 19;
-        // _ball.transform.position = Vector3.zero;
-        // _ball.GetComponent<Rigidbody>().velocity = Vector3.zero;
-        // _ball.GetComponent<Rigidbody>().AddForce(view, ForceMode.Impulse);
-        //
-        // MoveBase();
-    }
-
-    private void SwingSignalToBatter()
-    {
-        StartCoroutine(Swing());
-    }
-
-    IEnumerator Swing()
-    {
-        yield return new WaitForSeconds(1.0f);
-        currentBatter.StartSwing();
-    }
-
-    #endregion
-
-
-    #region ALGORITHM
-
-    private bool ThrowToBase(int index)
-    {
-        if (_ball.MyDefender)
-        {
-            if (_ball.MyDefender == defenders[index + 1] && (0 <= index && index < 4) ) //1루수 ~ 4루수
-            {
-                return false;
-            }
-            
-            _ball.MyDefender.ThrowBall(bases[index].position + new Vector3(0, 0.5f, 0));
-            return true;
-        }
-
-        return false;
-    }
-
-    public int FindClosestDefenderIndex()
-    {
-        float min = float.MaxValue;
-        int index = -1;
-        for (int i = 0; i < defenders.Length; i++)
-        {
-            float dis = GetDistanceBetween(_ball.transform.position, defenders[i].transform.position);
-            if (min > dis)
-            {
-                min = dis;
-                index = i;
-            }
-        }
-
-        if (!defenders[index].gameObject.activeSelf)
-        {
-            return -1;
-        }
-
-        _ball.DefenderDis = min;
-        return index;
-    }
-    
-    private bool ThrowBallAlgorithm() //SO
-    {
-        for (int i = runners.Length - 1; i >= 0; i--)
-        {
-            //has runner and run
-            if (runners[i].Count > 0 && runners[i].Peek().IsMove)
-            {
-                if (ThrowToBase(i))
-                {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    private void OutBatter(int index)
-    {
-        //don't have runner
-        if (runners[index].Count == 0)
-        {
-            return;
-        }
-
-        Batter batter = runners[index].Peek();
-        
-        //has runner and don't run
-        if (!batter.IsMove)
-        {
-            return;
-        }
-
-        AddOut();
-        
-        runners[index].Dequeue();
-        if (currentBatter == batter)
-        {
-            currentBatter = null;
-        }
-        Destroy(batter.gameObject);
-    }
-
-    //move one base
-    void MoveOneBase()
-    {
-        MoveBase();
-
-        //don't have Runner
-        if (runners[0].Count == 0)
-        {
-            RunRunner();
-        }
-    }
-
-    void MoveBase()
-    {
-        for (int i = 0; i < runners.Length; i++)
-        {
-            //HasRunner
-            if (runners[i].Count > 0)
-            {
-                runners[i].Peek().IsMove = true;
-            }
-        }
-    }
-
-    #endregion
-
-    #region DEBUG
-
-    void DebugBaseStatus()
-    {
-        for (int i = 0; i < runners.Length; i++)
-        {
-            Debug.Log(i + " : " + runners[i].Count);
-            if (runners[i].Count != 0)
-            {
-                Debug.Log("Null뜨면 애초에 Runners.push가 두번된거");
-                Debug.Log(i + " : " + runners[i].Peek().name);
-            }
-        }
-    }
-
-    #endregion
-}
-
-struct TeamStatus
-{
-    private int score;
-
-    //타순 0 ~ 8
-    public int batting_order;
-
-    //Define
-    private const int MAX_BATTING_ORDER = 9;
-
-    public int BattingOrder
-    {
-        get => batting_order;
-        set
-        {
-            batting_order = value;
-            if (batting_order >= MAX_BATTING_ORDER)
-            {
-                batting_order = 0;
-            }
-        }
-    }
-
-    /// <summary>
-    ///only AddScore function
-    /// </summary>
-    public int Score
-    {
-        get => score;
-
-        set { score = value; }
-    }
 }

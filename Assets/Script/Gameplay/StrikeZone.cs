@@ -16,7 +16,6 @@ public class StrikeZone : MonoBehaviour
     private Renderer zoneRenderer;
     private Collider zoneCollider;
     private Material zoneMaterial;
-    private bool isFlashing = false;
 
     public System.Action<bool> OnPitchResult; // true = strike, false = ball
 

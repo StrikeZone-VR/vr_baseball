@@ -63,7 +63,7 @@ public class PitchData
                 break;
                 
             case PitchType.Curve:
-                data.pitchName = "커브볼";
+                data.pitchName = "커브";
                 data.pitchColor = Color.blue;
                 data.speedMultiplier = 1.2f;
                 data.curveDirection = new Vector3(-2f, -3f, 0f);

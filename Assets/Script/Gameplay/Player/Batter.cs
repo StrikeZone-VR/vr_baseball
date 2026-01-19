@@ -12,9 +12,8 @@ public class Batter : Player
     //[SerializeField] private Baseball _ball;
     [SerializeField] private int base_index = 0;
     private Transform[] bases;
-    [SerializeField] private GameObject bat;
+    [SerializeField] private Bat bat;
 
-    [FormerlySerializedAs("pitchStartEvent")]
     [Header("Listening to Events")]
     [SerializeField] private VoidEventSO startPitchEvent; //From GameManager
     [SerializeField] private VoidEventSO addScore; //From GameManager
@@ -26,51 +25,14 @@ public class Batter : Player
     [SerializeField] private bool isMove = false;
     //private bool isInBase = false;
     
-    const float rotationTime = 0.25f;
-    float elapsed = 0f;
-
-    public void SetBat(GameObject bat)
+    public void SetBat(Bat bat)
     {
         this.bat = bat;
     }
 
-    public void StartSwing()
+    public void Swing()
     {
-        if(elapsed != 0) return;
-
-        Vector3 start = new Vector3(0, 0, -120);
-        Quaternion startRotation = Quaternion.Euler(start);
-        bat.transform.rotation = startRotation;
-
-        StartCoroutine(RotateWithCurveSwing(start, new Vector3(-65, -135, -120)));
-    }
-
-    IEnumerator RotateWithCurveSwing(Vector3 start, Vector3 end)
-    {
-        Quaternion startRotation = Quaternion.Euler(start);
-        Quaternion endRotation = Quaternion.Euler(end);
-
-        while (elapsed < rotationTime)
-        {
-            elapsed += Time.deltaTime;
-            float progress = elapsed / rotationTime;
-
-            // Animation Curve
-            float curveValue = rotationCurve.Evaluate(progress);
-
-            bat.transform.localRotation = Quaternion.Euler(start * (1 - curveValue) + end * curveValue);
-            yield return null;
-        }
-
-        elapsed = 0;
-        bat.transform.rotation = endRotation;
-        
-        //스윙했는데 만약 공에 안 닿았다면
-        if (!_ball.IsBatTouch)
-        {
-            Debug.Log("스트라이크 막아놓음");
-            //strikeEvent.RaiseEvent();
-        }
+        bat.StartSwing();
     }
 
     private void MoveBase()

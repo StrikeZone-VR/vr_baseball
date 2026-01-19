@@ -1,175 +1,89 @@
-/// <summary>
-/// 🎯 VR 투수 게임 메인 매니저 - 공 생성, 던지기, 카운트 관리
-/// </summary>
-
-using System;
-using UnityEngine;
-using UnityEngine.XR.Interaction.Toolkit;
-using Unity.XR.CoreUtils;
 using System.Collections;
-using System.Collections.Generic;
-using UnityEngine.Serialization;
+using Unity.VisualScripting;
+using UnityEngine;
+using Debug = UnityEngine.Debug;
 
-
-//pitcherManager ---(SO)---> PitchingBallController
+/// 
+//pitchingManager ---(SO)---> PitchingBallController
 //               ---(SO)---> UI
-public class PitchingManager : MonoBehaviour
+public class PitchingManager : GameManager
 {
-    [Header("게임 오브젝트 참조")]
-    public PitchSelectionUI pitchSelectionUI; // 구종 선택 UI
-    [SerializeField] private Baseball ball;
-
+    [Header("Broadcasting to Events")]
+    [SerializeField] private PitchingController pitcherController;
     
-    [Header("게임 설정")]
-    [SerializeField] private Transform ballResetPosition; 
-    public int maxBalls = 10;               // 최대 공 개수 (5에서 10으로 증가)
-    public float ballResetDelay = 3.0f;     // 공 리셋 딜레이 (착지 후 3초간 보여줌)
-
-    private int ballsThrown = 0;
-    private List<GameObject> thrownBalls = new List<GameObject>();  // 던진 공들 관리
-
-    // 통계
-    private int strikes = 0;
-    private int balls = 0;
-
-    [Header("broadcasting on Events")]
-    public System.Action<int, int> OnCountChanged; // strikes, balls
-    public System.Action<bool> OnPitchResult;// isStrike  
+    const float WAIT_TIME = 2.0f; //원래 7임
     
-    [Header("Listening on Events")]
-    [SerializeField] private IntEventSO playAudioClipEvent;
-
     #region EventFunction
 
-    private void OnEnable()
+    protected override void OnEnable()
     {
-        pitchSelectionUI.OnPitchSelected += OnPitchTypeSelected;
+        base.OnEnable();
     }
 
-    private void OnDisable()
+    protected override void OnDisable()
     {
-        pitchSelectionUI.OnPitchSelected -= OnPitchTypeSelected;
+        base.OnDisable();
     }
 
+    protected override void Start()
+    {
+        base.Start();
+        
+        moveOriginEvent.RaiseEvent(new Vector3(0.6f, 1.3f, -0.98f));
+        rotateOriginEvent.RaiseEvent(new Vector3(0, -135f, 0));
+
+        Strike = 0;
+        BallCount = 0;
+        StartPitchingGame();
+    }
+    
     #endregion
-
+    
     //pitch start
     public void StartPitchingGame()
     {
-        ballsThrown = 0; // 기존 공은 카운트하지 않음
-        ResetBall();
-        
-        // UI 초기화
-        if (pitchSelectionUI != null)
-        {
-            pitchSelectionUI.ShowUI();
-        }
+        pitcherController.StartPitchingGame();
 
         // 게임 시작 사운드
         //playAudioClipEvent.RaiseEvent(2);
     }
-
-    public void EndPitchingGame()
+    
+    public override int Strike //나중에 battingSystem에서는 override
     {
-        pitchSelectionUI.HideUI();
-    }
-
-    /// <summary>
-    /// init, ball status init 
-    /// </summary>
-    public void ResetBall()
-    {
-        ball.RemovePlayer();
-        ball.IsBatTouch = false;
-        ball.IsGroundBall = false;
-
-        // XR Grab Interactable 강제 활성화 (새 공이 잡힐 수 있도록)
-        ball.OffBallPhysics();
-
-        // UI에 공 등록 ★ => 굳이,,,?
-        if (pitchSelectionUI != null)
-            pitchSelectionUI.RegisterBaseball(ball);
-
-        ballsThrown++;
-
-        // init ball
-        Vector3 finalPosition = ballResetPosition.position;
-        transform.position = finalPosition;
+        get => baseballModel.Strike;
+        set
+        {
+            baseballModel.Strike = value;
+            pitcherController.SetStrike(value);
+        }
     }
     
-    private void OnPitchTypeSelected(PitchType pitchType)
+    public override int BallCount //나중에 battingSystem에서는 override
     {
-        if (ball != null)
-            ball.SetPitchType(pitchType);
-    }
-
-    private void ResetCount()
-    {
-        strikes = 0;
-        balls = 0;
-        OnCountChanged?.Invoke(strikes, balls);
-    }
-
-    public void ResetGame()
-    {
-        // 현재 공 제거
-        if (ball != null)
-            Destroy(ball.gameObject);
-
-        // 통계 리셋
-        ballsThrown = 0;
-        ResetCount();
-
-        // 새 게임 시작
-        ResetBall();
-    }
-
-    public void ToggleUI()
-    {
-        if (pitchSelectionUI != null)
+        get => baseballModel.BallCount;
+        set
         {
-            if (pitchSelectionUI.pitchSelectionCanvas.gameObject.activeInHierarchy)
-                pitchSelectionUI.HideUI();
-            else
-                pitchSelectionUI.ShowUI();
+            baseballModel.BallCount = value;
+            pitcherController.SetBallCount(value);
         }
     }
-
-    public Baseball GetCurrentBall() => ball;
-
-    /// <summary>
-    /// 공이 특정 구역에 착지했을 때 호출되는 메서드
-    /// </summary>
-    /// <param name="isStrike">스트라이크 여부</param>
-    /// <param name="zoneName">구역 이름</param>
-    public void OnBallResult(bool isStrike, string zoneName)
+    
+    protected override void SetVelocityToText(float velocity)
     {
-        Debug.Log($"⚾ 공 결과 수신: {zoneName} - {(isStrike ? "Strike ⚾" : "Ball ❌")}");
-        
-        // 카운트 업데이트
-        if (isStrike)
-        {
-            strikes++;
-            //PlayAudio(strikeSound);
-            Debug.Log($"⚾ Strike! 현재 카운트: {balls}-{strikes}");
-        }
-        else
-        {
-            balls++;
-            //PlayAudio(ballSound);
-            Debug.Log($"❌ Ball! 현재 카운트: {balls}-{strikes}");
-        }
-        
-        // 이벤트 발생
-        OnCountChanged?.Invoke(strikes, balls);
-        OnPitchResult?.Invoke(isStrike);
-        
-        // 카운트 리셋 체크 (3볼 또는 3스트라이크)
-        if (balls >= 3 || strikes >= 3)
-        {
-            Debug.Log($"🔄 카운트 리셋! (볼: {balls}, 스트라이크: {strikes})");
-            ResetCount();
-        }
+        pitcherController.SetVelocityUI(velocity);
     }
+    
+    protected override void PitcherGetBall()
+    {
+        StartCoroutine(WaitingBackToPitcher());
+    }
+    
+    IEnumerator WaitingBackToPitcher()
+    {
+        yield return new WaitForSeconds(WAIT_TIME);
+        pitcherController.ResetBall();
+    }
+    
+    
 
 }

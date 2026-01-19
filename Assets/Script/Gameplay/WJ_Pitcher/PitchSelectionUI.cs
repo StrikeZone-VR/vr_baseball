@@ -61,7 +61,6 @@ public class PitchSelectionUI : MonoBehaviour
     [SerializeField] private IntEventSO playAudioClipEvent;
     void Start()
     {
-
         InitializePitchData();
         SetupUI();
         SetupGameControls();
@@ -151,12 +150,12 @@ public class PitchSelectionUI : MonoBehaviour
     }
     public void SetStrikeUI(int strike)
     {
-        playAudioClipEvent.RaiseEvent(3);
+        //playAudioClipEvent.RaiseEvent(3);
         strikeCountText.text = "스트라이크 : " + strike;
     }
     public void SetBallVelocityUI(float velocity)
     {
-        lastPitchSpeedText.text = "구속 : " + velocity + "km/h";
+        lastPitchSpeedText.text = "구속 : " + velocity.ToString("F2") + "km/h";
     }
     private void UpdateCountDisplay()
     {
@@ -333,14 +332,6 @@ public class PitchSelectionUI : MonoBehaviour
         return GetPitchData(currentSelectedPitch);
     }
 
-    // 게임 통계 정보 반환
-    public int GetTotalPitches() => totalPitches;
-    public int GetStrikeCount() => strikeCount;
-    public int GetBallCount() => ballCount;
-    public float GetStrikeRate() => totalPitches > 0 ? (float)strikeCount / totalPitches * 100f : 0f;
-    public int[] GetPitchTypeUsage() => pitchTypeUsage;
-    public bool GetLastPitchResult() => lastPitchWasStrike;
-
     private PitchData GetPitchData(PitchType pitchType)
     {
         for (int i = 0; i < pitchDataArray.Length; i++)
@@ -351,14 +342,4 @@ public class PitchSelectionUI : MonoBehaviour
         return pitchDataArray[0]; // 기본값
     }
 
-    // 키보드 단축키 (에디터 테스트용)
-    void Update()
-    {
-#if UNITY_EDITOR
-        if (Input.GetKeyDown(KeyCode.Alpha1)) SelectPitch(PitchType.FastBall);
-        if (Input.GetKeyDown(KeyCode.Alpha2)) SelectPitch(PitchType.Curve);
-        if (Input.GetKeyDown(KeyCode.Alpha3)) SelectPitch(PitchType.Slider);
-        if (Input.GetKeyDown(KeyCode.Alpha4)) SelectPitch(PitchType.ForkBall);
-#endif
-    }
 }
