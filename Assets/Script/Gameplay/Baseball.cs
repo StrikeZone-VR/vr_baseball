@@ -89,6 +89,13 @@ public class Baseball : MonoBehaviour
         UpdatePitchData();
     }
 
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.F7))
+        {
+            
+        }
+    }
 
     void FixedUpdate()
     {
@@ -227,8 +234,8 @@ public class Baseball : MonoBehaviour
                 bat.Vibrate();
                 
 
-                //4
-                this._rigidbody.AddForce(hitDirection * speed * 4f, ForceMode.Impulse);
+                //가중치 4배 * speed * 4f
+                this._rigidbody.AddForce(hitDirection * speed * 4, ForceMode.Impulse);
                 this._rigidbody.useGravity = true;
             }
 
@@ -539,13 +546,22 @@ public class Baseball : MonoBehaviour
         //아래는 직구
         //OnBallPhysics();
 
+        Vector3 targetVector = (targetPosition - transform.position);
+        float dis = targetVector.magnitude;
         // **정확한 직선 투구 - 스트라이크존 (0, 0.605, -14.06) 조준**
-        Vector3 direction = (targetPosition - transform.position).normalized;
+        Vector3 direction = targetVector.normalized;
+
+        float time = dis / _rigidbody.velocity.magnitude;
+        //Debug.Log("time + time한 후에는 스트라이크가 (" + Time.time+ ") : "+ time);
+        if(bat)
+            StartCoroutine(StartSwingAfter(time - bat.RotationTime / 2));
         
+        //time - bat.RotationTime / 2)
+        float ac = Mathf.Abs(Physics.gravity.y) * time / 2;
         //_rigidbody.velocity = ( direction) * _rigidbody.velocity.magnitude;
         _rigidbody.velocity = ((1.0f - ball_accuracy_weight) * _rigidbody.velocity.normalized
-                               + ball_accuracy_weight * direction)
-                              * _rigidbody.velocity.magnitude;
+                                + ball_accuracy_weight * direction)
+            * _rigidbody.velocity.magnitude + new Vector3(0, ac, 0) * ball_accuracy_weight;
 
         playAudioClipEvent.RaiseEvent(0);
         
@@ -561,56 +577,6 @@ public class Baseball : MonoBehaviour
     public void OffTouchBall()
     {
         grabInteractable.enabled = false;
-    }
-
-    // 포물선 계산으로 정확한 투구 속도 계산
-    private Vector3 CalculateVelocityForTarget(Vector3 startPos, Vector3 targetPos, float speed)
-    {
-        Vector3 direction = targetPos - startPos;
-        float horizontalDistance = new Vector3(direction.x, 0, direction.z).magnitude;
-        float verticalDistance = direction.y;
-
-        // 거리가 너무 가까우면 직진
-        if (horizontalDistance < 1.0f)
-        {
-            return direction.normalized * speed;
-        }
-
-        // 포물선 운동 공식을 사용하여 각도 계산
-        float gravity = Physics.gravity.magnitude;
-
-        // 안전한 계산을 위해 최소각도 보장
-        float discriminant = speed * speed * speed * speed - gravity * (gravity * horizontalDistance * horizontalDistance + 2 * verticalDistance * speed * speed);
-
-        float angle;
-        if (discriminant < 0)
-        {
-            // 계산 불가능하면 45도 각도 사용
-            angle = Mathf.PI / 4;
-            Debug.Log($"⚠️ 포물선 계산 불가! 45도 각도 사용. 거리: {horizontalDistance:F2}m, 높이차: {verticalDistance:F2}m");
-        }
-        else
-        {
-            angle = Mathf.Atan((speed * speed + Mathf.Sqrt(discriminant)) / (gravity * horizontalDistance));
-
-            // 각도가 너무 높으면 45도로 제한
-            if (angle > Mathf.PI / 4)
-            {
-                angle = Mathf.PI / 4;
-                Debug.Log($"⚠️ 각도 제한! 45도로 설정. 거리: {horizontalDistance:F2}m");
-            }
-        }
-
-        // 속도 벡터 계산
-        Vector3 horizontalDirection = new Vector3(direction.x, 0, direction.z).normalized;
-        float horizontalSpeed = speed * Mathf.Cos(angle);
-        float verticalSpeed = speed * Mathf.Sin(angle);
-
-        Vector3 finalVelocity = horizontalDirection * horizontalSpeed + Vector3.up * verticalSpeed;
-
-        Debug.Log($"🎯 포물선 계산: 거리={horizontalDistance:F2}m, 각도={angle * Mathf.Rad2Deg:F1}°, 최종속도={finalVelocity}");
-
-        return finalVelocity;
     }
     
     #endregion
@@ -712,5 +678,13 @@ public class Baseball : MonoBehaviour
         {
             ball_accuracy_weight = value;
         }
+    }
+    
+    IEnumerator StartSwingAfter(float delay)
+    {
+        //Debug.Log("시간 (음수면 안된다): " + delay); //3.3
+        yield return new WaitForSeconds(delay);
+        Debug.Log("cal hit time (" + Time.time+ ") : "+ delay);
+        bat.StartSwing();
     }
 }

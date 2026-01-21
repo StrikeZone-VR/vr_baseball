@@ -54,7 +54,7 @@ public class GamePlayManager : GameManager
         addIsBaseStatus.onEventRaised += AddIsBaseStatus;
         startPitcherModeEvent.onEventRaised += OnTouchBall;
         swingEvent.onEventRaised += DebugBatting;
-        pitchEvent.onEventRaised += SwingSignalToBatter;
+        //pitchEvent.onEventRaised += SwingSignalToBatter;
     }
 
     protected override void OnDisable()
@@ -69,7 +69,7 @@ public class GamePlayManager : GameManager
         addIsBaseStatus.onEventRaised -= AddIsBaseStatus;
         startPitcherModeEvent.onEventRaised -= OnTouchBall;
         swingEvent.onEventRaised -= DebugBatting;
-        pitchEvent.onEventRaised -= SwingSignalToBatter;
+        //pitchEvent.onEventRaised -= SwingSignalToBatter;
     }
 
     protected override void Start()
@@ -436,7 +436,7 @@ public class GamePlayManager : GameManager
         //방망이 중력, rotation position 얼리기
         CreateBatter();
 
-        playerOrigin.MoveCameraToWorldLocation(new Vector3(-10, 1.0f, -10));
+        playerOrigin.MoveCameraToWorldLocation(new Vector3(-13.46f, 1.0f, -13.46f));
         playerOrigin.MatchOriginUpCameraForward(Vector3.up, new Vector3(1, 0, 1));
     }
 
@@ -550,17 +550,6 @@ public class GamePlayManager : GameManager
         // _ball.GetComponent<Rigidbody>().AddForce(view, ForceMode.Impulse);
         //
         // MoveBase();
-    }
-
-    private void SwingSignalToBatter()
-    {
-        StartCoroutine(Swing());
-    }
-
-    IEnumerator Swing()
-    {
-        yield return new WaitForSeconds(1.0f);
-        currentBatter.Swing();
     }
 
     #endregion
