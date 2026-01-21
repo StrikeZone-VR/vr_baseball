@@ -68,12 +68,11 @@ public class GamePlayModel : GameModel
 
     public int EstimateRunners()
     {
-        int count = 1;
+        int count = 0;
         for (int i = 0; i < runners.Length; i++)
         {
             count += runners[i].Count;
         }
-
         return count;
     }
 

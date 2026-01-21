@@ -60,6 +60,8 @@ public class Bat : MonoBehaviour
     }
     public float GetSwingSpeed()
     {
+        //Debug.Log("속력" + GetComponent<Rigidbody>().velocity);        
+        
         return currentSwingSpeed;
     }
 
@@ -143,10 +145,10 @@ public class Bat : MonoBehaviour
             float batAngle = startBatAngle + totalOrbitAngle * progress;
             
             //Debug.Log("hit time : (" +Time.time + ") : " + batAngle);
-            if (-190f <= batAngle && batAngle <= -170f)
-            {
-                Debug.Log("real hit time : (" +Time.time + ")"+ batAngle + "도");
-            }
+            // if (-190f <= batAngle && batAngle <= -170f)
+            // {
+            //     Debug.Log("real hit time : (" +Time.time + ")"+ batAngle + "도");
+            // }
             
             //pos
             current_pos = axis.transform.position

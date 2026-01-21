@@ -242,7 +242,7 @@ public class PitchSelectionUI : MonoBehaviour
             UpdateStatisticsDisplay();
         }
 
-        Debug.Log($"구종 선택: {selectedData.pitchName}");
+        //Debug.Log($"구종 선택: {selectedData.pitchName}");
     }
 
 

@@ -198,8 +198,6 @@ public class Baseball : MonoBehaviour
                     IsGroundBall = true;
                     //throw ball but swing miss
                 }
-                
-                
             }
         }
 
@@ -248,7 +246,7 @@ public class Baseball : MonoBehaviour
     {
         if (other.collider.CompareTag("Bat"))
         {
-            Debug.Log("공 속도 :" + transform.GetComponent<Rigidbody>().velocity);
+            Debug.Log("히토! 공 속도 :" + transform.GetComponent<Rigidbody>().velocity);
         }
 
     }
@@ -323,6 +321,7 @@ public class Baseball : MonoBehaviour
         get => isBatTouch;
         set
         {
+            Debug.Log("isBatTouch: " + value);
             isBatTouch = value;
         } 
             
@@ -515,14 +514,14 @@ public class Baseball : MonoBehaviour
     
     private void OnRelease(SelectExitEventArgs args)
     {
-        Debug.Log("🎾 공을 놓았습니다! 던지기 시작!");
+        //Debug.Log("🎾 공을 놓았습니다! 던지기 시작!");
         Invoke(nameof(ThrowPlayerBall), 0.05f);
         
     }
 
     private void OnGrab(SelectEnterEventArgs args)
     {
-        Debug.Log("✋ 공을 잡았습니다! ");
+        //Debug.Log("✋ 공을 잡았습니다! ");
     }
 
     
@@ -590,15 +589,15 @@ public class Baseball : MonoBehaviour
             return;
         }
 
-        if(!isBack)
+        if(isBack)//홈런이나 파울맞음
         {
-            isBack = true;
-            backToPitcherEvent.RaiseEvent();
+            return;
         }
         
         //볼을 맞춘 경우
         if (IsBatTouch)
         {
+            //흐음
             if (this.transform.position.x > -0.5f || this.transform.position.z > -0.5f)
             {
                 Debug.Log("파울");
@@ -613,7 +612,7 @@ public class Baseball : MonoBehaviour
             }
         }
         //스윙 여부는 방망이의 회전값?
-        else if (GetIsSwing()) //스윙여부 == true => 스윙했는데 방망이를 건들지 않은 경우
+        else if (bat.IsSwing()) //스윙여부 == true => 스윙했는데 방망이를 건들지 않은 경우
         {
             playAudioClipEvent.RaiseEvent(3);
             Debug.Log("스트라이크1");
@@ -632,6 +631,12 @@ public class Baseball : MonoBehaviour
             Debug.Log("볼");
             addBallCountEvent.RaiseEvent();
             //backToPitcherEvent.RaiseEvent();
+        }
+        
+        if(!isBack)
+        {
+            isBack = true;
+            backToPitcherEvent.RaiseEvent(); //이게 IsBatTouch를 false로 만듬
         }
         IsThrown = false;
     }
@@ -684,7 +689,7 @@ public class Baseball : MonoBehaviour
     {
         //Debug.Log("시간 (음수면 안된다): " + delay); //3.3
         yield return new WaitForSeconds(delay);
-        Debug.Log("cal hit time (" + Time.time+ ") : "+ delay);
+        //Debug.Log("cal hit time (" + Time.time+ ") : "+ delay);
         bat.StartSwing();
     }
 }

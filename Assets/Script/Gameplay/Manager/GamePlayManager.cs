@@ -13,6 +13,7 @@ public class GamePlayManager : GameManager
     [SerializeField] private GamePlayController gamePlayController;
     [SerializeField] private PitchingController pitchingController;
     [SerializeField] private BattingController battingController;
+    
     [Header("Batter")] 
     [SerializeField] private Batter batterPrefab;
     [SerializeField] private Transform batterCreatePosition;
@@ -291,20 +292,23 @@ public class GamePlayManager : GameManager
         RerollBeforeStatus();
         ++FoulCount;
 
+        Debug.Log("파울");
         //strike == 2
         if (Strike == BaseballModel.MAX_STRIKE_COUNT - 1)
         {
             return;
         }
-
+        
         AddStrike();
     }
 
     protected override void Homerun()
     {
+        Debug.Log("홈런");
         AddScore(gamePlayModel.EstimateRunners());
         ClearRunners();
         ++HomerunCount;
+        CreateBatter(); //주자는 없으니까
     }
 
     private void AddScore(int value)
@@ -361,7 +365,7 @@ public class GamePlayManager : GameManager
     //주자 돌아가는 함수 => 이게 가장 문제다.
     private void RerollBeforeStatus()
     {
-        Debug.Log("back to the future");
+        Debug.Log("파울이라 돌아감");
 
         //되돌아가자
         for (int i = 1; i < GamePlayModel.MAX_BASE_COUNT + 1; i++)
@@ -379,9 +383,10 @@ public class GamePlayManager : GameManager
         {
             return;
         }
-        Batter b = gamePlayModel.RemoveRunner(0);
+        Batter b = gamePlayModel.GetRunner(0);
         b.IsMove = false;
         b.transform.position = batterPosition.position;
+        //gamePlayModel.AddRunnder(b);
     }
     
     
@@ -496,7 +501,6 @@ public class GamePlayManager : GameManager
 
     private void RunRunner()
     {
-        Debug.Log("이 메세지가 두 번 나온다면");
         gamePlayModel.AddRunnder(0, currentBatter);
 
         currentBatter.SetBases(bases);
