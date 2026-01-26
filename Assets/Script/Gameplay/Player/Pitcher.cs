@@ -209,6 +209,7 @@ public class Pitcher : Defender
     }
     public void StopPitching()
     {
-        StopCoroutine(coroutine); 
+        if(coroutine != null)
+            StopCoroutine(coroutine); 
     }
 }

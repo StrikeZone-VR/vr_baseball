@@ -130,12 +130,14 @@ public class GamePlayManager : GameManager
         // {
         //     MoveOneBase();
         // }
-
+        if (Input.GetKeyDown(KeyCode.Z))
+        {
+            DebugHitting();
+        }
         if (Input.GetKeyDown(KeyCode.X))
         {
             Inning++;
         }
-
         if (Input.GetKeyDown(KeyCode.C))
         {
             //스윙해라
@@ -378,11 +380,20 @@ public class GamePlayManager : GameManager
             }
         }
 
-        //그냥 아웃처리하자
+        //만약 러너 주자가 비어있다면?
         if (gamePlayModel.IsEmptyRunner(0))
         {
             return;
         }
+        //내가 타자라면 그냥 페이드아웃
+        if (gamePlayModel.Inning % 2 == 0)
+        {
+            //페이드 아웃 함수
+            return;
+        }
+        
+        //내가 투수라면 아래 함수
+        
         Batter b = gamePlayModel.GetRunner(0);
         b.IsMove = false;
         b.transform.position = batterPosition.position;
@@ -461,6 +472,7 @@ public class GamePlayManager : GameManager
         }
     }
 
+    //backToPitcherEvent
     protected override void PitcherGetBall()
     {
         //batting mode
@@ -501,6 +513,11 @@ public class GamePlayManager : GameManager
 
     private void RunRunner()
     {
+        if (gamePlayModel.Inning % 2 == 0)
+        {
+            //todo : 컨트롤러 이동 허용시키게 해주는 기능
+            return;
+        }
         gamePlayModel.AddRunnder(0, currentBatter);
 
         currentBatter.SetBases(bases);
@@ -709,6 +726,40 @@ public class GamePlayManager : GameManager
         //나중에 알아서 추가
     }
 
+    void DebugHitting()
+    {
+        Debug.Log("디버깅용 타자 안타 함수");
+        //공을 던지면 isPassing, isThrown
+
+        //공 던지는 코루틴도 제거
+        pitcher.StopPitching();
+        
+        //no Defender
+        _ball.RemovePlayer();
+        _ball.IsThrown = true;
+        _ball.IsPassing = true;
+        _ball.SetPosition(batterPosition.position + new Vector3(0, 2.0f, 0));
+        _ball.SetVelocity(new Vector3(-1.0f, 1.0f, -1.0f) * 10f);
+        //10 : 내야 땅볼?
+        //20 : 뜬 공
+        
+        //백 코루틴 제거?
+        if(waitPitcherCoroutine != null)
+            StopCoroutine(waitPitcherCoroutine);
+        
+        //친 순간은
+        //땅볼과 isBack 제외 모두 체크
+        _ball.IsBatTouch = true;
+        _ball.IsZone = true;
+        _ball.IsStrike = true;
+        _ball.IsThrown = true;
+
+        //_ball
+        //batterPosition
+        //속력 추가
+        
+        //만약 파울이면? => isPass와 isThrown 제거되는 듯 => 이거는 그냥 볼 필요는 없다.
+    }
 
     #endregion
 }

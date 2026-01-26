@@ -41,7 +41,7 @@ public class Baseball : MonoBehaviour
     [SerializeField] private VoidEventSO homerunEvent;
     [SerializeField] private VoidEventSO pitchEvent;
     [SerializeField] private VoidEventSO runSignalEvent;
-    [SerializeField] private VoidEventSO backToPitcherEvent; //? => 일단 안쓰임
+    [SerializeField] private VoidEventSO backToPitcherEvent; //
     [SerializeField] private VoidEventSO inplayGameEvent; //from BattingSystem
     [SerializeField] private FloatEventSO getVelocityEventSO; //from BattingSystem
     [SerializeField] private IntEventSO playAudioClipEvent; //from AudioManager
@@ -145,7 +145,7 @@ public class Baseball : MonoBehaviour
         //foul
         if (collider.CompareTag("Foul"))
         {
-            if (isBatTouch && isThrown && !IsGroundBall )
+            if (IsBatTouch && isThrown && !IsGroundBall )
             {
                 foulEvent.RaiseEvent();
             }
@@ -348,6 +348,7 @@ public class Baseball : MonoBehaviour
         set => defenderDis = value;
     }
 
+    //공식 제거 함수
     public void RemovePlayer()
     {
         if (!myDefender)
