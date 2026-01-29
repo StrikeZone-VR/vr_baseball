@@ -693,4 +693,40 @@ public class Baseball : MonoBehaviour
         //Debug.Log("cal hit time (" + Time.time+ ") : "+ delay);
         bat.StartSwing();
     }
+
+    void OnDrawGizmos()
+    {
+        DebugTrajectory();
+    }
+
+    void OnDrawGizmosSelected()
+    {
+        DebugTrajectory();
+    }
+    void DebugTrajectory()
+    {
+        
+        float spacing = 0.25f;   // 점 간격(월드 단위)
+        float radius = 0.03f;
+        
+        Gizmos.color = Color.yellow;
+
+        Vector3 p1 = transform.position;
+        Vector3 p2 = new Vector3(0, 0, 0);
+
+        Vector3 dir = (p2 - p1);
+        float len = dir.magnitude;
+        
+        if (len < 0.0001f) return;
+        dir /= len;
+
+        int count = Mathf.FloorToInt(len / spacing);
+        for (int i = 0; i <= count; i++)
+        {
+            Vector3 p = p1 + dir * (i * spacing);
+            Gizmos.DrawSphere(p, radius); // 도트 찍기 [web:104]
+        }
+        
+        //Gizmos.DrawLine(transform.position, new Vector3(10f, 10f, 10f));
+    }
 }
