@@ -155,7 +155,8 @@ public class GamePlayManager : GameManager
         }
 
         //tracking => 혹시 포수가 못 잡을 수 있으니 isBatTouch는 넣지말자
-        if (!_ball.IsPassing && _ball.IsGroundBall && !_ball.IsThrown)
+        //if (!_ball.IsPassing && _ball.IsGroundBall && !_ball.IsThrown)
+        if(_ball.IsBatTouch)
         {
             int index = FindClosestDefenderIndex();
             AllTrackingOff();
@@ -599,7 +600,7 @@ public class GamePlayManager : GameManager
         int index = -1;
         for (int i = 0; i < defenders.Length; i++)
         {
-            float dis = GetDistanceBetween(_ball.transform.position, defenders[i].transform.position);
+            float dis = GetDistanceBetween(_ball.GetTargetPosition(), defenders[i].transform.position);
             if (min > dis)
             {
                 min = dis;

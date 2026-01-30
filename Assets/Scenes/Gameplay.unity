@@ -5120,6 +5120,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 11400000, guid: 2c50fa93d15b0bd469de3b987b91d592, type: 2}
     - target: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
+      propertyPath: _debugVelocity
+      value: 60
+      objectReference: {fileID: 0}
+    - target: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
       propertyPath: addStrikeEvent
       value: 
       objectReference: {fileID: 11400000, guid: 7980c5f1d20201f48891aba9f1727e76, type: 2}
@@ -5131,6 +5135,10 @@ PrefabInstance:
       propertyPath: setBeforeEvent
       value: 
       objectReference: {fileID: 11400000, guid: 64ab46ed3c98c004293ba3d5a15135dd, type: 2}
+    - target: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
+      propertyPath: _debugVelocity.x
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
       propertyPath: addBallCountEvent
       value: 
@@ -5153,15 +5161,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9040452230717059448, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -10
+      value: -15.056
       objectReference: {fileID: 0}
     - target: {fileID: 9040452230717059448, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 3.758
+      value: 3.718
       objectReference: {fileID: 0}
     - target: {fileID: 9040452230717059448, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -10
+      value: -12.745
       objectReference: {fileID: 0}
     - target: {fileID: 9040452230717059448, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
       propertyPath: m_LocalRotation.w

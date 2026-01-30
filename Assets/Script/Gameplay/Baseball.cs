@@ -64,11 +64,13 @@ public class Baseball : MonoBehaviour
     [Header("참조")] [SerializeField] private StrikeZone strikeZone;
     //public PitchingSystemManager pitchingSystemManager;    // 새로운 통합 시스템
 
+    [Header("Debug")] 
+    [SerializeField] private float _debugVelocity;
+    private Vector3 _debugTargetPosition;
 
     /// <summary> 공이 투구되었는지 확인 </summary>  <returns>투구 상태</returns>
 
     // 사용하지 않는 변수들 제거: isCurveActive, throwTime, curveTimer
-    private Vector3 targetPosition; // 실제 목표 위치
     private Vector3 velocityXY; // 실제 목표 위치
 
     public readonly float MAGNUS = 60.0f; //100 기준
@@ -541,7 +543,7 @@ public class Baseball : MonoBehaviour
 
         //int index = Random.Range(0, 25);
         
-        targetPosition = strikeZone.GetZone(4).position;
+        Vector3 targetPosition = strikeZone.GetZone(4).position;
         
         //아래는 직구
         //OnBallPhysics();
@@ -705,28 +707,71 @@ public class Baseball : MonoBehaviour
     }
     void DebugTrajectory()
     {
+        float dashLength = 0.3f; // 그려지는 짧은 선 길이(월드 단위)
+        float gapLength  = 0.2f; // 대시 사이 공백(월드 단위)
         
-        float spacing = 0.25f;   // 점 간격(월드 단위)
-        float radius = 0.03f;
+        int steps = 160;
+        float dt = 0.05f;
         
         Gizmos.color = Color.yellow;
 
-        Vector3 p1 = transform.position;
-        Vector3 p2 = new Vector3(0, 0, 0);
-
-        Vector3 dir = (p2 - p1);
-        float len = dir.magnitude;
+        Vector3 p = transform.position;
+        //Vector3 b = new Vector3(0,1.0f,0); //도착점
         
-        if (len < 0.0001f) return;
-        dir /= len;
-
-        int count = Mathf.FloorToInt(len / spacing);
-        for (int i = 0; i <= count; i++)
+        Vector3 g = Physics.gravity;
+        Vector3 v;
+        if (_rigidbody == null)
         {
-            Vector3 p = p1 + dir * (i * spacing);
-            Gizmos.DrawSphere(p, radius); // 도트 찍기 [web:104]
+            v = new Vector3(1, 0, 1).normalized * _debugVelocity / 3.6f;
+        }
+        else
+        {
+            v = _rigidbody.velocity;
+        }
+        
+        float stepLen = dashLength + Mathf.Max(0f, gapLength);
+
+        for (int i = 0; i < steps; i++)
+        {
+            // 다음 위치 예측(중력 적용) [web:97]
+            v += g * dt;
+            Vector3 nextP = p + v * dt;
+
+            // p -> nextP 구간을 '대시'로 쪼개서 그리기
+            DrawDashedSegment(p, nextP, dashLength, stepLen);
+
+            // (선택) 충돌하면 거기서 끊기
+            if (Physics.Linecast(p, nextP, out var hit))
+            {
+                Gizmos.DrawWireSphere(hit.point, 0.2f);
+                _debugTargetPosition = hit.point;
+                break;
+            }
+
+            p = nextP;
         }
         
         //Gizmos.DrawLine(transform.position, new Vector3(10f, 10f, 10f));
+    }
+    
+    void DrawDashedSegment(Vector3 a, Vector3 b, float dashLen, float stepLen)
+    {
+        Vector3 ab = b - a;
+        float len = ab.magnitude;
+        if (len < 0.00001f) return;
+
+        Vector3 dir = ab / len;
+
+        for (float t = 0f; t < len; t += stepLen)
+        {
+            float t0 = t;
+            float t1 = Mathf.Min(t + dashLen, len);
+            Gizmos.DrawLine(a + dir * t0, a + dir * t1);
+        }
+    }
+
+    public Vector3 GetTargetPosition()
+    {
+        return _debugTargetPosition;
     }
 }
