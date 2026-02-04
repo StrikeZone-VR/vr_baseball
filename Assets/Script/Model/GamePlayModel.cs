@@ -8,17 +8,18 @@ public class GamePlayModel : GameModel
     private int inning = 0;
     private int out_count = 0;
 
-    private Queue<Batter>[] runners = new Queue<Batter>[MAX_BASE_COUNT + 1];
+    //베이스에 있는 주자는 
+    private Queue<Batter>[] runners = new Queue<Batter>[MAX_BASE_COUNT];
     private TeamStatus[] _teamStatus = new TeamStatus[2];
 
     //Define
     public const int MAX_INNING_COUNT = 18;
     public const int MAX_OUT_COUNT = 3;
-    public const int MAX_BASE_COUNT = 3;
+    public const int MAX_BASE_COUNT = 4;
 
     public GamePlayModel()
     {
-        for (int i = 0; i < MAX_BASE_COUNT + 1; i++)
+        for (int i = 0; i < MAX_BASE_COUNT; i++)
         {
             runners[i] = new Queue<Batter>();
         }
@@ -85,6 +86,12 @@ public class GamePlayModel : GameModel
     {
         _teamStatus[GetTeamIndex()].Score += value;
         return _teamStatus[GetTeamIndex()].Score;
+        
+    }
+
+    public int GetRunnerCount(int index)
+    {
+        return runners[index].Count;
     }
 }
 

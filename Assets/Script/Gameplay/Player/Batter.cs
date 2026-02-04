@@ -10,19 +10,19 @@ public class Batter : Player
     public AnimationCurve rotationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
     //[SerializeField] private Baseball _ball;
-    [SerializeField] private int base_index = 0;
-    private Transform[] bases;
+    [SerializeField] protected int base_index = 0;
+    protected Transform[] bases;
     [SerializeField] private Bat bat;
 
     [Header("Listening to Events")]
-    [SerializeField] private VoidEventSO startPitchEvent; //From GameManager
-    [SerializeField] private VoidEventSO addScore; //From GameManager
-    [SerializeField] private VoidEventSO strikeEvent; //From GameManager
-    [SerializeField] private IntEventSO addIsBaseStatus; //From GameManager
+    [SerializeField] protected VoidEventSO startPitchEvent; //From GameManager
+    [SerializeField] protected VoidEventSO addScore; //From GameManager
+    [SerializeField] protected VoidEventSO strikeEvent; //From GameManager
+    [SerializeField] protected IntEventSO addIsBaseStatus; //From GameManager
 
     
     //debug serializeField
-    [SerializeField] private bool isMove = false;
+    [SerializeField] protected bool isMove = false;
     //private bool isInBase = false;
     
     public void SetBat(Bat bat)
@@ -65,7 +65,7 @@ public class Batter : Player
         }
     }
 
-    private void StopMove()
+    protected virtual void StopMove()
     {
         nav.ResetPath();
         startPitchEvent.RaiseEvent();
@@ -73,7 +73,7 @@ public class Batter : Player
     }
 
     #region PROPERTYS
-    public bool IsMove
+    public virtual bool IsMove
     {
         get => isMove;
         set
@@ -95,7 +95,7 @@ public class Batter : Player
     }
 
     // want to go base index
-    public int BaseIndex
+    public virtual int BaseIndex
     {
         get => base_index;
         set

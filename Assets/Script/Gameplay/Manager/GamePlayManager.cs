@@ -1,12 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.XR.CoreUtils;
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit.Inputs.Simulation;
 
 public class GamePlayManager : GameManager
 {
+    [Header("Debug")]
+    [SerializeField] protected XROrigin playerOrigin; //debug용
+    
     [Header("Objects")]
     [SerializeField] private Defender[] defenders; // pitcher => 0
     [SerializeField] private Transform[] bases;
+    [SerializeField] private MyBody myBody; //플레이어 타자
     private Pitcher pitcher;
     
     [Header("Controllers")]
@@ -125,11 +131,11 @@ public class GamePlayManager : GameManager
         //     PitcherGetBall();
         // }
         //
-        // //batter run
-        // if (Input.GetKeyDown(KeyCode.C))
-        // {
-        //     MoveOneBase();
-        // }
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            //MoveOneBase();        //batter run
+            DebugBaseStatus();
+        }
         if (Input.GetKeyDown(KeyCode.Z))
         {
             DebugHitting();
@@ -138,11 +144,11 @@ public class GamePlayManager : GameManager
         {
             Inning++;
         }
-        if (Input.GetKeyDown(KeyCode.C))
-        {
-            //스윙해라
-            currentBatter.Swing();
-        }
+        // if (Input.GetKeyDown(KeyCode.C))
+        // {
+        //     //스윙해라
+        //     currentBatter.Swing();
+        // }
         if (Input.GetKeyDown(KeyCode.V))
         {
             Debug.Log("투수 스토프");
@@ -371,7 +377,7 @@ public class GamePlayManager : GameManager
         Debug.Log("파울이라 돌아감");
 
         //되돌아가자
-        for (int i = 1; i < GamePlayModel.MAX_BASE_COUNT + 1; i++)
+        for (int i = 1; i < GamePlayModel.MAX_BASE_COUNT; i++)
         {
             while (!gamePlayModel.IsEmptyRunner(i))
             {
@@ -404,7 +410,7 @@ public class GamePlayManager : GameManager
     
     private bool IsCheckBeforeStatus()
     {
-        for (int i = 0; i < GamePlayModel.MAX_BASE_COUNT + 1; i++)
+        for (int i = 0; i < GamePlayModel.MAX_BASE_COUNT; i++)
         {
             if (isBeforeBaseStatus[i] == gamePlayModel.IsEmptyRunner(0))
             {
@@ -435,9 +441,8 @@ public class GamePlayManager : GameManager
         
         pitcher.IsThrowBallStop = false;
         defenders[0].SetMyBall(_ball);
-
-        //방망이 중력, rotation position 풀기
-        playerOrigin.MoveCameraToWorldLocation(new Vector3(0, 1.0f, 0)); //시점 타자 시점
+        
+        TranslateBattingView();
     }
 
     private void StartPitcher()
@@ -452,9 +457,9 @@ public class GamePlayManager : GameManager
         //방망이 위치 Vector3(-0.660000026,1.37,0.150000006) 여기로
         //방망이 중력, rotation position 얼리기
         CreateBatter();
-
-        playerOrigin.MoveCameraToWorldLocation(new Vector3(-13.46f, 1.0f, -13.46f));
-        playerOrigin.MatchOriginUpCameraForward(Vector3.up, new Vector3(1, 0, 1));
+        
+        TranslatePitchingView();
+        
     }
 
 
@@ -501,7 +506,7 @@ public class GamePlayManager : GameManager
                 currentBatter = null;
             }
         }
-        for (int i = 0; i < GamePlayModel.MAX_BASE_COUNT + 1; i++)
+        for (int i = 0; i < GamePlayModel.MAX_BASE_COUNT; i++)
         {
             while (!gamePlayModel.IsEmptyRunner(i))
             {
@@ -516,7 +521,23 @@ public class GamePlayManager : GameManager
     {
         if (gamePlayModel.Inning % 2 == 0)
         {
+            //DebugMoveBase(1);
+            
             //todo : 컨트롤러 이동 허용시키게 해주는 기능
+            
+            //debug
+#if  UNITY_EDITOR
+            Debug.Log("뛰어. => 디버깅용");
+            XRDeviceSimulator xr = Object.FindAnyObjectByType<XRDeviceSimulator>();
+            if(xr)
+                xr.keyboardZTranslateSpeed = 1.5f;
+#endif
+            currentBatter = myBody;
+            gamePlayModel.AddRunnder(0, currentBatter);
+
+            //todo : 무슨 버그지
+            currentBatter.SetBases(bases);
+            currentBatter.IsMove = true;
             return;
         }
         gamePlayModel.AddRunnder(0, currentBatter);
@@ -619,7 +640,7 @@ public class GamePlayManager : GameManager
     
     private bool ThrowBallAlgorithm() //SO
     {
-        for (int i = GamePlayModel.MAX_BASE_COUNT; i >= 0; i--)
+        for (int i = GamePlayModel.MAX_BASE_COUNT - 1; i >= 0; i--)
         {
             //has runner and run
             if (!gamePlayModel.IsEmptyRunner(i) && gamePlayModel.GetRunner(i).IsMove)
@@ -674,7 +695,7 @@ public class GamePlayManager : GameManager
 
     void MoveBase()
     {
-        for (int i = 0; i < GamePlayModel.MAX_BASE_COUNT + 1; i++)
+        for (int i = 0; i < GamePlayModel.MAX_BASE_COUNT; i++)
         {
             //HasRunner
             if (!gamePlayModel.IsEmptyRunner(i))
@@ -719,17 +740,59 @@ public class GamePlayManager : GameManager
         }
     }
 
+    void TranslatePitchingView()
+    {
+        Vector3 movePosition = new Vector3(-13.46f, 1.0f, -13.46f);
+        Vector3 rotateVector = new Vector3(1, 0, 1);
+        
+        MovePlayer(movePosition);
+        RotatePlayer(rotateVector);
+    }
+    void TranslateBattingView()
+    {
+        Vector3 movePosition = new Vector3(0, 1.0f, 0);
+        MovePlayer(movePosition);
+    }
+
+    void MovePlayer(Vector3 position)
+    {
+        //debug
+        if (playerOrigin.gameObject.activeSelf)
+        {
+            //방망이 중력, rotation position 풀기
+            playerOrigin.MoveCameraToWorldLocation(position); //시점 타자 시점
+        }
+        else
+        {
+            moveOriginEvent.RaiseEvent(position);
+        }
+    }
+    void RotatePlayer(Vector3 rotate)
+    {
+        if (playerOrigin.gameObject.activeSelf)
+        {
+            playerOrigin.MatchOriginUpCameraForward(Vector3.up, rotate);
+        }
+        else
+        {
+            rotateOriginEvent.RaiseEvent(rotate);
+        }
+    }
+
     
     #region DEBUG
 
     void DebugBaseStatus()
     {
-        //나중에 알아서 추가
+        for (int i = 0; i < GamePlayModel.MAX_BASE_COUNT; i++)
+        {
+            Debug.Log(i+" : " + gamePlayModel.GetRunnerCount(i));
+        }
     }
 
     void DebugHitting()
     {
-        Debug.Log("디버깅용 타자 안타 함수");
+        Debug.Log("디버깅용 타자 안타 함수 - player는 타자");
         //공을 던지면 isPassing, isThrown
 
         //공 던지는 코루틴도 제거
@@ -760,6 +823,13 @@ public class GamePlayManager : GameManager
         //속력 추가
         
         //만약 파울이면? => isPass와 isThrown 제거되는 듯 => 이거는 그냥 볼 필요는 없다.
+    }
+    
+    //베이스 이동 디버그
+    void DebugMoveBase(int index)
+    {
+        //RunRunner();
+        MovePlayer(bases[index].position + new Vector3(0, 1.0f, 0));
     }
 
     #endregion

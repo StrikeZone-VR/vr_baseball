@@ -239,8 +239,8 @@ public class Baseball : MonoBehaviour
                 this._rigidbody.useGravity = true;
             }
 
-            //signal
-            runSignalEvent.RaiseEvent();
+            //signal => IsBatTouch로 옮김
+            //runSignalEvent.RaiseEvent();
         }
     }
 
@@ -325,6 +325,9 @@ public class Baseball : MonoBehaviour
         {
             Debug.Log("isBatTouch: " + value);
             isBatTouch = value;
+            if(isBatTouch)
+                runSignalEvent.RaiseEvent();
+
         } 
             
     }
