@@ -28,17 +28,23 @@ public class GamePlayManager : GameManager
     [SerializeField] private Bat _bat;
     [SerializeField] private GameObject _axis;
     
-    [Header("Broadcasting on EventChannels")] 
+    //A =>
+    [Header("Listening to")] 
     [SerializeField] private IntEventSO outBatterEvent; //Defender, Baseman
     [SerializeField] private VoidEventSO startPitcherModeEvent; //to batter
     [SerializeField] private VoidEventSO swingEvent; //to Pitcher, auto swing
     [SerializeField] private VoidEventSO pitchEvent; //to PitchingBallController
-    
+    [SerializeField] private VoidEventSO moveBatterEvent;
+
     [Space]
     [SerializeField] private VoidEventSO allTrackingOffEvent; //to baseball
     [SerializeField] private VoidEventSO addScore; //to Batter
     [SerializeField] private IntEventSO addIsBaseStatus; //to Batter
     [SerializeField] private VoidEventSO runSignalEvent;
+    
+    // => A
+    [Header("Broadcasting on")]
+    [SerializeField] private FadeChannelSO fadeEvent;
     const float WAIT_TIME = 7.0f; 
 
     private int beforeScore = 0;
@@ -62,6 +68,8 @@ public class GamePlayManager : GameManager
         startPitcherModeEvent.onEventRaised += OnTouchBall;
         swingEvent.onEventRaised += DebugBatting;
         //pitchEvent.onEventRaised += SwingSignalToBatter;
+
+        moveBatterEvent.onEventRaised += MoveBatter;
     }
 
     protected override void OnDisable()
@@ -77,6 +85,8 @@ public class GamePlayManager : GameManager
         startPitcherModeEvent.onEventRaised -= OnTouchBall;
         swingEvent.onEventRaised -= DebugBatting;
         //pitchEvent.onEventRaised -= SwingSignalToBatter;
+        
+        moveBatterEvent.onEventRaised -= MoveBatter;
     }
 
     protected override void Start()
@@ -442,7 +452,8 @@ public class GamePlayManager : GameManager
         pitcher.IsThrowBallStop = false;
         defenders[0].SetMyBall(_ball);
         
-        TranslateBattingView();
+        StartCoroutine(TranslateBattingView());
+        //TranslateBattingView();
     }
 
     private void StartPitcher()
@@ -458,8 +469,7 @@ public class GamePlayManager : GameManager
         //방망이 중력, rotation position 얼리기
         CreateBatter();
         
-        TranslatePitchingView();
-        
+        StartCoroutine(TranslatePitchingView());
     }
 
 
@@ -524,13 +534,16 @@ public class GamePlayManager : GameManager
             //DebugMoveBase(1);
             
             //todo : 컨트롤러 이동 허용시키게 해주는 기능
-            
             //debug
 #if  UNITY_EDITOR
             Debug.Log("뛰어. => 디버깅용");
             XRDeviceSimulator xr = Object.FindAnyObjectByType<XRDeviceSimulator>();
-            if(xr)
+            if (xr)
+            {
+                xr.keyboardXTranslateSpeed = 1.5f;
                 xr.keyboardZTranslateSpeed = 1.5f;
+            }
+            
 #endif
             currentBatter = myBody;
             gamePlayModel.AddRunnder(0, currentBatter);
@@ -740,18 +753,36 @@ public class GamePlayManager : GameManager
         }
     }
 
-    void TranslatePitchingView()
+    IEnumerator TranslatePitchingView()
     {
+        fadeEvent.FadeOut(0.2f);
+        yield return new WaitForSeconds(0.2f);
+        
         Vector3 movePosition = new Vector3(-13.46f, 1.0f, -13.46f);
         Vector3 rotateVector = new Vector3(1, 0, 1);
-        
         MovePlayer(movePosition);
         RotatePlayer(rotateVector);
+        
+        fadeEvent.FadeIn(0.2f);
     }
-    void TranslateBattingView()
+
+    void MoveBatter()
     {
+        StartCoroutine(TranslateBattingView());
+        //TranslateBattingView();
+    }
+    
+    IEnumerator TranslateBattingView()
+    {
+        fadeEvent.FadeOut(0.2f); //이동하기 전
+        yield return new WaitForSeconds(0.2f); 
+
         Vector3 movePosition = new Vector3(0, 1.0f, 0);
+        Vector3 rotateVector = new Vector3(-1, 0, -1);
         MovePlayer(movePosition);
+        RotatePlayer(rotateVector);
+
+        fadeEvent.FadeIn(0.2f); //이동하고 나서
     }
 
     void MovePlayer(Vector3 position)

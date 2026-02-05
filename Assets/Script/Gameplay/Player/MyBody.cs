@@ -10,9 +10,8 @@ public class MyBody : Batter
     [SerializeField] private Camera _camera;
     [SerializeField] private Batter prefabBatter;
     [SerializeField] private Transform _parent;
-    
-    // => 투수모드면 이거를 끄고
-    // => 타자모드면 이거를 키고
+
+    [SerializeField] private VoidEventSO moveBatterEvent;
     
     void Update()
     {
@@ -68,19 +67,23 @@ public class MyBody : Batter
             //change base status => else, goto 1base 
             if (0 < value && value < bases.Length)
             {
-                GameObject batter = Instantiate(prefabBatter.gameObject, _parent);
+                Batter batter = Instantiate(prefabBatter.gameObject, _parent).GetComponent<Batter>();
                 
                 batter.transform.position = transform.position;//프리펩 정보 이전
-                GetComponent<Batter>().BaseIndex = base_index;
-                GetComponent<Batter>().IsMove = false;
+                batter.SetBases(bases);
+                batter.BaseIndex = base_index;
+                batter.IsMove = false;
                     //일단 자기 자신에 투영. 이후 진짜 생성해서 currentBatter의 포지션, baseIndex에 넣고
                     //다시 baseIndex = 0, 포지션 원래자리 => 이거는 그냥 이동시키면 될듯
                     
-                BaseIndex = 0;
-                Debug.Log("움직임");
-                //todo : 다시 타석으로 => 페이드아웃 + moveEvent
-                
-                addIsBaseStatus.RaiseEvent(value - 1);
+                base_index = 0;
+                Debug.Log("1루 생성.");
+                //다시 타석으로 => 페이드아웃 + moveEvent
+                moveBatterEvent.RaiseEvent();
+
+                //todo : 홈런인 경우 어떡하지
+                return;
+                //addIsBaseStatus.RaiseEvent(value - 1);
             }
             
             

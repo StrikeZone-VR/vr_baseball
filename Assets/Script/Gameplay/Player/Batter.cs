@@ -51,6 +51,8 @@ public class Batter : Player
             if (a - '0' == base_index)
             {
                 BaseIndex++; 
+                
+                //수비수와 공 거리가 10f 이하면 가지마라
                 if (_ball.DefenderDis <= 10.0f)
                 {
                     isMove = false;
