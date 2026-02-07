@@ -66,7 +66,7 @@ public class Baseball : MonoBehaviour
 
     [Header("Debug")] 
     [SerializeField] private float _debugVelocity;
-    private Vector3 _debugTargetPosition;
+    private Vector3 _targetPosition;
 
     /// <summary> 공이 투구되었는지 확인 </summary>  <returns>투구 상태</returns>
 
@@ -93,10 +93,7 @@ public class Baseball : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.F7))
-        {
-            
-        }
+        CalTrajectory();
     }
 
     void FixedUpdate()
@@ -400,8 +397,7 @@ public class Baseball : MonoBehaviour
     }
 
     #endregion
-
-
+    
     //구종
     #region PitchType
     public void SetPitchType(PitchType pitchType)
@@ -494,7 +490,6 @@ public class Baseball : MonoBehaviour
     }
     
     #endregion
-
 
     #region PLAYER
     
@@ -703,14 +698,14 @@ public class Baseball : MonoBehaviour
 
     void OnDrawGizmos()
     {
-        DebugTrajectory();
+        CalTrajectory(true);
     }
 
     void OnDrawGizmosSelected()
     {
-        DebugTrajectory();
+        CalTrajectory(true);
     }
-    void DebugTrajectory()
+    void CalTrajectory(bool isDebug = false)
     {
         float dashLength = 0.3f; // 그려지는 짧은 선 길이(월드 단위)
         float gapLength  = 0.2f; // 대시 사이 공백(월드 단위)
@@ -718,7 +713,7 @@ public class Baseball : MonoBehaviour
         int steps = 160;
         float dt = 0.05f;
         
-        Gizmos.color = Color.yellow;
+        //Gizmos.color = Color.yellow;
 
         Vector3 p = transform.position;
         //Vector3 b = new Vector3(0,1.0f,0); //도착점
@@ -743,13 +738,15 @@ public class Baseball : MonoBehaviour
             Vector3 nextP = p + v * dt;
 
             // p -> nextP 구간을 '대시'로 쪼개서 그리기
-            DrawDashedSegment(p, nextP, dashLength, stepLen);
+            if(isDebug)
+                DrawDashedSegment(p, nextP, dashLength, stepLen);
 
             // (선택) 충돌하면 거기서 끊기
             if (Physics.Linecast(p, nextP, out var hit))
             {
-                Gizmos.DrawWireSphere(hit.point, 0.2f);
-                _debugTargetPosition = hit.point;
+                if(isDebug) 
+                    Gizmos.DrawWireSphere(hit.point, 0.2f);
+                _targetPosition = hit.point;
                 break;
             }
 
@@ -771,12 +768,12 @@ public class Baseball : MonoBehaviour
         {
             float t0 = t;
             float t1 = Mathf.Min(t + dashLen, len);
-            Gizmos.DrawLine(a + dir * t0, a + dir * t1);
+            //Gizmos.DrawLine(a + dir * t0, a + dir * t1);
         }
     }
 
     public Vector3 GetTargetPosition()
     {
-        return _debugTargetPosition;
+        return _targetPosition;
     }
 }

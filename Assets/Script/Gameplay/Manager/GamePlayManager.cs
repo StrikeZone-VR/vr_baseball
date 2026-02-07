@@ -7,6 +7,7 @@ using UnityEngine.XR.Interaction.Toolkit.Inputs.Simulation;
 
 public class GamePlayManager : GameManager
 {
+    #region VARIABLES
     [Header("Debug")]
     [SerializeField] protected XROrigin playerOrigin; //debug용
     
@@ -58,7 +59,7 @@ public class GamePlayManager : GameManager
     
     const float WAIT_TIME = 7.0f; 
     
-    
+    #endregion
     #region SO
     protected override void OnEnable()
     {
@@ -107,23 +108,8 @@ public class GamePlayManager : GameManager
 
     private void Update()
     {
-        //debug
-        //to pitcher
-        if (Input.GetKeyDown(KeyCode.Alpha0))
-        {
-            defenders[0].SetMyBall(_ball);
-            //_ball.MyDefender.ThrowBall(defenders[0].transform.position);
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-            ThrowToBase(0);
-        else if (Input.GetKeyDown(KeyCode.Alpha2))
-            ThrowToBase(1);
-        else if (Input.GetKeyDown(KeyCode.Alpha3))
-            ThrowToBase(2);
-        else if (Input.GetKeyDown(KeyCode.Alpha4))
-            ThrowToBase(3);
-
+        DebugInput();
+        
         //수비 알고리즘
         //has ball and ball batting
         if (_ball.MyDefender && _ball.IsBatTouch)
@@ -133,6 +119,15 @@ public class GamePlayManager : GameManager
             {
                 PitcherGetBall();
 
+                //안타를 쳤다면
+                if (canBackRunner)
+                {
+                    canBackRunner = false;
+                    Debug.Log("멍멍");
+                    TransformMyBodyToBatter();
+                    StartCoroutine(TranslateBattingView());
+                }
+                
                 //투수일 경우 + currentBatter가 null인 경우
                 if (!currentBatter && gamePlayModel.Inning % 2 == 1)
                 {
@@ -140,38 +135,8 @@ public class GamePlayManager : GameManager
                 }
             }
         }
-
-
-        // if (Input.GetKeyDown(KeyCode.B))
-        // {
-        //     //_ball.OnTouchBall();
-        //     PitcherGetBall();
-        // }
-        //
-        if (Input.GetKeyDown(KeyCode.C))
-        {
-            //MoveOneBase();        //batter run
-            DebugBaseStatus();
-        }
-        if (Input.GetKeyDown(KeyCode.Z))
-        {
-            DebugHitting();
-        }
-        if (Input.GetKeyDown(KeyCode.X))
-        {
-            Inning++;
-        }
-        // if (Input.GetKeyDown(KeyCode.C))
-        // {
-        //     //스윙해라
-        //     currentBatter.Swing();
-        // }
-        if (Input.GetKeyDown(KeyCode.V))
-        {
-            Debug.Log("투수 스토프");
-            pitcher.IsThrowBallStop = !pitcher.IsThrowBallStop;
-        }
-
+        //to pitcher
+        
         if (_ball.MyDefender)
         {
             return;
@@ -185,16 +150,10 @@ public class GamePlayManager : GameManager
             int index = FindClosestDefenderIndex();
             
             AllTrackingOff();
+            
             //closestDefender set tracking
             if (index == -1)
             {
-                //안타를 쳤다면
-                if (canBackRunner)
-                {
-                    canBackRunner = false;
-                    TransformMyBodyToBatter();
-                    StartCoroutine(TranslateBattingView());
-                }
                 return;
             }
             
@@ -501,7 +460,6 @@ public class GamePlayManager : GameManager
             //todo : 컨트롤러 이동 허용시키게 해주는 기능
             //debug
 #if  UNITY_EDITOR
-            Debug.Log("뛰어. => 디버깅용");
             XRDeviceSimulator xr = Object.FindAnyObjectByType<XRDeviceSimulator>();
             if (xr)
             {
@@ -827,6 +785,57 @@ public class GamePlayManager : GameManager
     
     #region DEBUG
 
+    void DebugInput()
+    {
+        if (Input.GetKeyDown(KeyCode.Alpha0))
+        {
+            defenders[0].SetMyBall(_ball);
+            //_ball.MyDefender.ThrowBall(defenders[0].transform.position);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+            ThrowToBase(0);
+        else if (Input.GetKeyDown(KeyCode.Alpha2))
+            ThrowToBase(1);
+        else if (Input.GetKeyDown(KeyCode.Alpha3))
+            ThrowToBase(2);
+        else if (Input.GetKeyDown(KeyCode.Alpha4))
+            ThrowToBase(3);
+
+
+
+        // if (Input.GetKeyDown(KeyCode.B))
+        // {
+        //     //_ball.OnTouchBall();
+        //     PitcherGetBall();
+        // }
+        //
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            //MoveOneBase();        //batter run
+            DebugBaseStatus();
+        }
+        if (Input.GetKeyDown(KeyCode.Z))
+        {
+            DebugHitting();
+        }
+        if (Input.GetKeyDown(KeyCode.X))
+        {
+            Inning++;
+        }
+        // if (Input.GetKeyDown(KeyCode.C))
+        // {
+        //     //스윙해라
+        //     currentBatter.Swing();
+        // }
+        if (Input.GetKeyDown(KeyCode.V))
+        {
+            Debug.Log("투수 스토프");
+            pitcher.IsThrowBallStop = !pitcher.IsThrowBallStop;
+        }
+
+    }
+    
     void DebugBaseStatus()
     {
         for (int i = 0; i < GamePlayModel.MAX_BASE_COUNT; i++)
