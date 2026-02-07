@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.XR.CoreUtils;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.XR.Interaction.Toolkit.Inputs.Simulation;
 
 public class GamePlayManager : GameManager
@@ -34,7 +35,7 @@ public class GamePlayManager : GameManager
     [SerializeField] private VoidEventSO startPitcherModeEvent; //to batter
     [SerializeField] private VoidEventSO swingEvent; //to Pitcher, auto swing
     [SerializeField] private VoidEventSO pitchEvent; //to PitchingBallController
-    [SerializeField] private VoidEventSO moveBatterEvent;
+    [SerializeField] private VoidEventSO onCanBackBatterEvent;
 
     [Space]
     [SerializeField] private VoidEventSO allTrackingOffEvent; //to baseball
@@ -45,16 +46,20 @@ public class GamePlayManager : GameManager
     // => A
     [Header("Broadcasting on")]
     [SerializeField] private FadeChannelSO fadeEvent;
-    const float WAIT_TIME = 7.0f; 
 
-    private int beforeScore = 0;
     private bool [] isBeforeBaseStatus = { false, false, false };
+    private bool canBackRunner = false;
+    private int beforeScore = 0;
     
     private GamePlayModel gamePlayModel = new GamePlayModel();
     private BattingModel battingModel = new BattingModel();
 
     private Coroutine waitPitcherCoroutine;
     
+    const float WAIT_TIME = 7.0f; 
+    
+    
+    #region SO
     protected override void OnEnable()
     {
         base.OnEnable();
@@ -69,7 +74,7 @@ public class GamePlayManager : GameManager
         swingEvent.onEventRaised += DebugBatting;
         //pitchEvent.onEventRaised += SwingSignalToBatter;
 
-        moveBatterEvent.onEventRaised += MoveBatter;
+        onCanBackBatterEvent.onEventRaised += OnCanBackRunner;
     }
 
     protected override void OnDisable()
@@ -86,8 +91,9 @@ public class GamePlayManager : GameManager
         swingEvent.onEventRaised -= DebugBatting;
         //pitchEvent.onEventRaised -= SwingSignalToBatter;
         
-        moveBatterEvent.onEventRaised -= MoveBatter;
+        onCanBackBatterEvent.onEventRaised -= OnCanBackRunner;
     }
+    #endregion
 
     protected override void Start()
     {
@@ -118,6 +124,7 @@ public class GamePlayManager : GameManager
         else if (Input.GetKeyDown(KeyCode.Alpha4))
             ThrowToBase(3);
 
+        //수비 알고리즘
         //has ball and ball batting
         if (_ball.MyDefender && _ball.IsBatTouch)
         {
@@ -170,15 +177,24 @@ public class GamePlayManager : GameManager
             return;
         }
 
+        //트래킹 알고리즘
         //tracking => 혹시 포수가 못 잡을 수 있으니 isBatTouch는 넣지말자
         //if (!_ball.IsPassing && _ball.IsGroundBall && !_ball.IsThrown)
         if(_ball.IsBatTouch)
         {
             int index = FindClosestDefenderIndex();
+            
             AllTrackingOff();
             //closestDefender set tracking
             if (index == -1)
             {
+                //안타를 쳤다면
+                if (canBackRunner)
+                {
+                    canBackRunner = false;
+                    TransformMyBodyToBatter();
+                    StartCoroutine(TranslateBattingView());
+                }
                 return;
             }
             
@@ -186,6 +202,10 @@ public class GamePlayManager : GameManager
             defenders[index].IsTracking = true;
         }
     }
+    
+    
+    /// ////////////////////////////////////////////
+    
     
     #region PROPERTY
     public int Inning
@@ -368,9 +388,16 @@ public class GamePlayManager : GameManager
             battingController.SetGroundballToText(value);
         }
     }
+    void OnCanBackRunner()
+    {
+        canBackRunner = true;
+        //StartCoroutine(TranslateBattingView()); => canBackRunner로 해결
+    }
+
 
     #endregion
-    
+
+    #region GAMEPLAY
     private void InitInning()
     {
         BallCount = 0;
@@ -380,115 +407,7 @@ public class GamePlayManager : GameManager
         ClearRunners();
     }
 
-    
-    //주자 돌아가는 함수 => 이게 가장 문제다.
-    private void RerollBeforeStatus()
-    {
-        Debug.Log("파울이라 돌아감");
-
-        //되돌아가자
-        for (int i = 1; i < GamePlayModel.MAX_BASE_COUNT; i++)
-        {
-            while (!gamePlayModel.IsEmptyRunner(i))
-            {
-                Batter batter = gamePlayModel.GetRunner(i);
-                batter.IsMove = false;
-                batter.transform.position = bases[i].position;
-            }
-        }
-
-        //만약 러너 주자가 비어있다면?
-        if (gamePlayModel.IsEmptyRunner(0))
-        {
-            return;
-        }
-        //내가 타자라면 그냥 페이드아웃
-        if (gamePlayModel.Inning % 2 == 0)
-        {
-            //페이드 아웃 함수
-            return;
-        }
-        
-        //내가 투수라면 아래 함수
-        
-        Batter b = gamePlayModel.GetRunner(0);
-        b.IsMove = false;
-        b.transform.position = batterPosition.position;
-        //gamePlayModel.AddRunnder(b);
-    }
-    
-    
-    private bool IsCheckBeforeStatus()
-    {
-        for (int i = 0; i < GamePlayModel.MAX_BASE_COUNT; i++)
-        {
-            if (isBeforeBaseStatus[i] == gamePlayModel.IsEmptyRunner(0))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private void DeleteRunner()
-    {
-        if (currentBatter == null)
-        {
-            return;
-        }
-        Destroy(currentBatter.gameObject);
-        currentBatter = null;
-        CreateBatter();
-    }
-    
-    private void StartBatter()
-    {
-        Debug.Log("타자 Mode On");
-
-        pitchingController.EndPitchingGame();
-        defenders[0].gameObject.SetActive(true);
-        
-        pitcher.IsThrowBallStop = false;
-        defenders[0].SetMyBall(_ball);
-        
-        StartCoroutine(TranslateBattingView());
-        //TranslateBattingView();
-    }
-
-    private void StartPitcher()
-    {
-        Debug.Log("투수 Mode On");
-
-        defenders[0].IsTracking = false;
-        pitcher.IsThrowBallStop = true;
-        pitchingController.StartPitchingGame();
-        defenders[0].gameObject.SetActive(false);
-
-        //방망이 위치 Vector3(-0.660000026,1.37,0.150000006) 여기로
-        //방망이 중력, rotation position 얼리기
-        CreateBatter();
-        
-        StartCoroutine(TranslatePitchingView());
-    }
-
-
-    private float GetDistanceBetween(Vector3 a, Vector3 b)
-    {
-        float result = Vector3.Distance(a, b);
-        return result;
-    }
-
-    private void AllTrackingOff()
-    {
-        for (int i = 0; i < defenders.Length; i++)
-        {
-            if (defenders[i].gameObject.activeSelf)
-                defenders[i].IsTracking = false;
-        }
-    }
-
-    //backToPitcherEvent
+    //backToPitcherEvent => 이거 던질 곳 없거나 안타치는 순간 겹친다 그냥
     protected override void PitcherGetBall()
     {
         //batting mode
@@ -503,8 +422,54 @@ public class GamePlayManager : GameManager
         }
     }
     
-    #region BATTER
+    IEnumerator WaitingBackToPitcher()
+    {
+        //StartCoroutine(BackPitching());
 
+        yield return new WaitForSeconds(WAIT_TIME);
+        
+        //만약 돌아올때 비활성화 된 경우
+        if (defenders[0].gameObject.activeSelf)
+        {
+            battingController.PitcherGetBall();
+        }
+    }
+    
+    void MovePlayer(Vector3 position)
+    {
+        //debug
+        if (playerOrigin.gameObject.activeSelf)
+        {
+            //방망이 중력, rotation position 풀기
+            playerOrigin.MoveCameraToWorldLocation(position); //시점 타자 시점
+        }
+        else
+        {
+            moveOriginEvent.RaiseEvent(position);
+        }
+    }
+    
+    void RotatePlayer(Vector3 rotate)
+    {
+        if (playerOrigin.gameObject.activeSelf)
+        {
+            playerOrigin.MatchOriginUpCameraForward(Vector3.up, rotate);
+        }
+        else
+        {
+            rotateOriginEvent.RaiseEvent(rotate);
+        }
+    }
+    
+    private void OnTouchBall()
+    {
+        _ball.OnTouchBall();
+    }
+    
+    #endregion
+    
+    #region BATTER
+    
     /// <summary> runner clear </summary>
     private void ClearRunners()
     {
@@ -581,93 +546,7 @@ public class GamePlayManager : GameManager
 
         //runners[0].transform.rotation = Quaternion.LookRotation(bases[2].position);
     }
-
-
-
-    private void DebugBatting()
-    {
-        //batter.DebugHitting();
-
-        // float x = Random.Range(-1.0f, 0f);
-        // float z = Random.Range(-1.0f, 0f);
-        // Vector3 view = new Vector3(-1, 1, -1).normalized;
-        //
-        // _ball.IsBatTouch = true;
-        // _ball.IsGroundBall = false;
-        // _ball.IsPassing = false;
-        //
-        // _ball.RemovePlayer();
-        //
-        // float r = Random.Range(15.0f, 25.0f);
-        //
-        // view *= 19;
-        // _ball.transform.position = Vector3.zero;
-        // _ball.GetComponent<Rigidbody>().velocity = Vector3.zero;
-        // _ball.GetComponent<Rigidbody>().AddForce(view, ForceMode.Impulse);
-        //
-        // MoveBase();
-    }
-
-    #endregion
-
-    #region ALGORITHM
-
-    private bool ThrowToBase(int index)
-    {
-        if (_ball.MyDefender)
-        {
-            if (_ball.MyDefender == defenders[index + 1] && (0 <= index && index < 4) ) //1루수 ~ 4루수
-            {
-                return false;
-            }
-            
-            _ball.MyDefender.ThrowBall(bases[index].position + new Vector3(0, 0.5f, 0));
-            return true;
-        }
-
-        return false;
-    }
-
-    public int FindClosestDefenderIndex()
-    {
-        float min = float.MaxValue;
-        int index = -1;
-        for (int i = 0; i < defenders.Length; i++)
-        {
-            float dis = GetDistanceBetween(_ball.GetTargetPosition(), defenders[i].transform.position);
-            if (min > dis)
-            {
-                min = dis;
-                index = i;
-            }
-        }
-
-        if (!defenders[index].gameObject.activeSelf)
-        {
-            return -1;
-        }
-
-        _ball.DefenderDis = min;
-        return index;
-    }
     
-    private bool ThrowBallAlgorithm() //SO
-    {
-        for (int i = GamePlayModel.MAX_BASE_COUNT - 1; i >= 0; i--)
-        {
-            //has runner and run
-            if (!gamePlayModel.IsEmptyRunner(i) && gamePlayModel.GetRunner(i).IsMove)
-            {
-                if (ThrowToBase(i))
-                {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
     private void OutBatter(int index)
     {
         //don't have runner
@@ -691,7 +570,8 @@ public class GamePlayManager : GameManager
         {
             currentBatter = null;
         }
-        Destroy(batter.gameObject);
+        //Destroy();
+        batter.OutPlayer();
     }
 
     //move one base
@@ -717,12 +597,95 @@ public class GamePlayManager : GameManager
             }
         }
     }
-
-    #endregion
     
-    private void OnTouchBall()
+    private bool IsCheckBeforeStatus()
     {
-        _ball.OnTouchBall();
+        for (int i = 0; i < GamePlayModel.MAX_BASE_COUNT; i++)
+        {
+            if (isBeforeBaseStatus[i] == gamePlayModel.IsEmptyRunner(0))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+    
+    private void RerollBeforeStatus()
+    {
+        Debug.Log("파울이라 돌아감");
+
+        //되돌아가자
+        for (int i = 1; i < GamePlayModel.MAX_BASE_COUNT; i++)
+        {
+            while (!gamePlayModel.IsEmptyRunner(i))
+            {
+                Batter batter = gamePlayModel.GetRunner(i);
+                batter.IsMove = false;
+                batter.transform.position = bases[i].position;
+            }
+        }
+
+        //만약 러너 주자가 비어있다면?
+        if (gamePlayModel.IsEmptyRunner(0))
+        {
+            return;
+        }
+        //내가 타자라면 그냥 페이드아웃
+        if (gamePlayModel.Inning % 2 == 0)
+        {
+            //페이드 아웃 함수
+            return;
+        }
+        
+        //내가 투수라면 아래 함수
+        
+        Batter b = gamePlayModel.GetRunner(0);
+        b.IsMove = false;
+        b.transform.position = batterPosition.position;
+        //gamePlayModel.AddRunnder(b);
+    }
+    
+    private void DeleteRunner()
+    {
+        if (!currentBatter)
+        {
+            return;
+        }
+        Destroy(currentBatter.gameObject);
+        currentBatter = null;
+        CreateBatter();
+    }
+    
+    #endregion 
+    
+    #region BATTINGMODE
+    //주자 돌아가는 함수 => 이게 가장 문제다.
+    private void StartBatter()
+    {
+        Debug.Log("타자 Mode On");
+
+        pitchingController.EndPitchingGame();
+        defenders[0].gameObject.SetActive(true);
+        
+        pitcher.IsThrowBallStop = false;
+        defenders[0].SetMyBall(_ball);
+        
+        StartCoroutine(TranslateBattingView());
+        //TranslateBattingView();
+    }
+
+    IEnumerator TranslateBattingView()
+    {
+        fadeEvent.FadeOut(0.2f); //이동하기 전
+        yield return new WaitForSeconds(0.2f); 
+
+        Vector3 movePosition = new Vector3(0, 1.0f, 0);
+        Vector3 rotateVector = new Vector3(-1, 0, -1);
+        MovePlayer(movePosition);
+        RotatePlayer(rotateVector);
+
+        fadeEvent.FadeIn(0.2f); //이동하고 나서
     }
     
     //override
@@ -740,19 +703,36 @@ public class GamePlayManager : GameManager
         }
     }
     
-    IEnumerator WaitingBackToPitcher()
-    {
-        //StartCoroutine(BackPitching());
+    void TransformMyBodyToBatter()
+    { 
+        Batter batter = Instantiate(batterPrefab.gameObject, batterCreatePosition).GetComponent<Batter>();
+                
+        batter.transform.position = transform.position;//프리펩 정보 이전
+        batter.SetBases(bases);
+        batter.BaseIndex = myBody.BaseIndex;
+        batter.IsMove = false;
 
-        yield return new WaitForSeconds(WAIT_TIME);
-        
-        //만약 돌아올때 비활성화 된 경우
-        if (defenders[0].gameObject.activeSelf)
-        {
-            battingController.PitcherGetBall();
-        }
+        myBody.BaseIndex = 0;
     }
+    #endregion 
+    
+    #region PITCHINGMODE
+    private void StartPitcher()
+    {
+        Debug.Log("투수 Mode On");
 
+        defenders[0].IsTracking = false;
+        pitcher.IsThrowBallStop = true;
+        pitchingController.StartPitchingGame();
+        defenders[0].gameObject.SetActive(false);
+
+        //방망이 위치 Vector3(-0.660000026,1.37,0.150000006) 여기로
+        //방망이 중력, rotation position 얼리기
+        CreateBatter();
+        
+        StartCoroutine(TranslatePitchingView());
+    }
+    
     IEnumerator TranslatePitchingView()
     {
         fadeEvent.FadeOut(0.2f);
@@ -765,51 +745,85 @@ public class GamePlayManager : GameManager
         
         fadeEvent.FadeIn(0.2f);
     }
-
-    void MoveBatter()
+    
+    #endregion 
+    
+    #region DEFENSE
+    
+    private void AllTrackingOff()
     {
-        StartCoroutine(TranslateBattingView());
-        //TranslateBattingView();
+        for (int i = 0; i < defenders.Length; i++)
+        {
+            if (defenders[i].gameObject.activeSelf)
+                defenders[i].IsTracking = false;
+        }
     }
     
-    IEnumerator TranslateBattingView()
+    private bool ThrowToBase(int index)
     {
-        fadeEvent.FadeOut(0.2f); //이동하기 전
-        yield return new WaitForSeconds(0.2f); 
+        if (_ball.MyDefender)
+        {
+            if (_ball.MyDefender == defenders[index + 1] && (0 <= index && index < 4) ) //1루수 ~ 4루수
+            {
+                return false;
+            }
+            
+            _ball.MyDefender.ThrowBall(bases[index].position + new Vector3(0, 0.5f, 0));
+            return true;
+        }
 
-        Vector3 movePosition = new Vector3(0, 1.0f, 0);
-        Vector3 rotateVector = new Vector3(-1, 0, -1);
-        MovePlayer(movePosition);
-        RotatePlayer(rotateVector);
-
-        fadeEvent.FadeIn(0.2f); //이동하고 나서
+        return false;
     }
 
-    void MovePlayer(Vector3 position)
+    private int FindClosestDefenderIndex()
     {
-        //debug
-        if (playerOrigin.gameObject.activeSelf)
+        float min = float.MaxValue;
+        int index = -1;
+        
+        for (int i = 0; i < defenders.Length; i++)
         {
-            //방망이 중력, rotation position 풀기
-            playerOrigin.MoveCameraToWorldLocation(position); //시점 타자 시점
+            float dis = GetDistanceBetween(_ball.GetTargetPosition(), defenders[i].transform.position);
+            
+            if (min > dis)
+            {
+                min = dis;
+                index = i;
+            }
         }
-        else
-        {
-            moveOriginEvent.RaiseEvent(position);
-        }
-    }
-    void RotatePlayer(Vector3 rotate)
-    {
-        if (playerOrigin.gameObject.activeSelf)
-        {
-            playerOrigin.MatchOriginUpCameraForward(Vector3.up, rotate);
-        }
-        else
-        {
-            rotateOriginEvent.RaiseEvent(rotate);
-        }
-    }
 
+        //투수모드인 경우
+        if (!defenders[index].gameObject.activeSelf)
+        {
+            return -1;
+        }
+
+        _ball.DefenderDis = min;
+        return index;
+    }
+    
+    private bool ThrowBallAlgorithm() //SO
+    {
+        for (int i = GamePlayModel.MAX_BASE_COUNT - 1; i >= 0; i--)
+        {
+            //has runner and run
+            if (!gamePlayModel.IsEmptyRunner(i) && gamePlayModel.GetRunner(i).IsMove)
+            {
+                if (ThrowToBase(i))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+    
+    private float GetDistanceBetween(Vector3 a, Vector3 b)
+    {
+        float result = Vector3.Distance(a, b);
+        return result;
+    }
+    #endregion 
     
     #region DEBUG
 
@@ -826,6 +840,9 @@ public class GamePlayManager : GameManager
         Debug.Log("디버깅용 타자 안타 함수 - player는 타자");
         //공을 던지면 isPassing, isThrown
 
+        float x = Random.Range(-1.0f, 0f);
+        float z = Random.Range(-1.0f, 0f);
+        
         //공 던지는 코루틴도 제거
         pitcher.StopPitching();
         
@@ -834,7 +851,7 @@ public class GamePlayManager : GameManager
         _ball.IsThrown = true;
         _ball.IsPassing = true;
         _ball.SetPosition(batterPosition.position + new Vector3(0, 2.0f, 0));
-        _ball.SetVelocity(new Vector3(-1.0f, 1.0f, -1.0f) * 10f);
+        _ball.SetVelocity(new Vector3(x, 1.0f, z) * 15f);
         //10 : 내야 땅볼?
         //20 : 뜬 공
         
@@ -863,5 +880,30 @@ public class GamePlayManager : GameManager
         MovePlayer(bases[index].position + new Vector3(0, 1.0f, 0));
     }
 
+    private void DebugBatting()
+    {
+        //batter.DebugHitting();
+
+        // float x = Random.Range(-1.0f, 0f);
+        // float z = Random.Range(-1.0f, 0f);
+        // Vector3 view = new Vector3(-1, 1, -1).normalized;
+        //
+        // _ball.IsBatTouch = true;
+        // _ball.IsGroundBall = false;
+        // _ball.IsPassing = false;
+        //
+        // _ball.RemovePlayer();
+        //
+        // float r = Random.Range(15.0f, 25.0f);
+        //
+        // view *= 19;
+        // _ball.transform.position = Vector3.zero;
+        // _ball.GetComponent<Rigidbody>().velocity = Vector3.zero;
+        // _ball.GetComponent<Rigidbody>().AddForce(view, ForceMode.Impulse);
+        //
+        // MoveBase();
+    }
+    
     #endregion
+
 }

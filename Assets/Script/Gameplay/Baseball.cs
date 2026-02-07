@@ -639,10 +639,12 @@ public class Baseball : MonoBehaviour
             //backToPitcherEvent.RaiseEvent();
         }
         
+        //돌아가라 => 안타 포함
         if(!isBack)
         {
             isBack = true;
-            backToPitcherEvent.RaiseEvent(); //이게 IsBatTouch를 false로 만듬
+            //임시 막기
+            //backToPitcherEvent.RaiseEvent(); //이게 IsBatTouch를 false로 만듬
         }
         IsThrown = false;
     }

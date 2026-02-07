@@ -74,6 +74,11 @@ public class Batter : Player
         LookAtPlayer(new Vector3(-1, 0, -1));
     }
 
+    public virtual void OutPlayer()
+    {
+        Destroy(this.gameObject);
+    }
+
     #region PROPERTYS
     public virtual bool IsMove
     {

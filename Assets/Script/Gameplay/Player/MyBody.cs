@@ -43,6 +43,13 @@ public class MyBody : Batter
             IsMove = true;
         }
     }
+    
+    public override void OutPlayer()
+    {
+        //페이드 아웃
+        //이동
+        moveBatterEvent.RaiseEvent();
+    }
 
     
     public override bool IsMove
@@ -67,23 +74,14 @@ public class MyBody : Batter
             //change base status => else, goto 1base 
             if (0 < value && value < bases.Length)
             {
-                Batter batter = Instantiate(prefabBatter.gameObject, _parent).GetComponent<Batter>();
-                
-                batter.transform.position = transform.position;//프리펩 정보 이전
-                batter.SetBases(bases);
-                batter.BaseIndex = base_index;
-                batter.IsMove = false;
-                    //일단 자기 자신에 투영. 이후 진짜 생성해서 currentBatter의 포지션, baseIndex에 넣고
-                    //다시 baseIndex = 0, 포지션 원래자리 => 이거는 그냥 이동시키면 될듯
-                    
-                base_index = 0;
-                Debug.Log("1루 생성.");
-                //다시 타석으로 => 페이드아웃 + moveEvent
                 moveBatterEvent.RaiseEvent();
+
+                
+                //다시 타석으로 => 페이드아웃 + moveEvent.
+                //ㄴ GamePlayManager에 있는 ThrowBallAlgorithm가 -1이어야지 출력하는게 나은듯
 
                 //todo : 홈런인 경우 어떡하지
                 return;
-                //addIsBaseStatus.RaiseEvent(value - 1);
             }
             
             
@@ -95,6 +93,8 @@ public class MyBody : Batter
                 
                 return;
             }
+            //base_index = 0;
+            
             base_index = value;
         }
     }

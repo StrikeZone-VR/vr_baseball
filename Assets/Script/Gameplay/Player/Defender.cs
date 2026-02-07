@@ -40,18 +40,20 @@ public class Defender : Player
     {
         //flyout 
         
-        // if (collision.gameObject.CompareTag("Ball") && _ball.MyDefender == null)
-        // {
-        //     //owner ball
-        //     SetMyBall(collision.gameObject.GetComponent<Baseball>());
-        //     Baseball baseball = _myBall;
-        //     
-        //     collision.rigidbody.velocity = Vector3.zero;
-        //     baseball.MyDefender = this;
-        //     isTracking = false;
-        //     
-        //     FlyingOutRunner();
-        // }
+        //Catch
+        //공을 건드린 경우
+        if (collision.gameObject.CompareTag("Ball") && _ball.MyDefender == null)
+        {
+            //owner ball
+            SetMyBall(collision.gameObject.GetComponent<Baseball>());
+            Baseball baseball = _myBall;
+            
+            collision.rigidbody.velocity = Vector3.zero;
+            baseball.MyDefender = this;
+            isTracking = false;
+            
+            FlyingOutRunner();
+        }
     }
     
     
