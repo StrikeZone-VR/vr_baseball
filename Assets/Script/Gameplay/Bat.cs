@@ -44,6 +44,8 @@ public class Bat : MonoBehaviour
         startPos = topBatPos.position;
     }
 
+    
+    //근데 이러면 모든 트리거 발동아닌가?
     private void OnTriggerEnter(Collider other)
     {
         isSwing = true;
@@ -110,7 +112,6 @@ public class Bat : MonoBehaviour
 
         //float batAngle = -45.0f; //y
 
-        Vector3 pivot = axis.transform.position;
         Vector3 orbitYAxis = axis.transform.up; // axis의 로컬 Y축을 월드로 
         Vector3 orbitZAxis = axis.transform.forward;
 

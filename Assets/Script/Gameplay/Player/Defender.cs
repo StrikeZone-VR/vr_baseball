@@ -156,6 +156,12 @@ public class Defender : Player
         set
         {
             isTracking = value;
+
+            // if (gameObject.name == "ShortStop")
+            // {
+            //     Debug.Log("ShortStop : " + isTracking);
+            // }
+            
             if (!nav)
             {
                 return;
@@ -166,7 +172,7 @@ public class Defender : Player
             }
             else //istracking 
             {
-                nav.SetDestination(_ball.transform.position);
+                nav.SetDestination(_ball.GetTargetPosition());
             }
             
         }

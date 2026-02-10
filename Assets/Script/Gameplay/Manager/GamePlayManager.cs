@@ -123,7 +123,6 @@ public class GamePlayManager : GameManager
                 if (canBackRunner)
                 {
                     canBackRunner = false;
-                    Debug.Log("멍멍");
                     TransformMyBodyToBatter();
                     StartCoroutine(TranslateBattingView());
                 }
@@ -148,8 +147,8 @@ public class GamePlayManager : GameManager
         if(_ball.IsBatTouch)
         {
             int index = FindClosestDefenderIndex();
-            
             AllTrackingOff();
+            //Debug.Log(index);
             
             //closestDefender set tracking
             if (index == -1)
@@ -410,6 +409,7 @@ public class GamePlayManager : GameManager
     
     void RotatePlayer(Vector3 rotate)
     {
+        
         if (playerOrigin.gameObject.activeSelf)
         {
             playerOrigin.MatchOriginUpCameraForward(Vector3.up, rotate);

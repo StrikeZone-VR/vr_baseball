@@ -3232,7 +3232,7 @@ MonoBehaviour:
   startPitcherModeEvent: {fileID: 11400000, guid: de4dabee6d962db4baf9d9791302d080, type: 2}
   swingEvent: {fileID: 11400000, guid: df19554b3a210624a8009953190bf9eb, type: 2}
   pitchEvent: {fileID: 11400000, guid: 6ca9374e56161084ca2bd8dee328860a, type: 2}
-  moveBatterEvent: {fileID: 11400000, guid: 644b4fb87f31a0849bd836854a502538, type: 2}
+  onCanBackBatterEvent: {fileID: 11400000, guid: 644b4fb87f31a0849bd836854a502538, type: 2}
   allTrackingOffEvent: {fileID: 11400000, guid: eb943823faaa14e4b87ec836d9d214f4, type: 2}
   addScore: {fileID: 11400000, guid: 07585d6d7215d0b47a54c479469de714, type: 2}
   addIsBaseStatus: {fileID: 11400000, guid: 6c8aee89795cc5b4f92d38e717d670d4, type: 2}
@@ -3486,6 +3486,10 @@ PrefabInstance:
     - target: {fileID: 8533071148979198056, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
       propertyPath: m_TagString
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 8793059899337434004, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9014170783728641054, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
       propertyPath: m_LocalPosition.y

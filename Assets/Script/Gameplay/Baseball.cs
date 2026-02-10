@@ -634,12 +634,12 @@ public class Baseball : MonoBehaviour
             //backToPitcherEvent.RaiseEvent();
         }
         
-        //돌아가라 => 안타 포함
-        if(!isBack)
+        //돌아가라 => 안타 제외
+        if(!isBack && !isBatTouch)
         {
             isBack = true;
             //임시 막기
-            //backToPitcherEvent.RaiseEvent(); //이게 IsBatTouch를 false로 만듬
+            backToPitcherEvent.RaiseEvent(); //이게 IsBatTouch를 false로 만듬
         }
         IsThrown = false;
     }
@@ -707,16 +707,16 @@ public class Baseball : MonoBehaviour
     }
     void CalTrajectory(bool isDebug = false)
     {
-        float dashLength = 0.3f; // 그려지는 짧은 선 길이(월드 단위)
-        float gapLength  = 0.2f; // 대시 사이 공백(월드 단위)
+        float dashLength = 0.3f; // 그려지는 짧은 선 길이
+        float gapLength  = 0.2f; // 대시 사이 공백
         
         int steps = 160;
         float dt = 0.05f;
         
-        //Gizmos.color = Color.yellow;
+        if(isDebug)
+            Gizmos.color = Color.yellow;
 
         Vector3 p = transform.position;
-        //Vector3 b = new Vector3(0,1.0f,0); //도착점
         
         Vector3 g = Physics.gravity;
         Vector3 v;
@@ -733,15 +733,15 @@ public class Baseball : MonoBehaviour
 
         for (int i = 0; i < steps; i++)
         {
-            // 다음 위치 예측(중력 적용) [web:97]
+            //중력 적용
             v += g * dt;
             Vector3 nextP = p + v * dt;
 
-            // p -> nextP 구간을 '대시'로 쪼개서 그리기
+            // p -> nextP 구간을 대시로 쪼개서 그리기
             if(isDebug)
                 DrawDashedSegment(p, nextP, dashLength, stepLen);
 
-            // (선택) 충돌하면 거기서 끊기
+            // 물체 충돌 => 원형
             if (Physics.Linecast(p, nextP, out var hit))
             {
                 if(isDebug) 
@@ -753,9 +753,8 @@ public class Baseball : MonoBehaviour
             p = nextP;
         }
         
-        //Gizmos.DrawLine(transform.position, new Vector3(10f, 10f, 10f));
     }
-    
+
     void DrawDashedSegment(Vector3 a, Vector3 b, float dashLen, float stepLen)
     {
         Vector3 ab = b - a;
@@ -768,7 +767,7 @@ public class Baseball : MonoBehaviour
         {
             float t0 = t;
             float t1 = Mathf.Min(t + dashLen, len);
-            //Gizmos.DrawLine(a + dir * t0, a + dir * t1);
+            Gizmos.DrawLine(a + dir * t0, a + dir * t1);
         }
     }
 
