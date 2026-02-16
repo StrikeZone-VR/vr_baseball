@@ -122,6 +122,7 @@ public class Defender : Player
     
     public virtual void SetMyBall(Baseball myBall)
     {
+        myBall.RemovePlayer();
         _myBall = myBall;
         _myBall.MyDefender = this;
         IsTracking = false;
@@ -139,14 +140,14 @@ public class Defender : Player
         bool isBatTouch = _myBall.IsBatTouch;
 
         //flying out
-        // if (isBatTouch && !isGroundball)
-        // {
-        //     Debug.Log("flying out");
-        //     _myBall.IsGroundBall = true; //어차피 플라잉 아웃 한번 잡으면 돌아가야함
-        //     //알고리즘 좀 복잡한데
-        //     
-        //     outBatterEventSO.RaiseEvent(0);
-        // }
+         if (isBatTouch && !isGroundball)
+         {
+             Debug.Log("flying out");
+             _myBall.IsGroundBall = true; //어차피 플라잉 아웃 한번 잡으면 돌아가야함
+             //알고리즘 좀 복잡한데
+             
+             outBatterEventSO.RaiseEvent(0);
+         }
     }
 
     #region PROPERTIES

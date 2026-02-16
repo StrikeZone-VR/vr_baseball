@@ -320,7 +320,7 @@ public class Baseball : MonoBehaviour
         get => isBatTouch;
         set
         {
-            Debug.Log("isBatTouch: " + value);
+            //Debug.Log("isBatTouch: " + value);
             isBatTouch = value;
             if(isBatTouch)
                 runSignalEvent.RaiseEvent();
@@ -350,7 +350,7 @@ public class Baseball : MonoBehaviour
         set => defenderDis = value;
     }
 
-    //공식 제거 함수
+    ///공식 제거 함수
     public void RemovePlayer()
     {
         if (!myDefender)

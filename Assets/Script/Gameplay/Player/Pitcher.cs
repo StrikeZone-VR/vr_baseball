@@ -13,7 +13,7 @@ public class Pitcher : Defender
     [SerializeField] private float velocityXZ = 40;
     //_myBall
 
-    const int WAIT_TIME = 2; //5.0f
+    const int WAIT_TIME = 5; //5.0f
     protected bool isThrowBallStop = false; //debug
 
     protected override void Update()
@@ -47,18 +47,27 @@ public class Pitcher : Defender
     public override void SetMyBall(Baseball myBall)
     {
         base.SetMyBall(myBall);
-
+        
+        //이게 떨어진 공 받을때도 SetMyBall이라 
+        //_ball.IsBatTouch = false;
         _ball.IsThrown = false;
         _ball.IsGroundBall = false;
         _ball.IsPassing = false;
         _ball.IsZone = false;
         _ball.IsStrike = false;
 
-        //Debug.Log("back");
+        //Debug.Log("SetMyBall");
 
         if (coroutine == null)
         {
             coroutine = StartCoroutine(WaitPitching());
+        }
+        else
+        {
+            StopPitching();
+            coroutine = StartCoroutine(WaitPitching());
+            Debug.Log("음? : "+_ball.MyDefender.name);
+            //Debug.Log("음?");
         }
         //transform.LookAt(_ball.transform, Vector3.up);
     }
@@ -68,6 +77,7 @@ public class Pitcher : Defender
         //5임
         for (int i = WAIT_TIME; i > 0; i--)
         {
+            //Debug.Log("기다리는 시간 : " + i);
             waitPitcherEvent.RaiseEvent(i);
             yield return new WaitForSeconds(1.0f);
         }
@@ -82,6 +92,7 @@ public class Pitcher : Defender
     {
         _ball.IsThrown = true;
         _ball.IsBatTouch = false;
+        
 
         //random value 0 ~ 24
         int index = Random.Range(0, 25);
@@ -196,10 +207,7 @@ public class Pitcher : Defender
             isThrowBallStop = value;
             
             //일단 무조건 멈춰라
-            if (coroutine != null)
-            {
-                StopCoroutine(coroutine);
-            }
+            StopPitching();
             
             if (!isThrowBallStop)
             {
@@ -209,7 +217,9 @@ public class Pitcher : Defender
     }
     public void StopPitching()
     {
-        if(coroutine != null)
+        if (coroutine != null)
+        {
             StopCoroutine(coroutine); 
+        }
     }
 }

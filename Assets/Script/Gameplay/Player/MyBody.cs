@@ -11,7 +11,8 @@ public class MyBody : Batter
     [SerializeField] private Batter prefabBatter;
     [SerializeField] private Transform _parent;
 
-    [SerializeField] private VoidEventSO moveBatterEvent;
+    //GamePlayManager's onCanBackBatterEvent
+    [SerializeField] private VoidEventSO moveBatterEvent; 
     
     void Update()
     {
@@ -74,10 +75,10 @@ public class MyBody : Batter
             //change base status => else, goto 1base 
             if (0 < value && value < bases.Length)
             {
+                //다시 타석으로 => 페이드아웃 + moveEvent.
                 moveBatterEvent.RaiseEvent();
 
                 
-                //다시 타석으로 => 페이드아웃 + moveEvent.
                 //ㄴ GamePlayManager에 있는 ThrowBallAlgorithm가 -1이어야지 출력하는게 나은듯
 
                 //todo : 홈런인 경우 어떡하지

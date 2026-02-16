@@ -22,14 +22,6 @@ public class FadeController : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.X))
-        {
-            _fadeChannelSO.FadeIn(1.0f);
-        }
-        if (Input.GetKeyDown(KeyCode.C))
-        {
-            _fadeChannelSO.FadeOut(1.0f);
-        }
     }
 
     private void InitiateFade(bool fadeIn, float duration, Color desiredColor)

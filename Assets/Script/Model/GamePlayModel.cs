@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class GamePlayModel : GameModel
 {
+    public BaseStatusPanel _baseStatusPanel; //debug
+
     //0 1 => 1이닝 공격 수비, => 0~17 => 짝수면 원정, 홀수면 홈 
     private int inning = 0;
     private int out_count = 0;
@@ -23,6 +25,11 @@ public class GamePlayModel : GameModel
         {
             runners[i] = new Queue<Batter>();
         }
+    }
+
+    public void SetPanel(BaseStatusPanel baseStatusPanel)
+    {
+        this._baseStatusPanel = baseStatusPanel;
     }
     
     //property
@@ -47,7 +54,19 @@ public class GamePlayModel : GameModel
     public void AddRunnder(int index, Batter batter)
     {
         runners[index].Enqueue(batter);
+        _baseStatusPanel.SetBaseLine(index, batter);
     }
+    
+    public Batter RemoveRunner(int index)
+    {
+        if (IsEmptyRunner(index))
+        {
+            Debug.LogError("Trying to remove runner, but there is no runner");
+            return null;
+        }
+        return runners[index].Dequeue();
+    }
+    
     public Batter GetRunner(int index)
     {
         return runners[index].Peek();
@@ -62,10 +81,6 @@ public class GamePlayModel : GameModel
         return false;
     }
 
-    public Batter RemoveRunner(int index)
-    {
-        return runners[index].Dequeue();
-    }
 
     public int EstimateRunners()
     {
@@ -92,6 +107,32 @@ public class GamePlayModel : GameModel
     public int GetRunnerCount(int index)
     {
         return runners[index].Count;
+    }
+
+    public void DebugBaseStatus()
+    {
+        for (int i = 0; i < MAX_BASE_COUNT - 1; i++)
+        {
+            if (runners[i].Count != 0) // 0 1 2 3
+            {
+                //base line
+                if (runners[i].Peek().IsMove)
+                {
+                    _baseStatusPanel.SetBaseLine(i, true);
+                    _baseStatusPanel.SetBase(i, false);
+                }
+                else //base
+                {
+                    _baseStatusPanel.SetBase(i, true);
+                    _baseStatusPanel.SetBaseLine(i, false);
+                }
+            }
+            else //비어있다면
+            {
+                _baseStatusPanel.SetBase(i, false);
+                _baseStatusPanel.SetBaseLine(i, false);
+            }
+        }
     }
 }
 

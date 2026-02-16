@@ -29,6 +29,8 @@ public class GamePlayManager : GameManager
     [SerializeField] private Batter currentBatter;
     [SerializeField] private Bat _bat;
     [SerializeField] private GameObject _axis;
+    [SerializeField] private BaseStatusPanel _baseStatusPanel; //debug
+
     
     //A =>
     [Header("Listening to")] 
@@ -103,6 +105,7 @@ public class GamePlayManager : GameManager
         SetScore(0, 0);
         SetScore(1, 0);
         
+        gamePlayModel.SetPanel(_baseStatusPanel);
         Inning = 0;
     }
 
@@ -117,9 +120,15 @@ public class GamePlayManager : GameManager
             //던질 곳 없으면 복귀
             if (!ThrowBallAlgorithm())
             {
+                //AI투수가 이미 가지고 있다면
+                if (pitcher && _ball.MyDefender == pitcher)
+                {
+                    return;
+                }
+                
                 PitcherGetBall();
 
-                //안타를 쳤다면
+                //안타를 쳤다면 나중에 복귀
                 if (canBackRunner)
                 {
                     canBackRunner = false;
@@ -216,6 +225,7 @@ public class GamePlayManager : GameManager
             gamePlayModel.OutCount = value;
 
             gamePlayController.SetUIGameStatusIndex(2, value);
+            DebugBaseStatus();
         }
     }
     
@@ -274,6 +284,7 @@ public class GamePlayManager : GameManager
     {
         Batter batter = gamePlayModel.RemoveRunner(index);
         gamePlayModel.AddRunnder(index + 1, batter);
+        DebugBaseStatus();
     }
 
     private void thirdRunnerintoHome()
@@ -349,6 +360,7 @@ public class GamePlayManager : GameManager
     void OnCanBackRunner()
     {
         canBackRunner = true;
+        DebugBaseStatus();
         //StartCoroutine(TranslateBattingView()); => canBackRunner로 해결
     }
 
@@ -368,6 +380,7 @@ public class GamePlayManager : GameManager
     //backToPitcherEvent => 이거 던질 곳 없거나 안타치는 순간 겹친다 그냥
     protected override void PitcherGetBall()
     {
+        DebugBaseStatus();
         //batting mode
         if (gamePlayModel.GetTeamIndex() % 2 == 0)
         {
@@ -384,7 +397,8 @@ public class GamePlayManager : GameManager
     {
         //StartCoroutine(BackPitching());
 
-        yield return new WaitForSeconds(WAIT_TIME);
+        //yield return new WaitForSeconds(WAIT_TIME);
+        yield return null;
         
         //만약 돌아올때 비활성화 된 경우
         if (defenders[0].gameObject.activeSelf)
@@ -733,6 +747,11 @@ public class GamePlayManager : GameManager
         return false;
     }
 
+    
+    /// <summary>
+    /// 가장 가까운 수비수를 찾아라
+    /// </summary>
+    /// <returns></returns>
     private int FindClosestDefenderIndex()
     {
         float min = float.MaxValue;
@@ -838,10 +857,12 @@ public class GamePlayManager : GameManager
     
     void DebugBaseStatus()
     {
-        for (int i = 0; i < GamePlayModel.MAX_BASE_COUNT; i++)
-        {
-            Debug.Log(i+" : " + gamePlayModel.GetRunnerCount(i));
-        }
+        // for (int i = 0; i < GamePlayModel.MAX_BASE_COUNT; i++)
+        // {
+        //     Debug.Log(i+" : " + gamePlayModel.GetRunnerCount(i));
+        // }
+
+        gamePlayModel.DebugBaseStatus();
     }
 
     void DebugHitting()

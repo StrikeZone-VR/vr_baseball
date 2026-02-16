@@ -28,6 +28,7 @@ public class BattingController : GameController
 
     public void PitcherGetBall()
     {
+        ball.IsBatTouch = false;
         pitcher.SetMyBall(ball);
     }
     

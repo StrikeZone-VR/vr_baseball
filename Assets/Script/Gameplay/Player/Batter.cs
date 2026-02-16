@@ -44,7 +44,7 @@ public class Batter : Player
     {
         if (collision.gameObject.CompareTag("Base"))
         {
-            string s = collision.name; 
+            string s = collision.name;
             int a = Convert.ToInt32(s[s.Length - 1]);
 
             //is same going to the next base index
@@ -76,6 +76,7 @@ public class Batter : Player
 
     public virtual void OutPlayer()
     {
+        Debug.Log("사라져라");
         Destroy(this.gameObject);
     }
 
@@ -114,7 +115,9 @@ public class Batter : Player
 
             //change base status => else, goto 1base 
             if (0 < value && value < bases.Length)
+            {
                 addIsBaseStatus.RaiseEvent(value - 1);
+            }
             //arrive home
             if (value >= bases.Length)
             {
