@@ -10,7 +10,8 @@ public class Batter : Player
     public AnimationCurve rotationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
     //[SerializeField] private Baseball _ball;
-    [SerializeField] protected int base_index = 0;
+    [SerializeField] protected int base_index = 0; // 1 2 3 => 0은 1루 가기 전 상태
+   
     protected Transform[] bases;
     [SerializeField] private Bat bat;
 
@@ -19,6 +20,7 @@ public class Batter : Player
     [SerializeField] protected VoidEventSO addScore; //From GameManager
     [SerializeField] protected VoidEventSO strikeEvent; //From GameManager
     [SerializeField] protected IntEventSO addIsBaseStatus; //From GameManager
+    [SerializeField] protected VoidEventSO changedBaseStatus;
 
     
     //debug serializeField
@@ -108,16 +110,11 @@ public class Batter : Player
         get => base_index;
         set
         {
-            if (value < 0 )
+            if (value < 0)
             {
                 return;
             }
 
-            //change base status => else, goto 1base 
-            if (0 < value && value < bases.Length)
-            {
-                addIsBaseStatus.RaiseEvent(value - 1);
-            }
             //arrive home
             if (value >= bases.Length)
             {
@@ -127,6 +124,12 @@ public class Batter : Player
                 return;
             }
             base_index = value;
+            //change base status => else, goto 1base 
+            if (0 < value && value < bases.Length)
+            {
+                //addIsBaseStatus.RaiseEvent(value - 1);
+                changedBaseStatus.RaiseEvent(); //만약 아래의 add Is가 없으면
+            }
         }
     }
 

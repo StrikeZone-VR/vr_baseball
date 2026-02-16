@@ -45,6 +45,7 @@ public class GamePlayManager : GameManager
     [SerializeField] private VoidEventSO addScore; //to Batter
     [SerializeField] private IntEventSO addIsBaseStatus; //to Batter
     [SerializeField] private VoidEventSO runSignalEvent;
+    [SerializeField] private VoidEventSO changedBaseStatus;
     
     // => A
     [Header("Broadcasting on")]
@@ -78,6 +79,7 @@ public class GamePlayManager : GameManager
         //pitchEvent.onEventRaised += SwingSignalToBatter;
 
         onCanBackBatterEvent.onEventRaised += OnCanBackRunner;
+        changedBaseStatus.onEventRaised += DebugBaseStatus;
     }
 
     protected override void OnDisable()
@@ -95,6 +97,7 @@ public class GamePlayManager : GameManager
         //pitchEvent.onEventRaised -= SwingSignalToBatter;
         
         onCanBackBatterEvent.onEventRaised -= OnCanBackRunner;
+        changedBaseStatus.onEventRaised -= DebugBaseStatus;
     }
     #endregion
 
@@ -279,7 +282,7 @@ public class GamePlayManager : GameManager
         OutCount++;
     }
 
-    //대체로 볼넷으로 준 경우
+    //대체로 볼넷으로 준 경우 or 주자가 자연스럽게 옮긴 경우 (이거만 유일한 주자 조정 함수임)
     private void AddIsBaseStatus(int index)
     {
         Batter batter = gamePlayModel.RemoveRunner(index);

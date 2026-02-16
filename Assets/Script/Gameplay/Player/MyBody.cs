@@ -26,13 +26,13 @@ public class MyBody : Batter
             string s = other.name;
             int a = Convert.ToInt32(s[s.Length - 1]);
 
+            IsMove = false;
             //is same going to the next base index
             if (a - '0' == base_index)
             {
                 BaseIndex++; 
             }
 
-            IsMove = false;
             //Debug.Log("베이스를 밟아버렷" + other.transform.name);
         }
     }
@@ -59,6 +59,7 @@ public class MyBody : Batter
         set
         {
             isMove = value;
+            changedBaseStatus.RaiseEvent();
         }
     }
     
@@ -71,20 +72,6 @@ public class MyBody : Batter
             {
                 return;
             }
-
-            //change base status => else, goto 1base 
-            if (0 < value && value < bases.Length)
-            {
-                //다시 타석으로 => 페이드아웃 + moveEvent.
-                moveBatterEvent.RaiseEvent();
-
-                
-                //ㄴ GamePlayManager에 있는 ThrowBallAlgorithm가 -1이어야지 출력하는게 나은듯
-
-                //todo : 홈런인 경우 어떡하지
-                return;
-            }
-            
             
             //arrive home
             if (value >= bases.Length)
@@ -94,9 +81,23 @@ public class MyBody : Batter
                 
                 return;
             }
-            //base_index = 0;
             
             base_index = value;
+            //change base status => else, goto 1base 
+            if (0 < value && value < bases.Length)
+            {
+                Debug.Log("성공 : " + base_index);
+                //다시 타석으로 => 페이드아웃 + moveEvent.
+                addIsBaseStatus.RaiseEvent(value - 1);
+                moveBatterEvent.RaiseEvent();
+                changedBaseStatus.RaiseEvent();
+                
+                //ㄴ GamePlayManager에 있는 ThrowBallAlgorithm가 -1이어야지 출력하는게 나은듯
+
+                //todo : 홈런인 경우 어떡하지
+                return;
+            }
+            //base_index = 0;
         }
     }
 }

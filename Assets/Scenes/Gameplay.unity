@@ -3601,6 +3601,7 @@ MonoBehaviour:
   addScore: {fileID: 11400000, guid: 07585d6d7215d0b47a54c479469de714, type: 2}
   addIsBaseStatus: {fileID: 11400000, guid: 6c8aee89795cc5b4f92d38e717d670d4, type: 2}
   runSignalEvent: {fileID: 11400000, guid: 2f8b5c598135ebb49bd8c25de9d4678c, type: 2}
+  changedBaseStatus: {fileID: 11400000, guid: b3af6067612009f4dbbf61eda38651c3, type: 2}
   fadeEvent: {fileID: 11400000, guid: 0d08df4830bb8854bbdf510cf6cc0ff9, type: 2}
 --- !u!1001 &1234096177
 PrefabInstance:
@@ -3823,6 +3824,10 @@ PrefabInstance:
       propertyPath: startPitchEvent
       value: 
       objectReference: {fileID: 11400000, guid: de4dabee6d962db4baf9d9791302d080, type: 2}
+    - target: {fileID: 7541965686890698588, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
+      propertyPath: changedBaseStatus
+      value: 
+      objectReference: {fileID: 11400000, guid: b3af6067612009f4dbbf61eda38651c3, type: 2}
     - target: {fileID: 7696548424635294051, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.777

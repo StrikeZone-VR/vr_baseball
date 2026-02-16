@@ -1160,6 +1160,7 @@ MonoBehaviour:
   addScore: {fileID: 11400000, guid: 07585d6d7215d0b47a54c479469de714, type: 2}
   strikeEvent: {fileID: 11400000, guid: 7980c5f1d20201f48891aba9f1727e76, type: 2}
   addIsBaseStatus: {fileID: 11400000, guid: 6c8aee89795cc5b4f92d38e717d670d4, type: 2}
+  changedBaseStatus: {fileID: 11400000, guid: b3af6067612009f4dbbf61eda38651c3, type: 2}
   isMove: 0
 --- !u!1 &6984959160471811420
 GameObject:

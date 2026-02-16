@@ -66,7 +66,7 @@ public class Pitcher : Defender
         {
             StopPitching();
             coroutine = StartCoroutine(WaitPitching());
-            Debug.Log("음? : "+_ball.MyDefender.name);
+            //Debug.Log("음? : "+_ball.MyDefender.name);
             //Debug.Log("음?");
         }
         //transform.LookAt(_ball.transform, Vector3.up);
@@ -101,7 +101,7 @@ public class Pitcher : Defender
         Transform SZTransform = strikeZone.GetZone(index);
 
         //Debug.Log("투수 : " + _ball.transform.position);
-        Debug.Log("스트라이크 존 " + index + " : "+ SZTransform.position);
+        //Debug.Log("스트라이크 존 " + index + " : "+ SZTransform.position);
         Vector3 velocity = new Vector3();
         
         int pitchTypeIndex = Random.Range(0, 10);

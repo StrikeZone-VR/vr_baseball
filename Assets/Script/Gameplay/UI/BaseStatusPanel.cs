@@ -8,20 +8,23 @@ public class BaseStatusPanel : MonoBehaviour
     [SerializeField] private Image[] bases; //3
     [SerializeField] private Image[] baseLines; //4
 
-
+    //바꿈 
+    // 0 1 2, 근데 batter의 base_index는 1 2 3, 0은 아직 달리는 중
     public void SetBase(int index, bool isFull)
     {
-        if (index < 0 || index >= bases.Length)
+        //입력값은 1, 2, 3
+        //index 기준은 runner.
+        if (index <= 0 || index > bases.Length)
         {
             return;
         }
         if (isFull)
         {
-            bases[index].color = Color.green;
+            bases[index - 1].color = Color.green;
         }
         else
         {
-            bases[index].color = Color.white;
+            bases[index - 1].color = Color.white;
         }
     }
     public void SetBaseLine(int index, bool isFull)

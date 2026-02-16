@@ -51,14 +51,17 @@ public class GamePlayModel : GameModel
         }
     }
 
+    //[v] 내가 달릴때, [x] 원래는 주자가 달릴때 , [x] 바꿔치기 할때 
     public void AddRunnder(int index, Batter batter)
     {
+        Debug.Log("추가 : " + index);
         runners[index].Enqueue(batter);
-        _baseStatusPanel.SetBaseLine(index, batter);
+        DebugBaseStatus();
     }
     
     public Batter RemoveRunner(int index)
     {
+        Debug.Log("제거 : " + index);
         if (IsEmptyRunner(index))
         {
             Debug.LogError("Trying to remove runner, but there is no runner");
@@ -109,13 +112,15 @@ public class GamePlayModel : GameModel
         return runners[index].Count;
     }
 
+    //대충 base_index와 Runner간의 상호작용이 안된듯
     public void DebugBaseStatus()
     {
-        for (int i = 0; i < MAX_BASE_COUNT - 1; i++)
+        //runner[0] | runner[1]은 1루 베이스에서 2루 베이스라인까지
+        for (int i = 0; i < MAX_BASE_COUNT; i++)
         {
             if (runners[i].Count != 0) // 0 1 2 3
             {
-                //base line
+                //baseline
                 if (runners[i].Peek().IsMove)
                 {
                     _baseStatusPanel.SetBaseLine(i, true);
@@ -123,8 +128,8 @@ public class GamePlayModel : GameModel
                 }
                 else //base
                 {
-                    _baseStatusPanel.SetBase(i, true);
-                    _baseStatusPanel.SetBaseLine(i, false);
+                    _baseStatusPanel.SetBase(i, true); //0이면 알아서 return
+                    _baseStatusPanel.SetBaseLine(i, false); 
                 }
             }
             else //비어있다면
