@@ -11,11 +11,11 @@ public class Outfielder : Defender
             
         if (dis <= 1.0f)
         {
-            isInPosition = true;
+            IsInPosition = true;
         }
         else
         {
-            isInPosition = false;
+            IsInPosition = false;
         }
         base.Update();
     }

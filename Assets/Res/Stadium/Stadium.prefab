@@ -220,7 +220,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6951407382816558454}
   m_Layer: 0
-  m_Name: Base_3
+  m_Name: Base_0
   m_TagString: Base
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -565,7 +565,7 @@ GameObject:
   - component: {fileID: 5848445948389436906}
   - component: {fileID: 647736905859590955}
   m_Layer: 0
-  m_Name: Base2
+  m_Name: Base_0
   m_TagString: Base
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -651,7 +651,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -3383,7 +3383,7 @@ Transform:
   m_GameObject: {fileID: 4546502012114510932}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 1.115, y: 0, z: 1.256}
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3403,7 +3403,7 @@ GameObject:
   - component: {fileID: 6293060532179848496}
   - component: {fileID: 7921025257833825131}
   m_Layer: 0
-  m_Name: Base_2
+  m_Name: Base_3
   m_TagString: Base
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4187,7 +4187,7 @@ GameObject:
   - component: {fileID: 6300936549267950097}
   - component: {fileID: 6951802509689464330}
   m_Layer: 0
-  m_Name: Base_0
+  m_Name: Base_1
   m_TagString: Base
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4321,7 +4321,7 @@ GameObject:
   - component: {fileID: 1498584024539062596}
   - component: {fileID: 9099098722098705466}
   m_Layer: 0
-  m_Name: Base1
+  m_Name: Base_0
   m_TagString: Base
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4407,7 +4407,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -5323,7 +5323,7 @@ GameObject:
   - component: {fileID: 8046175388954931550}
   - component: {fileID: 4946784651925457942}
   m_Layer: 0
-  m_Name: Base_1
+  m_Name: Base_2
   m_TagString: Base
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -9,11 +9,10 @@ public class Defender : Player
 {
     [SerializeField] protected Transform defenderTransform;
 
-    [SerializeField] protected IntEventSO outBatterEventSO; //gamemanager
+    [SerializeField] protected VoidEventSO flyingOutEvent; //gameplayManager
 
     [SerializeField] private bool isTracking = false;
     [SerializeField] protected bool isInPosition = false;
-
 
     protected virtual void Update()
     {
@@ -26,7 +25,7 @@ public class Defender : Player
         if (!IsTracking)
         {
             //long base dis => go to the base
-            if (!isInPosition)
+            if (!IsInPosition)
             {
                 nav.SetDestination(defenderTransform.position);
                 LookAtPlayer(defenderTransform.position);
@@ -42,6 +41,9 @@ public class Defender : Player
         
         //Catch
         //공을 건드린 경우
+        //ㄴ  물리적으로 공을 가지고있는 상태에서 MyDefender를 빠져 나간경우
+        //    계속 투수가 따라가서 enter 조건이 안 생겨서 SetBall을 설정할 수 없다.
+        //    ㄴ 근데 또 그러면 던졌는데 받았다 기술로 이상한 아웃이 생길 수 있음
         if (collision.gameObject.CompareTag("Ball") && _ball.MyDefender == null)
         {
             //owner ball
@@ -52,7 +54,23 @@ public class Defender : Player
             baseball.MyDefender = this;
             isTracking = false;
             
-            FlyingOutRunner();
+            OutRunner();
+        }
+    }
+
+    void OnCollisionStay(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Ball") && _ball.MyDefender == null)
+        {
+            //owner ball
+            SetMyBall(collision.gameObject.GetComponent<Baseball>());
+            Baseball baseball = _myBall;
+            
+            collision.rigidbody.velocity = Vector3.zero;
+            baseball.MyDefender = this;
+            isTracking = false;
+            
+            OutRunner();
         }
     }
     
@@ -134,7 +152,7 @@ public class Defender : Player
     /// <summary>
     /// 플라잉아웃
     /// </summary>
-    protected virtual void FlyingOutRunner()
+    protected virtual void OutRunner()
     {
         bool isGroundball = _myBall.IsGroundBall;
         bool isBatTouch = _myBall.IsBatTouch;
@@ -142,11 +160,10 @@ public class Defender : Player
         //flying out
          if (isBatTouch && !isGroundball)
          {
-             Debug.Log("flying out");
+             Debug.Log("[Batting] : flying out");
              _myBall.IsGroundBall = true; //어차피 플라잉 아웃 한번 잡으면 돌아가야함
-             //알고리즘 좀 복잡한데
              
-             outBatterEventSO.RaiseEvent(0);
+             flyingOutEvent.RaiseEvent();
          }
     }
 
@@ -178,5 +195,13 @@ public class Defender : Player
             
         }
     }
+
+    //디버깅용  처리
+    protected bool IsInPosition
+    {
+        get => isInPosition;
+        set => isInPosition = value;
+    }
+
     #endregion
 }

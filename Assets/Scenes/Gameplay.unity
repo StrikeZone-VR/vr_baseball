@@ -532,7 +532,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8547017398472936520, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -27.24
+      value: -27.548
       objectReference: {fileID: 0}
     - target: {fileID: 8547017398472936520, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
       propertyPath: m_LocalPosition.y
@@ -540,7 +540,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8547017398472936520, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -26.91
+      value: -27.302
       objectReference: {fileID: 0}
     - target: {fileID: 8547017398472936520, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
       propertyPath: m_LocalRotation.w
@@ -605,10 +605,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _ball: {fileID: 683532152}
   defenderTransform: {fileID: 586998194}
-  outBatterEventSO: {fileID: 11400000, guid: a7e00550afa182d4594b424474b58e00, type: 2}
+  flyingOutEvent: {fileID: 11400000, guid: 67986d2f382121b4fae3d9df7e5e2ea8, type: 2}
   isTracking: 0
   isInPosition: 0
   base_index: 2
+  outRunnerEvent: {fileID: 11400000, guid: a7e00550afa182d4594b424474b58e00, type: 2}
 --- !u!195 &109569374
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -1299,7 +1300,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _ball: {fileID: 683532152}
   defenderTransform: {fileID: 297649370}
-  outBatterEventSO: {fileID: 11400000, guid: a7e00550afa182d4594b424474b58e00, type: 2}
+  flyingOutEvent: {fileID: 11400000, guid: 67986d2f382121b4fae3d9df7e5e2ea8, type: 2}
   isTracking: 0
   isInPosition: 0
 --- !u!1 &424196231
@@ -2001,6 +2002,10 @@ PrefabInstance:
       propertyPath: swingEvent
       value: 
       objectReference: {fileID: 11400000, guid: df19554b3a210624a8009953190bf9eb, type: 2}
+    - target: {fileID: 4403092210914809006, guid: 8f79d571a0dfeb940aeb614b71be5418, type: 3}
+      propertyPath: flyingOutEvent
+      value: 
+      objectReference: {fileID: 11400000, guid: 67986d2f382121b4fae3d9df7e5e2ea8, type: 2}
     - target: {fileID: 4403092210914809006, guid: 8f79d571a0dfeb940aeb614b71be5418, type: 3}
       propertyPath: waitPitcherEvent
       value: 
@@ -2930,7 +2935,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _ball: {fileID: 683532152}
   defenderTransform: {fileID: 1738157443}
-  outBatterEventSO: {fileID: 11400000, guid: a7e00550afa182d4594b424474b58e00, type: 2}
+  flyingOutEvent: {fileID: 11400000, guid: 67986d2f382121b4fae3d9df7e5e2ea8, type: 2}
   isTracking: 0
   isInPosition: 0
 --- !u!1 &1005487651 stripped
@@ -3407,7 +3412,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8547017398472936520, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -27.97
+      value: -28.71
       objectReference: {fileID: 0}
     - target: {fileID: 8547017398472936520, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
       propertyPath: m_LocalPosition.y
@@ -3415,7 +3420,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8547017398472936520, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: -0.95
       objectReference: {fileID: 0}
     - target: {fileID: 8547017398472936520, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
       propertyPath: m_LocalRotation.w
@@ -3480,10 +3485,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _ball: {fileID: 683532152}
   defenderTransform: {fileID: 1804565763}
-  outBatterEventSO: {fileID: 11400000, guid: a7e00550afa182d4594b424474b58e00, type: 2}
+  flyingOutEvent: {fileID: 11400000, guid: 67986d2f382121b4fae3d9df7e5e2ea8, type: 2}
   isTracking: 0
   isInPosition: 0
-  base_index: 0
+  base_index: 1
+  outRunnerEvent: {fileID: 11400000, guid: a7e00550afa182d4594b424474b58e00, type: 2}
 --- !u!195 &1175599069
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -3592,7 +3598,8 @@ MonoBehaviour:
   _bat: {fileID: 877522169}
   _axis: {fileID: 1101660928}
   _baseStatusPanel: {fileID: 839898539}
-  outBatterEvent: {fileID: 11400000, guid: a7e00550afa182d4594b424474b58e00, type: 2}
+  flyingOutEvent: {fileID: 11400000, guid: 67986d2f382121b4fae3d9df7e5e2ea8, type: 2}
+  outRunnerEvent: {fileID: 11400000, guid: a7e00550afa182d4594b424474b58e00, type: 2}
   startPitcherModeEvent: {fileID: 11400000, guid: de4dabee6d962db4baf9d9791302d080, type: 2}
   swingEvent: {fileID: 11400000, guid: df19554b3a210624a8009953190bf9eb, type: 2}
   pitchEvent: {fileID: 11400000, guid: 6ca9374e56161084ca2bd8dee328860a, type: 2}
@@ -4043,7 +4050,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _ball: {fileID: 683532152}
   defenderTransform: {fileID: 1668231837}
-  outBatterEventSO: {fileID: 11400000, guid: a7e00550afa182d4594b424474b58e00, type: 2}
+  flyingOutEvent: {fileID: 11400000, guid: 67986d2f382121b4fae3d9df7e5e2ea8, type: 2}
   isTracking: 0
   isInPosition: 0
 --- !u!1 &1316585717
@@ -4855,10 +4862,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _ball: {fileID: 683532152}
   defenderTransform: {fileID: 1677501137}
-  outBatterEventSO: {fileID: 11400000, guid: a7e00550afa182d4594b424474b58e00, type: 2}
+  flyingOutEvent: {fileID: 11400000, guid: 67986d2f382121b4fae3d9df7e5e2ea8, type: 2}
   isTracking: 0
   isInPosition: 0
-  base_index: 2
+  base_index: 3
+  outRunnerEvent: {fileID: 11400000, guid: a7e00550afa182d4594b424474b58e00, type: 2}
 --- !u!195 &1531484986
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -5871,33 +5879,49 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1058192007986216559, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
-      propertyPath: m_Name
-      value: Base3_2
+    - target: {fileID: 1994266075116613467, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 1498584024539062596, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
-      propertyPath: m_IsTrigger
+    - target: {fileID: 2461758088991780835, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2685094970939070628, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4199468617582531078, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5856294466747352350, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5999834534023566455, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6293060532179848496, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
+      propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 3310717763552031960, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 1.115
-      objectReference: {fileID: 0}
-    - target: {fileID: 3310717763552031960, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 1.256
-      objectReference: {fileID: 0}
-    - target: {fileID: 5848445948389436906, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
-      propertyPath: m_IsTrigger
+    - target: {fileID: 6300936549267950097, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
+      propertyPath: m_Enabled
       value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6192472302100205742, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
-      propertyPath: m_Name
-      value: Base3_1
       objectReference: {fileID: 0}
     - target: {fileID: 6973415121859154318, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
       propertyPath: m_Name
       value: Stadium
+      objectReference: {fileID: 0}
+    - target: {fileID: 7063309923366936697, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8046175388954931550, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8150376889326314201, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
       propertyPath: m_LocalPosition.x
@@ -5938,6 +5962,26 @@ PrefabInstance:
     - target: {fileID: 8150376889326314201, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8496188490236305413, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8547238369088094177, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8936893000813493155, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
+      propertyPath: m_NavMeshData
+      value: 
+      objectReference: {fileID: 23800000, guid: a5058aebeccebbd479e9166a39a062a5, type: 2}
+    - target: {fileID: 8936893000813493155, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
+      propertyPath: m_UseGeometry
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8936893000813493155, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
+      propertyPath: m_LayerMask.m_Bits
+      value: 4294967295
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -6114,7 +6158,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _ball: {fileID: 683532152}
   defenderTransform: {fileID: 1079193998}
-  outBatterEventSO: {fileID: 11400000, guid: a7e00550afa182d4594b424474b58e00, type: 2}
+  flyingOutEvent: {fileID: 11400000, guid: 67986d2f382121b4fae3d9df7e5e2ea8, type: 2}
   isTracking: 0
   isInPosition: 0
 --- !u!1 &2112712307
@@ -6230,6 +6274,18 @@ PrefabInstance:
       propertyPath: debug_pm
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 4967905421558346264, guid: 4c98c6ae2f898124bbd8ec166f02c936, type: 3}
+      propertyPath: base_index
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4967905421558346264, guid: 4c98c6ae2f898124bbd8ec166f02c936, type: 3}
+      propertyPath: flyingOutEvent
+      value: 
+      objectReference: {fileID: 11400000, guid: 67986d2f382121b4fae3d9df7e5e2ea8, type: 2}
+    - target: {fileID: 4967905421558346264, guid: 4c98c6ae2f898124bbd8ec166f02c936, type: 3}
+      propertyPath: outRunnerEvent
+      value: 
+      objectReference: {fileID: 11400000, guid: a7e00550afa182d4594b424474b58e00, type: 2}
     - target: {fileID: 4967905421558346264, guid: 4c98c6ae2f898124bbd8ec166f02c936, type: 3}
       propertyPath: defenderTransform
       value: 

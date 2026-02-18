@@ -609,7 +609,7 @@ public class Baseball : MonoBehaviour
             //in play
             else if (!isGroundBall) //groundball or flying ball
             {
-                Debug.Log("안타");
+                Debug.Log("[Batting] : 안타");
                 inplayGameEvent.RaiseEvent();
                 IsGroundBall = true;
             }

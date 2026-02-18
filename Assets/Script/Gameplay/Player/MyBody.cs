@@ -28,7 +28,7 @@ public class MyBody : Batter
 
             IsMove = false;
             //is same going to the next base index
-            if (a - '0' == base_index)
+            if (a - '0' == base_index + 1 || (a - '0' == 0 && base_index == 3))
             {
                 BaseIndex++; 
             }
@@ -47,8 +47,7 @@ public class MyBody : Batter
     
     public override void OutPlayer()
     {
-        //페이드 아웃
-        //이동
+        Debug.Log("마이 바디 아웃");
         moveBatterEvent.RaiseEvent();
     }
 
@@ -59,14 +58,15 @@ public class MyBody : Batter
         set
         {
             isMove = value;
-            if (isMove)
-            {
-                Debug.Log("run : " + base_index);
-            }
-            else //어 근데 아마 전 값 때문에 +1을 해야할지도?
-            {
-                Debug.Log("stop : " + (base_index + 1));
-            }
+            // if (isMove)
+            // {
+            //     Debug.Log("run : " + base_index);
+            // }
+            // else //어 근데 아마 전 값 때문에 +1을 해야할지도?
+            // {
+            //     if(base_index != 0) //너무 많이 출력된다
+            //         Debug.Log("stop : " + (base_index));
+            // }
             changedBaseStatus.RaiseEvent();
         }
     }
@@ -96,7 +96,7 @@ public class MyBody : Batter
             {
                 //Debug.Log("성공 : " + base_index);
                 //다시 타석으로 => 페이드아웃 + moveEvent.
-                addIsBaseStatus.RaiseEvent(value - 1);
+                //addIsBaseStatus.RaiseEvent(value - 1);
                 moveBatterEvent.RaiseEvent();
                 changedBaseStatus.RaiseEvent();
                 

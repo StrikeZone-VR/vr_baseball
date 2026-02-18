@@ -51,16 +51,16 @@ public class Batter : Player
             int a = Convert.ToInt32(s[s.Length - 1]);
 
             //is same going to the next base index
-            if (a - '0' == base_index)
+            if (a - '0' == base_index + 1 || (a - '0' == 0 && base_index == 3)) 
             {
-                BaseIndex++; 
-                
                 //수비수와 공 거리가 10f 이하면 가지마라
                 if (_ball.DefenderDis <= 10.0f)
                 {
-                    isMove = false;
+                    isMove = false; //일단 움직임을 멈춰야 debug에 찍힘
                     return;
                 }
+                BaseIndex++; 
+                
             }
         }
 
@@ -79,7 +79,6 @@ public class Batter : Player
 
     public virtual void OutPlayer()
     {
-        Debug.Log("사라져라");
         Destroy(this.gameObject);
     }
 

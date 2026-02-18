@@ -46,8 +46,10 @@ public class GamePlayModel : GameModel
     //[v] 내가 달릴때, [x] 원래는 주자가 달릴때 , [x] 바꿔치기 할때 
     public void AddRunner(Batter batter)
     {
+        Debug.Log("추가 : " + batter.BaseIndex);
         runners.Add(batter);
         DebugBaseStatus();
+        
     }
     public void ReplaceLastRunner(Batter batter)
     {
@@ -61,6 +63,7 @@ public class GamePlayModel : GameModel
     
     public Batter RemoveRunner(int base_index)
     {
+        Debug.Log("제거 : " + base_index);
         for (int i = 0; i < runners.Count; i++)
         {
             if (runners[i].BaseIndex == base_index)
@@ -88,6 +91,18 @@ public class GamePlayModel : GameModel
         return null;
     }
 
+    public int RunningIndex()
+    {
+        for (int i = 0; i < runners.Count; i++)
+        {
+            if (runners[i].IsMove)
+            {
+                return runners[i].BaseIndex;
+            }
+        }
+        return -1;
+    }
+
     public void MoveBase()
     {
         for (int i = 0; i < runners.Count; i++)
@@ -103,10 +118,10 @@ public class GamePlayModel : GameModel
         {
             if (runners[i].BaseIndex == base_index)
             {
-                return true;
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
     public List<Batter> GetRunners()
@@ -118,11 +133,15 @@ public class GamePlayModel : GameModel
         runners.Clear();
     }
 
-
     //러너 측정
     public int GetRunnerCount()
     {
         return runners.Count;
+    }
+
+    public Batter GetLastRunner()
+    {
+        return runners[runners.Count - 1];
     }
     
     public int GetRunnerIndexCount(int base_index)
@@ -146,6 +165,8 @@ public class GamePlayModel : GameModel
         }
     }
     
+    
+    
 
     public int GetTeamIndex()
     {
@@ -161,12 +182,12 @@ public class GamePlayModel : GameModel
 
 
     //대충 base_index와 Runner간의 상호작용이 안된듯
-    public void DebugBaseStatus(bool isPrint = false)
+    public void DebugBaseStatus()
     {
         _baseStatusPanel.SetInit();
+        
         for (int i = 0; i < runners.Count; i++)
         {
-            Debug.Log("base [" + runners[i].BaseIndex + "] : " + runners[i].name);
             //주자
             if (runners[i].IsMove)
             {
@@ -177,6 +198,27 @@ public class GamePlayModel : GameModel
                 _baseStatusPanel.SetBase(runners[i].BaseIndex, true);
             }
         }
+
+        DebugPrintBaseStatus();
+    }
+
+    public void DebugPrintBaseStatus()
+    {
+        if (runners.Count == 0)
+        {
+            return;
+        }
+        if (runners[0].BaseIndex == 0 && runners[0].IsMove == false && runners.Count == 1)
+        {
+            return; //초반 안타 대기 
+        }
+        Debug.Log("베이스");
+        for (int i = 0; i < runners.Count; i++)
+        {
+            Debug.Log(i + "base [" + runners[i].BaseIndex + "] : " + runners[i].name);
+
+        }
+        Debug.Log("-------------");
     }
 }
 

@@ -20,14 +20,13 @@ public class Pitcher : Defender
     {
         float dis = Vector3.Distance(defenderTransform.position, transform.position);
 
-
         if (dis <= 1.0f)
         {
-            isInPosition = true;
+            IsInPosition = true;
         }
         else
         {
-            isInPosition = false;
+            IsInPosition = false;
         }
         
         base.Update();
@@ -48,14 +47,6 @@ public class Pitcher : Defender
     {
         base.SetMyBall(myBall);
         
-        //이게 떨어진 공 받을때도 SetMyBall이라 
-        //_ball.IsBatTouch = false;
-        _ball.IsThrown = false;
-        _ball.IsGroundBall = false;
-        _ball.IsPassing = false;
-        _ball.IsZone = false;
-        _ball.IsStrike = false;
-
         //Debug.Log("SetMyBall");
 
         if (coroutine == null)
@@ -74,6 +65,8 @@ public class Pitcher : Defender
 
     IEnumerator WaitPitching()
     {
+        LookAtPlayer(strikeZone.transform.position);
+        
         //5임
         for (int i = WAIT_TIME; i > 0; i--)
         {

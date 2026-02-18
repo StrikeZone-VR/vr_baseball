@@ -33,8 +33,11 @@ public class GamePlayManager : GameManager
 
     
     //A =>
+
     [Header("Listening to")] 
-    [SerializeField] private IntEventSO outBatterEvent; //Defender, Baseman
+    [SerializeField] private VoidEventSO flyingOutEvent; //Defender, Baseman
+    [SerializeField] private IntEventSO outRunnerEvent; //Defender, Baseman
+    
     [SerializeField] private VoidEventSO startPitcherModeEvent; //to batter
     [SerializeField] private VoidEventSO swingEvent; //to Pitcher, auto swing
     [SerializeField] private VoidEventSO pitchEvent; //to PitchingBallController
@@ -53,6 +56,7 @@ public class GamePlayManager : GameManager
 
     private bool [] isBeforeBaseStatus = { false, false, false };
     private bool canBackRunner = false;
+    private bool isFlyingOut = false;
     private int beforeScore = 0;
     
     private GamePlayModel gamePlayModel = new GamePlayModel();
@@ -67,7 +71,9 @@ public class GamePlayManager : GameManager
     protected override void OnEnable()
     {
         base.OnEnable();
-        outBatterEvent.onEventRaised += OutBatter;
+        flyingOutEvent.onEventRaised += FlyingOut;
+        outRunnerEvent.onEventRaised += OutRunner;
+        //OutRunner
 
         allTrackingOffEvent.onEventRaised += AllTrackingOff;
         addScore.onEventRaised += thirdRunnerintoHome;
@@ -85,7 +91,8 @@ public class GamePlayManager : GameManager
     protected override void OnDisable()
     {
         base.OnDisable();
-        outBatterEvent.onEventRaised -= OutBatter;
+        flyingOutEvent.onEventRaised -= FlyingOut;
+        outRunnerEvent.onEventRaised -= OutRunner;
 
         allTrackingOffEvent.onEventRaised -= AllTrackingOff;
         addScore.onEventRaised -= thirdRunnerintoHome;
@@ -120,9 +127,22 @@ public class GamePlayManager : GameManager
         //has ball and ball batting
         if (_ball.MyDefender && _ball.IsBatTouch)
         {
+            //isFlyingOut이면 던지는 알고리즘도 바꿔야 함
+            
+            //isFlyingOut이면 되돌아가라
+            
             //던질 곳 없으면 복귀
             if (!ThrowBallAlgorithm())
             {
+                //안타를 쳤다면 나중에 복귀
+                if (canBackRunner && !isFlyingOut)
+                {
+                    canBackRunner = false;
+                    TransformMyBodyToBatter();
+                    StartCoroutine(TranslateBattingView());
+                    DebugBaseStatus();
+                }
+                
                 //AI투수가 이미 가지고 있다면
                 if (pitcher && _ball.MyDefender == pitcher)
                 {
@@ -131,14 +151,6 @@ public class GamePlayManager : GameManager
                 
                 PitcherGetBall();
 
-                //안타를 쳤다면 나중에 복귀
-                if (canBackRunner)
-                {
-                    canBackRunner = false;
-                    TransformMyBodyToBatter();
-                    StartCoroutine(TranslateBattingView());
-                }
-                
                 //투수일 경우 + currentBatter가 null인 경우
                 if (!currentBatter && gamePlayModel.Inning % 2 == 1)
                 {
@@ -383,6 +395,7 @@ public class GamePlayManager : GameManager
     //backToPitcherEvent => 이거 던질 곳 없거나 안타치는 순간 겹친다 그냥
     protected override void PitcherGetBall()
     {
+        isFlyingOut = false;
         DebugBaseStatus();
         //batting mode
         if (gamePlayModel.GetTeamIndex() % 2 == 0)
@@ -426,7 +439,6 @@ public class GamePlayManager : GameManager
     
     void RotatePlayer(Vector3 rotate)
     {
-        
         if (playerOrigin.gameObject.activeSelf)
         {
             playerOrigin.MatchOriginUpCameraForward(Vector3.up, rotate);
@@ -489,10 +501,16 @@ public class GamePlayManager : GameManager
             
 #endif
             currentBatter = myBody;
-            gamePlayModel.AddRunner(currentBatter);
-
-            //todo : 무슨 버그지
             currentBatter.SetBases(bases);
+            
+            //안타 두 번 이상 친 경우 (Debug Hitting 여러번 예방) => 비어있으면 어차피 처음임
+            if (gamePlayModel.GetRunners().Count != 0 && myBody == gamePlayModel.GetLastRunner())
+            {
+                //isMove도 이미 움직였을 테이니
+                return;
+            }
+            gamePlayModel.AddRunner(currentBatter);
+            
             currentBatter.IsMove = true;
             return;
         }
@@ -525,32 +543,6 @@ public class GamePlayManager : GameManager
         //runners[0].transform.rotation = Quaternion.LookRotation(bases[2].position);
     }
     
-    private void OutBatter(int base_index)
-    {
-        //don't have runner
-        if (gamePlayModel.IsEmptyRunner(base_index))
-        {
-            return;
-        }
-
-        Batter batter = gamePlayModel.GetRunner(base_index);
-        
-        //has runner and don't run
-        if (!batter.IsMove)
-        {
-            return;
-        }
-
-        AddOut();
-
-        gamePlayModel.RemoveRunner(base_index);
-        if (currentBatter == batter)
-        {
-            currentBatter = null;
-        }
-        //Destroy();
-        batter.OutPlayer();
-    }
 
     //move one base => 4볼
     void MoveOneBase()
@@ -639,6 +631,7 @@ public class GamePlayManager : GameManager
     
     void TransformMyBodyToBatter()
     {
+        Debug.Log("몸 체인지");
         Batter batter = Instantiate(batterPrefab.gameObject, batterCreatePosition).GetComponent<Batter>();
 
         batter.transform.position = myBody.transform.position;//프리펩 정보 이전
@@ -646,10 +639,11 @@ public class GamePlayManager : GameManager
         
         batter.BaseIndex = myBody.BaseIndex;
         batter.IsMove = false;
+
         
         gamePlayModel.ReplaceLastRunner(batter);
-
-        gamePlayModel.RemoveRunner(myBody.BaseIndex);
+        //ㄴ 이미 대체 됐으니까
+        //gamePlayModel.RemoveRunner(myBody.BaseIndex);
         myBody.BaseIndex = 0;
         
         //어차피 안타치면 runner는 생성된다?
@@ -689,6 +683,34 @@ public class GamePlayManager : GameManager
     #endregion 
     
     #region DEFENSE
+    
+    private void FlyingOut()
+    {
+        AddOut();
+        isFlyingOut = true;
+        gamePlayModel.RemoveRunner(currentBatter.BaseIndex);
+        
+        //Destroy();
+        currentBatter.OutPlayer();
+        currentBatter = null;
+    }
+
+    private void OutRunner(int base_index)
+    {
+        AddOut();
+
+        if (gamePlayModel.IsEmptyRunner(base_index))
+        {
+            return;
+        }
+        
+        Batter batter = gamePlayModel.GetRunner(base_index);
+        
+        gamePlayModel.RemoveRunner(base_index);
+        
+        //Destroy();
+        batter.OutPlayer();
+    }
     
     private void AllTrackingOff()
     {
@@ -748,19 +770,16 @@ public class GamePlayManager : GameManager
     
     private bool ThrowBallAlgorithm() //SO
     {
-        for (int i = GamePlayModel.MAX_BASE_COUNT - 1; i >= 0; i--)
+        int index = gamePlayModel.RunningIndex();
+        if (index == -1)
         {
-            Debug.LogWarning(i);
-            //has runner and run
-            if (!gamePlayModel.IsEmptyRunner(i) && gamePlayModel.GetRunner(i).IsMove)
-            {
-                if (ThrowToBase(i))
-                {
-                    return true;
-                }
-            }
+            return false;
         }
-
+    
+        if (ThrowToBase(index))
+        {
+            return true;
+        }
         return false;
     }
     
@@ -800,9 +819,9 @@ public class GamePlayManager : GameManager
         //
         if (Input.GetKeyDown(KeyCode.C))
         {
-            isPrint = !isPrint;
+            //isPrint = !isPrint;
             //MoveOneBase();        //batter run
-            //DebugBaseStatus();
+            DebugBaseStatus();
         }
         if (Input.GetKeyDown(KeyCode.Z))
         {
@@ -827,7 +846,8 @@ public class GamePlayManager : GameManager
     
     void DebugBaseStatus()
     {
-        gamePlayModel.DebugBaseStatus(isPrint);
+        gamePlayModel.DebugBaseStatus();
+        
     }
 
     void DebugHitting()
@@ -860,6 +880,7 @@ public class GamePlayManager : GameManager
         _ball.IsZone = true;
         _ball.IsStrike = true;
         _ball.IsThrown = true;
+        _ball.IsGroundBall = false;
 
         //_ball
         //batterPosition
