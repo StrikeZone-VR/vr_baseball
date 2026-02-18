@@ -39,6 +39,7 @@ public class Batter : Player
 
     private void MoveBase()
     {
+        //Debug.Log("움 직." + base_index.ToString());
         MovePlayer(bases[base_index].position);
     }
 

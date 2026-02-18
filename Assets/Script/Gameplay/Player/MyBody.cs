@@ -59,6 +59,14 @@ public class MyBody : Batter
         set
         {
             isMove = value;
+            if (isMove)
+            {
+                Debug.Log("run : " + base_index);
+            }
+            else //어 근데 아마 전 값 때문에 +1을 해야할지도?
+            {
+                Debug.Log("stop : " + (base_index + 1));
+            }
             changedBaseStatus.RaiseEvent();
         }
     }
@@ -86,7 +94,7 @@ public class MyBody : Batter
             //change base status => else, goto 1base 
             if (0 < value && value < bases.Length)
             {
-                Debug.Log("성공 : " + base_index);
+                //Debug.Log("성공 : " + base_index);
                 //다시 타석으로 => 페이드아웃 + moveEvent.
                 addIsBaseStatus.RaiseEvent(value - 1);
                 moveBatterEvent.RaiseEvent();

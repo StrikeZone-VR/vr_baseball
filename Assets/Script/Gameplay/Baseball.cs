@@ -322,8 +322,10 @@ public class Baseball : MonoBehaviour
         {
             //Debug.Log("isBatTouch: " + value);
             isBatTouch = value;
-            if(isBatTouch)
+            if (isBatTouch)
+            {
                 runSignalEvent.RaiseEvent();
+            }
 
         } 
             

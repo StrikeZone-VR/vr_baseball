@@ -8,6 +8,17 @@ public class BaseStatusPanel : MonoBehaviour
     [SerializeField] private Image[] bases; //3
     [SerializeField] private Image[] baseLines; //4
 
+    public void SetInit()
+    {
+        for (int i = 0; i < bases.Length; i++)
+        {
+            SetBase(i, false);
+        }
+        for (int i = 0; i < baseLines.Length; i++)
+        {
+            SetBaseLine(i, false);
+        }
+    }
     //바꿈 
     // 0 1 2, 근데 batter의 base_index는 1 2 3, 0은 아직 달리는 중
     public void SetBase(int index, bool isFull)

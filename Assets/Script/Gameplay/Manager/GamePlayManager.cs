@@ -59,7 +59,7 @@ public class GamePlayManager : GameManager
     private BattingModel battingModel = new BattingModel();
 
     private Coroutine waitPitcherCoroutine;
-    
+    private bool isPrint = false; //debug
     const float WAIT_TIME = 7.0f; 
     
     #endregion
@@ -285,8 +285,8 @@ public class GamePlayManager : GameManager
     //대체로 볼넷으로 준 경우 or 주자가 자연스럽게 옮긴 경우 (이거만 유일한 주자 조정 함수임)
     private void AddIsBaseStatus(int index)
     {
-        Batter batter = gamePlayModel.RemoveRunner(index);
-        gamePlayModel.AddRunnder(index + 1, batter);
+        //for문으로 BaseIndex 한 칸식 올려라
+        gamePlayModel.MoveBase();
         DebugBaseStatus();
     }
 
@@ -316,7 +316,7 @@ public class GamePlayManager : GameManager
     protected override void Homerun()
     {
         Debug.Log("홈런");
-        AddScore(gamePlayModel.EstimateRunners());
+        AddScore(gamePlayModel.GetRunnerCount());
         ClearRunners();
         ++HomerunCount;
         CreateBatter(); //주자는 없으니까
@@ -457,19 +457,22 @@ public class GamePlayManager : GameManager
                 currentBatter = null;
             }
         }
-        for (int i = 0; i < GamePlayModel.MAX_BASE_COUNT; i++)
+
+        foreach (Batter batter in gamePlayModel.GetRunners())
         {
-            while (!gamePlayModel.IsEmptyRunner(i))
-            {
-                Batter batter = gamePlayModel.RemoveRunner(i);
-                if(!batter)
-                    Destroy(batter.gameObject);
-            }
+            //근데 이러면 my body는 시점이 초기화 되는 거 아닌가?
+            batter.OutPlayer();
         }
+        
+        gamePlayModel.ClearRunner();
     }
 
     private void RunRunner()
     {
+        //타자모드
+        //주자들 달리는 신호
+        MoveBase();
+        
         if (gamePlayModel.Inning % 2 == 0)
         {
             //DebugMoveBase(1);
@@ -486,14 +489,14 @@ public class GamePlayManager : GameManager
             
 #endif
             currentBatter = myBody;
-            gamePlayModel.AddRunnder(0, currentBatter);
+            gamePlayModel.AddRunner(currentBatter);
 
             //todo : 무슨 버그지
             currentBatter.SetBases(bases);
             currentBatter.IsMove = true;
             return;
         }
-        gamePlayModel.AddRunnder(0, currentBatter);
+        gamePlayModel.AddRunner(currentBatter);
 
         currentBatter.SetBases(bases);
 
@@ -522,15 +525,15 @@ public class GamePlayManager : GameManager
         //runners[0].transform.rotation = Quaternion.LookRotation(bases[2].position);
     }
     
-    private void OutBatter(int index)
+    private void OutBatter(int base_index)
     {
         //don't have runner
-        if (gamePlayModel.IsEmptyRunner(index))
+        if (gamePlayModel.IsEmptyRunner(base_index))
         {
             return;
         }
 
-        Batter batter = gamePlayModel.GetRunner(index);
+        Batter batter = gamePlayModel.GetRunner(base_index);
         
         //has runner and don't run
         if (!batter.IsMove)
@@ -540,7 +543,7 @@ public class GamePlayManager : GameManager
 
         AddOut();
 
-        gamePlayModel.RemoveRunner(index);
+        gamePlayModel.RemoveRunner(base_index);
         if (currentBatter == batter)
         {
             currentBatter = null;
@@ -549,76 +552,32 @@ public class GamePlayManager : GameManager
         batter.OutPlayer();
     }
 
-    //move one base
+    //move one base => 4볼
     void MoveOneBase()
     {
-        MoveBase();
-
-        //don't have Runner
-        if (gamePlayModel.IsEmptyRunner(0))
-        {
-            RunRunner();
-        }
+        Debug.Log("수정해야함! - 4볼 구현안함");
+        //그냥 Batter MoveBase같은 함수 쓰면 되지 않을까?
+        //MoveBase();
+        //일단 신호 줘야할듯 => 던지지 말라고?
     }
 
     void MoveBase()
     {
-        for (int i = 0; i < GamePlayModel.MAX_BASE_COUNT; i++)
-        {
-            //HasRunner
-            if (!gamePlayModel.IsEmptyRunner(i))
-            {
-                gamePlayModel.GetRunner(i).IsMove = true;
-            }
-        }
-    }
-    
-    private bool IsCheckBeforeStatus()
-    {
-        for (int i = 0; i < GamePlayModel.MAX_BASE_COUNT; i++)
-        {
-            if (isBeforeBaseStatus[i] == gamePlayModel.IsEmptyRunner(0))
-            {
-                return true;
-            }
-        }
-
-        return false;
+        gamePlayModel.RunSignal();
     }
     
     private void RerollBeforeStatus()
     {
-        Debug.Log("파울이라 돌아감");
+        Debug.Log("파울이라 돌아감 - 주자들이 되돌아 가는 기능은 안 넣음");
 
         //되돌아가자
-        for (int i = 1; i < GamePlayModel.MAX_BASE_COUNT; i++)
-        {
-            while (!gamePlayModel.IsEmptyRunner(i))
-            {
-                Batter batter = gamePlayModel.GetRunner(i);
-                batter.IsMove = false;
-                batter.transform.position = bases[i].position;
-            }
-        }
-
-        //만약 러너 주자가 비어있다면?
-        if (gamePlayModel.IsEmptyRunner(0))
-        {
-            return;
-        }
+        
         //내가 타자라면 그냥 페이드아웃
-        if (gamePlayModel.Inning % 2 == 0)
-        {
-            //페이드 아웃 함수
-            return;
-        }
-        
-        //내가 투수라면 아래 함수
-        
-        Batter b = gamePlayModel.GetRunner(0);
-        b.IsMove = false;
-        b.transform.position = batterPosition.position;
-        //gamePlayModel.AddRunnder(b);
+         if (gamePlayModel.Inning % 2 == 0)
+         {
+             StartCoroutine(TranslateBattingView());
+             return;
+         }
     }
     
     private void DeleteRunner()
@@ -679,15 +638,21 @@ public class GamePlayManager : GameManager
     }
     
     void TransformMyBodyToBatter()
-    { 
+    {
         Batter batter = Instantiate(batterPrefab.gameObject, batterCreatePosition).GetComponent<Batter>();
-                
-        batter.transform.position = transform.position;//프리펩 정보 이전
+
+        batter.transform.position = myBody.transform.position;//프리펩 정보 이전
         batter.SetBases(bases);
+        
         batter.BaseIndex = myBody.BaseIndex;
         batter.IsMove = false;
+        
+        gamePlayModel.ReplaceLastRunner(batter);
 
+        gamePlayModel.RemoveRunner(myBody.BaseIndex);
         myBody.BaseIndex = 0;
+        
+        //어차피 안타치면 runner는 생성된다?
     }
     #endregion 
     
@@ -785,6 +750,7 @@ public class GamePlayManager : GameManager
     {
         for (int i = GamePlayModel.MAX_BASE_COUNT - 1; i >= 0; i--)
         {
+            Debug.LogWarning(i);
             //has runner and run
             if (!gamePlayModel.IsEmptyRunner(i) && gamePlayModel.GetRunner(i).IsMove)
             {
@@ -834,8 +800,9 @@ public class GamePlayManager : GameManager
         //
         if (Input.GetKeyDown(KeyCode.C))
         {
+            isPrint = !isPrint;
             //MoveOneBase();        //batter run
-            DebugBaseStatus();
+            //DebugBaseStatus();
         }
         if (Input.GetKeyDown(KeyCode.Z))
         {
@@ -860,12 +827,7 @@ public class GamePlayManager : GameManager
     
     void DebugBaseStatus()
     {
-        // for (int i = 0; i < GamePlayModel.MAX_BASE_COUNT; i++)
-        // {
-        //     Debug.Log(i+" : " + gamePlayModel.GetRunnerCount(i));
-        // }
-
-        gamePlayModel.DebugBaseStatus();
+        gamePlayModel.DebugBaseStatus(isPrint);
     }
 
     void DebugHitting()
@@ -884,7 +846,7 @@ public class GamePlayManager : GameManager
         _ball.IsThrown = true;
         _ball.IsPassing = true;
         _ball.SetPosition(batterPosition.position + new Vector3(0, 2.0f, 0));
-        _ball.SetVelocity(new Vector3(x, 1.0f, z) * 15f);
+        _ball.SetVelocity(new Vector3(x, 0.5f, z) * 20f);
         //10 : 내야 땅볼?
         //20 : 뜬 공
         

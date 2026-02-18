@@ -10,22 +10,14 @@ public class GamePlayModel : GameModel
     private int inning = 0;
     private int out_count = 0;
 
-    //베이스에 있는 주자는 
-    private Queue<Batter>[] runners = new Queue<Batter>[MAX_BASE_COUNT];
+    //베이스에 있는 주자들 : List로 해도 하도 주자가 적어서 동적으로 지워도 된다
+    private List<Batter> runners = new List<Batter>();
     private TeamStatus[] _teamStatus = new TeamStatus[2];
 
     //Define
     public const int MAX_INNING_COUNT = 18;
     public const int MAX_OUT_COUNT = 3;
     public const int MAX_BASE_COUNT = 4;
-
-    public GamePlayModel()
-    {
-        for (int i = 0; i < MAX_BASE_COUNT; i++)
-        {
-            runners[i] = new Queue<Batter>();
-        }
-    }
 
     public void SetPanel(BaseStatusPanel baseStatusPanel)
     {
@@ -52,48 +44,108 @@ public class GamePlayModel : GameModel
     }
 
     //[v] 내가 달릴때, [x] 원래는 주자가 달릴때 , [x] 바꿔치기 할때 
-    public void AddRunnder(int index, Batter batter)
+    public void AddRunner(Batter batter)
     {
-        Debug.Log("추가 : " + index);
-        runners[index].Enqueue(batter);
+        runners.Add(batter);
         DebugBaseStatus();
     }
-    
-    public Batter RemoveRunner(int index)
+    public void ReplaceLastRunner(Batter batter)
     {
-        Debug.Log("제거 : " + index);
-        if (IsEmptyRunner(index))
+        if (runners.Count == 0)
         {
-            Debug.LogError("Trying to remove runner, but there is no runner");
-            return null;
+            Debug.LogError("대체할 러너가 없엉");
+            return;
         }
-        return runners[index].Dequeue();
+        runners[runners.Count - 1] = batter;
     }
     
-    public Batter GetRunner(int index)
+    public Batter RemoveRunner(int base_index)
     {
-        return runners[index].Peek();
+        for (int i = 0; i < runners.Count; i++)
+        {
+            if (runners[i].BaseIndex == base_index)
+            {
+                Batter batter = runners[i];
+                runners.RemoveAt(i);
+                return batter;
+            }
+        }
+        Debug.LogError("제거할 runner가 없는뎁쇼?");
+        return null;
+    }
+    
+    public Batter GetRunner(int base_index)
+    {
+        //거꾸로 찾아야지 맨 앞 주자의 정보를 가져올 수 있다.
+        for (int i = runners.Count - 1; i >= 0; i--)
+        {
+            if (runners[i].BaseIndex == base_index)
+            {
+                Batter batter = runners[i];
+                return batter;
+            }
+        }
+        return null;
     }
 
-    public bool IsEmptyRunner(int index)
+    public void MoveBase()
     {
-        if (runners[index].Count == 0)
+        for (int i = 0; i < runners.Count; i++)
         {
-            return true;
+            runners[i].BaseIndex++;
+        }
+    }
+
+    public bool IsEmptyRunner(int base_index)
+    {
+        //거꾸로 찾아야지 맨 앞 주자의 정보를 가져올 수 있다.
+        for (int i = 0; i < runners.Count; i++)
+        {
+            if (runners[i].BaseIndex == base_index)
+            {
+                return true;
+            }
         }
         return false;
     }
 
+    public List<Batter> GetRunners()
+    {
+        return runners;
+    }
+    public void ClearRunner()
+    {
+        runners.Clear();
+    }
 
-    public int EstimateRunners()
+
+    //러너 측정
+    public int GetRunnerCount()
+    {
+        return runners.Count;
+    }
+    
+    public int GetRunnerIndexCount(int base_index)
     {
         int count = 0;
-        for (int i = 0; i < runners.Length; i++)
+        for (int i = 0; i < runners.Count; i++)
         {
-            count += runners[i].Count;
+            if (runners[i].BaseIndex == base_index)
+            {
+                count++;
+            }
         }
         return count;
     }
+
+    public void RunSignal()
+    {
+        for (int i = 0; i < runners.Count; i++)
+        {
+            runners[i].IsMove = true;
+        }
+    }
+    
 
     public int GetTeamIndex()
     {
@@ -107,35 +159,22 @@ public class GamePlayModel : GameModel
         
     }
 
-    public int GetRunnerCount(int index)
-    {
-        return runners[index].Count;
-    }
 
     //대충 base_index와 Runner간의 상호작용이 안된듯
-    public void DebugBaseStatus()
+    public void DebugBaseStatus(bool isPrint = false)
     {
-        //runner[0] | runner[1]은 1루 베이스에서 2루 베이스라인까지
-        for (int i = 0; i < MAX_BASE_COUNT; i++)
+        _baseStatusPanel.SetInit();
+        for (int i = 0; i < runners.Count; i++)
         {
-            if (runners[i].Count != 0) // 0 1 2 3
+            Debug.Log("base [" + runners[i].BaseIndex + "] : " + runners[i].name);
+            //주자
+            if (runners[i].IsMove)
             {
-                //baseline
-                if (runners[i].Peek().IsMove)
-                {
-                    _baseStatusPanel.SetBaseLine(i, true);
-                    _baseStatusPanel.SetBase(i, false);
-                }
-                else //base
-                {
-                    _baseStatusPanel.SetBase(i, true); //0이면 알아서 return
-                    _baseStatusPanel.SetBaseLine(i, false); 
-                }
+                _baseStatusPanel.SetBaseLine(runners[i].BaseIndex, true);
             }
-            else //비어있다면
+            else //베이스
             {
-                _baseStatusPanel.SetBase(i, false);
-                _baseStatusPanel.SetBaseLine(i, false);
+                _baseStatusPanel.SetBase(runners[i].BaseIndex, true);
             }
         }
     }
