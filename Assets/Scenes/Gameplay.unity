@@ -6335,7 +6335,7 @@ PrefabInstance:
       objectReference: {fileID: 11400000, guid: 92f9d4b8ff2a53147a913724e0def414, type: 2}
     - target: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
       propertyPath: isPassing
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
       propertyPath: paulEvent
