@@ -44,6 +44,7 @@ public class Defender : Player
         //ㄴ  물리적으로 공을 가지고있는 상태에서 MyDefender를 빠져 나간경우
         //    계속 투수가 따라가서 enter 조건이 안 생겨서 SetBall을 설정할 수 없다.
         //    ㄴ 근데 또 그러면 던졌는데 받았다 기술로 이상한 아웃이 생길 수 있음
+        //       ㄴ 어차피 디버깅 안타 함수도 오류 해결해서 Stay 함수 제거함.
         if (collision.gameObject.CompareTag("Ball") && _ball.MyDefender == null)
         {
             //owner ball
@@ -58,21 +59,6 @@ public class Defender : Player
         }
     }
 
-    void OnCollisionStay(Collision collision)
-    {
-        if (collision.gameObject.CompareTag("Ball") && _ball.MyDefender == null)
-        {
-            //owner ball
-            SetMyBall(collision.gameObject.GetComponent<Baseball>());
-            Baseball baseball = _myBall;
-            
-            collision.rigidbody.velocity = Vector3.zero;
-            baseball.MyDefender = this;
-            isTracking = false;
-            
-            OutRunner();
-        }
-    }
     
     
     //position => direction
@@ -197,7 +183,7 @@ public class Defender : Player
     }
 
     //디버깅용  처리
-    protected bool IsInPosition
+    public bool IsInPosition
     {
         get => isInPosition;
         set => isInPosition = value;

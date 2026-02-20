@@ -131,9 +131,10 @@ public class GamePlayManager : GameManager
             
             //isFlyingOut이면 되돌아가라
             
-            //던질 곳 없으면 복귀
+            //던질 곳 없으면 다시 투수 복귀
             if (!ThrowBallAlgorithm())
             {
+                //위치를 여기다 둔 이유. 피쳐가 수비하면 타자 복귀가 안됨
                 //안타를 쳤다면 나중에 복귀
                 if (canBackRunner && !isFlyingOut)
                 {
@@ -149,6 +150,7 @@ public class GamePlayManager : GameManager
                     return;
                 }
                 
+                //다시 처음
                 PitcherGetBall();
 
                 //투수일 경우 + currentBatter가 null인 경우
@@ -594,6 +596,7 @@ public class GamePlayManager : GameManager
         pitchingController.EndPitchingGame();
         defenders[0].gameObject.SetActive(true);
         
+        //투수 AI 세팅
         pitcher.IsThrowBallStop = false;
         defenders[0].SetMyBall(_ball);
         
@@ -636,6 +639,8 @@ public class GamePlayManager : GameManager
 
         batter.transform.position = myBody.transform.position;//프리펩 정보 이전
         batter.SetBases(bases);
+        batter.SetBall(_ball);
+        //bat는 굳이?
         
         batter.BaseIndex = myBody.BaseIndex;
         batter.IsMove = false;
@@ -695,21 +700,46 @@ public class GamePlayManager : GameManager
         currentBatter = null;
     }
 
+    
+    /// <summary>
+    /// 아웃하는 함수지만 베이스 아웃 판단하는 것도 넣음
+    /// </summary>
+    /// <param name="base_index">아웃된 주자의 base_index임.</param>
     private void OutRunner(int base_index)
     {
-        AddOut();
-
+        //주자의 base_index0 1 2 3
+        //1루가기전 2루가기전 3루가기전 홈으로가기전
+        //수비수 : 1 2 3 4
+        
+        // 기본적으로 공을 가지고있는 상태
+        if (!_ball.IsBatTouch || !defenders[base_index + 1].IsInPosition)
+        {
+            return;
+        }
+        //debug
+        if (base_index > 3)
+        {
+            Debug.LogError("베이스 index가 넘으면 안된다 : " + base_index);
+        }
+        //이미 베이스 인덱스는
         if (gamePlayModel.IsEmptyRunner(base_index))
         {
             return;
         }
+        Batter runner = gamePlayModel.GetRunner(base_index);
+        //만약 1루면 1루 전 러너가 있는지 확인. 러너가 달리지 않는다면
+        if (!runner.IsMove)
+        {
+            return;
+        }
+        //주자를 아웃시켯
         
-        Batter batter = gamePlayModel.GetRunner(base_index);
+        AddOut();
         
         gamePlayModel.RemoveRunner(base_index);
         
         //Destroy();
-        batter.OutPlayer();
+        runner.OutPlayer();
     }
     
     private void AllTrackingOff()
@@ -723,6 +753,7 @@ public class GamePlayManager : GameManager
     
     private bool ThrowToBase(int index)
     {
+        
         if (_ball.MyDefender)
         {
             if (_ball.MyDefender == defenders[index + 1] && (0 <= index && index < 4) ) //1루수 ~ 4루수
@@ -730,6 +761,7 @@ public class GamePlayManager : GameManager
                 return false;
             }
             
+            Debug.Log("[Defender] 후잉 : " + _ball.MyDefender);
             _ball.MyDefender.ThrowBall(bases[index].position + new Vector3(0, 0.5f, 0));
             return true;
         }
@@ -771,11 +803,14 @@ public class GamePlayManager : GameManager
     private bool ThrowBallAlgorithm() //SO
     {
         int index = gamePlayModel.RunningIndex();
+        
+        //던질 곳 없음
         if (index == -1)
         {
             return false;
         }
     
+        //던지기
         if (ThrowToBase(index))
         {
             return true;
@@ -857,7 +892,10 @@ public class GamePlayManager : GameManager
 
         float x = Random.Range(-1.0f, 0f);
         float z = Random.Range(-1.0f, 0f);
+        x = -0.67f;
+        x = -0.87f;
         
+        //Debug.Log("던지기 + " + x + ", " + z);
         //공 던지는 코루틴도 제거
         pitcher.StopPitching();
         

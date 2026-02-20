@@ -95,6 +95,7 @@ public class GamePlayModel : GameModel
     {
         for (int i = 0; i < runners.Count; i++)
         {
+            //Debug.Log(i + " : " + runners[i].IsMove);
             if (runners[i].IsMove)
             {
                 return runners[i].BaseIndex;
@@ -199,7 +200,7 @@ public class GamePlayModel : GameModel
             }
         }
 
-        DebugPrintBaseStatus();
+        //DebugPrintBaseStatus();
     }
 
     public void DebugPrintBaseStatus()

@@ -7,6 +7,9 @@ public class Baseman : Defender
 {
     [SerializeField] private int base_index; //1 2 3 4
     [SerializeField] private IntEventSO outRunnerEvent;
+    
+    
+    private GamePlayModel _gamePlayModel;
 
     // protected override void Update()
     // {
@@ -33,12 +36,7 @@ public class Baseman : Defender
     {
         base.OutRunner(); //isFlying out
         
-        if (!_ball.IsBatTouch || !IsInPosition)
-        {
-            return;
-        }
-
-        //베이스 밟은 경우
+        //베이스 밟은 경우 => 판단은 저쪽에서
         outRunnerEvent.RaiseEvent(base_index - 1); //베이스 이전 값 아웃
     }
     
