@@ -1,8 +1,6 @@
 using System.Collections;
-using System.Collections.Generic;
 using Unity.XR.CoreUtils;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.XR.Interaction.Toolkit.Inputs.Simulation;
 
 public class GamePlayManager : GameManager
@@ -208,7 +206,6 @@ public class GamePlayManager : GameManager
             gamePlayModel.Inning = value;
             InitInning();
 
-
             int num = value % 2;
 
             //change 
@@ -277,14 +274,15 @@ public class GamePlayManager : GameManager
         get { return baseballModel.BallCount; }
         set
         {
+            //4볼
             if (value >= BaseballModel.MAX_BALL_COUNT)
             {
                 value = 0;
-                _ball.IsBatTouch = false;
 
                 //AddBaseStatus();
                 MoveOneBase();
             }
+
             baseballModel.BallCount = value;
             gamePlayController.SetUIGameStatusIndex(0, value);
             battingController.SetBallCountToText(value);
@@ -387,10 +385,11 @@ public class GamePlayManager : GameManager
     #region GAMEPLAY
     private void InitInning()
     {
-        BallCount = 0;
-        Strike = 0;
         OutCount = 0;
-
+        //어차피 OutCount에 Ball, Strike가 초기화...?
+        //BallCount = 0;
+        //Strike = 0;
+        
         ClearRunners();
     }
 
@@ -463,19 +462,12 @@ public class GamePlayManager : GameManager
     /// <summary> runner clear </summary>
     private void ClearRunners()
     {
-        if (currentBatter)
-        {
-            if (currentBatter.gameObject)
-            {
-                Destroy(currentBatter.gameObject);
-                currentBatter = null;
-            }
-        }
-
+        //여기에 currentRunner를 하더라. => 어차피 Runners에 다 있는데?
+        
         foreach (Batter batter in gamePlayModel.GetRunners())
         {
-            //근데 이러면 my body는 시점이 초기화 되는 거 아닌가?
-            batter.OutPlayer();
+            //my body는 시점 전환 X
+            batter.OutPlayer(false);
         }
         
         gamePlayModel.ClearRunner();
@@ -525,24 +517,33 @@ public class GamePlayManager : GameManager
         currentBatter.IsMove = true;
     }
 
-    private void CreateBatter() //AI
+    //AI, 타자 변환 둘다 이 Batter를 생성
+    private Batter CreateBatter(bool isAI = true, int base_index = 0)
     {
         Debug.Log("타자 생성");
-        Batter batter = Instantiate(batterPrefab, batterCreatePosition.position, Quaternion.identity);
+        Batter batter = Instantiate(batterPrefab, batterCreatePosition);
 
+        //Set
+        batter.SetBases(bases);
         batter.SetBall(_ball);
         batter.SetBat(_bat);
-        batter.transform.parent = batterCreatePosition;
 
-        //베트 자리로 이동
-        batter.MovePlayer(batterPosition.position);
 
-        currentBatter = batter;
-        _ball.OffTouchBall();
+        if (isAI)
+        {
+            //베트 자리로 이동
+            batter.MovePlayer(batterPosition.position);
+            currentBatter = batter;
+        }
+        
+        batter.BaseIndex = base_index;
+        batter.IsMove = false;
 
-        //batter
+        _ball.OffTouchBall(); //.?
 
+        
         //runners[0].transform.rotation = Quaternion.LookRotation(bases[2].position);
+        return batter;
     }
     
 
@@ -578,11 +579,12 @@ public class GamePlayManager : GameManager
     {
         if (!currentBatter)
         {
+            Debug.LogError("[Batter] currentBatter is null");
             return;
         }
-        Destroy(currentBatter.gameObject);
-        currentBatter = null;
-        CreateBatter();
+        
+        currentBatter.OutPlayer(); //플레이어는 뭐 화면 깜빡거리면 될거같고
+        currentBatter = CreateBatter();
     }
     
     #endregion 
@@ -635,19 +637,12 @@ public class GamePlayManager : GameManager
     void TransformMyBodyToBatter()
     {
         Debug.Log("몸 체인지");
-        Batter batter = Instantiate(batterPrefab.gameObject, batterCreatePosition).GetComponent<Batter>();
+        Batter batter = CreateBatter(false, myBody.BaseIndex);
 
         batter.transform.position = myBody.transform.position;//프리펩 정보 이전
-        batter.SetBases(bases);
-        batter.SetBall(_ball);
-        //bat는 굳이?
-        
-        batter.BaseIndex = myBody.BaseIndex;
-        batter.IsMove = false;
-
         
         gamePlayModel.ReplaceLastRunner(batter);
-        //ㄴ 이미 대체 됐으니까
+        //ㄴ 이미 대체 됐으니까 Remove는 필요없음
         //gamePlayModel.RemoveRunner(myBody.BaseIndex);
         myBody.BaseIndex = 0;
         
@@ -854,7 +849,6 @@ public class GamePlayManager : GameManager
         //
         if (Input.GetKeyDown(KeyCode.C))
         {
-            //isPrint = !isPrint;
             //MoveOneBase();        //batter run
             DebugBaseStatus();
         }
@@ -900,7 +894,7 @@ public class GamePlayManager : GameManager
         pitcher.StopPitching();
         
         //no Defender
-        _ball.RemovePlayer();
+        _ball.RemoveDefender();
         _ball.IsThrown = true;
         _ball.IsPassing = true;
         _ball.SetPosition(batterPosition.position + new Vector3(0, 2.0f, 0));

@@ -264,7 +264,7 @@ public class Baseball : MonoBehaviour
 
     public void ThrowBall(Vector3 force)
     {
-        RemovePlayer();
+        RemoveDefender();
         IsPassing = true;
 
         //rotation zero
@@ -353,7 +353,7 @@ public class Baseball : MonoBehaviour
     }
 
     ///공식 제거 함수
-    public void RemovePlayer()
+    public void RemoveDefender()
     {
         if (!myDefender)
         {

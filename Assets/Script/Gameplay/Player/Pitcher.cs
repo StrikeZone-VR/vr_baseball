@@ -86,7 +86,6 @@ public class Pitcher : Defender
         _ball.IsThrown = true;
         _ball.IsBatTouch = false;
         
-
         //random value 0 ~ 24
         int index = Random.Range(0, 25);
         //index = 22; //한 가운데
@@ -98,6 +97,7 @@ public class Pitcher : Defender
         Vector3 velocity = new Vector3();
         
         int pitchTypeIndex = Random.Range(0, 10);
+        
         if (pitchTypeIndex <= 2)
         {
             _ball.SelectPitchType = PitchType.Curve;
@@ -118,13 +118,6 @@ public class Pitcher : Defender
         //Debug.Log("속력 : " + velocity.magnitude * 3.6f);
 
         _ball.ThrowBall(velocity);
-        StartCoroutine(Swing());
-    }
-
-    IEnumerator Swing()
-    {
-        yield return new WaitForSeconds(0.5f);
-        swingEvent.RaiseEvent();
     }
 
     public Vector3 CalculateVelocity(Vector3 start, Vector3 target, float velocity_xy)

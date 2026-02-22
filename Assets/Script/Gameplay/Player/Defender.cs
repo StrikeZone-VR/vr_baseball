@@ -13,6 +13,7 @@ public class Defender : Player
 
     [SerializeField] private bool isTracking = false;
     [SerializeField] protected bool isInPosition = false;
+    private const float BALL_DISTANCE = 0.5f;
 
     protected virtual void Update()
     {
@@ -32,6 +33,13 @@ public class Defender : Player
             }
             //defend pos
         }
+    }
+
+    protected override void LookAtPlayer(Vector3 targetPosition)
+    {
+        base.LookAtPlayer(targetPosition);
+        
+        FrontBall();
     }
     
     //touch ball
@@ -59,6 +67,26 @@ public class Defender : Player
         }
     }
 
+    protected void FrontBall()
+    {
+        if (!_myBall)
+        {
+            return;
+        }
+        float x = Mathf.Sin(transform.rotation.eulerAngles.y * Mathf.PI / 180);
+        float z = Mathf.Cos(transform.rotation.eulerAngles.y * Mathf.PI / 180);
+
+        //player angle
+        _myBall.SetPosition(
+            transform.position 
+            + new Vector3(BALL_DISTANCE * x, 0.5f, BALL_DISTANCE * z)
+        );
+    }
+
+    public void RemoveBall()
+    {
+        _myBall = null;
+    }
     
     
     //position => direction
@@ -126,7 +154,7 @@ public class Defender : Player
     
     public virtual void SetMyBall(Baseball myBall)
     {
-        myBall.RemovePlayer();
+        myBall.RemoveDefender();
         _myBall = myBall;
         _myBall.MyDefender = this;
         IsTracking = false;

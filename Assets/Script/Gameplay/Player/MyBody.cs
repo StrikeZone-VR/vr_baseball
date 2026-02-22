@@ -45,10 +45,12 @@ public class MyBody : Batter
         }
     }
     
-    public override void OutPlayer()
+    public override void OutPlayer(bool isFade = true)
     {
-        Debug.Log("마이 바디 아웃");
-        moveBatterEvent.RaiseEvent();
+        Debug.Log("[Batter] : My body out");
+        
+        if (isFade)
+            moveBatterEvent.RaiseEvent();
     }
 
     

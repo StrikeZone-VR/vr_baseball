@@ -12,7 +12,6 @@ public class Player : MonoBehaviour
     [SerializeField] protected Baseball _ball;
 
     protected NavMeshAgent nav;
-    private const float BALL_DISTANCE = 0.5f;
 
     // Start is called before the first frame update
     protected void Awake()
@@ -21,36 +20,15 @@ public class Player : MonoBehaviour
     }
 
 
-    public void LookAtPlayer(Vector3 target)
+    protected virtual void LookAtPlayer(Vector3 target)
     {
         transform.LookAt(target, Vector3.up);
 
         //x, z => zero because prevent superconductor phenomenon
         transform.rotation = Quaternion.Euler(0.0f, transform.rotation.eulerAngles.y, 0.0f);
 
-        FrontBall();
     }
 
-    protected virtual void FrontBall()
-    {
-        if (!_myBall)
-        {
-            return;
-        }
-        float x = Mathf.Sin(transform.rotation.eulerAngles.y * Mathf.PI / 180);
-        float z = Mathf.Cos(transform.rotation.eulerAngles.y * Mathf.PI / 180);
-
-        //player angle
-        _myBall.SetPosition(
-            transform.position 
-            + new Vector3(BALL_DISTANCE * x, 0.5f, BALL_DISTANCE * z)
-        );
-    }
-
-    public void RemoveBall()
-    {
-        _myBall = null;
-    }
 
     public void SetBall(Baseball ball)
     {
