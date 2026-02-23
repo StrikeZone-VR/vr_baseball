@@ -109,10 +109,11 @@ public class Batter : Player
 
                 nav.ResetPath();
             }
+            changedBaseStatus.RaiseEvent(); 
         }
     }
 
-    // want to go base index
+    // want to go base index => baseindex를 먼저 설정하고 IsMove를 설정하자
     public virtual int BaseIndex
     {
         get => base_index;
@@ -136,7 +137,9 @@ public class Batter : Player
             if (0 < value && value < bases.Length)
             {
                 //addIsBaseStatus.RaiseEvent(value - 1);
-                changedBaseStatus.RaiseEvent(); //만약 아래의 add Is가 없으면
+                
+                //일단 IsMove로 해서 오류만 생긴다
+                //changedBaseStatus.RaiseEvent(); 
             }
         }
     }

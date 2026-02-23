@@ -157,7 +157,7 @@ public class Defender : Player
         myBall.RemoveDefender();
         _myBall = myBall;
         _myBall.MyDefender = this;
-        IsTracking = false;
+        //IsTracking = false; => 어차피 MyDefender에서 모든 주자가 false임
 
         //transform.LookAt(_ball.transform, Vector3.up);
     }

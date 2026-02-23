@@ -735,6 +735,7 @@ public class GamePlayManager : GameManager
         
         //Destroy();
         runner.OutPlayer();
+        DebugBaseStatus();
     }
     
     private void AllTrackingOff()
@@ -887,7 +888,7 @@ public class GamePlayManager : GameManager
         float x = Random.Range(-1.0f, 0f);
         float z = Random.Range(-1.0f, 0f);
         x = -0.67f;
-        x = -0.87f;
+        z = -0.87f;
         
         //Debug.Log("던지기 + " + x + ", " + z);
         //공 던지는 코루틴도 제거
@@ -911,7 +912,6 @@ public class GamePlayManager : GameManager
         _ball.IsBatTouch = true;
         _ball.IsZone = true;
         _ball.IsStrike = true;
-        _ball.IsThrown = true;
         _ball.IsGroundBall = false;
 
         //_ball

@@ -49,28 +49,27 @@ public class Pitcher : Defender
         
         //Debug.Log("SetMyBall");
 
-        if (coroutine == null)
-        {
-            coroutine = StartCoroutine(WaitPitching());
-        }
-        else
-        {
-            StopPitching();
-            coroutine = StartCoroutine(WaitPitching());
-            //Debug.Log("음? : "+_ball.MyDefender.name);
-            //Debug.Log("음?");
-        }
+        //원래 공이 있어도 무조건 기존 거는 제거.
+        StopPitching();
+        coroutine = StartCoroutine(WaitPitching());
+        
+        //Debug.Log("음? : "+_ball.MyDefender.name);
         //transform.LookAt(_ball.transform, Vector3.up);
     }
 
     IEnumerator WaitPitching()
     {
+        //멈춰야 하거나 내 공이 없다면
+        if (IsThrowBallStop || !_myBall)
+        {
+            yield break;
+        }
         LookAtPlayer(strikeZone.transform.position);
         
         //5임
         for (int i = WAIT_TIME; i > 0; i--)
         {
-            //Debug.Log("기다리는 시간 : " + i);
+            Debug.Log("기다리는 시간 : " + i);
             waitPitcherEvent.RaiseEvent(i);
             yield return new WaitForSeconds(1.0f);
         }
@@ -192,13 +191,9 @@ public class Pitcher : Defender
         {
             isThrowBallStop = value;
             
-            //일단 무조건 멈춰라
             StopPitching();
-            
-            if (!isThrowBallStop)
-            {
-                coroutine = StartCoroutine(WaitPitching());
-            }
+            //어차피 WaitPitching에서 판별해준다. 
+            coroutine = StartCoroutine(WaitPitching());
         }
     }
     public void StopPitching()

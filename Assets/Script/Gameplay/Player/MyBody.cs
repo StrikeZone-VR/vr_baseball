@@ -26,14 +26,12 @@ public class MyBody : Batter
             string s = other.name;
             int a = Convert.ToInt32(s[s.Length - 1]);
 
-            IsMove = false;
             //is same going to the next base index
             if (a - '0' == base_index + 1 || (a - '0' == 0 && base_index == 3))
             {
-                BaseIndex++; 
+                BaseIndex++;
+                IsMove = false;
             }
-
-            //Debug.Log("베이스를 밟아버렷" + other.transform.name);
         }
     }
 
@@ -100,7 +98,7 @@ public class MyBody : Batter
                 //다시 타석으로 => 페이드아웃 + moveEvent.
                 //addIsBaseStatus.RaiseEvent(value - 1);
                 moveBatterEvent.RaiseEvent();
-                changedBaseStatus.RaiseEvent();
+                //changedBaseStatus.RaiseEvent();
                 
                 //ㄴ GamePlayManager에 있는 ThrowBallAlgorithm가 -1이어야지 출력하는게 나은듯
 
