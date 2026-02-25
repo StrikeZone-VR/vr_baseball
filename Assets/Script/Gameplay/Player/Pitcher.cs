@@ -69,7 +69,6 @@ public class Pitcher : Defender
         //5임
         for (int i = WAIT_TIME; i > 0; i--)
         {
-            Debug.Log("기다리는 시간 : " + i);
             waitPitcherEvent.RaiseEvent(i);
             yield return new WaitForSeconds(1.0f);
         }

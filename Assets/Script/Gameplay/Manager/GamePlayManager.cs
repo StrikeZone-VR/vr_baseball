@@ -74,7 +74,7 @@ public class GamePlayManager : GameManager
         //OutRunner
 
         allTrackingOffEvent.onEventRaised += AllTrackingOff;
-        addScore.onEventRaised += thirdRunnerintoHome;
+        addScore.onEventRaised += IntoHome;
         runSignalEvent.onEventRaised += RunRunner;
 
         addIsBaseStatus.onEventRaised += AddIsBaseStatus;
@@ -93,7 +93,7 @@ public class GamePlayManager : GameManager
         outRunnerEvent.onEventRaised -= OutRunner;
 
         allTrackingOffEvent.onEventRaised -= AllTrackingOff;
-        addScore.onEventRaised -= thirdRunnerintoHome;
+        addScore.onEventRaised -= IntoHome;
         runSignalEvent.onEventRaised -= RunRunner;
 
         addIsBaseStatus.onEventRaised -= AddIsBaseStatus;
@@ -302,10 +302,11 @@ public class GamePlayManager : GameManager
         DebugBaseStatus();
     }
 
-    private void thirdRunnerintoHome()
+    private void IntoHome()
     {
+        Debug.Log("[Batter] : 점수점수");
         Batter batter = gamePlayModel.RemoveRunner(3);
-        Destroy(batter.gameObject); //pooling?
+        batter.OutPlayer();
         AddScore(1);
     }
 
@@ -757,7 +758,7 @@ public class GamePlayManager : GameManager
                 return false;
             }
             
-            Debug.Log("[Defender] 후잉 : " + _ball.MyDefender);
+            //Debug.Log("[Defender] 후잉 : " + _ball.MyDefender);
             _ball.MyDefender.ThrowBall(bases[index].position + new Vector3(0, 0.5f, 0));
             return true;
         }

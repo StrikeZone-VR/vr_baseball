@@ -23,13 +23,8 @@ public class MyBody : Batter
     {
         if (other.transform.CompareTag("Base"))
         {
-            string s = other.name;
-            int a = Convert.ToInt32(s[s.Length - 1]);
-
-            //is same going to the next base index
-            if (a - '0' == base_index + 1 || (a - '0' == 0 && base_index == 3))
+            if(IsIntoBase(other))
             {
-                BaseIndex++;
                 IsMove = false;
             }
         }
@@ -50,6 +45,8 @@ public class MyBody : Batter
         if (isFade)
             moveBatterEvent.RaiseEvent();
     }
+
+    
 
     
     public override bool IsMove

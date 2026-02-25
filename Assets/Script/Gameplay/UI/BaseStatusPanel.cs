@@ -12,7 +12,7 @@ public class BaseStatusPanel : MonoBehaviour
     {
         for (int i = 0; i < bases.Length; i++)
         {
-            SetBase(i, false);
+            SetBase(i + 1, false);
         }
         for (int i = 0; i < baseLines.Length; i++)
         {

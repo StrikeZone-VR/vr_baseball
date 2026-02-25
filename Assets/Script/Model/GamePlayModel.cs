@@ -200,7 +200,7 @@ public class GamePlayModel : GameModel
             }
         }
 
-        //DebugPrintBaseStatus();
+        DebugPrintBaseStatus();
     }
 
     public void DebugPrintBaseStatus()
@@ -216,7 +216,7 @@ public class GamePlayModel : GameModel
         Debug.Log("베이스");
         for (int i = 0; i < runners.Count; i++)
         {
-            Debug.Log(i + "base [" + runners[i].BaseIndex + "] : " + runners[i].name);
+            Debug.Log(i + "base [" + runners[i].BaseIndex + "] : " + runners[i].name + "의 move" + runners[i].IsMove);
 
         }
         Debug.Log("-------------");

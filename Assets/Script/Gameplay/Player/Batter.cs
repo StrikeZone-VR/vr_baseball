@@ -47,35 +47,36 @@ public class Batter : Player
     {
         if (collision.gameObject.CompareTag("Base"))
         {
-            string s = collision.name;
-            int a = Convert.ToInt32(s[s.Length - 1]);
-
-            //is same going to the next base index
-            if (a - '0' == base_index + 1 || (a - '0' == 0 && base_index == 3)) 
+            if(IsIntoBase(collision))
             {
-                //혻시 BaseIndex를 IsMove 아래로 둔 이유가 있을까? 
-                BaseIndex++; 
-                
                 //수비수와 공 거리가 10f 이하면 가지마라
                 if (_ball.DefenderDis <= 10.0f)
                 {
                     IsMove = false; //일단 움직임을 멈춰야 debug에 찍힘
-                    return;
                 }
-                else
-                {
-                    Debug.Log("[Batter] : 더 간다고?");
-                }
-                
-                
             }
-            
         }
 
         if (collision.gameObject.CompareTag("BatterPos"))
         {
             StopMove();
         }
+    }
+
+    protected bool IsIntoBase(Collider collision)
+    {
+        string s = collision.name;
+        int a = Convert.ToInt32(s[s.Length - 1]);
+
+        //Debug.Log(gameObject.name + " : " + s[s.Length - 1]);
+        //is same going to the next base index
+        if (a - '0' == base_index + 1 || (a - '0' == 0 && base_index == 3))
+        {
+            //혻시 BaseIndex를 IsMove 아래로 둔 이유가 있을까? 
+            BaseIndex++;
+            return true;
+        }
+        return false;
     }
 
     protected virtual void StopMove()
@@ -87,6 +88,7 @@ public class Batter : Player
 
     public virtual void OutPlayer(bool isFade = true)
     {
+        nav.ResetPath();
         Destroy(this.gameObject);
     }
 
@@ -99,15 +101,14 @@ public class Batter : Player
             isMove = value;
             if (isMove)
             {
-                Debug.Log("[Batter] : 움직..." + base_index);
                 MoveBase();
             }
             else
             {
-                //stop moving
-                Debug.Log("[Batter] : 안 움직..." + base_index);
-
-                nav.ResetPath();
+                if (nav != null && nav.isActiveAndEnabled && nav.isOnNavMesh)
+                {
+                    nav.ResetPath();
+                }
             }
             changedBaseStatus.RaiseEvent(); 
         }
