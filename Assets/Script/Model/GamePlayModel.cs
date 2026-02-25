@@ -46,7 +46,6 @@ public class GamePlayModel : GameModel
     //[v] 내가 달릴때, [x] 원래는 주자가 달릴때 , [x] 바꿔치기 할때 
     public void AddRunner(Batter batter)
     {
-        Debug.Log("추가 : " + batter.BaseIndex);
         runners.Add(batter);
         DebugBaseStatus();
         
@@ -61,6 +60,13 @@ public class GamePlayModel : GameModel
         runners[runners.Count - 1] = batter;
     }
     
+    public void MoveBaseRunner()
+    {
+        for (int i = 0; i < runners.Count; i++)
+        {
+            runners[i].SetBaseIndex(runners[i].BaseIndex + 1);
+        }
+    }
     public Batter RemoveRunner(int base_index)
     {
         Debug.Log("제거 : " + base_index);
@@ -178,7 +184,6 @@ public class GamePlayModel : GameModel
     {
         _teamStatus[GetTeamIndex()].Score += value;
         return _teamStatus[GetTeamIndex()].Score;
-        
     }
 
 
@@ -200,7 +205,7 @@ public class GamePlayModel : GameModel
             }
         }
 
-        DebugPrintBaseStatus();
+        //DebugPrintBaseStatus();
     }
 
     public void DebugPrintBaseStatus()

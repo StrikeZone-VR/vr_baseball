@@ -1668,12 +1668,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _ball: {fileID: 0}
   defenderTransform: {fileID: 0}
-  outBatterEventSO: {fileID: 11400000, guid: a7e00550afa182d4594b424474b58e00, type: 2}
+  flyingOutEvent: {fileID: 0}
   isTracking: 0
   isInPosition: 0
-  base_index: 3
+  base_index: 4
+  outRunnerEvent: {fileID: 0}
   pitcher: {fileID: 0}
-  strikeEvent: {fileID: 11400000, guid: 7980c5f1d20201f48891aba9f1727e76, type: 2}
+  backToPitcherEvent: {fileID: 0}
 --- !u!1 &9112002543977327927
 GameObject:
   m_ObjectHideFlags: 0

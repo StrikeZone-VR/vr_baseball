@@ -325,7 +325,7 @@ GameObject:
   - component: {fileID: 4934351738625949845}
   - component: {fileID: 5227407209185059354}
   - component: {fileID: 3571394563336093665}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Bat
   m_TagString: Bat
   m_Icon: {fileID: 0}
@@ -451,6 +451,31 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   topBatPos: {fileID: 8595610330102084804}
+  axis: {fileID: 0}
+  rotationCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!114 &3571394563336093665
 MonoBehaviour:
   m_ObjectHideFlags: 0

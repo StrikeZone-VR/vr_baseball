@@ -59,7 +59,10 @@ public class Batter : Player
 
         if (collision.gameObject.CompareTag("BatterPos"))
         {
-            StopMove();
+            if (base_index == 0)
+            {
+                StopMove();
+            }
         }
     }
 
@@ -149,6 +152,21 @@ public class Batter : Player
     public void SetBases(Transform[] bases)
     {
         this.bases = bases;
+    }
+
+    public void SetBaseIndex(int baseIndex)
+    {
+        BaseIndex = baseIndex;
+        IsMove = false;
+        //1 => 
+        if (base_index == 0)
+        {
+            Debug.LogError("베이스index가 0인데?");
+            return;
+        }
+
+        transform.position = bases[baseIndex - 1].position;
+        
     }
 
     

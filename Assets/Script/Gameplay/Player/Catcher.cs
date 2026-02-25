@@ -13,7 +13,7 @@ public class Catcher : Baseman
     {
         base.SetMyBall(myBall);
         
-        StartCoroutine(WaitThrowToPitcher());
+        //StartCoroutine(WaitThrowToPitcher());
     }
     
     IEnumerator WaitThrowToPitcher()

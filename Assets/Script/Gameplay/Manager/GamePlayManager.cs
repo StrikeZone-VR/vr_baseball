@@ -551,7 +551,8 @@ public class GamePlayManager : GameManager
     //move one base => 4볼
     void MoveOneBase()
     {
-        Debug.Log("수정해야함! - 4볼 구현안함");
+        gamePlayModel.AddRunner(CreateBatter());
+        gamePlayModel.MoveBaseRunner();
         //그냥 Batter MoveBase같은 함수 쓰면 되지 않을까?
         //MoveBase();
         //일단 신호 줘야할듯 => 던지지 말라고?
@@ -700,7 +701,7 @@ public class GamePlayManager : GameManager
     /// <summary>
     /// 아웃하는 함수지만 베이스 아웃 판단하는 것도 넣음
     /// </summary>
-    /// <param name="base_index">아웃된 주자의 base_index임.</param>
+    /// <param name="base_index">아웃 될 주자의 base_index임.</param>
     private void OutRunner(int base_index)
     {
         //주자의 base_index0 1 2 3
@@ -862,15 +863,21 @@ public class GamePlayManager : GameManager
         {
             Inning++;
         }
-        // if (Input.GetKeyDown(KeyCode.C))
-        // {
-        //     //스윙해라
-        //     currentBatter.Swing();
-        // }
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            //스윙해라
+            //currentBatter.Swing();
+            MoveOneBase();
+        }
         if (Input.GetKeyDown(KeyCode.V))
         {
             Debug.Log("투수 스토프");
             pitcher.IsThrowBallStop = !pitcher.IsThrowBallStop;
+        }
+        if (Input.GetKeyDown(KeyCode.B))
+        {
+            gamePlayModel.GetRunner(3).IsMove = true;
+            //Debug.Log(gamePlayModel.GetRunnerCount());
         }
 
     }
@@ -888,8 +895,6 @@ public class GamePlayManager : GameManager
 
         float x = Random.Range(-1.0f, 0f);
         float z = Random.Range(-1.0f, 0f);
-        x = -0.67f;
-        z = -0.87f;
         
         //Debug.Log("던지기 + " + x + ", " + z);
         //공 던지는 코루틴도 제거
@@ -900,7 +905,7 @@ public class GamePlayManager : GameManager
         _ball.IsThrown = true;
         _ball.IsPassing = true;
         _ball.SetPosition(batterPosition.position + new Vector3(0, 2.0f, 0));
-        _ball.SetVelocity(new Vector3(x, 0.5f, z) * 20f);
+        _ball.SetVelocity(new Vector3(x, 0.5f, z) * 10f);
         //10 : 내야 땅볼?
         //20 : 뜬 공
         
