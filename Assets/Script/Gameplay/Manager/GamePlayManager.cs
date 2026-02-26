@@ -956,7 +956,7 @@ public class GamePlayManager : GameManager
         //no Defender
         _ball.RemoveDefender();
         _ball.IsThrown = true;
-        _ball.IsPassing = true;
+        //_ball.IsPassing = true;
         _ball.SetPosition(batterPosition.position + new Vector3(0, 2.0f, 0));
         _ball.SetVelocity(new Vector3(x, 0.5f, z) * 18f);
         //10 : 내야 땅볼?

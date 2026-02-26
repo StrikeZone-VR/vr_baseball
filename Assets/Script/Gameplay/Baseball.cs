@@ -265,7 +265,6 @@ public class Baseball : MonoBehaviour
     public void ThrowBall(Vector3 force)
     {
         RemoveDefender();
-        IsPassing = true;
 
         //rotation zero
         _rigidbody.velocity = Vector3.zero;
@@ -537,7 +536,7 @@ public class Baseball : MonoBehaviour
         isBatTouch = false;
         IsZone = false;
         IsThrown = true;
-        IsPassing = true;
+        //IsPassing = true;
 
         pitchEvent.RaiseEvent();
 

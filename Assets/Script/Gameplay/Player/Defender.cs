@@ -121,6 +121,8 @@ public class Defender : Player
 
         //cal dis
         //_ball.ThrowBall(dir * dis);
+        
+        _ball.IsPassing = true;
         _ball.ThrowBall(launchVelocity);
     }
     
