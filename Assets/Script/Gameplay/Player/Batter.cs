@@ -89,7 +89,7 @@ public class Batter : Player
         LookAtPlayer(new Vector3(-1, 0, -1));
     }
 
-    public virtual void OutPlayer(bool isFade = true)
+    public virtual void OutPlayer(bool isMove = true)
     {
         nav.ResetPath();
         Destroy(this.gameObject);

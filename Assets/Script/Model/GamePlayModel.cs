@@ -86,7 +86,7 @@ public class GamePlayModel : GameModel
     public Batter GetRunner(int base_index)
     {
         //거꾸로 찾아야지 맨 앞 주자의 정보를 가져올 수 있다.
-        for (int i = runners.Count - 1; i >= 0; i--)
+        for (int i = 0; i < runners.Count; i++)
         {
             if (runners[i].BaseIndex == base_index)
             {

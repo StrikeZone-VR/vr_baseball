@@ -24,7 +24,7 @@ public class GamePlayManager : GameManager
     [SerializeField] private Batter batterPrefab;
     [SerializeField] private Transform batterCreatePosition;
     [SerializeField] private Transform batterPosition;
-    [SerializeField] private Batter currentBatter;
+    [SerializeField] private Batter currentBatter; //생성되는 위치 : 타석에 넣어야함 
     [SerializeField] private Bat _bat;
     [SerializeField] private GameObject _axis;
     [SerializeField] private BaseStatusPanel _baseStatusPanel; //debug
@@ -66,6 +66,7 @@ public class GamePlayManager : GameManager
     
     #endregion
     #region SO
+    
     protected override void OnEnable()
     {
         base.OnEnable();
@@ -105,7 +106,7 @@ public class GamePlayManager : GameManager
         onCanBackBatterEvent.onEventRaised -= OnCanBackRunner;
         changedBaseStatus.onEventRaised -= DebugBaseStatus;
     }
-    
+
     #endregion
 
     protected override void Start()
@@ -136,13 +137,17 @@ public class GamePlayManager : GameManager
             {
                 //위치를 여기다 둔 이유. 피쳐가 수비하면 타자 복귀가 안됨
                 //안타를 쳤다면 나중에 복귀
-                if (canBackRunner && !isFlyingOut)
+                if (canBackRunner )
                 {
                     canBackRunner = false;
-                    TransformMyBodyToBatter();
+                    if (!isFlyingOut)
+                    {
+                        TransformMyBodyToBatter();
+                    }
                     StartCoroutine(TranslateBattingView());
                     DebugBaseStatus();
                 }
+                
                 
                 //AI투수가 이미 가지고 있다면
                 if (pitcher && _ball.MyDefender == pitcher)
@@ -153,11 +158,6 @@ public class GamePlayManager : GameManager
                 //다시 처음
                 PitcherGetBall();
 
-                //투수일 경우 + currentBatter가 null인 경우
-                if (!currentBatter && gamePlayModel.Inning % 2 == 1)
-                {
-                    CreateBatter();
-                }
             }
         }
         //to pitcher
@@ -173,7 +173,7 @@ public class GamePlayManager : GameManager
         if(_ball.IsBatTouch)
         {
             int index = FindClosestDefenderIndex();
-            AllTrackingOff();
+            OnlyOneTrackingOn(index);
             //Debug.Log(index);
             
             //closestDefender set tracking
@@ -334,7 +334,6 @@ public class GamePlayManager : GameManager
         AddScore(gamePlayModel.GetRunnerCount());
         ClearRunners();
         ++HomerunCount;
-        CreateBatter(); //주자는 없으니까
     }
 
     private void AddScore(int value)
@@ -413,6 +412,7 @@ public class GamePlayManager : GameManager
         //이게 그러니까 pitchermode
         else
         {
+            CreateBatter(); //currentBatter에 어차피 들어감
             pitchingController.ResetBall();
         }
     }
@@ -421,8 +421,10 @@ public class GamePlayManager : GameManager
     {
         //StartCoroutine(BackPitching());
 
+        currentBatter = myBody;
+        
         //yield return new WaitForSeconds(WAIT_TIME);
-        yield return null;
+        yield return null; //debug
         
         //만약 돌아올때 비활성화 된 경우
         if (defenders[0].gameObject.activeSelf)
@@ -474,7 +476,7 @@ public class GamePlayManager : GameManager
         foreach (Batter batter in gamePlayModel.GetRunners())
         {
             //my body는 시점 전환 X
-            batter.OutPlayer(false);
+            batter.OutPlayer(true);
         }
         
         gamePlayModel.ClearRunner();
@@ -508,7 +510,6 @@ public class GamePlayManager : GameManager
             }
             
 #endif
-            currentBatter = myBody;
             currentBatter.SetBases(bases);
             
             //안타 두 번 이상 친 경우 (Debug Hitting 여러번 예방) => 비어있으면 어차피 처음임
@@ -564,8 +565,12 @@ public class GamePlayManager : GameManager
     //move one base => 4볼
     void MoveOneBase()
     {
+        //transview 뭐시기
+        //주자라면 mybody를 먼저 대체하고 해야하나
         gamePlayModel.AddRunner(CreateBatter());
         gamePlayModel.MoveBaseRunner();
+        
+        
         //그냥 Batter MoveBase같은 함수 쓰면 되지 않을까?
         //MoveBase();
         //일단 신호 줘야할듯 => 던지지 말라고?
@@ -598,8 +603,22 @@ public class GamePlayManager : GameManager
             return;
         }
         
-        currentBatter.OutPlayer(); //플레이어는 뭐 화면 깜빡거리면 될거같고
-        currentBatter = CreateBatter();
+        currentBatter.OutPlayer(true); 
+        //플레이어는 뭐 화면 깜빡거리면 될거같고
+        //아니 만약 current가 플레이어면 안 되는 거 아닌가?
+        
+        
+        //타자모드
+        // if (Inning % 2 == 0)
+        // {
+        //     // 굳이? 이미 전에 current에 넣지 않았나?
+        //     currentBatter = myBody;
+        // }
+        // else
+        // {
+        //     //이거 일단 플레이어 생성은 해야함 => 나중에 out 3개면 지워질거임
+        //     currentBatter = CreateBatter();
+        // }
     }
     
     #endregion 
@@ -623,15 +642,16 @@ public class GamePlayManager : GameManager
 
     IEnumerator TranslateBattingView()
     {
-        fadeEvent.FadeOut(0.2f); //이동하기 전
-        yield return new WaitForSeconds(0.2f); 
+        fadeEvent.FadeOut(0.5f); //이동하기 전
+        yield return new WaitForSeconds(0.5f); 
 
         Vector3 movePosition = new Vector3(0, 1.0f, 0);
         Vector3 rotateVector = new Vector3(-1, 0, -1);
         MovePlayer(movePosition);
         RotatePlayer(rotateVector);
 
-        fadeEvent.FadeIn(0.2f); //이동하고 나서
+        fadeEvent.FadeIn(0.5f); //이동하고 나서
+        currentBatter = myBody;
     }
     
     //override
@@ -652,6 +672,12 @@ public class GamePlayManager : GameManager
     void TransformMyBodyToBatter()
     {
         Debug.Log("몸 체인지");
+        
+        //만약 플라잉 아웃이든 뭐든 아웃됐다면 타자를 생성할 이유가 없음
+        if (myBody.BaseIndex == 0)
+        {
+            return;
+        }
         Batter batter = CreateBatter(false, myBody.BaseIndex);
 
         batter.transform.position = myBody.transform.position;//프리펩 정보 이전
@@ -706,7 +732,7 @@ public class GamePlayManager : GameManager
         gamePlayModel.RemoveRunner(currentBatter.BaseIndex);
         
         //Destroy();
-        currentBatter.OutPlayer();
+        currentBatter.OutPlayer(true);
         currentBatter = null;
     }
 
@@ -731,19 +757,21 @@ public class GamePlayManager : GameManager
         {
             Debug.LogError("베이스 index가 넘으면 안된다 : " + base_index);
         }
+
         //이미 베이스 인덱스는
         if (gamePlayModel.IsEmptyRunner(base_index))
         {
             return;
         }
+        
         Batter runner = gamePlayModel.GetRunner(base_index);
+
         //만약 1루면 1루 전 러너가 있는지 확인. 러너가 달리지 않는다면
         if (!runner.IsMove)
         {
             return;
         }
         //주자를 아웃시켯
-        
         AddOut();
         
         gamePlayModel.RemoveRunner(base_index);
@@ -755,10 +783,22 @@ public class GamePlayManager : GameManager
     
     private void AllTrackingOff()
     {
+        OnlyOneTrackingOn();
+    }
+
+    private void OnlyOneTrackingOn(int ignore_index = -1)
+    {
         for (int i = 0; i < defenders.Length; i++)
         {
+            if (ignore_index == i)
+            {
+                continue;
+            }
             if (defenders[i].gameObject.activeSelf)
+            {
                 defenders[i].IsTracking = false;
+                
+            }
         }
     }
     
@@ -889,7 +929,7 @@ public class GamePlayManager : GameManager
         }
         if (Input.GetKeyDown(KeyCode.B))
         {
-            gamePlayModel.GetRunner(3).IsMove = true;
+            gamePlayModel.DebugPrintBaseStatus();
             //Debug.Log(gamePlayModel.GetRunnerCount());
         }
 

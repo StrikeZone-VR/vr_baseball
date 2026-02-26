@@ -38,12 +38,12 @@ public class MyBody : Batter
         }
     }
     
-    public override void OutPlayer(bool isFade = true)
+    public override void OutPlayer(bool isMove = true)
     {
-        Debug.Log("[Batter] : My body out");
+        Debug.Log("[Batter] : My body out : " + isMove);
         
-        if (isFade)
-            moveBatterEvent.RaiseEvent();
+        if (isMove)
+            moveBatterEvent.RaiseEvent(); 
     }
 
     

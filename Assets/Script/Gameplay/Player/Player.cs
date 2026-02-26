@@ -34,6 +34,9 @@ public class Player : MonoBehaviour
         _ball = ball;
     }
 
+    /// <summary>
+    /// nav의 SetDestination은 여기서만 발동시키게 하자 
+    /// </summary>
     public void MovePlayer(Vector3 pos)
     {
         nav.SetDestination(pos);

@@ -163,6 +163,7 @@ public class Defender : Player
         myBall.RemoveDefender();
         _myBall = myBall;
         _myBall.MyDefender = this;
+        FrontBall();
         //IsTracking = false; => 어차피 MyDefender에서 모든 주자가 false임
 
         //transform.LookAt(_ball.transform, Vector3.up);
@@ -204,6 +205,13 @@ public class Defender : Player
             {
                 return;
             }
+
+            //공 패스중이면 그냥 대기해라
+            if (_ball.IsPassing)
+            {
+                isTracking = false;
+            }
+            
             if (!isTracking)
             {
                 //long base dis => go to the base
@@ -218,7 +226,7 @@ public class Defender : Player
             }
             else //istracking 
             {
-                nav.SetDestination(_ball.GetTargetPosition());
+                MovePlayer(_ball.GetTargetPosition());
             }
             
         }
