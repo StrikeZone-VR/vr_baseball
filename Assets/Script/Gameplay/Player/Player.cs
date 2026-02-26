@@ -26,7 +26,6 @@ public class Player : MonoBehaviour
 
         //x, z => zero because prevent superconductor phenomenon
         transform.rotation = Quaternion.Euler(0.0f, transform.rotation.eulerAngles.y, 0.0f);
-
     }
 
 

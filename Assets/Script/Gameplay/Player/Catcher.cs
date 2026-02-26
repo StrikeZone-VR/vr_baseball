@@ -5,7 +5,9 @@ using UnityEngine;
 public class Catcher : Baseman
 {
     [SerializeField] private Pitcher pitcher;
-    
+    [SerializeField] private Transform[] defenderTransforms; //2
+
+    [SerializeField] private int defendIndex = 0;
     [Header("Listening to Event")]
     [SerializeField] private VoidEventSO backToPitcherEvent;
     
@@ -26,6 +28,26 @@ public class Catcher : Baseman
         if (pitcher.gameObject.activeSelf)
             ThrowBall(pitcher.transform.position);
     }
+
     
-    
+    //IsBatTouch 기준
+    private void SwitchingMove(int defendIndex)
+    {
+        //0이면 
+        if (defendIndex == 0)
+        {
+            IsInPosition = false;
+        }
+        defenderTransform = defenderTransforms[defendIndex];
+    }
+
+    public int DefendIndex
+    {
+        get => defendIndex;
+        set
+        {
+            defendIndex = value;
+            SwitchingMove(defendIndex);
+        }
+    }
 }

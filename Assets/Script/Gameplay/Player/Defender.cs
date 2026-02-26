@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,6 +15,7 @@ public class Defender : Player
     [SerializeField] private bool isTracking = false;
     [SerializeField] protected bool isInPosition = false;
     private const float BALL_DISTANCE = 0.5f;
+    private const float ISINPOSITION_RANGE = 10.0f;
 
     protected virtual void Update()
     {
@@ -23,16 +25,20 @@ public class Defender : Player
         }
 
         //defend my position
-        if (!IsTracking)
-        {
-            //long base dis => go to the base
-            if (!IsInPosition)
-            {
-                nav.SetDestination(defenderTransform.position);
-                LookAtPlayer(defenderTransform.position);
-            }
-            //defend pos
-        }
+        // if (!IsTracking)
+        // {
+        //     //long base dis => go to the base
+        //     if (!IsInPosition)
+        //     {
+        //         MovePlayer(defenderTransform.position);
+        //     }
+        //     //defend pos
+        // }
+    }
+
+    private void FixedUpdate()
+    {
+        //Vector3.Distance(transform.position, defenderTransform.position);
     }
 
     protected override void LookAtPlayer(Vector3 targetPosition)
@@ -200,7 +206,15 @@ public class Defender : Player
             }
             if (!isTracking)
             {
-                 nav.ResetPath();
+                //long base dis => go to the base
+                if (IsInPosition)
+                {
+                    nav.ResetPath();
+                }
+                else
+                {
+                    MovePlayer(defenderTransform.position);
+                }
             }
             else //istracking 
             {

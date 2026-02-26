@@ -69,6 +69,7 @@ public class GamePlayManager : GameManager
     protected override void OnEnable()
     {
         base.OnEnable();
+        
         flyingOutEvent.onEventRaised += FlyingOut;
         outRunnerEvent.onEventRaised += OutRunner;
         //OutRunner
@@ -104,6 +105,7 @@ public class GamePlayManager : GameManager
         onCanBackBatterEvent.onEventRaised -= OnCanBackRunner;
         changedBaseStatus.onEventRaised -= DebugBaseStatus;
     }
+    
     #endregion
 
     protected override void Start()
@@ -398,6 +400,10 @@ public class GamePlayManager : GameManager
     protected override void PitcherGetBall()
     {
         isFlyingOut = false;
+        
+        Catcher catcher = defenders[4] as Catcher;
+        catcher.DefendIndex = 0;
+
         DebugBaseStatus();
         //batting mode
         if (gamePlayModel.GetTeamIndex() % 2 == 0)
@@ -476,6 +482,13 @@ public class GamePlayManager : GameManager
 
     private void RunRunner()
     {
+        //투수는 스위칭
+        
+        //catcher
+        
+        Catcher catcher = defenders[4] as Catcher;
+        catcher.DefendIndex = 1;
+        
         //타자모드
         //주자들 달리는 신호
         MoveBase();
@@ -905,7 +918,7 @@ public class GamePlayManager : GameManager
         _ball.IsThrown = true;
         _ball.IsPassing = true;
         _ball.SetPosition(batterPosition.position + new Vector3(0, 2.0f, 0));
-        _ball.SetVelocity(new Vector3(x, 0.5f, z) * 10f);
+        _ball.SetVelocity(new Vector3(x, 0.5f, z) * 18f);
         //10 : 내야 땅볼?
         //20 : 뜬 공
         

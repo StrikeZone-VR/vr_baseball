@@ -6364,7 +6364,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2034465876793675181, guid: 4c98c6ae2f898124bbd8ec166f02c936, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.46
+      value: 1.302
       objectReference: {fileID: 0}
     - target: {fileID: 2034465876793675181, guid: 4c98c6ae2f898124bbd8ec166f02c936, type: 3}
       propertyPath: m_LocalPosition.y
@@ -6372,7 +6372,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2034465876793675181, guid: 4c98c6ae2f898124bbd8ec166f02c936, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 1.24
+      value: 1.275
       objectReference: {fileID: 0}
     - target: {fileID: 2034465876793675181, guid: 4c98c6ae2f898124bbd8ec166f02c936, type: 3}
       propertyPath: m_LocalRotation.w
@@ -6434,6 +6434,18 @@ PrefabInstance:
       propertyPath: backToPitcherEvent
       value: 
       objectReference: {fileID: 11400000, guid: 38591f4b3ef079940be5f6a3e91e74ce, type: 2}
+    - target: {fileID: 4967905421558346264, guid: 4c98c6ae2f898124bbd8ec166f02c936, type: 3}
+      propertyPath: defenderTransforms.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4967905421558346264, guid: 4c98c6ae2f898124bbd8ec166f02c936, type: 3}
+      propertyPath: defenderTransforms.Array.data[0]
+      value: 
+      objectReference: {fileID: 312998510}
+    - target: {fileID: 4967905421558346264, guid: 4c98c6ae2f898124bbd8ec166f02c936, type: 3}
+      propertyPath: defenderTransforms.Array.data[1]
+      value: 
+      objectReference: {fileID: 1232322307}
     - target: {fileID: 8588130934949836792, guid: 4c98c6ae2f898124bbd8ec166f02c936, type: 3}
       propertyPath: m_Name
       value: Catcher
