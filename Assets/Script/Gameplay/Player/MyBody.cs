@@ -12,7 +12,8 @@ public class MyBody : Batter
     [SerializeField] private Transform _parent;
 
     //GamePlayManager's onCanBackBatterEvent
-    [SerializeField] private VoidEventSO moveBatterEvent; 
+    [SerializeField] private VoidEventSO moveBatterEvent;
+    private bool isOut = false;
     
     void Update()
     {
@@ -41,7 +42,8 @@ public class MyBody : Batter
     public override void OutPlayer(bool isMove = true)
     {
         Debug.Log("[Batter] : My body out : " + isMove);
-        
+        IsOut = true;
+        BaseIndex = 0;
         if (isMove)
             moveBatterEvent.RaiseEvent(); 
     }
@@ -77,7 +79,7 @@ public class MyBody : Batter
             {
                 return;
             }
-            
+
             //arrive home
             if (value >= bases.Length)
             {
@@ -104,5 +106,12 @@ public class MyBody : Batter
             }
             //base_index = 0;
         }
+    }
+    
+
+    public bool IsOut
+    {
+        get => isOut;
+        set => isOut = value;
     }
 }

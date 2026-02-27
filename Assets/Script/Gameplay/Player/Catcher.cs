@@ -8,6 +8,7 @@ public class Catcher : Baseman
     [SerializeField] private Transform[] defenderTransforms; //2
 
     [SerializeField] private int defendIndex = 0;
+    
     [Header("Listening to Event")]
     [SerializeField] private VoidEventSO backToPitcherEvent;
     
@@ -15,6 +16,7 @@ public class Catcher : Baseman
     {
         base.SetMyBall(myBall);
         
+        //인플레이가 아닐때 받고 싶은데
         //StartCoroutine(WaitThrowToPitcher());
     }
     

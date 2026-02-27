@@ -71,7 +71,6 @@ public class Batter : Player
         string s = collision.name;
         int a = Convert.ToInt32(s[s.Length - 1]);
 
-        //Debug.Log(gameObject.name + " : " + s[s.Length - 1]);
         //is same going to the next base index
         if (a - '0' == base_index + 1 || (a - '0' == 0 && base_index == 3))
         {
@@ -79,6 +78,12 @@ public class Batter : Player
             BaseIndex++;
             return true;
         }
+        //1 2 3만
+        if (a - '0' == base_index && base_index > 0)
+        {
+            return true;
+        }
+        
         return false;
     }
 

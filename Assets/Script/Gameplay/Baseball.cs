@@ -41,7 +41,7 @@ public class Baseball : MonoBehaviour
     [SerializeField] private VoidEventSO homerunEvent;
     [SerializeField] private VoidEventSO pitchEvent;
     [SerializeField] private VoidEventSO runSignalEvent;
-    [SerializeField] private VoidEventSO backToPitcherEvent; //
+    [SerializeField] private VoidEventSO backToPitcherEvent; //피쳐에게 돌아가라 => PitcherGetBall
     [SerializeField] private VoidEventSO inplayGameEvent; //from BattingSystem
     [SerializeField] private FloatEventSO getVelocityEventSO; //from BattingSystem
     [SerializeField] private IntEventSO playAudioClipEvent; //from AudioManager
@@ -184,7 +184,6 @@ public class Baseball : MonoBehaviour
     {
         if (collision.collider.CompareTag("Ground") || collision.collider.CompareTag("Base"))
         {
-            //공 잡으면 계속 땅을 터치함. => 왜 그런지는 모름
             if (myDefender == null)
             {
                 PitchResult();

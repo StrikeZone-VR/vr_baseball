@@ -177,6 +177,11 @@ public class Defender : Player
     /// </summary>
     protected virtual void OutRunner()
     {
+        if (!_myBall)
+        {
+            return;
+        }
+        
         bool isGroundball = _myBall.IsGroundBall;
         bool isBatTouch = _myBall.IsBatTouch;
 
@@ -235,7 +240,7 @@ public class Defender : Player
     }
 
     //디버깅용  처리
-    public bool IsInPosition
+    public virtual bool IsInPosition
     {
         get => isInPosition;
         set => isInPosition = value;
