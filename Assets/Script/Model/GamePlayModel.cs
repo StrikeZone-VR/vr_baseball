@@ -12,7 +12,22 @@ public class GamePlayModel : GameModel
 
     //베이스에 있는 주자들 : List로 해도 하도 주자가 적어서 동적으로 지워도 된다
     private List<Batter> runners = new List<Batter>();
+    private List<int> before_runners = new List<int>(); //타입을 int만 해도 될듯?
+                                                        //홈에 들어온 사람 있다면 맨 앞에 주자 추가
+                                                        //이후 모든 주자 for문으로 SetBase()와 BaseIndex = before값
+    //current = mybody나 다른 타자가 왔을 때 저장하고
+    //파울이나 플라잉아웃이면 그거 참조
+    //파울은 돌아가고 플라잉 아웃이면 되돌아가야함
+    // ㄴ 근데 플라잉아웃이면 그거를 또 생성해서 되돌아가야하냐
+    
+    
+    
+    private int before_score = 0; //만약 before_score와 score값이 같다면 => 홈에 들어온 사람이 없다.
+    //만약 있다면? 되돌릴때 runners.insert(맨앞)
+    //근데 이러면 또 CreateBatter에서 스트라이크 볼 초기화되는 문제가 생기는 구나
+
     private TeamStatus[] _teamStatus = new TeamStatus[2];
+    //사실 점수만 하고 싶은데
 
     //Define
     public const int MAX_INNING_COUNT = 18;
@@ -30,6 +45,7 @@ public class GamePlayModel : GameModel
         get { return out_count; }
         set
         {
+            //나중에 아웃 관련된 UI에 넣어야 함
             out_count = value;
         }
     }
@@ -41,6 +57,17 @@ public class GamePlayModel : GameModel
         {
             inning = value;
         }
+    }
+
+    public int BeforeScore
+    {
+        get { return before_score; }
+        set { before_score = value; }
+    }
+
+    public int GetScore()
+    {
+        return _teamStatus[GetTeamIndex()].Score;
     }
 
     //[v] 내가 달릴때, [x] 원래는 주자가 달릴때 , [x] 바꿔치기 할때 
@@ -172,8 +199,6 @@ public class GamePlayModel : GameModel
         }
     }
     
-    
-    
 
     public int GetTeamIndex()
     {
@@ -186,6 +211,43 @@ public class GamePlayModel : GameModel
         return _teamStatus[GetTeamIndex()].Score;
     }
 
+    //runners, score
+    public void SaveBeforeStatus()
+    {
+        before_score = _teamStatus[GetTeamIndex()].Score;
+        
+        before_runners.Clear();
+        for (int i = 0; i < runners.Count; i++)
+        {
+            before_runners.Add(runners[i].BaseIndex);
+        }
+    }
+    
+    //manager에 이전하자
+    public void RollbackBeforeStatus()
+    {
+        _teamStatus[GetTeamIndex()].Score = before_score;
+
+        for (int i = 0; i < before_runners.Count; i++)
+        {
+            //근데 위에 score가 다르면 i+1로 해야할듯
+            //[i]setBase(before_runners[i]); 
+            //setBaseIndex(before_index)
+        }
+        
+    }
+
+    public void DebugBeforeStatus()
+    {
+        Debug.Log("전 점수 : " + before_score);
+        
+        for (int i = 0; i < before_runners.Count; i++)
+        {
+            Debug.Log("[runner] : " + before_runners[i]);
+        }
+    }
+
+    
 
     //대충 base_index와 Runner간의 상호작용이 안된듯
     public void DebugBaseStatus()

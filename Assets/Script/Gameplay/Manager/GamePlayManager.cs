@@ -55,7 +55,6 @@ public class GamePlayManager : GameManager
     private bool [] isBeforeBaseStatus = { false, false, false };
     [SerializeField] private bool canBackRunner = false;
     private bool isFlyingOut = false;
-    private int beforeScore = 0;
     
     private GamePlayModel gamePlayModel = new GamePlayModel();
     private BattingModel battingModel = new BattingModel();
@@ -329,7 +328,7 @@ public class GamePlayManager : GameManager
     protected override void Foul()
     {
         //만약에 점수를 냈다면?
-        RerollBeforeStatus();
+        RollbackBeforeStatus();
         ++FoulCount;
 
         Debug.Log("파울");
@@ -428,7 +427,7 @@ public class GamePlayManager : GameManager
         //이게 그러니까 pitchermode
         else
         {
-            CreateBatter(); //currentBatter에 어차피 들어감
+            NextBatter(); //currentBatter에 어차피 들어감
             pitchingController.ResetBall();
         }
     }
@@ -553,22 +552,28 @@ public class GamePlayManager : GameManager
         currentBatter.IsMove = true;
     }
 
-    //AI, 타자 변환 둘다 이 Batter를 생성
+    //AI, 타자 변환
+    private Batter NextBatter(bool isAI = true, int base_index = 0)
+    {
+        //어차피 아웃되거나 안타 확정될때 초기화 해야함
+        BallCount = 0;
+        Strike = 0;
+        
+        return CreateBatter(isAI, base_index);
+    }
+    
+    //AI, 타자 변환, 파울이나 플라잉아웃시 되돌아오는 것  모두 Batter를 생성
     private Batter CreateBatter(bool isAI = true, int base_index = 0)
     {
         Debug.Log("타자 생성");
         Batter batter = Instantiate(batterPrefab, batterCreatePosition);
-
-        //어차피 아웃되거나 안타 확정될때 초기화 해야함
-        BallCount = 0;
-        Strike = 0;
 
         //Set
         batter.SetBases(bases);
         batter.SetBall(_ball);
         batter.SetBat(_bat);
 
-
+        gamePlayModel.SaveBeforeStatus();
         if (isAI)
         {
             //베트 자리로 이동
@@ -592,7 +597,7 @@ public class GamePlayManager : GameManager
     {
         //transview 뭐시기
         //주자라면 mybody를 먼저 대체하고 해야하나
-        gamePlayModel.AddRunner(CreateBatter());
+        gamePlayModel.AddRunner(NextBatter());
         gamePlayModel.MoveBaseRunner();
         
         
@@ -606,11 +611,21 @@ public class GamePlayManager : GameManager
         gamePlayModel.RunSignal();
     }
     
-    private void RerollBeforeStatus()
+    private void RollbackBeforeStatus()
     {
-        Debug.Log("파울이라 돌아감 - 주자들이 되돌아 가는 기능은 안 넣음");
+        Debug.Log("[Batter] : Rollback");
 
         //되돌아가자
+        
+        //되돌아가는데 점수를 얻은 경우
+        if (gamePlayModel.BeforeScore != gamePlayModel.GetScore())
+        {
+            CreateBatter();
+            //runners의 insert 맨 앞
+        }
+        
+        gamePlayModel.RollbackBeforeStatus(); //정보만 바뀜
+        
         StartCoroutine(TranslateBattingView());
 
         //내가 타자라면 그냥 페이드아웃
@@ -705,7 +720,7 @@ public class GamePlayManager : GameManager
         {
             return;
         }
-        Batter batter = CreateBatter(false, myBody.BaseIndex);
+        Batter batter = NextBatter(false, myBody.BaseIndex);
 
         batter.transform.position = myBody.transform.position;//프리펩 정보 이전
         
@@ -730,7 +745,7 @@ public class GamePlayManager : GameManager
 
         //방망이 위치 Vector3(-0.660000026,1.37,0.150000006) 여기로
         //방망이 중력, rotation position 얼리기
-        CreateBatter();
+        NextBatter();
         
         StartCoroutine(TranslatePitchingView());
     }
@@ -919,12 +934,6 @@ public class GamePlayManager : GameManager
             //_ball.MyDefender.ThrowBall(defenders[0].transform.position);
         }
 
-        // if (Input.GetKeyDown(KeyCode.B))
-        // {
-        //     //_ball.OnTouchBall();
-        //     PitcherGetBall();
-        // }
-        //
         if (Input.GetKeyDown(KeyCode.C))
         {
             //MoveOneBase();        //batter run
@@ -951,7 +960,8 @@ public class GamePlayManager : GameManager
         }
         if (Input.GetKeyDown(KeyCode.B))
         {
-            gamePlayModel.DebugPrintBaseStatus();
+            gamePlayModel.DebugBeforeStatus();
+            //gamePlayModel.DebugPrintBaseStatus();
             //Debug.Log(gamePlayModel.GetRunnerCount());
         }
 
