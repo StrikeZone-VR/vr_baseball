@@ -3618,6 +3618,7 @@ MonoBehaviour:
   runSignalEvent: {fileID: 11400000, guid: 2f8b5c598135ebb49bd8c25de9d4678c, type: 2}
   changedBaseStatus: {fileID: 11400000, guid: b3af6067612009f4dbbf61eda38651c3, type: 2}
   fadeEvent: {fileID: 11400000, guid: 0d08df4830bb8854bbdf510cf6cc0ff9, type: 2}
+  canBackRunner: 0
 --- !u!4 &1232322307 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8112939749161389715, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
@@ -3816,6 +3817,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 7541965686890698588, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
+      propertyPath: bat
+      value: 
+      objectReference: {fileID: 877522169}
     - target: {fileID: 7541965686890698588, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
       propertyPath: _parent
       value: 

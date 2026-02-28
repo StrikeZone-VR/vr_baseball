@@ -63,8 +63,7 @@ public class MyBody : Batter
             // }
             // else //어 근데 아마 전 값 때문에 +1을 해야할지도?
             // {
-            //     if(base_index != 0) //너무 많이 출력된다
-            //         Debug.Log("stop : " + (base_index));
+            //     Debug.Log("stop : " + (base_index));
             // }
             changedBaseStatus.RaiseEvent();
         }

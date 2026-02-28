@@ -122,6 +122,12 @@ public class Baseball : MonoBehaviour
                 _rigidbody.velocity += new Vector3(0, -deltaTime * velocityXY.magnitude / 100 * MAGNUS,0);
             }
         }
+
+        //그냥 홈런 범위를 넘어서면
+        if (transform.position.x < -500f && transform.position.z < -500f )
+        {
+            Homerun();
+        }
     }
 
     private void OnTriggerEnter(Collider collider)
@@ -158,15 +164,7 @@ public class Baseball : MonoBehaviour
         //homerun
         if (collider.CompareTag("Homerun"))
         {
-            if (isBatTouch && !IsGroundBall)
-                homerunEvent.RaiseEvent();
-            
-            //만약에 홈런의 두 벽을 맞은 경우 => 두 번 호출 될지도
-            if(!isBack)
-            {
-                isBack = true;
-                backToPitcherEvent.RaiseEvent();
-            }
+            Homerun();
         }
     }
 
@@ -774,5 +772,18 @@ public class Baseball : MonoBehaviour
     public Vector3 GetTargetPosition()
     {
         return _targetPosition;
+    }
+
+    private void Homerun()
+    {
+        if (isBatTouch && !IsGroundBall)
+            homerunEvent.RaiseEvent();
+            
+        //만약에 홈런의 두 벽을 맞은 경우 => 두 번 호출 될지도
+        if(!isBack)
+        {
+            isBack = true;
+            backToPitcherEvent.RaiseEvent();
+        }
     }
 }

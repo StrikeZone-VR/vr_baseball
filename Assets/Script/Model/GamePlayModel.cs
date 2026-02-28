@@ -167,6 +167,11 @@ public class GamePlayModel : GameModel
         runners.Clear();
     }
 
+    public void InsertRunner(Batter batter)
+    {
+        runners.Insert(0, batter);
+    }
+
     //러너 측정
     public int GetRunnerCount()
     {
@@ -223,16 +228,18 @@ public class GamePlayModel : GameModel
         }
     }
     
-    //manager에 이전하자
     public void RollbackBeforeStatus()
     {
         _teamStatus[GetTeamIndex()].Score = before_score;
 
+        Debug.Log("주자의 갯수 : " + runners.Count);
+        
+        //그리고 주자는 하나 없어야 함. => 즉, run signal 보내기 전으로 되돌려야 함 
+        //그리고 주자 맨 뒤는 제거. 혹시 모르니 if문으로 사이즈 오버되면 null처리
         for (int i = 0; i < before_runners.Count; i++)
         {
-            //근데 위에 score가 다르면 i+1로 해야할듯
-            //[i]setBase(before_runners[i]); 
-            //setBaseIndex(before_index)
+            runners[i].SetBaseIndex(before_runners[i]);
+            runners[i].IsMove = false;
         }
         
     }

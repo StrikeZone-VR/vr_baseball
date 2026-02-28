@@ -29,7 +29,6 @@ public class GamePlayManager : GameManager
     [SerializeField] private GameObject _axis;
     [SerializeField] private BaseStatusPanel _baseStatusPanel; //debug
 
-    
     //A =>
 
     [Header("Listening to")] 
@@ -81,7 +80,7 @@ public class GamePlayManager : GameManager
 
         addIsBaseStatus.onEventRaised += AddIsBaseStatus;
         startPitcherModeEvent.onEventRaised += OnTouchBall;
-        swingEvent.onEventRaised += DebugBatting;
+        swingEvent.onEventRaised += DebugSwing;
         //pitchEvent.onEventRaised += SwingSignalToBatter;
 
         onCanBackBatterEvent.onEventRaised += OnCanBackRunner;
@@ -100,7 +99,7 @@ public class GamePlayManager : GameManager
 
         addIsBaseStatus.onEventRaised -= AddIsBaseStatus;
         startPitcherModeEvent.onEventRaised -= OnTouchBall;
-        swingEvent.onEventRaised -= DebugBatting;
+        swingEvent.onEventRaised -= DebugSwing;
         //pitchEvent.onEventRaised -= SwingSignalToBatter;
         
         onCanBackBatterEvent.onEventRaised -= OnCanBackRunner;
@@ -194,9 +193,17 @@ public class GamePlayManager : GameManager
             defenders[index].IsTracking = true;
         }
     }
-    
-    
+
+
     /// ////////////////////////////////////////////
+    // 플라잉 아웃되면 되돌아 가는 기능 
+    public void ReverseMoveBase()
+    {
+        //그렇다면 이미 도착했다면?
+        // 그냥 before 비교하고
+        // before값이 -1로 설정하고
+        // 그러고 MoveBase 지정 이런거 해야할듯
+    }
     
     
     #region PROPERTY
@@ -615,15 +622,15 @@ public class GamePlayManager : GameManager
     {
         Debug.Log("[Batter] : Rollback");
 
-        //되돌아가자
-        
         //되돌아가는데 점수를 얻은 경우
         if (gamePlayModel.BeforeScore != gamePlayModel.GetScore())
         {
-            CreateBatter();
-            //runners의 insert 맨 앞
+            //runners의 insert 맨 앞 
+            gamePlayModel.InsertRunner(CreateBatter(false, 0));
+            //어차피 baseindex는 나중에 설정할거임
         }
         
+        currentBatter.IsMove = false;
         gamePlayModel.RollbackBeforeStatus(); //정보만 바뀜
         
         StartCoroutine(TranslateBattingView());
@@ -634,6 +641,8 @@ public class GamePlayManager : GameManager
              canBackRunner = true;
              return;
          }
+         
+         DebugBaseStatus();
     }
     
     private void DeleteRunner()
@@ -941,7 +950,7 @@ public class GamePlayManager : GameManager
         }
         if (Input.GetKeyDown(KeyCode.Z))
         {
-            DebugHitting();
+            DebugSwing();
         }
         if (Input.GetKeyDown(KeyCode.X))
         {
@@ -949,9 +958,10 @@ public class GamePlayManager : GameManager
         }
         if (Input.GetKeyDown(KeyCode.C))
         {
+            DebugHitting();
             //스윙해라
             //currentBatter.Swing();
-            MoveOneBase();
+            //MoveOneBase();
         }
         if (Input.GetKeyDown(KeyCode.V))
         {
@@ -961,7 +971,7 @@ public class GamePlayManager : GameManager
         if (Input.GetKeyDown(KeyCode.B))
         {
             gamePlayModel.DebugBeforeStatus();
-            //gamePlayModel.DebugPrintBaseStatus();
+            //gamePlayModel.DebugBaseStatus();
             //Debug.Log(gamePlayModel.GetRunnerCount());
         }
 
@@ -973,7 +983,7 @@ public class GamePlayManager : GameManager
         
     }
 
-    void DebugHitting()
+    void DebugHitting(bool isFoul = false)
     {
         Debug.Log("디버깅용 타자 안타 함수 - player는 타자");
         //공을 던지면 isPassing, isThrown
@@ -981,6 +991,11 @@ public class GamePlayManager : GameManager
         float x = Random.Range(-1.0f, 0f);
         float z = Random.Range(-1.0f, 0f);
 
+        if (isFoul)
+        {
+            x *= -1;
+            z *= -1;
+        }
         //Debug.Log("던지기 + " + x + ", " + z);
         //공 던지는 코루틴도 제거
         pitcher.StopPitching();
@@ -1019,28 +1034,9 @@ public class GamePlayManager : GameManager
         MovePlayer(bases[index].position + new Vector3(0, 1.0f, 0));
     }
 
-    private void DebugBatting()
+    private void DebugSwing()
     {
-        //batter.DebugHitting();
-
-        // float x = Random.Range(-1.0f, 0f);
-        // float z = Random.Range(-1.0f, 0f);
-        // Vector3 view = new Vector3(-1, 1, -1).normalized;
-        //
-        // _ball.IsBatTouch = true;
-        // _ball.IsGroundBall = false;
-        // _ball.IsPassing = false;
-        //
-        // _ball.RemovePlayer();
-        //
-        // float r = Random.Range(15.0f, 25.0f);
-        //
-        // view *= 19;
-        // _ball.transform.position = Vector3.zero;
-        // _ball.GetComponent<Rigidbody>().velocity = Vector3.zero;
-        // _ball.GetComponent<Rigidbody>().AddForce(view, ForceMode.Impulse);
-        //
-        // MoveBase();
+        currentBatter.Swing();
     }
     
     #endregion
