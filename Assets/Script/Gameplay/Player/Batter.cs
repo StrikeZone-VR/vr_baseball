@@ -12,7 +12,7 @@ public class Batter : Player
     //[SerializeField] private Baseball _ball;
     [SerializeField] protected int base_index = 0; // 1 2 3 => 0은 1루 가기 전 상태
    
-    protected Transform[] bases;
+    [SerializeField] protected Transform[] bases;
     [SerializeField] private Bat bat;
 
     [Header("Listening to Events")]
@@ -37,6 +37,7 @@ public class Batter : Player
         bat.StartSwing();
     }
 
+    //호출하고 싶다면 ismove에서
     private void MoveBase()
     {
         //Debug.Log("움 직." + base_index.ToString());
@@ -61,11 +62,12 @@ public class Batter : Player
         {
             if (base_index == 0)
             {
-                StopMove();
+                ReadyBatting();
             }
         }
     }
 
+    
     protected bool IsIntoBase(Collider collision)
     {
         string s = collision.name;
@@ -87,16 +89,17 @@ public class Batter : Player
         return false;
     }
 
-    protected virtual void StopMove()
+    //타석 대기
+    protected virtual void ReadyBatting()
     {
-        nav.ResetPath();
+        StopMove();
         startPitchEvent.RaiseEvent();
         LookAtPlayer(new Vector3(-1, 0, -1));
     }
 
     public virtual void OutPlayer(bool isMove = true)
     {
-        nav.ResetPath();
+        StopMove();
         Destroy(this.gameObject);
     }
 
@@ -113,10 +116,7 @@ public class Batter : Player
             }
             else
             {
-                if (nav != null && nav.isActiveAndEnabled && nav.isOnNavMesh)
-                {
-                    nav.ResetPath();
-                }
+                StopMove();
             }
             changedBaseStatus.RaiseEvent(); 
         }

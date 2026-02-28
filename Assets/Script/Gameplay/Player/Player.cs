@@ -42,4 +42,12 @@ public class Player : MonoBehaviour
         nav.SetDestination(pos);
         LookAtPlayer(pos);
     }
+    
+    protected void StopMove()
+    {
+        if (!nav && nav.isActiveAndEnabled && nav.isOnNavMesh)
+        {
+            nav.ResetPath();
+        }
+    }
 }

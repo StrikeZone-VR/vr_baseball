@@ -161,13 +161,6 @@ public class GamePlayManager : GameManager
             }
         }
         
-        //스트라이크나 파울 => 코루틴 충돌도 canBackRunner로 비공식적으로 막아놓음
-        //인 플레이 (주자가 뛰는 경우)가 아니라면 
-        if (canBackRunner && gamePlayModel.Inning % 2 == 0 
-                          && gamePlayModel.RunningIndex() == -1 && !_ball.IsPassing)
-        {
-        }
-        
         
         if (_ball.MyDefender)
         {
@@ -199,10 +192,14 @@ public class GamePlayManager : GameManager
     // 플라잉 아웃되면 되돌아 가는 기능 
     public void ReverseMoveBase()
     {
-        //그렇다면 이미 도착했다면?
-        // 그냥 before 비교하고
-        // before값이 -1로 설정하고
-        // 그러고 MoveBase 지정 이런거 해야할듯
+        //todo 점수가 차이가 있다면 Create생성
+        int n = gamePlayModel.GetScore() - gamePlayModel.BeforeScore;
+        for (int i = 0; i < n; i++)
+        {
+            gamePlayModel.InsertRunner(CreateBatter(false, 0));
+        }
+        
+        gamePlayModel.FlyingOutRollbackBeforeStatus();
     }
     
     
@@ -631,7 +628,7 @@ public class GamePlayManager : GameManager
         }
         
         currentBatter.IsMove = false;
-        gamePlayModel.RollbackBeforeStatus(); //정보만 바뀜
+        gamePlayModel.FoulRollbackBeforeStatus(); //정보만 바뀜
         
         StartCoroutine(TranslateBattingView());
 
@@ -780,11 +777,14 @@ public class GamePlayManager : GameManager
     {
         AddOut();
         isFlyingOut = true;
-        gamePlayModel.RemoveRunner(currentBatter.BaseIndex);
+        gamePlayModel.RemoveLastRunner(); //RemoveRunner로 하면 baseindex = 1이 두명이고 앞선 주자가 아웃이 된다. 
         
         //Destroy();
         currentBatter.OutPlayer(true);
         currentBatter = null;
+
+        //되돌아가자
+        ReverseMoveBase();
     }
 
     
@@ -910,7 +910,6 @@ public class GamePlayManager : GameManager
     {
         int index = gamePlayModel.RunningIndex();
         
-        Debug.Log("[Defense] 던지는 투수 위치 : " + index);
         //던질 곳 없음
         if (index == -1)
         {
@@ -950,7 +949,7 @@ public class GamePlayManager : GameManager
         }
         if (Input.GetKeyDown(KeyCode.Z))
         {
-            DebugSwing();
+            DebugHitting();
         }
         if (Input.GetKeyDown(KeyCode.X))
         {
@@ -958,7 +957,7 @@ public class GamePlayManager : GameManager
         }
         if (Input.GetKeyDown(KeyCode.C))
         {
-            DebugHitting();
+            DebugHitting(true);
             //스윙해라
             //currentBatter.Swing();
             //MoveOneBase();
@@ -970,8 +969,8 @@ public class GamePlayManager : GameManager
         }
         if (Input.GetKeyDown(KeyCode.B))
         {
-            gamePlayModel.DebugBeforeStatus();
-            //gamePlayModel.DebugBaseStatus();
+            //gamePlayModel.DebugBeforeStatus();
+            gamePlayModel.DebugBaseStatus(isFlyingOut);
             //Debug.Log(gamePlayModel.GetRunnerCount());
         }
 
@@ -979,22 +978,21 @@ public class GamePlayManager : GameManager
     
     void DebugBaseStatus()
     {
-        gamePlayModel.DebugBaseStatus();
+        gamePlayModel.DebugBaseStatus(isFlyingOut);
         
     }
 
-    void DebugHitting(bool isFoul = false)
+    void DebugHitting(bool isFly = false)
     {
         Debug.Log("디버깅용 타자 안타 함수 - player는 타자");
         //공을 던지면 isPassing, isThrown
 
         float x = Random.Range(-1.0f, 0f);
+        float y = 0.5f;
         float z = Random.Range(-1.0f, 0f);
-
-        if (isFoul)
+        if (isFly)
         {
-            x *= -1;
-            z *= -1;
+            y = 2f;
         }
         //Debug.Log("던지기 + " + x + ", " + z);
         //공 던지는 코루틴도 제거
@@ -1005,7 +1003,7 @@ public class GamePlayManager : GameManager
         _ball.IsThrown = true;
         //_ball.IsPassing = true;
         _ball.SetPosition(batterPosition.position + new Vector3(0, 2.0f, 0));
-        _ball.SetVelocity(new Vector3(x, 0.5f, z) * 20f);
+        _ball.SetVelocity(new Vector3(x, y, z) * 10f);
         //10 : 내야 땅볼?
         //20 : 뜬 공
         

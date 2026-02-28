@@ -74,8 +74,7 @@ public class GamePlayModel : GameModel
     public void AddRunner(Batter batter)
     {
         runners.Add(batter);
-        DebugBaseStatus();
-        
+        DebugBaseStatus(false); //플라잉 아웃이 아닌게 확정이니까
     }
     public void ReplaceLastRunner(Batter batter)
     {
@@ -108,6 +107,16 @@ public class GamePlayModel : GameModel
         }
         Debug.LogError("제거할 runner가 없는뎁쇼?");
         return null;
+    }
+
+    public void RemoveLastRunner()
+    {
+        if (runners.Count <= 0)
+        {
+            Debug.LogError("제거할 runner가 없는뎁쇼?");
+            return;
+        }
+        runners.RemoveAt(runners.Count - 1);
     }
     
     public Batter GetRunner(int base_index)
@@ -228,12 +237,12 @@ public class GamePlayModel : GameModel
         }
     }
     
-    public void RollbackBeforeStatus()
+    //foul
+    public void FoulRollbackBeforeStatus()
     {
         _teamStatus[GetTeamIndex()].Score = before_score;
 
-        Debug.Log("주자의 갯수 : " + runners.Count);
-        
+        //Debug.Log("주자의 갯수 : " + runners.Count);
         //그리고 주자는 하나 없어야 함. => 즉, run signal 보내기 전으로 되돌려야 함 
         //그리고 주자 맨 뒤는 제거. 혹시 모르니 if문으로 사이즈 오버되면 null처리
         for (int i = 0; i < before_runners.Count; i++)
@@ -241,7 +250,26 @@ public class GamePlayModel : GameModel
             runners[i].SetBaseIndex(before_runners[i]);
             runners[i].IsMove = false;
         }
-        
+    }
+    
+    /// <summary>
+    /// 어차피 이거 전에는 아웃 => 혹시 점수 바뀌면 전 사람 소환
+    /// 그리고 타석에 선 주자는 이미 아웃이라 상관없다. 
+    /// </summary>
+    public void FlyingOutRollbackBeforeStatus()
+    {
+        _teamStatus[GetTeamIndex()].Score = before_score;
+
+        // 그냥 before 비교하고
+        // before값에서 -1로 설정하고
+        // 그러고 MoveBase 지정 이런거 해야할듯
+        for (int i = 0; i < before_runners.Count; i++)
+        {
+            //Debug.Log("[runner] : " + runners[i].name);
+            runners[i].BaseIndex = before_runners[i] - 1; //되돌아가줘
+            runners[i].IsMove = true;
+            //runners[i].SetBaseIndex(before_runners[i]);
+        }
     }
 
     public void DebugBeforeStatus()
@@ -254,23 +282,22 @@ public class GamePlayModel : GameModel
         }
     }
 
-    
-
     //대충 base_index와 Runner간의 상호작용이 안된듯
-    public void DebugBaseStatus()
+    public void DebugBaseStatus(bool isOut)
     {
         _baseStatusPanel.SetInit();
-        
+        int value = 0;
+        if (isOut) value = 1; 
         for (int i = 0; i < runners.Count; i++)
         {
             //주자
             if (runners[i].IsMove)
             {
-                _baseStatusPanel.SetBaseLine(runners[i].BaseIndex, true);
+                _baseStatusPanel.SetBaseLine(runners[i].BaseIndex + value, true);
             }
             else //베이스
             {
-                _baseStatusPanel.SetBase(runners[i].BaseIndex, true);
+                _baseStatusPanel.SetBase(runners[i].BaseIndex + value, true);
             }
         }
 

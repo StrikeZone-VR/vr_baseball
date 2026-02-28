@@ -40,6 +40,11 @@ public class BaseStatusPanel : MonoBehaviour
     }
     public void SetBaseLine(int index, bool isFull)
     {
+        if (index < 0 || index >= baseLines.Length)
+        {
+            Debug.LogError("왜 인덱스가 이 값이지 : " + index);
+            return;
+        }
         if (isFull)
         {
             baseLines[index].color = Color.green;

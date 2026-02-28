@@ -224,7 +224,7 @@ public class Defender : Player
                 //long base dis => go to the base
                 if (IsInPosition)
                 {
-                    nav.ResetPath();
+                    StopMove();
                 }
                 else
                 {
