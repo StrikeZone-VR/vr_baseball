@@ -617,8 +617,6 @@ public class GamePlayManager : GameManager
     
     private void RollbackBeforeStatus()
     {
-        Debug.Log("[Batter] : Rollback");
-
         //되돌아가는데 점수를 얻은 경우
         if (gamePlayModel.BeforeScore != gamePlayModel.GetScore())
         {
@@ -641,7 +639,7 @@ public class GamePlayManager : GameManager
          
          DebugBaseStatus();
     }
-    
+
     private void DeleteRunner()
     {
         if (!currentBatter)
@@ -982,18 +980,21 @@ public class GamePlayManager : GameManager
         
     }
 
-    void DebugHitting(bool isFly = false)
+    void DebugHitting(bool isFoul = false)
     {
         Debug.Log("디버깅용 타자 안타 함수 - player는 타자");
         //공을 던지면 isPassing, isThrown
 
         float x = Random.Range(-1.0f, 0f);
-        float y = 0.5f;
+        float y = 2.0f;
         float z = Random.Range(-1.0f, 0f);
-        if (isFly)
+
+        if (isFoul)
         {
-            y = 2f;
+            x = 0.5f;
+            z = 0.5f;
         }
+        
         //Debug.Log("던지기 + " + x + ", " + z);
         //공 던지는 코루틴도 제거
         pitcher.StopPitching();

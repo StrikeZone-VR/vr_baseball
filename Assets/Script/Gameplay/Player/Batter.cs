@@ -40,7 +40,6 @@ public class Batter : Player
     //호출하고 싶다면 ismove에서
     private void MoveBase()
     {
-        //Debug.Log("움 직." + base_index.ToString());
         MovePlayer(bases[base_index].position);
     }
 

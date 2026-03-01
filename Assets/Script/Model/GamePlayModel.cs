@@ -262,7 +262,6 @@ public class GamePlayModel : GameModel
 
         // 그냥 before 비교하고
         // before값에서 -1로 설정하고
-        // 그러고 MoveBase 지정 이런거 해야할듯
         for (int i = 0; i < before_runners.Count; i++)
         {
             //Debug.Log("[runner] : " + runners[i].name);
