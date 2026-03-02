@@ -8,6 +8,9 @@ public class MyXROriginManager : MonoBehaviour
     [SerializeField] private Vector3EventSO moveOriginEvent;
     [SerializeField] private Vector3EventSO rotateOriginEvent;
     [SerializeField] private XROrigin _origin;
+    [SerializeField] private MyBody myBody;
+
+
     private void OnEnable()
     {
         moveOriginEvent.onEventRaised += MoveOrigin;

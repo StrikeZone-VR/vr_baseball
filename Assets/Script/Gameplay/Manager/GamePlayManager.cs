@@ -12,7 +12,7 @@ public class GamePlayManager : GameManager
     [Header("Objects")]
     [SerializeField] private Defender[] defenders; // pitcher => 0
     [SerializeField] private Transform[] bases;
-    [SerializeField] private MyBody myBody; //플레이어 타자
+    [SerializeField] private MyBody myBody; //플레이어 타자 <= 이거를 event로 통신해야하는데
     private Pitcher pitcher;
     
     [Header("Controllers")]
