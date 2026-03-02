@@ -7,19 +7,21 @@ public class MyXROriginManager : MonoBehaviour
 {
     [SerializeField] private Vector3EventSO moveOriginEvent;
     [SerializeField] private Vector3EventSO rotateOriginEvent;
+    [SerializeField] private MyBodyEventSO bodyEvent;
     [SerializeField] private XROrigin _origin;
-    [SerializeField] private MyBody myBody;
-
+    
 
     private void OnEnable()
     {
         moveOriginEvent.onEventRaised += MoveOrigin;
         rotateOriginEvent.onEventRaised += RotateOrigin;
+        bodyEvent.onEventRaised += SetPlayer;
     }
     private void OnDisable()
     {
         moveOriginEvent.onEventRaised -= MoveOrigin;
         rotateOriginEvent.onEventRaised -= RotateOrigin;
+        bodyEvent.onEventRaised -= SetPlayer;
     }
 
     private void MoveOrigin(Vector3 vector3)
@@ -33,5 +35,10 @@ public class MyXROriginManager : MonoBehaviour
         //move
         _origin.transform.rotation = Quaternion.Euler(vector3);
         
+    }
+
+    private void SetPlayer(MyBody body)
+    {
+        body.SetCamera(_origin.Camera);
     }
 }

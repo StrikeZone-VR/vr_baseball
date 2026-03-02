@@ -48,12 +48,18 @@ public class Bat : MonoBehaviour
     //근데 이러면 모든 트리거 발동아닌가?
     private void OnTriggerEnter(Collider other)
     {
-        isSwing = true;
+        if (other.CompareTag("SwingZone"))
+        {
+            isSwing = true;
+        }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        isSwing = false;
+        if (other.CompareTag("SwingZone"))
+        {
+            isSwing = false;
+        }
     }
 
     public bool IsSwing()

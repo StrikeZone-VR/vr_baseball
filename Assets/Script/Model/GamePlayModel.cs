@@ -20,12 +20,11 @@ public class GamePlayModel : GameModel
     //파울은 돌아가고 플라잉 아웃이면 되돌아가야함
     // ㄴ 근데 플라잉아웃이면 그거를 또 생성해서 되돌아가야하냐
     
-    
-    
     private int before_score = 0; //만약 before_score와 score값이 같다면 => 홈에 들어온 사람이 없다.
     //만약 있다면? 되돌릴때 runners.insert(맨앞)
     //근데 이러면 또 CreateBatter에서 스트라이크 볼 초기화되는 문제가 생기는 구나
 
+    private int myTeamIndex = 0; //0 or 1 => batter 기준
     private TeamStatus[] _teamStatus = new TeamStatus[2];
     //사실 점수만 하고 싶은데
 
@@ -33,6 +32,8 @@ public class GamePlayModel : GameModel
     public const int MAX_INNING_COUNT = 18;
     public const int MAX_OUT_COUNT = 3;
     public const int MAX_BASE_COUNT = 4;
+    
+    #region PROPERTY
 
     public void SetPanel(BaseStatusPanel baseStatusPanel)
     {
@@ -65,6 +66,12 @@ public class GamePlayModel : GameModel
         set { before_score = value; }
     }
 
+    public int MyTeamIndex
+    {
+        get => myTeamIndex;
+        set => myTeamIndex = value;
+    }
+
     public int GetScore()
     {
         return _teamStatus[GetTeamIndex()].Score;
@@ -75,23 +82,6 @@ public class GamePlayModel : GameModel
     {
         runners.Add(batter);
         DebugBaseStatus(false); //플라잉 아웃이 아닌게 확정이니까
-    }
-    public void ReplaceLastRunner(Batter batter)
-    {
-        if (runners.Count == 0)
-        {
-            Debug.LogError("대체할 러너가 없엉");
-            return;
-        }
-        runners[runners.Count - 1] = batter;
-    }
-    
-    public void MoveBaseRunner()
-    {
-        for (int i = 0; i < runners.Count; i++)
-        {
-            runners[i].SetBaseIndex(runners[i].BaseIndex + 1);
-        }
     }
     public Batter RemoveRunner(int base_index)
     {
@@ -166,7 +156,7 @@ public class GamePlayModel : GameModel
         }
         return true;
     }
-
+    
     public List<Batter> GetRunners()
     {
         return runners;
@@ -205,18 +195,13 @@ public class GamePlayModel : GameModel
         return count;
     }
 
-    public void RunSignal()
-    {
-        for (int i = 0; i < runners.Count; i++)
-        {
-            runners[i].IsMove = true;
-        }
-    }
-    
-
     public int GetTeamIndex()
     {
         return inning % 2;
+    }
+    public bool IsMyTeamBatting()
+    {
+        return GetTeamIndex() == myTeamIndex;
     }
 
     public int AddScore(int value)
@@ -225,6 +210,35 @@ public class GamePlayModel : GameModel
         return _teamStatus[GetTeamIndex()].Score;
     }
 
+
+    #endregion
+
+    public void ReplaceLastRunner(Batter batter)
+    {
+        if (runners.Count == 0)
+        {
+            Debug.LogError("대체할 러너가 없엉");
+            return;
+        }
+        runners[runners.Count - 1] = batter;
+    }
+    
+    public void MoveBaseRunner()
+    {
+        for (int i = 0; i < runners.Count; i++)
+        {
+            runners[i].SetBaseIndex(runners[i].BaseIndex + 1);
+        }
+    }
+    
+    public void RunSignal()
+    {
+        for (int i = 0; i < runners.Count; i++)
+        {
+            runners[i].IsMove = true;
+        }
+    }
+    
     //runners, score
     public void SaveBeforeStatus()
     {

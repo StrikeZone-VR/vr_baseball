@@ -565,7 +565,48 @@ public class Baseball : MonoBehaviour
         
         // 이펙트
         PlayThrowEffects();
-    } 
+    }
+
+    public void DebugThrowPlayerBall()
+    {
+        if (IsThrown) return;
+        
+        _rigidbody.transform.position += Vector3.up * 2.0f;
+        IsStrike = false;
+        isBatTouch = false;
+        IsZone = false;
+        IsThrown = true;
+        //IsPassing = true;
+
+        pitchEvent.RaiseEvent();
+
+        //int index = Random.Range(0, 25);
+        
+        Vector3 targetPosition = strikeZone.GetZone(4).position;
+        Vector3 targetVector = (targetPosition - _rigidbody.transform.position);
+        
+        float velocity = 100.0f;
+        float dis = targetVector.magnitude;
+        // **정확한 직선 투구 - 스트라이크존 (0, 0.605, -14.06) 조준**
+        Vector3 direction = targetVector.normalized;
+
+        float time = dis / velocity;
+        //Debug.Log("time + time한 후에는 스트라이크가 (" + Time.time+ ") : "+ time);
+        if(bat)
+            StartCoroutine(StartSwingAfter(time - bat.RotationTime / 2));
+        
+        //time - bat.RotationTime / 2)
+        float ac = Mathf.Abs(Physics.gravity.y) * time / 2;
+        
+        _rigidbody.velocity = ( direction) * velocity + new Vector3(0, ac, 0) * ball_accuracy_weight;
+        //_rigidbody.velocity = (ball_accuracy_weight * direction)
+            //* velocity + new Vector3(0, ac, 0) * ball_accuracy_weight;
+
+        playAudioClipEvent.RaiseEvent(0);
+        
+        // 이펙트
+        PlayThrowEffects();
+    }
 
     public void OnTouchBall()
     {

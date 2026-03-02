@@ -521,6 +521,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveOriginEvent: {fileID: 11400000, guid: c0d00800716a55143911a6d8709ab8f3, type: 2}
   rotateOriginEvent: {fileID: 11400000, guid: d164c5b6bfab6604987cbe7b5a2ca409, type: 2}
+  bodyEvent: {fileID: 11400000, guid: efdb9d88f29b9064f889395a44c84e24, type: 2}
   _origin: {fileID: 2057171112}
 --- !u!114 &2057171112 stripped
 MonoBehaviour:

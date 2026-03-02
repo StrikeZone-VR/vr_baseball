@@ -1666,6 +1666,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5306da554498b56448f16fa366c57249, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  shirt: {fileID: 406375836099836693}
   _ball: {fileID: 0}
   defenderTransform: {fileID: 0}
   flyingOutEvent: {fileID: 0}

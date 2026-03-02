@@ -8,6 +8,10 @@ public class GamePlayManager : GameManager
     #region VARIABLES
     [Header("Debug")]
     [SerializeField] protected XROrigin playerOrigin; //debug용
+    [SerializeField] private Color _myTeamColor;
+    [SerializeField] private Color _yourTeamColor;
+    
+    [Space]
     
     [Header("Objects")]
     [SerializeField] private Defender[] defenders; // pitcher => 0
@@ -15,10 +19,14 @@ public class GamePlayManager : GameManager
     [SerializeField] private MyBody myBody; //플레이어 타자 <= 이거를 event로 통신해야하는데
     private Pitcher pitcher;
     
+    [Space]
+
     [Header("Controllers")]
     [SerializeField] private GamePlayController gamePlayController;
     [SerializeField] private PitchingController pitchingController;
     [SerializeField] private BattingController battingController;
+    
+    [Space]
     
     [Header("Batter")] 
     [SerializeField] private Batter batterPrefab;
@@ -28,6 +36,9 @@ public class GamePlayManager : GameManager
     [SerializeField] private Bat _bat;
     [SerializeField] private GameObject _axis;
     [SerializeField] private BaseStatusPanel _baseStatusPanel; //debug
+
+
+    [Space]
 
     //A =>
 
@@ -46,20 +57,23 @@ public class GamePlayManager : GameManager
     [SerializeField] private IntEventSO addIsBaseStatus; //to Batter
     [SerializeField] private VoidEventSO runSignalEvent;
     [SerializeField] private VoidEventSO changedBaseStatus;
-    
+    [Space]
     // => A
     [Header("Broadcasting on")]
     [SerializeField] private FadeChannelSO fadeEvent;
+    [SerializeField] private MyBodyEventSO _setBodyEvent ;
 
-    private bool [] isBeforeBaseStatus = { false, false, false };
     [SerializeField] private bool canBackRunner = false;
-    private bool isFlyingOut = false;
     
     private GamePlayModel gamePlayModel = new GamePlayModel();
     private BattingModel battingModel = new BattingModel();
 
     private Coroutine waitPitcherCoroutine;
+    
+    private bool isFlyingOut = false;
     private bool isPrint = false; //debug
+    
+    //define
     const float WAIT_TIME = 7.0f;  //투수 던지기 전 대기 상태
     const float FADE_WAIT_TIME = 0.5f;  
     
@@ -115,6 +129,10 @@ public class GamePlayManager : GameManager
         SetScore(0, 0);
         SetScore(1, 0);
         
+        SetMyBodyCamera();
+        
+        
+        
         gamePlayModel.SetPanel(_baseStatusPanel);
         Inning = 0;
     }
@@ -134,9 +152,10 @@ public class GamePlayManager : GameManager
             //던질 곳 없으면 다시 투수 복귀
             if (!ThrowBallAlgorithm())
             {
+                //어차피 근데 타자모드일때만 이라고 해도 canBackRunner자체가 여기에서만 나올듯
                 //위치를 여기다 둔 이유. 피쳐가 수비하면 타자 복귀가 안됨
                 //안타나 플라잉아웃이면 나중에 복귀
-                if (canBackRunner)
+                if (canBackRunner) 
                 {
                     canBackRunner = false;
                     
@@ -216,14 +235,14 @@ public class GamePlayManager : GameManager
                 //GameEnd
                 return;
             }
-
+            
             gamePlayModel.Inning = value;
             InitInning();
 
             int num = value % 2;
 
             //change 
-            if (num == 0)
+            if (num == gamePlayModel.MyTeamIndex)
             {
                 StartBatter();
             }
@@ -250,6 +269,14 @@ public class GamePlayManager : GameManager
                 value = 0;
                 Inning++;
             }
+            else
+            {
+                //투수인 경우
+                if (!gamePlayModel.IsMyTeamBatting())
+                {
+                    NextBatter();
+                }
+            }
             gamePlayModel.OutCount = value;
 
             gamePlayController.SetUIGameStatusIndex(2, value);
@@ -270,7 +297,7 @@ public class GamePlayManager : GameManager
                 DeleteRunner();
                 AddOut();
                 //batter
-                if (Inning % 2 == 0) //어쩔 수 없다. 
+                if (gamePlayModel.IsMyTeamBatting())
                 {
                     StartCoroutine(TranslateBattingView());
                 }
@@ -403,6 +430,11 @@ public class GamePlayManager : GameManager
     #endregion
 
     #region GAMEPLAY
+    
+    
+    /// <summary>
+    /// 매 이닝 초기화될 때마다 실행되는 함수
+    /// </summary>
     private void InitInning()
     {
         OutCount = 0;
@@ -411,6 +443,25 @@ public class GamePlayManager : GameManager
         //Strike = 0;
         
         ClearRunners();
+
+        Color defend_color;
+        
+        //타자
+        if (gamePlayModel.IsMyTeamBatting())
+        {
+            defend_color = _yourTeamColor;
+        }
+        else //수비
+        {
+            defend_color = _myTeamColor;
+        }
+
+        //red
+        //for defenders
+        for (int i = 0; i < defenders.Length; i++)
+        {
+            defenders[i].SetShirtColor(defend_color);
+        }
     }
 
     //backToPitcherEvent => 이거 던질 곳 없거나 안타치는 순간 겹친다 그냥
@@ -424,14 +475,14 @@ public class GamePlayManager : GameManager
         DebugBaseStatus();
         
         //batting mode
-        if (gamePlayModel.GetTeamIndex() % 2 == 0)
+        if (gamePlayModel.IsMyTeamBatting())
         {
             waitPitcherCoroutine = StartCoroutine(WaitingBackToPitcher());
         }
         //이게 그러니까 pitchermode
         else
         {
-            NextBatter(); //currentBatter에 어차피 들어감
+            //NextBatter(); //currentBatter에 어차피 들어감
             pitchingController.ResetBall();
         }
     }
@@ -487,6 +538,19 @@ public class GamePlayManager : GameManager
     {
         _ball.OnTouchBall();
     }
+
+    private void SetMyBodyCamera()
+    {
+        //debug
+        if (playerOrigin.gameObject.activeSelf)
+        {
+            myBody.SetCamera(playerOrigin.Camera);
+        }
+        else
+        {
+            _setBodyEvent.RaiseEvent(myBody);
+        }
+    }
     
     #endregion
     
@@ -503,6 +567,14 @@ public class GamePlayManager : GameManager
             batter.OutPlayer(true);
         }
         
+        //debug로 Inning을 넘길 시 AI타자가 돌아다니는 버그
+        //만약 current가 AI인 경우
+        //ㄴ 원래는 !=로 해야하지만 inning이 바뀐 후라 !를 안 썼다.
+        if (currentBatter && gamePlayModel.IsMyTeamBatting())
+        {
+            currentBatter.OutPlayer();
+            currentBatter = null;
+        }
         gamePlayModel.ClearRunner();
     }
 
@@ -519,7 +591,7 @@ public class GamePlayManager : GameManager
         //주자들 달리는 신호
         MoveBase();
         
-        if (gamePlayModel.Inning % 2 == 0)
+        if (gamePlayModel.IsMyTeamBatting())
         {
             //DebugMoveBase(1);
             
@@ -576,6 +648,17 @@ public class GamePlayManager : GameManager
         batter.SetBases(bases);
         batter.SetBall(_ball);
         batter.SetBat(_bat);
+        
+        //0 == 0, 타자모드
+        if (gamePlayModel.IsMyTeamBatting())
+        {
+            batter.SetShirtColor(_myTeamColor);
+        }
+        else
+        {
+            batter.SetShirtColor(_yourTeamColor);
+        }
+        
 
         gamePlayModel.SaveBeforeStatus();
         if (isAI)
@@ -628,10 +711,15 @@ public class GamePlayManager : GameManager
         currentBatter.IsMove = false;
         gamePlayModel.FoulRollbackBeforeStatus(); //정보만 바뀜
         
-        StartCoroutine(TranslateBattingView());
+        if(gamePlayModel.IsMyTeamBatting())
+            StartCoroutine(TranslateBattingView());
+        else //AI타자가 파울이면?
+        {
+            
+        }
 
         //내가 타자라면 그냥 페이드아웃
-         if (gamePlayModel.Inning % 2 == 0)
+         if (gamePlayModel.IsMyTeamBatting())
          {
              canBackRunner = true;
              return;
@@ -654,7 +742,7 @@ public class GamePlayManager : GameManager
         
         
         //타자모드
-        // if (Inning % 2 == 0)
+        // if ()
         // {
         //     // 굳이? 이미 전에 current에 넣지 않았나?
         //     currentBatter = myBody;
@@ -749,7 +837,7 @@ public class GamePlayManager : GameManager
 
         //방망이 위치 Vector3(-0.660000026,1.37,0.150000006) 여기로
         //방망이 중력, rotation position 얼리기
-        NextBatter();
+        //NextBatter();
         
         StartCoroutine(TranslatePitchingView());
     }
@@ -947,7 +1035,10 @@ public class GamePlayManager : GameManager
         }
         if (Input.GetKeyDown(KeyCode.Z))
         {
-            DebugHitting();
+            if (gamePlayModel.IsMyTeamBatting())
+                DebugHitting();
+            else
+                DebugThrowBall();
         }
         if (Input.GetKeyDown(KeyCode.X))
         {
@@ -955,7 +1046,6 @@ public class GamePlayManager : GameManager
         }
         if (Input.GetKeyDown(KeyCode.C))
         {
-            DebugHitting(true);
             //스윙해라
             //currentBatter.Swing();
             //MoveOneBase();
@@ -986,7 +1076,7 @@ public class GamePlayManager : GameManager
         //공을 던지면 isPassing, isThrown
 
         float x = Random.Range(-1.0f, 0f);
-        float y = 2.0f;
+        float y = 0.5f;
         float z = Random.Range(-1.0f, 0f);
 
         if (isFoul)
@@ -1004,7 +1094,7 @@ public class GamePlayManager : GameManager
         _ball.IsThrown = true;
         //_ball.IsPassing = true;
         _ball.SetPosition(batterPosition.position + new Vector3(0, 2.0f, 0));
-        _ball.SetVelocity(new Vector3(x, y, z) * 10f);
+        _ball.SetVelocity(new Vector3(x, y, z) * 15f);
         //10 : 내야 땅볼?
         //20 : 뜬 공
         
@@ -1024,6 +1114,11 @@ public class GamePlayManager : GameManager
         //속력 추가
         
         //만약 파울이면? => isPass와 isThrown 제거되는 듯 => 이거는 그냥 볼 필요는 없다.
+    }
+
+    private void DebugThrowBall()
+    {
+        _ball.DebugThrowPlayerBall();
     }
     
     //베이스 이동 디버그

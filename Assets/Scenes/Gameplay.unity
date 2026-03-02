@@ -607,6 +607,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3aff389ca2ee2974b834cdd2e5bba4dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  shirt: {fileID: 109569373}
   _ball: {fileID: 683532152}
   defenderTransform: {fileID: 586998194}
   flyingOutEvent: {fileID: 11400000, guid: 67986d2f382121b4fae3d9df7e5e2ea8, type: 2}
@@ -614,6 +615,11 @@ MonoBehaviour:
   isInPosition: 0
   base_index: 2
   outRunnerEvent: {fileID: 11400000, guid: a7e00550afa182d4594b424474b58e00, type: 2}
+--- !u!1 &109569373 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2209532862828005672, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
+  m_PrefabInstance: {fileID: 109569369}
+  m_PrefabAsset: {fileID: 0}
 --- !u!195 &109569374
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -1306,11 +1312,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6257573e08951ed4f94055e0a7fe303f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  shirt: {fileID: 333428799}
   _ball: {fileID: 683532152}
   defenderTransform: {fileID: 297649370}
   flyingOutEvent: {fileID: 11400000, guid: 67986d2f382121b4fae3d9df7e5e2ea8, type: 2}
   isTracking: 0
   isInPosition: 0
+--- !u!1 &333428799 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2209532862828005672, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
+  m_PrefabInstance: {fileID: 333428795}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &424196231
 GameObject:
   m_ObjectHideFlags: 0
@@ -2957,11 +2969,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6257573e08951ed4f94055e0a7fe303f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  shirt: {fileID: 975816439}
   _ball: {fileID: 683532152}
   defenderTransform: {fileID: 1738157443}
   flyingOutEvent: {fileID: 11400000, guid: 67986d2f382121b4fae3d9df7e5e2ea8, type: 2}
   isTracking: 0
   isInPosition: 0
+--- !u!1 &975816439 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2209532862828005672, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
+  m_PrefabInstance: {fileID: 975816435}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1005487651 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6807072103778800797, guid: 8f79d571a0dfeb940aeb614b71be5418, type: 3}
@@ -3303,6 +3321,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 1628165483}
   - {fileID: 6447903539019368407}
   - {fileID: 877522168}
   - {fileID: 1101660929}
@@ -3511,6 +3530,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3aff389ca2ee2974b834cdd2e5bba4dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  shirt: {fileID: 1175599068}
   _ball: {fileID: 683532152}
   defenderTransform: {fileID: 1804565763}
   flyingOutEvent: {fileID: 11400000, guid: 67986d2f382121b4fae3d9df7e5e2ea8, type: 2}
@@ -3518,6 +3538,11 @@ MonoBehaviour:
   isInPosition: 0
   base_index: 1
   outRunnerEvent: {fileID: 11400000, guid: a7e00550afa182d4594b424474b58e00, type: 2}
+--- !u!1 &1175599068 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2209532862828005672, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
+  m_PrefabInstance: {fileID: 1175599064}
+  m_PrefabAsset: {fileID: 0}
 --- !u!195 &1175599069
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -3600,6 +3625,8 @@ MonoBehaviour:
   sceneEventSO: {fileID: 11400000, guid: 1614b16f3ac165a4095e5f466b87b7b6, type: 2}
   playAudioClipEvent: {fileID: 11400000, guid: d945dac53f32b4d47a9561b9d8dac9a6, type: 2}
   playerOrigin: {fileID: 1388435485}
+  _myTeamColor: {r: 0, g: 0, b: 1, a: 1}
+  _yourTeamColor: {r: 1, g: 0, b: 0, a: 1}
   defenders:
   - {fileID: 1036175184}
   - {fileID: 1175599067}
@@ -3615,7 +3642,7 @@ MonoBehaviour:
   - {fileID: 267951508}
   - {fileID: 48931140}
   - {fileID: 1232322307}
-  myBody: {fileID: 1858171876}
+  myBody: {fileID: 1628165484}
   gamePlayController: {fileID: 213368713}
   pitchingController: {fileID: 768156389}
   battingController: {fileID: 1480665834}
@@ -3638,6 +3665,7 @@ MonoBehaviour:
   runSignalEvent: {fileID: 11400000, guid: 2f8b5c598135ebb49bd8c25de9d4678c, type: 2}
   changedBaseStatus: {fileID: 11400000, guid: b3af6067612009f4dbbf61eda38651c3, type: 2}
   fadeEvent: {fileID: 11400000, guid: 0d08df4830bb8854bbdf510cf6cc0ff9, type: 2}
+  _setBodyEvent: {fileID: 11400000, guid: efdb9d88f29b9064f889395a44c84e24, type: 2}
   canBackRunner: 0
 --- !u!4 &1232322307 stripped
 Transform:
@@ -4098,11 +4126,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6257573e08951ed4f94055e0a7fe303f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  shirt: {fileID: 1314148800}
   _ball: {fileID: 683532152}
   defenderTransform: {fileID: 1668231837}
   flyingOutEvent: {fileID: 11400000, guid: 67986d2f382121b4fae3d9df7e5e2ea8, type: 2}
   isTracking: 0
   isInPosition: 0
+--- !u!1 &1314148800 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2209532862828005672, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
+  m_PrefabInstance: {fileID: 1314148796}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1316585717
 GameObject:
   m_ObjectHideFlags: 0
@@ -4914,6 +4948,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3aff389ca2ee2974b834cdd2e5bba4dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  shirt: {fileID: 1531484985}
   _ball: {fileID: 683532152}
   defenderTransform: {fileID: 1677501137}
   flyingOutEvent: {fileID: 11400000, guid: 67986d2f382121b4fae3d9df7e5e2ea8, type: 2}
@@ -4921,6 +4956,11 @@ MonoBehaviour:
   isInPosition: 0
   base_index: 3
   outRunnerEvent: {fileID: 11400000, guid: a7e00550afa182d4594b424474b58e00, type: 2}
+--- !u!1 &1531484985 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2209532862828005672, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
+  m_PrefabInstance: {fileID: 1531484981}
+  m_PrefabAsset: {fileID: 0}
 --- !u!195 &1531484986
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -5184,6 +5224,111 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 100}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 1, y: 0}
+--- !u!1001 &1628165482
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1128552219}
+    m_Modifications:
+    - target: {fileID: 2861320298622336290, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.34
+      objectReference: {fileID: 0}
+    - target: {fileID: 2861320298622336290, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -1.23
+      objectReference: {fileID: 0}
+    - target: {fileID: 2861320298622336290, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 9.41
+      objectReference: {fileID: 0}
+    - target: {fileID: 2861320298622336290, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2861320298622336290, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2861320298622336290, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2861320298622336290, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2861320298622336290, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2861320298622336290, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2861320298622336290, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4849292425542578483, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+      propertyPath: m_Name
+      value: Body
+      objectReference: {fileID: 0}
+    - target: {fileID: 6741284933134794247, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+      propertyPath: bat
+      value: 
+      objectReference: {fileID: 877522169}
+    - target: {fileID: 6741284933134794247, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+      propertyPath: addScore
+      value: 
+      objectReference: {fileID: 11400000, guid: 07585d6d7215d0b47a54c479469de714, type: 2}
+    - target: {fileID: 6741284933134794247, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+      propertyPath: strikeEvent
+      value: 
+      objectReference: {fileID: 11400000, guid: 7980c5f1d20201f48891aba9f1727e76, type: 2}
+    - target: {fileID: 6741284933134794247, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+      propertyPath: prefabBatter
+      value: 
+      objectReference: {fileID: 1628165484}
+    - target: {fileID: 6741284933134794247, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+      propertyPath: addIsBaseStatus
+      value: 
+      objectReference: {fileID: 11400000, guid: 6c8aee89795cc5b4f92d38e717d670d4, type: 2}
+    - target: {fileID: 6741284933134794247, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+      propertyPath: moveBatterEvent
+      value: 
+      objectReference: {fileID: 11400000, guid: 644b4fb87f31a0849bd836854a502538, type: 2}
+    - target: {fileID: 6741284933134794247, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+      propertyPath: startPitchEvent
+      value: 
+      objectReference: {fileID: 11400000, guid: de4dabee6d962db4baf9d9791302d080, type: 2}
+    - target: {fileID: 6741284933134794247, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+      propertyPath: changedBaseStatus
+      value: 
+      objectReference: {fileID: 11400000, guid: b3af6067612009f4dbbf61eda38651c3, type: 2}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+--- !u!4 &1628165483 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2861320298622336290, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+  m_PrefabInstance: {fileID: 1628165482}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1628165484 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6741284933134794247, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+  m_PrefabInstance: {fileID: 1628165482}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 95b35e83d6501e64695adfb147c11608, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &1668231837 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2619920387513892549, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
@@ -5309,17 +5454,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1826829916}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &1858171876 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7541965686890698588, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
-  m_PrefabInstance: {fileID: 1301521303}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 95b35e83d6501e64695adfb147c11608, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1921521685
 GameObject:
   m_ObjectHideFlags: 0
@@ -5952,6 +6086,14 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 2453113651512955334, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.959
+      objectReference: {fileID: 0}
+    - target: {fileID: 2453113651512955334, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.959
+      objectReference: {fileID: 0}
     - target: {fileID: 2461758088991780835, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
       propertyPath: m_Enabled
       value: 0
@@ -6333,11 +6475,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6257573e08951ed4f94055e0a7fe303f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  shirt: {fileID: 2065011098}
   _ball: {fileID: 683532152}
   defenderTransform: {fileID: 1079193998}
   flyingOutEvent: {fileID: 11400000, guid: 67986d2f382121b4fae3d9df7e5e2ea8, type: 2}
   isTracking: 0
   isInPosition: 0
+--- !u!1 &2065011098 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2209532862828005672, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
+  m_PrefabInstance: {fileID: 2065011094}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2112712307
 GameObject:
   m_ObjectHideFlags: 0

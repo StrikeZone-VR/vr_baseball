@@ -8,16 +8,20 @@ using UnityEngine;
 public class MyBody : Batter
 {
     [SerializeField] private Camera _camera;
-    [SerializeField] private Batter prefabBatter;
-    [SerializeField] private Transform _parent;
 
     //GamePlayManager's onCanBackBatterEvent
     [SerializeField] private VoidEventSO moveBatterEvent;
     private bool isOut = false;
+
+    public void SetCamera(Camera camera)
+    {
+        _camera = camera;
+    }
     
     void Update()
     {
-        transform.position = _camera.transform.position + new Vector3(0, -1.23f, 0);
+        if(_camera)
+            transform.position = _camera.transform.position + new Vector3(0, -1.23f, 0);
     }
 
     private void OnTriggerEnter(Collider other)

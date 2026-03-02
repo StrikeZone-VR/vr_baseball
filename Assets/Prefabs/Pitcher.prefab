@@ -1084,6 +1084,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 253178376e4fd574aa4d68a3cbe0d9e6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  shirt: {fileID: 2209532862828005672}
   _ball: {fileID: 0}
   defenderTransform: {fileID: 7574430193138191903}
   flyingOutEvent: {fileID: 0}
