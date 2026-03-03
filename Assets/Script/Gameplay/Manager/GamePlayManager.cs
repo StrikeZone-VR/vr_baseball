@@ -648,7 +648,7 @@ public class GamePlayManager : GameManager
         batter.SetBases(bases);
         batter.SetBall(_ball);
         batter.SetBat(_bat);
-        
+
         //0 == 0, 타자모드
         if (gamePlayModel.IsMyTeamBatting())
         {
@@ -661,17 +661,22 @@ public class GamePlayManager : GameManager
         
 
         gamePlayModel.SaveBeforeStatus();
-        if (isAI)
-        {
-            //베트 자리로 이동
-            batter.MovePlayer(batterPosition.position);
-            currentBatter = batter;
-        }
         
         batter.BaseIndex = base_index;
         batter.IsMove = false;
 
         _ball.OffTouchBall(); //.?
+
+        // IsMove뒤에 둔 이유 : IsMove에 StopMove이 있음
+        if (isAI) //AI 타석 
+        {
+            //create 석으로 이동?
+            batter.transform.position = batterCreatePosition.position;
+
+            //베트 자리로 이동
+            batter.MovePlayer(batterPosition.position);
+            currentBatter = batter;
+        }
 
         
         //runners[0].transform.rotation = Quaternion.LookRotation(bases[2].position);
@@ -684,10 +689,22 @@ public class GamePlayManager : GameManager
     {
         //transview 뭐시기
         //주자라면 mybody를 먼저 대체하고 해야하나
-        gamePlayModel.AddRunner(NextBatter());
-        gamePlayModel.MoveBaseRunner();
-        
-        
+
+        if(gamePlayModel.IsMyTeamBatting())
+        {
+            //그냥 AI를 생성해서 저쪽에 넣는다.
+            gamePlayModel.AddRunner(NextBatter());
+            gamePlayModel.MoveBaseRunner();
+        }
+        else
+        {
+            gamePlayModel.AddRunner(currentBatter);
+            gamePlayModel.MoveBaseRunner();
+            currentBatter = NextBatter();
+        }
+
+
+
         //그냥 Batter MoveBase같은 함수 쓰면 되지 않을까?
         //MoveBase();
         //일단 신호 줘야할듯 => 던지지 말라고?
@@ -1058,7 +1075,7 @@ public class GamePlayManager : GameManager
         if (Input.GetKeyDown(KeyCode.B))
         {
             //gamePlayModel.DebugBeforeStatus();
-            gamePlayModel.DebugBaseStatus(isFlyingOut);
+            gamePlayModel.DebugPrintBaseStatus();
             //Debug.Log(gamePlayModel.GetRunnerCount());
         }
 

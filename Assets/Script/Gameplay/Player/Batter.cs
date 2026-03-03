@@ -102,6 +102,12 @@ public class Batter : Player
         Destroy(this.gameObject);
     }
 
+    public override void MovePlayer(Vector3 pos)
+    {
+        base.MovePlayer(pos);
+        Debug.Log(pos);
+    }
+
     #region PROPERTYS
     public virtual bool IsMove
     {

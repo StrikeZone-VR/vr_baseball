@@ -571,7 +571,7 @@ public class Baseball : MonoBehaviour
     {
         if (IsThrown) return;
         
-        _rigidbody.transform.position += Vector3.up * 2.0f;
+        //_rigidbody.transform.position += Vector3.up * 2.0f;
         IsStrike = false;
         isBatTouch = false;
         IsZone = false;
@@ -585,7 +585,7 @@ public class Baseball : MonoBehaviour
         Vector3 targetPosition = strikeZone.GetZone(4).position;
         Vector3 targetVector = (targetPosition - _rigidbody.transform.position);
         
-        float velocity = 100.0f;
+        float velocity = 60.0f / 3.6f; 
         float dis = targetVector.magnitude;
         // **정확한 직선 투구 - 스트라이크존 (0, 0.605, -14.06) 조준**
         Vector3 direction = targetVector.normalized;
@@ -597,10 +597,12 @@ public class Baseball : MonoBehaviour
         
         //time - bat.RotationTime / 2)
         float ac = Mathf.Abs(Physics.gravity.y) * time / 2;
+
         
-        _rigidbody.velocity = ( direction) * velocity + new Vector3(0, ac, 0) * ball_accuracy_weight;
+        _rigidbody.velocity = ( direction) * velocity + new Vector3(0, ac * 2, 0);
         //_rigidbody.velocity = (ball_accuracy_weight * direction)
             //* velocity + new Vector3(0, ac, 0) * ball_accuracy_weight;
+        //Debug.Log("_rigidbody.velocity : " + _rigidbody.velocity);
 
         playAudioClipEvent.RaiseEvent(0);
         

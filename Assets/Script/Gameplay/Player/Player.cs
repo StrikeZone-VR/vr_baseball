@@ -38,7 +38,7 @@ public class Player : MonoBehaviour
     /// <summary>
     /// nav의 SetDestination은 여기서만 발동시키게 하자 
     /// </summary>
-    public void MovePlayer(Vector3 pos)
+    public virtual void MovePlayer(Vector3 pos)
     {
         nav.SetDestination(pos);
         LookAtPlayer(pos);
@@ -46,10 +46,24 @@ public class Player : MonoBehaviour
     
     protected void StopMove()
     {
-        if (!nav && nav.isActiveAndEnabled && nav.isOnNavMesh)
+        Debug.Log("벌써 멈춰?");
+        if (nav && nav.isActiveAndEnabled && nav.isOnNavMesh)
         {
             nav.ResetPath();
         }
+        if (!nav)
+        {
+            Debug.Log("nav is null");
+        }
+        if (!nav.isActiveAndEnabled)
+        {
+            Debug.Log("isActiveAndEnabled is null");
+        }
+        if (!nav.isOnNavMesh)
+        {
+            Debug.Log("isOnNavMesh is null");
+        }
+
     }
 
     public void SetShirtColor(Color teamColor)
