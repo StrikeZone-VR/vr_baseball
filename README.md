@@ -26,7 +26,14 @@ VR 컨트롤러 기반 야구 시뮬레이션 게임입니다.
 
 
 ### 투수
-<img width="1920" height="936" alt="StrikeZone VR Test1 1-4 screenshot" src="https://github.com/user-attachments/assets/0e1eb183-8819-484a-8124-4015f0de891a" />
+<img width="1920" height="936" alt="StrikeZone VR Test1 1-4 screenshot" src="https://github.com/user-attachments/assets/0e1eb183-8819-484a-8124-4015f0de891a" /><br>
+
+![bandicam 2026-01-05 00-29-14-325 (1)](https://github.com/user-attachments/assets/ba506b70-37ba-4156-a176-8fa42a2e1112)<br>
+- 기본 투구 <br>
+
+![bandicam 2026-01-05 00-29-14-325](https://github.com/user-attachments/assets/47c6d653-cee9-46fc-843a-c2b8506b25cf)<br>
+- 가중치 추가한 버전<br>
+
 
 
 ### 타자
