@@ -5,6 +5,7 @@ VR 컨트롤러 기반 야구 시뮬레이션 게임입니다.
 <img width="320" height="180" alt="image" src="https://github.com/user-attachments/assets/65e2b988-e8d3-455f-ba4c-1b6c49c360da" /><br>
 [유튜브 링크](https://youtu.be/OSQ_ilQuzXA?si=yBa4ve-0OWmFHTI8)<br>
 [1.3 버전 - 타자시점](https://youtu.be/xZLIFKc64FI)
+[1.4 버전 - 투수시점](https://youtu.be/RwI4wwKEAyw)
 
 
 ![KakaoTalk_20250926_101553358](https://github.com/user-attachments/assets/3f574b02-7ca5-47e5-a029-1ac3980ef263)
