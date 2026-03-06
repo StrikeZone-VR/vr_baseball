@@ -30,9 +30,18 @@ VR 컨트롤러 기반 야구 시뮬레이션 게임입니다.
 
 
 ### 타자
-
 ![bandicam 2025-11-14 14-04-26-322](https://github.com/user-attachments/assets/c843d020-e9be-4904-9b7b-d8df1b67220b)
 - 타격
+
+![bandicam 2025-12-24 22-04-35-245](https://github.com/user-attachments/assets/119d3df8-a414-411b-9f38-a48cb139c3d4)
+- 직구
+
+![bandicam 2025-12-24 22-11-19-358](https://github.com/user-attachments/assets/36571b80-12b0-46dc-89c9-7caa7fe25e4c)
+- 커브
+
+
+
+
 
 <img width="905" height="398" alt="image" src="https://github.com/user-attachments/assets/9875f4a7-16ac-4562-8afb-0a47ed262a90" /><br>
 - 구속 설정 UI
