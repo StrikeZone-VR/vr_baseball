@@ -256,8 +256,6 @@ public class GamePlayModel : GameModel
     {
         _teamStatus[GetTeamIndex()].Score = before_score;
 
-        //Debug.Log("주자의 갯수 : " + runners.Count);
-        //그리고 주자는 하나 없어야 함. => 즉, run signal 보내기 전으로 되돌려야 함 
         //그리고 주자 맨 뒤는 제거. 혹시 모르니 if문으로 사이즈 오버되면 null처리
         for (int i = 0; i < before_runners.Count; i++)
         {

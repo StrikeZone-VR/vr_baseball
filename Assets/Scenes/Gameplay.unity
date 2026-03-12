@@ -2616,6 +2616,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1128552219}
     m_Modifications:
+    - target: {fileID: 3571394563336093665, guid: 7619a4777f860bd4ca3f693affa29280, type: 3}
+      propertyPath: m_UseDynamicAttach
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3571394563336093665, guid: 7619a4777f860bd4ca3f693affa29280, type: 3}
+      propertyPath: m_InteractionLayers.m_Bits
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 3846376468458867424, guid: 7619a4777f860bd4ca3f693affa29280, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -2658,15 +2666,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5328149003557680495, guid: 7619a4777f860bd4ca3f693affa29280, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.697
+      value: 0.441
       objectReference: {fileID: 0}
     - target: {fileID: 5328149003557680495, guid: 7619a4777f860bd4ca3f693affa29280, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.179
+      value: 0.799
       objectReference: {fileID: 0}
     - target: {fileID: 5328149003557680495, guid: 7619a4777f860bd4ca3f693affa29280, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.309
+      value: -0.486
       objectReference: {fileID: 0}
     - target: {fileID: 5328149003557680495, guid: 7619a4777f860bd4ca3f693affa29280, type: 3}
       propertyPath: m_LocalRotation.w
@@ -3801,6 +3809,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 122084618895949332, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 146340753648116383, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2469831201248504813, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
       propertyPath: m_Height
       value: 2
@@ -3944,6 +3960,22 @@ PrefabInstance:
     - target: {fileID: 9014170783728641054, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
       propertyPath: m_LocalPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9032954039820430273, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
+      propertyPath: m_UseForceGrab
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9032954039820430273, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
+      propertyPath: m_InteractionLayers.m_Bits
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 9146015503685400394, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
+      propertyPath: m_UseForceGrab
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9146015503685400394, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
+      propertyPath: m_InteractionLayers.m_Bits
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 9168142743249570444, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
       propertyPath: m_MoveSpeed
@@ -5275,6 +5307,10 @@ PrefabInstance:
     - target: {fileID: 4849292425542578483, guid: 94dea2237579799438c711b8f54134c9, type: 3}
       propertyPath: m_Name
       value: Body
+      objectReference: {fileID: 0}
+    - target: {fileID: 5701718066291952335, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6741284933134794247, guid: 94dea2237579799438c711b8f54134c9, type: 3}
       propertyPath: bat
@@ -6662,6 +6698,22 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1128552219}
     m_Modifications:
+    - target: {fileID: 4046299293835020439, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
+      propertyPath: m_UseDynamicAttach
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4046299293835020439, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
+      propertyPath: m_MatchAttachRotation
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4046299293835020439, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
+      propertyPath: m_SnapToColliderVolume
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4046299293835020439, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
+      propertyPath: m_ReinitializeDynamicAttachEverySingleGrab
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
       propertyPath: bat
       value: 

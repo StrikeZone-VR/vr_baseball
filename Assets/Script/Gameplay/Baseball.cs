@@ -101,7 +101,7 @@ public class Baseball : MonoBehaviour
         //커브
         if (_rigidbody != null)
         {
-            //스트라이크 판정
+            //너무 빨라서 스트라이크존을 지나친 경우의 판정
             float dis = _rigidbody.velocity.magnitude * Time.deltaTime;
             Ray ray = new Ray(this.transform.position, _rigidbody.velocity);
 
@@ -242,7 +242,7 @@ public class Baseball : MonoBehaviour
     {
         if (other.collider.CompareTag("Bat"))
         {
-            Debug.Log("히토! 공 속도 :" + transform.GetComponent<Rigidbody>().velocity);
+            Debug.Log("hit! 공 속도 :" + _rigidbody.velocity);
         }
 
     }
@@ -793,7 +793,6 @@ public class Baseball : MonoBehaviour
 
             p = nextP;
         }
-        
     }
 
     void DrawDashedSegment(Vector3 a, Vector3 b, float dashLen, float stepLen)

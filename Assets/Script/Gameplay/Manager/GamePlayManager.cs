@@ -211,7 +211,6 @@ public class GamePlayManager : GameManager
     // 플라잉 아웃되면 되돌아 가는 기능 
     public void ReverseMoveBase()
     {
-        //todo 점수가 차이가 있다면 Create생성
         int n = gamePlayModel.GetScore() - gamePlayModel.BeforeScore;
         for (int i = 0; i < n; i++)
         {
@@ -703,8 +702,6 @@ public class GamePlayManager : GameManager
             currentBatter = NextBatter();
         }
 
-
-
         //그냥 Batter MoveBase같은 함수 쓰면 되지 않을까?
         //MoveBase();
         //일단 신호 줘야할듯 => 던지지 말라고?
@@ -732,7 +729,7 @@ public class GamePlayManager : GameManager
             StartCoroutine(TranslateBattingView());
         else //AI타자가 파울이면?
         {
-            
+            //todo
         }
 
         //내가 타자라면 그냥 페이드아웃
