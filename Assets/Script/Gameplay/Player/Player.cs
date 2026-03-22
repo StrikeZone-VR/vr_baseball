@@ -46,7 +46,6 @@ public class Player : MonoBehaviour
     
     protected void StopMove()
     {
-        Debug.Log("벌써 멈춰?");
         if (nav && nav.isActiveAndEnabled && nav.isOnNavMesh)
         {
             nav.ResetPath();

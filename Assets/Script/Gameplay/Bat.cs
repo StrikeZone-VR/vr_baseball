@@ -3,11 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
+using Random = UnityEngine.Random;
 
 public class Bat : MonoBehaviour
 {
     [SerializeField] private Transform topBatPos;
     [SerializeField] private Transform axis;
+    [SerializeField] private StrikeZone _strikeZone;
     private Vector3 startPos = Vector3.zero;
 
     private FarNearGrab _farNearGrab;
@@ -15,10 +17,11 @@ public class Bat : MonoBehaviour
     private float currentSwingSpeed;
     private bool isSwing = false;
 
-    const float rotationTime = 0.125f; //0.25
+    public float ROTATION_TIME = 0.125f; //0.25
     const float AXIS_DISTANCE = 0.5f;
     float elapsed = 0f;
-    
+
+    private float axisRotation = 0f;
     float startBatAngle = -45f;
     float totalOrbitAngle = -270f; // 공전 각도 (원하는 값으로) //270
 
@@ -30,17 +33,13 @@ public class Bat : MonoBehaviour
         _farNearGrab = GetComponent<FarNearGrab>();
     }
 
-    void Update()
+    
+    void FixedUpdate()
     {
         //todo : 바꾸자
-
         float dis = Vector3.Distance(topBatPos.position, startPos);
         currentSwingSpeed = dis / Time.deltaTime;
-        // Debug.Log(IsSwing());
-        // if (currentSwingSpeed >= 0.01f)
-        // {
-        //     Debug.Log(currentSwingSpeed+ " distance :" + dis);
-        // }
+
         startPos = topBatPos.position;
     }
 
@@ -52,6 +51,11 @@ public class Bat : MonoBehaviour
         {
             isSwing = true;
         }
+
+        // if (other.CompareTag("BallZone") || other.CompareTag("StrikeZone"))
+        // {
+        //     Debug.Log("너의 위치는 " + transform.position);
+        // }
     }
 
     private void OnTriggerExit(Collider other)
@@ -68,7 +72,6 @@ public class Bat : MonoBehaviour
     }
     public float GetSwingSpeed()
     {
-        //Debug.Log("속력" + GetComponent<Rigidbody>().velocity);        
         
         return currentSwingSpeed;
     }
@@ -102,6 +105,7 @@ public class Bat : MonoBehaviour
     }
     IEnumerator Swing()
     {
+        bool debugCheck = true;
         Quaternion start_rotation;
         Quaternion current_rotation;
         Quaternion end_rotation;
@@ -143,13 +147,20 @@ public class Bat : MonoBehaviour
         transform.localRotation = start_rotation;  //rotation
         //Quaternion end = Quaternion.AngleAxis(180f, axis.transform.up) * start; 
 
-        while (elapsed < rotationTime)
+        while (elapsed < ROTATION_TIME)
         {
             elapsed += Time.deltaTime;
-            float progress = elapsed / rotationTime;
+            float progress = elapsed / ROTATION_TIME;
             
             ////각도만 추가하자
             float batAngle = startBatAngle + totalOrbitAngle * progress;
+
+            if (progress >= 0.5f && debugCheck)
+            {
+                debugCheck = false;
+                Debug.Log("스윙 함수 (스윙이 빠르다.) : " + Time.time);
+                Debug.Break();
+            }
             
             //Debug.Log("hit time : (" +Time.time + ") : " + batAngle);
             // if (-190f <= batAngle && batAngle <= -170f)
@@ -179,6 +190,49 @@ public class Bat : MonoBehaviour
 
     public float RotationTime
     {
-        get => rotationTime;
+        get => ROTATION_TIME;
+    }
+
+
+    public void MoveAxis(float angle)
+    {
+        axis.transform.localRotation = Quaternion.Euler(axis.transform.localRotation.x, axis.transform.localRotation.y, angle);
+        
+        Vector3 start_pos;
+        Quaternion start_rotation;
+        
+        Vector3 xWorld = axis.transform.TransformDirection(Vector3.right);
+        Vector3 zWorld = axis.transform.TransformDirection(Vector3.forward);
+        Vector3 orbitYAxis = axis.transform.up; // axis의 로컬 Y축을 월드로 
+
+        start_rotation = Quaternion.AngleAxis(startBatAngle, orbitYAxis);
+        Vector3 orbitZAxis = axis.transform.forward;
+
+        start_pos = axis.transform.position 
+                    + xWorld * (Mathf.Cos(startBatAngle * Mathf.Deg2Rad) * AXIS_DISTANCE)
+                    + zWorld * (-Mathf.Sin(startBatAngle * Mathf.Deg2Rad) * AXIS_DISTANCE);
+        
+        transform.position = start_pos;
+        
+        //z축 기준으로 90도
+        Quaternion zRotateQuaternion = Quaternion.AngleAxis(axis.localEulerAngles.z -90f, orbitZAxis);
+        start_rotation *= zRotateQuaternion;
+        transform.localRotation = start_rotation;  //rotation
+    }
+    
+    //**핵심 함수**
+    public void MoveAxis(Vector3 targetPosition)
+    {
+        float x = Vector3.Distance(axis.transform.position, new Vector3(targetPosition.x, axis.transform.position.y, targetPosition.z));
+        float y = axis.transform.position.y - targetPosition.y; //음수 반대로 해야 원하는 대로 나옴
+        
+        // 1. 라디안(Radian) 값으로 각도 구하기 (주의: y가 먼저 들어갑니다!)
+        float radian = Mathf.Atan2(y, x); 
+
+        // 2. 우리가 흔히 아는 360도(Degree) 체계로 변환하기
+        float angle = radian * Mathf.Rad2Deg;
+        Debug.Log("x : " + x + ", y : " + y +  ",각도 : " + angle);
+        MoveAxis(angle);
+        //기울기만큼 angle 수정
     }
 }

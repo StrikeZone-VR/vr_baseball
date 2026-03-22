@@ -29,7 +29,8 @@ public class Baseball : MonoBehaviour
     [SerializeField] private bool isStrike = false;
     [SerializeField] private bool isThrown = false;
     [SerializeField] private bool isBack = false;
-    
+    private bool hasPassedStrikeZone = true;
+
     
     [Space]
     //from GameManager
@@ -142,7 +143,8 @@ public class Baseball : MonoBehaviour
         {
             IsZone = true;
             IsStrike = true;
-            //Debug.Log("스트라이크 : " + IsStrike);
+            Debug.Log("공 도착 (스윙이 느리다.) : " + Time.time);
+            Debug.Break();
             //addStrikeEvent.RaiseEvent();
         }
         //Debug.Log("건드린 물체 : " + collider.gameObject.name + " - " + collider.gameObject.tag);
@@ -378,6 +380,12 @@ public class Baseball : MonoBehaviour
         }
     }
 
+    public bool HasPassedStrikeZone
+    {
+        get => hasPassedStrikeZone;
+        set => hasPassedStrikeZone = value;
+    }
+
     public void SetVelocity(Vector3 velocity)
     {
         if (_rigidbody != null)
@@ -533,6 +541,7 @@ public class Baseball : MonoBehaviour
         isBatTouch = false;
         IsZone = false;
         IsThrown = true;
+        hasPassedStrikeZone = false;
         //IsPassing = true;
 
         pitchEvent.RaiseEvent();
@@ -576,6 +585,7 @@ public class Baseball : MonoBehaviour
         isBatTouch = false;
         IsZone = false;
         IsThrown = true;
+        HasPassedStrikeZone = false;
         //IsPassing = true;
 
         pitchEvent.RaiseEvent();
@@ -599,7 +609,7 @@ public class Baseball : MonoBehaviour
         float ac = Mathf.Abs(Physics.gravity.y) * time / 2;
 
         
-        _rigidbody.velocity = ( direction) * velocity + new Vector3(0, ac * 2, 0);
+        _rigidbody.velocity = ( direction) * velocity + new Vector3(0, ac, 0);
         //_rigidbody.velocity = (ball_accuracy_weight * direction)
             //* velocity + new Vector3(0, ac, 0) * ball_accuracy_weight;
         //Debug.Log("_rigidbody.velocity : " + _rigidbody.velocity);
@@ -748,8 +758,9 @@ public class Baseball : MonoBehaviour
     }
     void CalTrajectory(bool isDebug = false)
     {
-        float dashLength = 0.3f; // 그려지는 짧은 선 길이
-        float gapLength  = 0.2f; // 대시 사이 공백
+        Vector3 predictedStrikePos;
+        float dashLength = 0.1f; // 그려지는 짧은 선 길이
+        float gapLength  = 0.1f; // 대시 사이 공백
         
         int steps = 160;
         float dt = 0.05f;
@@ -782,13 +793,29 @@ public class Baseball : MonoBehaviour
             if(isDebug)
                 DrawDashedSegment(p, nextP, dashLength, stepLen);
 
-            // 물체 충돌 => 원형
-            if (Physics.Linecast(p, nextP, out var hit))
+            // 수정된 완벽한 충돌 감지 로직
+            if (Physics.Linecast(p, nextP, out var hit, -1, QueryTriggerInteraction.Collide))
             {
-                if(isDebug) 
-                    Gizmos.DrawWireSphere(hit.point, 0.2f);
-                _targetPosition = hit.point;
-                break;
+                // 1. 만약 부딪힌 게 Trigger(스트라이크 존 등)라면?
+                if (hit.collider.isTrigger && (hit.collider.CompareTag("BallZone") || hit.collider.CompareTag("StrikeZone")))
+                {
+                    // 존을 관통하는 위치만 쓱 기록하고 break는 하지 않음! (궤적 통과)
+                    if (!hasPassedStrikeZone) 
+                    {
+                        predictedStrikePos = hit.point; // 관통한 정확한 좌표
+                        hasPassedStrikeZone = true;
+                        bat.MoveAxis(predictedStrikePos);
+                    }
+                }
+                // 2. 만약 부딪힌 게 진짜 물리적인 벽이나 땅이라면?
+                else if(!hit.collider.isTrigger)
+                {
+                    if(isDebug) 
+                        Gizmos.DrawWireSphere(hit.point, 0.2f);
+            
+                    _targetPosition = hit.point; // 최종 도착 지점 기록
+                    break; // 여기서 궤적 그리기 종료
+                }
             }
 
             p = nextP;

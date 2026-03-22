@@ -82,6 +82,7 @@ public class Pitcher : Defender
     public void PitchingBall()
     {
         _ball.IsThrown = true;
+        _ball.HasPassedStrikeZone = false;
         _ball.IsBatTouch = false;
         
         //random value 0 ~ 24

@@ -1060,6 +1060,7 @@ public class GamePlayManager : GameManager
         }
         if (Input.GetKeyDown(KeyCode.C))
         {
+            DebugSwing();
             //스윙해라
             //currentBatter.Swing();
             //MoveOneBase();
@@ -1132,13 +1133,14 @@ public class GamePlayManager : GameManager
 
     private void DebugThrowBall()
     {
+        PitcherGetBall();
         _ball.DebugThrowPlayerBall();
     }
     
     //베이스 이동 디버그
     void DebugMoveBase(int index)
     {
-        //RunRunner();
+        RunRunner();
         MovePlayer(bases[index].position + new Vector3(0, 1.0f, 0));
     }
 

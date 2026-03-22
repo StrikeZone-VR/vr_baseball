@@ -105,7 +105,7 @@ public class Batter : Player
     public override void MovePlayer(Vector3 pos)
     {
         base.MovePlayer(pos);
-        Debug.Log(pos);
+        //Debug.Log(pos);
     }
 
     #region PROPERTYS
