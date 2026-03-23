@@ -588,6 +588,7 @@ public class GamePlayManager : GameManager
         
         //타자모드
         //주자들 달리는 신호
+        
         MoveBase();
         
         if (gamePlayModel.IsMyTeamBatting())
@@ -622,7 +623,9 @@ public class GamePlayManager : GameManager
 
         currentBatter.SetBases(bases);
 
-        currentBatter.transform.position = bases[3].position;
+        Debug.LogWarning("주석을 해야할지도 아닐지도? : 일단 함");
+        //currentBatter.transform.position = bases[3].position;
+        
         currentBatter.BaseIndex = 0;
         currentBatter.IsMove = true;
     }

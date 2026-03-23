@@ -188,7 +188,7 @@ public class Defender : Player
         //flying out
          if (isBatTouch && !isGroundball)
          {
-             Debug.Log("[Batting] : flying out");
+             Debug.Log("[Batting] : 플라잉 아웃");
              _myBall.IsGroundBall = true; //어차피 플라잉 아웃 한번 잡으면 돌아가야함
              
              flyingOutEvent.RaiseEvent();

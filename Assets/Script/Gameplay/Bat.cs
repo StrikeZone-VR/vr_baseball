@@ -100,8 +100,9 @@ public class Bat : MonoBehaviour
         // 
 
         isSwing = true;
+        
+        //Debug.LogWarning("Swing. 그러나 임시로 막아둠");
         StartCoroutine(Swing());
-        //StartCoroutine(RotateWithCurveSwing(start, new Vector3(-65, -135, -120)));
     }
     IEnumerator Swing()
     {
@@ -158,8 +159,8 @@ public class Bat : MonoBehaviour
             if (progress >= 0.5f && debugCheck)
             {
                 debugCheck = false;
-                Debug.Log("스윙 함수 (스윙이 빠르다.) : " + Time.time);
-                Debug.Break();
+                Debug.Log("스윙 중간 : ");
+                //Debug.Break();
             }
             
             //Debug.Log("hit time : (" +Time.time + ") : " + batAngle);
@@ -196,7 +197,11 @@ public class Bat : MonoBehaviour
 
     public void MoveAxis(float angle)
     {
-        axis.transform.localRotation = Quaternion.Euler(axis.transform.localRotation.x, axis.transform.localRotation.y, angle);
+        axis.transform.localEulerAngles = new Vector3(
+            axis.transform.localEulerAngles.x, 
+            axis.transform.localEulerAngles.y, 
+            angle
+        );
         
         Vector3 start_pos;
         Quaternion start_rotation;

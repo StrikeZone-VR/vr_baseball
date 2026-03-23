@@ -80,6 +80,8 @@ public class Baseball : MonoBehaviour
     // 속도 추적
     const float targetSpeed = 8.0f; // 8.0 => 25? , 32 => 140
     private float beforeTime = 0f;
+    private float debugShootTime;
+    private float debugShootTime2;
 
     #region EventFunction
 
@@ -143,8 +145,10 @@ public class Baseball : MonoBehaviour
         {
             IsZone = true;
             IsStrike = true;
-            Debug.Log("공 도착 (스윙이 느리다.) : " + Time.time);
-            Debug.Break();
+            debugShootTime2 = Time.time - debugShootTime2;
+
+            Debug.Log("시간 차이(양수면 실제 시간이 오래 걸린겨) : " + (debugShootTime2 - debugShootTime));
+            //Debug.Break();
             //addStrikeEvent.RaiseEvent();
         }
         //Debug.Log("건드린 물체 : " + collider.gameObject.name + " - " + collider.gameObject.tag);
@@ -206,7 +210,11 @@ public class Baseball : MonoBehaviour
             if (IsBatTouch)
             {
                 return;
-            }
+            };
+            debugShootTime2 = Time.time - debugShootTime2;
+
+            Debug.Log("시간 차이(양수면 실제 시간이 오래 걸린겨) : " + (debugShootTime2 - debugShootTime));
+            //Debug.Break();
             
             playAudioClipEvent.RaiseEvent(1); //hit
             
@@ -228,10 +236,10 @@ public class Baseball : MonoBehaviour
                 //배트 터치
                 float speed = bat.GetSwingSpeed();
                 bat.Vibrate();
-                
 
+                Debug.LogWarning("[Bat] : 가중치는 4배에서 2배로 줄임");
                 //가중치 4배 * speed * 4f
-                this._rigidbody.AddForce(hitDirection * speed * 4, ForceMode.Impulse);
+                this._rigidbody.AddForce(hitDirection * speed * 2, ForceMode.Impulse);
                 this._rigidbody.useGravity = true;
             }
 
@@ -592,6 +600,7 @@ public class Baseball : MonoBehaviour
 
         //int index = Random.Range(0, 25);
         
+        //정면
         Vector3 targetPosition = strikeZone.GetZone(4).position;
         Vector3 targetVector = (targetPosition - _rigidbody.transform.position);
         
@@ -602,6 +611,11 @@ public class Baseball : MonoBehaviour
 
         float time = dis / velocity;
         //Debug.Log("time + time한 후에는 스트라이크가 (" + Time.time+ ") : "+ time);
+        
+        //Debug.Log("예측한 시간대 : " + (time - bat.RotationTime / 2 ));
+        debugShootTime = time - bat.RotationTime / 2f;
+        //0.08
+        debugShootTime2 = Time.time;
         if(bat)
             StartCoroutine(StartSwingAfter(time - bat.RotationTime / 2));
         
@@ -741,8 +755,10 @@ public class Baseball : MonoBehaviour
     
     IEnumerator StartSwingAfter(float delay)
     {
+        
         //Debug.Log("시간 (음수면 안된다): " + delay); //3.3
         yield return new WaitForSeconds(delay);
+        
         //Debug.Log("cal hit time (" + Time.time+ ") : "+ delay);
         bat.StartSwing();
     }
