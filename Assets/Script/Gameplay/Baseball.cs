@@ -13,7 +13,7 @@ public class Baseball : MonoBehaviour
     //public float ballRadius = 0.037f; // m
     //public float airDensity = 1.225f; // kg/m³
 
-    [SerializeField] private Defender myDefender; //handling player
+    [FormerlySerializedAs("myDefender")] [SerializeField] private DefenderComponent myDefenderComponent; //handling player
     private Rigidbody _rigidbody;
     private XRGrabInteractable grabInteractable;
 
@@ -188,7 +188,7 @@ public class Baseball : MonoBehaviour
     {
         if (collision.collider.CompareTag("Ground") || collision.collider.CompareTag("Base"))
         {
-            if (myDefender == null)
+            if (myDefenderComponent == null)
             {
                 PitchResult();
                 
@@ -337,13 +337,13 @@ public class Baseball : MonoBehaviour
             
     }
 
-    public Defender MyDefender
+    public DefenderComponent MyDefenderComponent
     {
-        get => myDefender;
+        get => myDefenderComponent;
         set
         {
-            myDefender = value;
-            if (myDefender)
+            myDefenderComponent = value;
+            if (myDefenderComponent)
             {
                 DefenderDis = 0;
                 IsPassing = false;
@@ -361,13 +361,13 @@ public class Baseball : MonoBehaviour
     ///공식 제거 함수
     public void RemoveDefender()
     {
-        if (!myDefender)
+        if (!myDefenderComponent)
         {
             return;
         }
 
-        myDefender.RemoveBall();
-        myDefender = null;
+        myDefenderComponent.RemoveBall();
+        myDefenderComponent = null;
     }
 
     public bool IsZone
@@ -668,14 +668,7 @@ public class Baseball : MonoBehaviour
         //볼을 맞춘 경우
         if (IsBatTouch)
         {
-            //흐음
-            if (this.transform.position.x > -0.5f || this.transform.position.z > -0.5f)
-            {
-                Debug.Log("파울");
-                foulEvent.RaiseEvent();
-            }
-            //in play
-            else if (!isGroundBall) //groundball or flying ball
+            if (!isGroundBall) //groundball or flying ball
             {
                 Debug.Log("[Batting] : 안타");
                 inplayGameEvent.RaiseEvent();

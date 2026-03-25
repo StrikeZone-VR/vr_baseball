@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Serialization;
 
 public class BatterComponent : PlayerComponent
@@ -20,10 +21,8 @@ public class BatterComponent : PlayerComponent
     [SerializeField] protected IntEventSO addIsBaseStatus; //From GameManager
     [SerializeField] protected VoidEventSO changedBaseStatus;
 
-    //debug serializeField
     [SerializeField] protected bool isMove = false;
-    //private bool isInBase = false;
-    
+
     public void SetBat(Bat bat)
     {
         this.bat = bat;
@@ -37,7 +36,7 @@ public class BatterComponent : PlayerComponent
     //호출하고 싶다면 ismove에서
     private void MoveBase()
     {
-        MovePlayer(bases[base_index].position);
+        player.MovePlayer(bases[base_index].position);
     }
 
     private void OnTriggerEnter(Collider collision)
@@ -47,7 +46,7 @@ public class BatterComponent : PlayerComponent
             if(IsIntoBase(collision))
             {
                 //수비수와 공 거리가 10f 이하면 가지마라
-                if (_ball.DefenderDis <= 10.0f)
+                if (player.GetBallDistance() <= 10.0f)
                 {
                     IsMove = false; //일단 움직임을 멈춰야 debug에 찍힘
                 }
@@ -88,22 +87,21 @@ public class BatterComponent : PlayerComponent
     //타석 대기
     protected virtual void ReadyBatting()
     {
-        StopMove();
+        player.StopMove();
         startPitchEvent.RaiseEvent();
-        LookAtPlayer(new Vector3(-1, 0, -1));
+        player.LookAtPlayer(new Vector3(-1, 0, -1));
     }
 
     public virtual void OutPlayer(bool isMove = true)
     {
-        StopMove();
+        player.StopMove();
         Destroy(this.gameObject);
     }
 
-    public override void MovePlayer(Vector3 pos)
-    {
-        base.MovePlayer(pos);
-        //Debug.Log(pos);
-    }
+    // public override void MovePlayer(Vector3 pos)
+    // {
+    //     player.MovePlayer(pos);
+    // }
 
     #region PROPERTYS
     public virtual bool IsMove
@@ -118,7 +116,7 @@ public class BatterComponent : PlayerComponent
             }
             else
             {
-                StopMove();
+                player.StopMove();
             }
             changedBaseStatus.RaiseEvent(); 
         }

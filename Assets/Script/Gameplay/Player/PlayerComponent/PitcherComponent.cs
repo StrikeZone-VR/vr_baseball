@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-public class Pitcher : Defender
+public class PitcherComponent : DefenderComponent
 {
     private const float ADDFORCE = 20.0f;
     private Coroutine coroutine;
@@ -81,9 +81,9 @@ public class Pitcher : Defender
     //AI 공 던지는 함수
     public void PitchingBall()
     {
-        _ball.IsThrown = true;
-        _ball.HasPassedStrikeZone = false;
-        _ball.IsBatTouch = false;
+        _myBall.IsThrown = true;
+        _myBall.HasPassedStrikeZone = false;
+        _myBall.IsBatTouch = false;
         
         //random value 0 ~ 24
         int index = Random.Range(0, 25);
@@ -99,24 +99,24 @@ public class Pitcher : Defender
         
         if (pitchTypeIndex <= 2)
         {
-            _ball.SelectPitchType = PitchType.Curve;
+            _myBall.SelectPitchType = PitchType.Curve;
             Debug.Log("커브");
         }
         else
         {
-            _ball.SelectPitchType = PitchType.FastBall;
+            _myBall.SelectPitchType = PitchType.FastBall;
             Debug.Log("직구");
         }
         
-        if(_ball.SelectPitchType == PitchType.FastBall)
-            velocity = CalculateSimpleVelocity(_ball.transform.position, SZTransform.position, velocityXZ);
-        //else if(_ball.SelectPitchType == PitchType.Curve)
+        if(_myBall.SelectPitchType == PitchType.FastBall)
+            velocity = CalculateSimpleVelocity(_myBall.transform.position, SZTransform.position, velocityXZ);
+        //else if(_myBall.SelectPitchType == PitchType.Curve)
         else
-            velocity = CalculateCurveVelocity(_ball.transform.position, SZTransform.position, velocityXZ);
+            velocity = CalculateCurveVelocity(_myBall.transform.position, SZTransform.position, velocityXZ);
 
         //Debug.Log("속력 : " + velocity.magnitude * 3.6f);
 
-        _ball.ThrowBall(velocity);
+        _myBall.ThrowBall(velocity);
     }
 
     public Vector3 CalculateVelocity(Vector3 start, Vector3 target, float velocity_xy)
@@ -157,7 +157,7 @@ public class Pitcher : Defender
     private Vector3 CalculateCurveVelocity(Vector3 start, Vector3 target, float velocityXZ)
     {
         velocityXZ /= 3.6f; //시속 평준화
-        float g = Mathf.Abs(Physics.gravity.y) + (velocityXZ / 100 * _ball.MAGNUS); // 9.81 (양수)
+        float g = Mathf.Abs(Physics.gravity.y) + (velocityXZ / 100 * _myBall.MAGNUS); // 9.81 (양수)
         Vector3 dis = target - start;
 
         float mytime = dis.magnitude / velocityXZ;

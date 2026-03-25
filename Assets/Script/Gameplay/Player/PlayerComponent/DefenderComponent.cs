@@ -6,8 +6,10 @@ using UnityEngine.Serialization;
 using UnityEngine.UIElements;
 
 //수비수
-public class Defender : PlayerComponent
+public class DefenderComponent : PlayerComponent
 {
+    protected Baseball _myBall = null;
+
     [SerializeField] protected Transform defenderTransform;
 
     [SerializeField] protected VoidEventSO flyingOutEvent; //gameplayManager
@@ -41,10 +43,9 @@ public class Defender : PlayerComponent
         //Vector3.Distance(transform.position, defenderTransform.position);
     }
 
-    protected override void LookAtPlayer(Vector3 targetPosition)
+    protected void LookAtPlayer(Vector3 targetPosition)
     {
-        base.LookAtPlayer(targetPosition);
-        
+        player.LookAtPlayer(targetPosition);
         FrontBall();
     }
     
@@ -59,14 +60,14 @@ public class Defender : PlayerComponent
         //    계속 투수가 따라가서 enter 조건이 안 생겨서 SetBall을 설정할 수 없다.
         //    ㄴ 근데 또 그러면 던졌는데 받았다 기술로 이상한 아웃이 생길 수 있음
         //       ㄴ 어차피 디버깅 안타 함수도 오류 해결해서 Stay 함수 제거함.
-        if (collision.gameObject.CompareTag("Ball") && _ball.MyDefender == null)
+        if (collision.gameObject.CompareTag("Ball") && player.GetBallDefender() == null)
         {
             //owner ball
             SetMyBall(collision.gameObject.GetComponent<Baseball>());
             Baseball baseball = _myBall;
             
             collision.rigidbody.velocity = Vector3.zero;
-            baseball.MyDefender = this;
+            baseball.MyDefenderComponent = this;
             isTracking = false;
             
             OutRunner();
@@ -122,8 +123,9 @@ public class Defender : PlayerComponent
         //cal dis
         //_ball.ThrowBall(dir * dis);
         
-        _ball.IsPassing = true;
-        _ball.ThrowBall(launchVelocity);
+        //ball을 myball로 바꿈
+        _myBall.IsPassing = true;
+        _myBall.ThrowBall(launchVelocity);
     }
     
     public Vector3 CalculateLaunchVelocity(Vector3 start, Vector3 target, float angleDeg)
@@ -168,7 +170,7 @@ public class Defender : PlayerComponent
     {
         myBall.RemoveDefender();
         _myBall = myBall;
-        _myBall.MyDefender = this;
+        _myBall.MyDefenderComponent = this;
         FrontBall();
         //IsTracking = false; => 어차피 MyDefender에서 모든 주자가 false임
 
@@ -212,13 +214,10 @@ public class Defender : PlayerComponent
             //     Debug.Log("ShortStop : " + isTracking);
             // }
             
-            if (!nav)
-            {
-                return;
-            }
-
+            //분명 movePlayer에 !nav를 했는데...
+            
             //공 패스중이면 그냥 대기해라
-            if (_ball.IsPassing)
+            if (player.IsPassingBall())
             {
                 isTracking = false;
             }
@@ -228,16 +227,16 @@ public class Defender : PlayerComponent
                 //long base dis => go to the base
                 if (IsInPosition)
                 {
-                    StopMove();
+                    player.StopMove();
                 }
                 else
                 {
-                    MovePlayer(defenderTransform.position);
+                    player.MovePlayer(defenderTransform.position);
                 }
             }
-            else //istracking 
+            else //istracking. 공 줍는 기능
             {
-                MovePlayer(_ball.GetTargetPosition());
+                player.MovePlayer(player.GetBallTargetPosition());
             }
             
         }

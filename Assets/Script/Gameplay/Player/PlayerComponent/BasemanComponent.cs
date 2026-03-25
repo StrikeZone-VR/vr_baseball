@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Baseman : Defender
+public class BasemanComponent : DefenderComponent
 {
     [SerializeField] private int base_index; //1 2 3 4
     [SerializeField] private IntEventSO outRunnerEvent;

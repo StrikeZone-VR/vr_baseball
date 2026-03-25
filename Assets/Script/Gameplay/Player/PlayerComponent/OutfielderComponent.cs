@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.PlayerLoop;
 
-public class Outfielder : Defender
+public class OutfielderComponent : DefenderComponent
 {
     protected override void Update()
     {

@@ -3702,10 +3702,10 @@ MonoBehaviour:
   gamePlayController: {fileID: 213368713}
   pitchingController: {fileID: 768156389}
   battingController: {fileID: 1480665834}
-  batterPrefab: {fileID: -2223903063539352654, guid: 022e049949df0ed47a134ea64e62c95d, type: 3}
+  batterComponentPrefab: {fileID: -2223903063539352654, guid: 022e049949df0ed47a134ea64e62c95d, type: 3}
   batterCreatePosition: {fileID: 438403318}
   batterPosition: {fileID: 331307944}
-  currentBatter: {fileID: 0}
+  currentBatterComponent: {fileID: 0}
   _bat: {fileID: 877522169}
   _axis: {fileID: 1101660928}
   _baseStatusPanel: {fileID: 839898539}

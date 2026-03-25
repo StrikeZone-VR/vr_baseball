@@ -6,10 +6,10 @@ using UnityEngine.XR.Interaction.Toolkit;
 
 
 //body
-public class MyBody : BatterComponent
+public class MyBody : Player
 {
-    //투수면서 타자지만 투수의 기능으로는 던지기 기능밖에 없으나 그 던지기마저 컨트롤러가 제어할 수 있어서 Batter만 상속받았다
     [Header("연결할 오브젝트")]
+    [SerializeField] private PlayerComponent subComponent;
     [SerializeField] private XRBaseInteractor handInteractor; // 직접 잡는 손 (XR Direct Interactor right)
     [SerializeField] private Camera _camera;
 
@@ -147,7 +147,7 @@ public class MyBody : BatterComponent
     // 1루 2루 3루 홈
     public void ThrowBase(int index)
     {
-        if (!_ball.MyDefender)
+        if (!_ball.MyDefenderComponent)
         {
             return;
         }

@@ -1,10 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-public class Catcher : Baseman
+public class CatcherComponent : BasemanComponent
 {
-    [SerializeField] private Pitcher pitcher;
+    [FormerlySerializedAs("pitcher")] [SerializeField] private PitcherComponent pitcherComponent;
     [SerializeField] private Transform[] defenderTransforms; //2
 
     [SerializeField] private int defendIndex = 0;
@@ -22,13 +23,13 @@ public class Catcher : Baseman
     
     IEnumerator WaitThrowToPitcher()
     {
-        LookAtPlayer(pitcher.transform.position);
+        LookAtPlayer(pitcherComponent.transform.position);
         
         yield return new WaitForSeconds(4.0f);
         
         //batterMode
-        if (pitcher.gameObject.activeSelf)
-            ThrowBall(pitcher.transform.position);
+        if (pitcherComponent.gameObject.activeSelf)
+            ThrowBall(pitcherComponent.transform.position);
     }
 
     
