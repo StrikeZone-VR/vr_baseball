@@ -11,7 +11,7 @@ public class GamePlayModel : GameModel
     private int out_count = 0;
 
     //베이스에 있는 주자들 : List로 해도 하도 주자가 적어서 동적으로 지워도 된다
-    private List<Batter> runners = new List<Batter>();
+    private List<BatterComponent> runners = new List<BatterComponent>();
     private List<int> before_runners = new List<int>(); //타입을 int만 해도 될듯?
                                                         //홈에 들어온 사람 있다면 맨 앞에 주자 추가
                                                         //이후 모든 주자 for문으로 SetBase()와 BaseIndex = before값
@@ -78,21 +78,21 @@ public class GamePlayModel : GameModel
     }
 
     //[v] 내가 달릴때, [x] 원래는 주자가 달릴때 , [x] 바꿔치기 할때 
-    public void AddRunner(Batter batter)
+    public void AddRunner(BatterComponent batterComponent)
     {
-        runners.Add(batter);
+        runners.Add(batterComponent);
         DebugBaseStatus(false); //플라잉 아웃이 아닌게 확정이니까
     }
-    public Batter RemoveRunner(int base_index)
+    public BatterComponent RemoveRunner(int base_index)
     {
         Debug.Log("제거 : " + base_index);
         for (int i = 0; i < runners.Count; i++)
         {
             if (runners[i].BaseIndex == base_index)
             {
-                Batter batter = runners[i];
+                BatterComponent batterComponent = runners[i];
                 runners.RemoveAt(i);
-                return batter;
+                return batterComponent;
             }
         }
         Debug.LogError("제거할 runner가 없는뎁쇼?");
@@ -109,15 +109,15 @@ public class GamePlayModel : GameModel
         runners.RemoveAt(runners.Count - 1);
     }
     
-    public Batter GetRunner(int base_index)
+    public BatterComponent GetRunner(int base_index)
     {
         //거꾸로 찾아야지 맨 앞 주자의 정보를 가져올 수 있다.
         for (int i = 0; i < runners.Count; i++)
         {
             if (runners[i].BaseIndex == base_index)
             {
-                Batter batter = runners[i];
-                return batter;
+                BatterComponent batterComponent = runners[i];
+                return batterComponent;
             }
         }
         return null;
@@ -157,7 +157,7 @@ public class GamePlayModel : GameModel
         return true;
     }
     
-    public List<Batter> GetRunners()
+    public List<BatterComponent> GetRunners()
     {
         return runners;
     }
@@ -166,9 +166,9 @@ public class GamePlayModel : GameModel
         runners.Clear();
     }
 
-    public void InsertRunner(Batter batter)
+    public void InsertRunner(BatterComponent batterComponent)
     {
-        runners.Insert(0, batter);
+        runners.Insert(0, batterComponent);
     }
 
     //러너 측정
@@ -177,7 +177,7 @@ public class GamePlayModel : GameModel
         return runners.Count;
     }
 
-    public Batter GetLastRunner()
+    public BatterComponent GetLastRunner()
     {
         return runners[runners.Count - 1];
     }
@@ -213,14 +213,14 @@ public class GamePlayModel : GameModel
 
     #endregion
 
-    public void ReplaceLastRunner(Batter batter)
+    public void ReplaceLastRunner(BatterComponent batterComponent)
     {
         if (runners.Count == 0)
         {
             Debug.LogError("대체할 러너가 없엉");
             return;
         }
-        runners[runners.Count - 1] = batter;
+        runners[runners.Count - 1] = batterComponent;
     }
     
     public void MoveBaseRunner()

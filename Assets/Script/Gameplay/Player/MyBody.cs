@@ -2,11 +2,15 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit;
 
 
 //body
-public class MyBody : Batter
+public class MyBody : BatterComponent
 {
+    //투수면서 타자지만 투수의 기능으로는 던지기 기능밖에 없으나 그 던지기마저 컨트롤러가 제어할 수 있어서 Batter만 상속받았다
+    [Header("연결할 오브젝트")]
+    [SerializeField] private XRBaseInteractor handInteractor; // 직접 잡는 손 (XR Direct Interactor right)
     [SerializeField] private Camera _camera;
 
     //GamePlayManager's onCanBackBatterEvent
@@ -116,5 +120,37 @@ public class MyBody : Batter
     {
         get => isOut;
         set => isOut = value;
+    }
+
+    public void ForceGrab()
+    {
+        //_ball
+        // 1. 만약 손에 이미 다른 걸 들고 있다면? -> 먼저 강제로 놓게 만듭니다.
+        if (handInteractor.hasSelection)
+        {
+            // 구버전/신버전 호환성을 위해 인터랙터가 잡고 있는 첫 번째 물건을 놓게 함
+            List<IXRSelectInteractable> currentItems = handInteractor.interactablesSelected;
+
+            foreach (var item in currentItems)
+            {
+                handInteractor.interactionManager.SelectExit(handInteractor, item);
+            }
+        }
+
+        // 2. XR Interaction Manager를 통해 손과 공을 강제로 연결(SelectEnter) 시킵니다!
+        handInteractor.interactionManager.SelectEnter(handInteractor, _ball.GrabInteractable);
+        
+        Debug.Log("⚾ B버튼 클릭: 야구공을 강제로 잡았습니다!");
+    }
+
+    
+    // 1루 2루 3루 홈
+    public void ThrowBase(int index)
+    {
+        if (!_ball.MyDefender)
+        {
+            return;
+        }
+        //bases[index]
     }
 }

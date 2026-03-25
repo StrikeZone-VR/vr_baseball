@@ -6,7 +6,7 @@ using UnityEngine.Serialization;
 using UnityEngine.UIElements;
 
 //수비수
-public class Defender : Player
+public class Defender : PlayerComponent
 {
     [SerializeField] protected Transform defenderTransform;
 
@@ -160,6 +160,10 @@ public class Defender : Player
         return launchVelocity;
     }
     
+    /// <summary>
+    /// 기본 잡기
+    /// </summary>
+    /// <param name="myBall"></param>
     public virtual void SetMyBall(Baseball myBall)
     {
         myBall.RemoveDefender();

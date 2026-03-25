@@ -4636,6 +4636,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1452048632}
   m_CullTransparentMesh: 1
+--- !u!114 &1468785869 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 9032954039820430273, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
+  m_PrefabInstance: {fileID: 1301521303}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6803edce0201f574f923fd9d10e5b30a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1480665832
 GameObject:
   m_ObjectHideFlags: 0
@@ -5401,6 +5412,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 877522169}
     - target: {fileID: 6741284933134794247, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+      propertyPath: _ball
+      value: 
+      objectReference: {fileID: 683532152}
+    - target: {fileID: 6741284933134794247, guid: 94dea2237579799438c711b8f54134c9, type: 3}
       propertyPath: addScore
       value: 
       objectReference: {fileID: 11400000, guid: 07585d6d7215d0b47a54c479469de714, type: 2}
@@ -5412,6 +5427,10 @@ PrefabInstance:
       propertyPath: prefabBatter
       value: 
       objectReference: {fileID: 1628165484}
+    - target: {fileID: 6741284933134794247, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+      propertyPath: handInteractor
+      value: 
+      objectReference: {fileID: 1468785869}
     - target: {fileID: 6741284933134794247, guid: 94dea2237579799438c711b8f54134c9, type: 3}
       propertyPath: addIsBaseStatus
       value: 

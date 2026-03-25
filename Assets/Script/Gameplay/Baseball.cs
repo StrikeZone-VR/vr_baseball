@@ -410,6 +410,11 @@ public class Baseball : MonoBehaviour
         }
     }
 
+    public XRGrabInteractable GrabInteractable
+    {
+        get => grabInteractable;
+    }
+    
     #endregion
     
     //구종

@@ -5,7 +5,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class Player : MonoBehaviour
+public class PlayerComponent : MonoBehaviour
 {
     protected Baseball _myBall = null;
     [SerializeField] private GameObject shirt;

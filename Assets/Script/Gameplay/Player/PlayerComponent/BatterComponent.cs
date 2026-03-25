@@ -5,10 +5,8 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-public class Batter : Player
+public class BatterComponent : PlayerComponent
 {
-    public AnimationCurve rotationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
-
     //[SerializeField] private Baseball _ball;
     [SerializeField] protected int base_index = 0; // 1 2 3 => 0은 1루 가기 전 상태
    
@@ -22,7 +20,6 @@ public class Batter : Player
     [SerializeField] protected IntEventSO addIsBaseStatus; //From GameManager
     [SerializeField] protected VoidEventSO changedBaseStatus;
 
-    
     //debug serializeField
     [SerializeField] protected bool isMove = false;
     //private bool isInBase = false;
@@ -179,6 +176,5 @@ public class Batter : Player
         
     }
 
-    
     #endregion
 }
