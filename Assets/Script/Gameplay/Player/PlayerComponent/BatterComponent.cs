@@ -23,22 +23,9 @@ public class BatterComponent : PlayerComponent
 
     [SerializeField] protected bool isMove = false;
 
-    public void SetBat(Bat bat)
+    private void Start()
     {
-        this.bat = bat;
     }
-
-    public void Swing()
-    {
-        bat.StartSwing();
-    }
-
-    //호출하고 싶다면 ismove에서
-    private void MoveBase()
-    {
-        player.MovePlayer(bases[base_index].position);
-    }
-
     private void OnTriggerEnter(Collider collision)
     {
         if (collision.gameObject.CompareTag("Base"))
@@ -62,8 +49,25 @@ public class BatterComponent : PlayerComponent
         }
     }
 
+
+    public void SetBat(Bat bat)
+    {
+        this.bat = bat;
+    }
+
+    public void Swing()
+    {
+        bat.StartSwing();
+    }
+
+    //호출하고 싶다면 ismove에서
+    private void MoveBase()
+    {
+        player.MovePlayer(bases[base_index].position);
+    }
+
     
-    protected bool IsIntoBase(Collider collision)
+    public bool IsIntoBase(Collider collision)
     {
         string s = collision.name;
         int a = Convert.ToInt32(s[s.Length - 1]);
@@ -122,6 +126,8 @@ public class BatterComponent : PlayerComponent
         }
     }
 
+    
+
     // want to go base index => baseindex를 먼저 설정하고 IsMove를 설정하자
     public virtual int BaseIndex
     {
@@ -153,13 +159,12 @@ public class BatterComponent : PlayerComponent
         }
     }
 
-
     public void SetBases(Transform[] bases)
     {
         this.bases = bases;
     }
 
-    public void SetBaseIndex(int baseIndex)
+    public void SetBaseIndexPosition(int baseIndex)
     {
         BaseIndex = baseIndex;
         IsMove = false;

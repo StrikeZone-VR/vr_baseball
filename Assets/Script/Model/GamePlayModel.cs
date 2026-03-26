@@ -227,7 +227,7 @@ public class GamePlayModel : GameModel
     {
         for (int i = 0; i < runners.Count; i++)
         {
-            runners[i].SetBaseIndex(runners[i].BaseIndex + 1);
+            runners[i].SetBaseIndexPosition(runners[i].BaseIndex + 1);
         }
     }
     
@@ -259,7 +259,7 @@ public class GamePlayModel : GameModel
         //그리고 주자 맨 뒤는 제거. 혹시 모르니 if문으로 사이즈 오버되면 null처리
         for (int i = 0; i < before_runners.Count; i++)
         {
-            runners[i].SetBaseIndex(before_runners[i]);
+            runners[i].SetBaseIndexPosition(before_runners[i]);
             runners[i].IsMove = false;
         }
     }

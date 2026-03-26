@@ -6,7 +6,7 @@ using UnityEngine.AI;
 
 public class Player : MonoBehaviour
 {
-    [SerializeField] private PlayerComponent _playerComponent;
+    [SerializeField] protected PlayerComponent _playerComponent;
     [SerializeField] private GameObject shirt;
     
     protected Baseball ball;
@@ -81,7 +81,21 @@ public class Player : MonoBehaviour
         // 5. 변경된 블록을 다시 렌더러에 덮어씌우기
         myRenderer.SetPropertyBlock(propBlock);
     }
+    public PlayerComponent GetPlayerComponent()
+    {
+        return _playerComponent;
+    }
 
+    public void SetBall(Baseball ball)
+    {
+        this.ball = ball;
+    }
+    
+    
+    
+    
+    
+    
     public float GetBallDistance()
     {
         return this.ball.DefenderDis;
@@ -102,14 +116,6 @@ public class Player : MonoBehaviour
         return ball.MyDefenderComponent;
     }
     
-    public void SetBall(Baseball ball)
-    {
-        this.ball = ball;
-    }
 
-    public PlayerComponent GetPlayerComponent()
-    {
-        return _playerComponent;
-    }
 
 }
