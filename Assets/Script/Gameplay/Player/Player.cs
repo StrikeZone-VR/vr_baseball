@@ -9,7 +9,7 @@ public class Player : MonoBehaviour
     [SerializeField] protected PlayerComponent _playerComponent;
     [SerializeField] private GameObject shirt;
     
-    protected Baseball ball;
+    [SerializeField] protected Baseball ball;
 
     protected NavMeshAgent nav;
 
@@ -89,6 +89,11 @@ public class Player : MonoBehaviour
     public void SetBall(Baseball ball)
     {
         this.ball = ball;
+    }
+
+    public Baseball GetBall()
+    {
+        return ball;
     }
     
     

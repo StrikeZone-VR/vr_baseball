@@ -13,6 +13,8 @@ GameObject:
   - component: {fileID: 5701718066291952335}
   - component: {fileID: 6213781704411799925}
   - component: {fileID: 6741284933134794247}
+  - component: {fileID: 4782834798684806325}
+  - component: {fileID: 6202057679712369912}
   m_Layer: 6
   m_Name: Body
   m_TagString: Untagged
@@ -120,41 +122,43 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95b35e83d6501e64695adfb147c11608, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _ball: {fileID: 0}
-  rotationCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
+  _playerComponent: {fileID: 4782834798684806325}
+  shirt: {fileID: 0}
+  subComponent: {fileID: 6202057679712369912}
+  handInteractor: {fileID: 0}
+  _camera: {fileID: 0}
+--- !u!114 &4782834798684806325
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4849292425542578483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba5dd1255addae74e8876a379bd976ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 6741284933134794247}
   base_index: 0
   bases: []
   bat: {fileID: 0}
-  startPitchEvent: {fileID: 0}
-  addScore: {fileID: 0}
-  strikeEvent: {fileID: 0}
-  addIsBaseStatus: {fileID: 0}
-  changedBaseStatus: {fileID: 0}
+  startPitchEvent: {fileID: 11400000, guid: de4dabee6d962db4baf9d9791302d080, type: 2}
+  addScore: {fileID: 11400000, guid: 07585d6d7215d0b47a54c479469de714, type: 2}
+  strikeEvent: {fileID: 11400000, guid: 7980c5f1d20201f48891aba9f1727e76, type: 2}
+  addIsBaseStatus: {fileID: 11400000, guid: 6c8aee89795cc5b4f92d38e717d670d4, type: 2}
+  changedBaseStatus: {fileID: 11400000, guid: b3af6067612009f4dbbf61eda38651c3, type: 2}
   isMove: 0
-  _camera: {fileID: 0}
-  prefabBatter: {fileID: 0}
-  _parent: {fileID: 0}
-  moveBatterEvent: {fileID: 11400000, guid: b3af6067612009f4dbbf61eda38651c3, type: 2}
+  moveBatterEvent: {fileID: 11400000, guid: 644b4fb87f31a0849bd836854a502538, type: 2}
+--- !u!114 &6202057679712369912
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4849292425542578483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f52e859be50fa4c44a120700a0731cb9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

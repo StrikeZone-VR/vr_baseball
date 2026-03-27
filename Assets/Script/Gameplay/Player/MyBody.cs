@@ -10,8 +10,7 @@ public class MyBody : Player
 {
     [Header("연결할 오브젝트")]
     //대체로 playerComponent가 batter 
-    [SerializeField] private PlayerComponent subComponent; //pitcher 
-    [SerializeField] private XRBaseInteractor handInteractor; // 직접 잡는 손 (XR Direct Interactor right)
+    [SerializeField] private MyPitcherComponent subComponent; //pitcher 
 
     [SerializeField] private Camera _camera;
 
@@ -68,40 +67,20 @@ public class MyBody : Player
     }
 
 
-    public void ForceGrab()
-    {
-        //_ball
-        // 1. 만약 손에 이미 다른 걸 들고 있다면? -> 먼저 강제로 놓게 만듭니다.
-        if (handInteractor.hasSelection)
-        {
-            // 구버전/신버전 호환성을 위해 인터랙터가 잡고 있는 첫 번째 물건을 놓게 함
-            List<IXRSelectInteractable> currentItems = handInteractor.interactablesSelected;
-
-            foreach (var item in currentItems)
-            {
-                handInteractor.interactionManager.SelectExit(handInteractor, item);
-            }
-        }
-
-        // 2. XR Interaction Manager를 통해 손과 공을 강제로 연결(SelectEnter) 시킵니다!
-        handInteractor.interactionManager.SelectEnter(handInteractor, ball.GrabInteractable);
-        
-        Debug.Log("⚾ B버튼 클릭: 야구공을 강제로 잡았습니다!");
-    }
-
     private bool IsIntoBase(Collider other)
     {
         BatterComponent batterComponent = _playerComponent as BatterComponent;
         return batterComponent.IsIntoBase(other);
     }
     
-    // 1루 2루 3루 홈
-    public void ThrowBase(int index)
+
+    public MyBatterComponent GetMyBatterComponent()
     {
-        if (!ball.MyDefenderComponent)
-        {
-            return;
-        }
-        //bases[index]
+        MyBatterComponent myBatterComponent = _playerComponent as MyBatterComponent;
+        return myBatterComponent;
+    }
+    public MyPitcherComponent GetMyPitcherComponent()
+    {
+        return subComponent;
     }
 }

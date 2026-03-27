@@ -1558,6 +1558,7 @@ GameObject:
   - component: {fileID: 6053805071186877739}
   - component: {fileID: 3857939841807323908}
   - component: {fileID: 4967905421558346264}
+  - component: {fileID: 6032102299411559402}
   m_Layer: 6
   m_Name: Catcher
   m_TagString: Untagged
@@ -1666,18 +1667,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5306da554498b56448f16fa366c57249, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shirt: {fileID: 406375836099836693}
-  _ball: {fileID: 0}
+  player: {fileID: 6032102299411559402}
   defenderTransform: {fileID: 0}
   flyingOutEvent: {fileID: 0}
   isTracking: 0
   isInPosition: 0
   base_index: 4
   outRunnerEvent: {fileID: 0}
-  pitcher: {fileID: 0}
+  pitcherComponent: {fileID: 0}
   defenderTransforms: []
   defendIndex: 0
   backToPitcherEvent: {fileID: 0}
+--- !u!114 &6032102299411559402
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8588130934949836792}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2b799cad2229014b9a5c632f71f4e22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _playerComponent: {fileID: 4967905421558346264}
+  shirt: {fileID: 406375836099836693}
 --- !u!1 &9112002543977327927
 GameObject:
   m_ObjectHideFlags: 0

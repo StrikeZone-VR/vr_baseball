@@ -23,9 +23,6 @@ public class BatterComponent : PlayerComponent
 
     [SerializeField] protected bool isMove = false;
 
-    private void Start()
-    {
-    }
     private void OnTriggerEnter(Collider collision)
     {
         if (collision.gameObject.CompareTag("Base"))

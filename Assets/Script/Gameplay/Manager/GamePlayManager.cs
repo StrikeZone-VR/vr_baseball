@@ -161,7 +161,7 @@ public class GamePlayManager : GameManager
                     canBackRunner = false;
                     
                     //안타
-                    if (!isFlyingOut && !myBody.IsOut)
+                    if (!isFlyingOut && !myBody.GetMyBatterComponent().IsOut)
                     {
                         TransformMyBodyToBatter();
                     }
@@ -497,8 +497,9 @@ public class GamePlayManager : GameManager
     {
         //StartCoroutine(BackPitching());
 
-        currentBatterComponent = myBody;
-        myBody.IsOut = false;
+        //배터
+        currentBatterComponent = myBody.GetMyBatterComponent();
+        myBody.GetMyBatterComponent().IsOut = false;
         
         //yield return new WaitForSeconds(WAIT_TIME);
         yield return null; //debug
@@ -806,7 +807,7 @@ public class GamePlayManager : GameManager
         RotatePlayer(rotateVector);
 
         fadeEvent.FadeIn(FADE_WAIT_TIME); //이동하고 나서
-        currentBatterComponent = myBody;
+        currentBatterComponent = myBody.GetMyBatterComponent();
         
     }
     
@@ -830,18 +831,18 @@ public class GamePlayManager : GameManager
         Debug.Log("몸 체인지");
         
         //만약 플라잉 아웃이든 뭐든 아웃됐다면 타자를 생성할 이유가 없음
-        if (myBody.BaseIndex == 0)
+        if (myBody.GetMyBatterComponent().BaseIndex == 0)
         {
             return;
         }
-        BatterComponent batterComponent = NextBatter(false, myBody.BaseIndex);
+        BatterComponent batterComponent = NextBatter(false, myBody.GetMyBatterComponent().BaseIndex);
 
         batterComponent.transform.position = myBody.transform.position;//프리펩 정보 이전
         
         gamePlayModel.ReplaceLastRunner(batterComponent);
         //ㄴ 이미 대체 됐으니까 Remove는 필요없음
         //gamePlayModel.RemoveRunner(myBody.BaseIndex);
-        myBody.BaseIndex = 0;
+        myBody.GetMyBatterComponent().BaseIndex = 0;
         
         //어차피 안타치면 runner는 생성된다?
     }
@@ -1043,6 +1044,19 @@ public class GamePlayManager : GameManager
 
     void DebugInput()
     {
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            myBody.GetMyPitcherComponent().ThrowBall(bases[0].position + new Vector3(0, 0.5f, 0));
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            myBody.GetMyPitcherComponent().ThrowBall(bases[1].position + new Vector3(0, 0.5f, 0));
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            myBody.GetMyPitcherComponent().ThrowBall(bases[2].position + new Vector3(0, 0.5f, 0));
+        }
+        //ThrowBase
         if (Input.GetKeyDown(KeyCode.C))
         {
             //MoveOneBase();        //batter run
@@ -1082,7 +1096,7 @@ public class GamePlayManager : GameManager
             if (!gamePlayModel.IsMyTeamBatting())
             {
                 //Player 투수 공 받기
-                myBody.ForceGrab();
+                myBody.GetMyPitcherComponent().ForceGrab();
             }
         }
 
@@ -1108,6 +1122,8 @@ public class GamePlayManager : GameManager
             x = 0.5f;
             z = 0.5f;
         }
+        x = -0.5f;
+        z = -0.5f;
         
         //Debug.Log("던지기 + " + x + ", " + z);
         //공 던지는 코루틴도 제거

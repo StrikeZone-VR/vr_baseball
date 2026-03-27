@@ -584,6 +584,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6807072103778800797, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
       insertIndex: -1
       addedObject: {fileID: 109569374}
+    - targetCorrespondingSourceObject: {fileID: 6807072103778800797, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 109569375}
   m_SourcePrefab: {fileID: 100100000, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
 --- !u!4 &109569370 stripped
 Transform:
@@ -607,8 +610,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3aff389ca2ee2974b834cdd2e5bba4dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shirt: {fileID: 109569373}
-  _ball: {fileID: 683532152}
+  player: {fileID: 109569375}
   defenderTransform: {fileID: 586998194}
   flyingOutEvent: {fileID: 11400000, guid: 67986d2f382121b4fae3d9df7e5e2ea8, type: 2}
   isTracking: 0
@@ -642,6 +644,21 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!114 &109569375
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 109569371}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2b799cad2229014b9a5c632f71f4e22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _playerComponent: {fileID: 109569372}
+  shirt: {fileID: 109569373}
+  ball: {fileID: 683532152}
 --- !u!1001 &157293153
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1289,6 +1306,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6807072103778800797, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
       insertIndex: -1
       addedObject: {fileID: 333428798}
+    - targetCorrespondingSourceObject: {fileID: 6807072103778800797, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 333428800}
   m_SourcePrefab: {fileID: 100100000, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
 --- !u!4 &333428796 stripped
 Transform:
@@ -1312,8 +1332,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6257573e08951ed4f94055e0a7fe303f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shirt: {fileID: 333428799}
-  _ball: {fileID: 683532152}
+  player: {fileID: 333428800}
   defenderTransform: {fileID: 297649370}
   flyingOutEvent: {fileID: 11400000, guid: 67986d2f382121b4fae3d9df7e5e2ea8, type: 2}
   isTracking: 0
@@ -1323,6 +1342,21 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 2209532862828005672, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
   m_PrefabInstance: {fileID: 333428795}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &333428800
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 333428797}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2b799cad2229014b9a5c632f71f4e22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _playerComponent: {fileID: 333428798}
+  shirt: {fileID: 333428799}
+  ball: {fileID: 683532152}
 --- !u!1 &424196231
 GameObject:
   m_ObjectHideFlags: 0
@@ -1507,17 +1541,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &574164948 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4967905421558346264, guid: 4c98c6ae2f898124bbd8ec166f02c936, type: 3}
-  m_PrefabInstance: {fileID: 5855348226929910678}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5306da554498b56448f16fa366c57249, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &577640461 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3678344045543860982, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
@@ -2010,10 +2033,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1368692398}
     m_Modifications:
+    - target: {fileID: 80578521422870307, guid: 8f79d571a0dfeb940aeb614b71be5418, type: 3}
+      propertyPath: ball
+      value: 
+      objectReference: {fileID: 683532152}
     - target: {fileID: 4403092210914809006, guid: 8f79d571a0dfeb940aeb614b71be5418, type: 3}
       propertyPath: _ball
       value: 
       objectReference: {fileID: 683532152}
+    - target: {fileID: 4403092210914809006, guid: 8f79d571a0dfeb940aeb614b71be5418, type: 3}
+      propertyPath: player
+      value: 
+      objectReference: {fileID: 698565506}
     - target: {fileID: 4403092210914809006, guid: 8f79d571a0dfeb940aeb614b71be5418, type: 3}
       propertyPath: strikeZone
       value: 
@@ -2098,6 +2129,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8547017398472936520, guid: 8f79d571a0dfeb940aeb614b71be5418, type: 3}
   m_PrefabInstance: {fileID: 698565504}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &698565506 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 80578521422870307, guid: 8f79d571a0dfeb940aeb614b71be5418, type: 3}
+  m_PrefabInstance: {fileID: 698565504}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1005487651}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2b799cad2229014b9a5c632f71f4e22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &761965507
 GameObject:
   m_ObjectHideFlags: 0
@@ -3002,6 +3044,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6807072103778800797, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
       insertIndex: -1
       addedObject: {fileID: 975816438}
+    - targetCorrespondingSourceObject: {fileID: 6807072103778800797, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 975816440}
   m_SourcePrefab: {fileID: 100100000, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
 --- !u!4 &975816436 stripped
 Transform:
@@ -3025,8 +3070,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6257573e08951ed4f94055e0a7fe303f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shirt: {fileID: 975816439}
-  _ball: {fileID: 683532152}
+  player: {fileID: 975816440}
   defenderTransform: {fileID: 1738157443}
   flyingOutEvent: {fileID: 11400000, guid: 67986d2f382121b4fae3d9df7e5e2ea8, type: 2}
   isTracking: 0
@@ -3036,6 +3080,21 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 2209532862828005672, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
   m_PrefabInstance: {fileID: 975816435}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &975816440
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 975816437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2b799cad2229014b9a5c632f71f4e22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _playerComponent: {fileID: 975816438}
+  shirt: {fileID: 975816439}
+  ball: {fileID: 683532152}
 --- !u!1 &1005487651 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6807072103778800797, guid: 8f79d571a0dfeb940aeb614b71be5418, type: 3}
@@ -3563,6 +3622,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6807072103778800797, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1175599069}
+    - targetCorrespondingSourceObject: {fileID: 6807072103778800797, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1175599070}
   m_SourcePrefab: {fileID: 100100000, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
 --- !u!4 &1175599065 stripped
 Transform:
@@ -3586,8 +3648,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3aff389ca2ee2974b834cdd2e5bba4dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shirt: {fileID: 1175599068}
-  _ball: {fileID: 683532152}
+  player: {fileID: 1175599070}
   defenderTransform: {fileID: 1804565763}
   flyingOutEvent: {fileID: 11400000, guid: 67986d2f382121b4fae3d9df7e5e2ea8, type: 2}
   isTracking: 0
@@ -3621,6 +3682,21 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!114 &1175599070
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1175599066}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2b799cad2229014b9a5c632f71f4e22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _playerComponent: {fileID: 1175599067}
+  shirt: {fileID: 1175599068}
+  ball: {fileID: 683532152}
 --- !u!1 &1208688574
 GameObject:
   m_ObjectHideFlags: 0
@@ -3684,15 +3760,15 @@ MonoBehaviour:
   _myTeamColor: {r: 0, g: 0, b: 1, a: 1}
   _yourTeamColor: {r: 1, g: 0, b: 0, a: 1}
   defenders:
-  - {fileID: 1036175184}
-  - {fileID: 1175599067}
-  - {fileID: 109569372}
-  - {fileID: 1531484984}
-  - {fileID: 574164948}
-  - {fileID: 333428798}
-  - {fileID: 975816438}
-  - {fileID: 2065011097}
-  - {fileID: 1314148799}
+  - {fileID: 698565506}
+  - {fileID: 1175599070}
+  - {fileID: 109569375}
+  - {fileID: 1531484987}
+  - {fileID: 5855348226929910679}
+  - {fileID: 333428800}
+  - {fileID: 975816440}
+  - {fileID: 2065011099}
+  - {fileID: 1314148801}
   bases:
   - {fileID: 577640461}
   - {fileID: 267951508}
@@ -3702,7 +3778,7 @@ MonoBehaviour:
   gamePlayController: {fileID: 213368713}
   pitchingController: {fileID: 768156389}
   battingController: {fileID: 1480665834}
-  batterComponentPrefab: {fileID: -2223903063539352654, guid: 022e049949df0ed47a134ea64e62c95d, type: 3}
+  batterPrefab: {fileID: 8153405311497075196, guid: 022e049949df0ed47a134ea64e62c95d, type: 3}
   batterCreatePosition: {fileID: 438403318}
   batterPosition: {fileID: 331307944}
   currentBatterComponent: {fileID: 0}
@@ -4219,6 +4295,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6807072103778800797, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1314148799}
+    - targetCorrespondingSourceObject: {fileID: 6807072103778800797, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1314148801}
   m_SourcePrefab: {fileID: 100100000, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
 --- !u!4 &1314148797 stripped
 Transform:
@@ -4242,8 +4321,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6257573e08951ed4f94055e0a7fe303f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shirt: {fileID: 1314148800}
-  _ball: {fileID: 683532152}
+  player: {fileID: 1314148801}
   defenderTransform: {fileID: 1668231837}
   flyingOutEvent: {fileID: 11400000, guid: 67986d2f382121b4fae3d9df7e5e2ea8, type: 2}
   isTracking: 0
@@ -4253,6 +4331,21 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 2209532862828005672, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
   m_PrefabInstance: {fileID: 1314148796}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1314148801
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1314148798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2b799cad2229014b9a5c632f71f4e22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _playerComponent: {fileID: 1314148799}
+  shirt: {fileID: 1314148800}
+  ball: {fileID: 683532152}
 --- !u!1 &1316585717
 GameObject:
   m_ObjectHideFlags: 0
@@ -4691,7 +4784,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 154e349ae33554748b1af1d118cee7a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pitcher: {fileID: 1036175184}
+  pitcherComponent: {fileID: 1036175184}
   ball: {fileID: 683532152}
   hitText: {fileID: 157293160}
   groundBallText: {fileID: 157293159}
@@ -5052,6 +5145,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6807072103778800797, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1531484986}
+    - targetCorrespondingSourceObject: {fileID: 6807072103778800797, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1531484987}
   m_SourcePrefab: {fileID: 100100000, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
 --- !u!4 &1531484982 stripped
 Transform:
@@ -5075,8 +5171,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3aff389ca2ee2974b834cdd2e5bba4dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shirt: {fileID: 1531484985}
-  _ball: {fileID: 683532152}
+  player: {fileID: 1531484987}
   defenderTransform: {fileID: 1677501137}
   flyingOutEvent: {fileID: 11400000, guid: 67986d2f382121b4fae3d9df7e5e2ea8, type: 2}
   isTracking: 0
@@ -5110,6 +5205,21 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!114 &1531484987
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1531484983}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2b799cad2229014b9a5c632f71f4e22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _playerComponent: {fileID: 1531484984}
+  shirt: {fileID: 1531484985}
+  ball: {fileID: 683532152}
 --- !u!1 &1539566008
 GameObject:
   m_ObjectHideFlags: 0
@@ -5399,6 +5509,30 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4782834798684806325, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+      propertyPath: bat
+      value: 
+      objectReference: {fileID: 877522169}
+    - target: {fileID: 4782834798684806325, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+      propertyPath: bases.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 4782834798684806325, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+      propertyPath: bases.Array.data[0]
+      value: 
+      objectReference: {fileID: 577640461}
+    - target: {fileID: 4782834798684806325, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+      propertyPath: bases.Array.data[1]
+      value: 
+      objectReference: {fileID: 267951508}
+    - target: {fileID: 4782834798684806325, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+      propertyPath: bases.Array.data[2]
+      value: 
+      objectReference: {fileID: 48931140}
+    - target: {fileID: 4782834798684806325, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+      propertyPath: bases.Array.data[3]
+      value: 
+      objectReference: {fileID: 1232322307}
     - target: {fileID: 4849292425542578483, guid: 94dea2237579799438c711b8f54134c9, type: 3}
       propertyPath: m_Name
       value: Body
@@ -5407,10 +5541,18 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6202057679712369912, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+      propertyPath: handInteractor
+      value: 
+      objectReference: {fileID: 1468785869}
     - target: {fileID: 6741284933134794247, guid: 94dea2237579799438c711b8f54134c9, type: 3}
       propertyPath: bat
       value: 
       objectReference: {fileID: 877522169}
+    - target: {fileID: 6741284933134794247, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+      propertyPath: ball
+      value: 
+      objectReference: {fileID: 683532152}
     - target: {fileID: 6741284933134794247, guid: 94dea2237579799438c711b8f54134c9, type: 3}
       propertyPath: _ball
       value: 
@@ -6611,6 +6753,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6807072103778800797, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2065011097}
+    - targetCorrespondingSourceObject: {fileID: 6807072103778800797, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2065011099}
   m_SourcePrefab: {fileID: 100100000, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
 --- !u!4 &2065011095 stripped
 Transform:
@@ -6634,8 +6779,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6257573e08951ed4f94055e0a7fe303f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shirt: {fileID: 2065011098}
-  _ball: {fileID: 683532152}
+  player: {fileID: 2065011099}
   defenderTransform: {fileID: 1079193998}
   flyingOutEvent: {fileID: 11400000, guid: 67986d2f382121b4fae3d9df7e5e2ea8, type: 2}
   isTracking: 0
@@ -6645,6 +6789,21 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 2209532862828005672, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
   m_PrefabInstance: {fileID: 2065011094}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &2065011099
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2065011096}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2b799cad2229014b9a5c632f71f4e22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _playerComponent: {fileID: 2065011097}
+  shirt: {fileID: 2065011098}
+  ball: {fileID: 683532152}
 --- !u!1 &2112712307
 GameObject:
   m_ObjectHideFlags: 0
@@ -6751,6 +6910,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 683532152}
     - target: {fileID: 4967905421558346264, guid: 4c98c6ae2f898124bbd8ec166f02c936, type: 3}
+      propertyPath: player
+      value: 
+      objectReference: {fileID: 5855348226929910679}
+    - target: {fileID: 4967905421558346264, guid: 4c98c6ae2f898124bbd8ec166f02c936, type: 3}
       propertyPath: pitcher
       value: 
       objectReference: {fileID: 1036175184}
@@ -6771,6 +6934,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 11400000, guid: a7e00550afa182d4594b424474b58e00, type: 2}
     - target: {fileID: 4967905421558346264, guid: 4c98c6ae2f898124bbd8ec166f02c936, type: 3}
+      propertyPath: pitcherComponent
+      value: 
+      objectReference: {fileID: 1036175184}
+    - target: {fileID: 4967905421558346264, guid: 4c98c6ae2f898124bbd8ec166f02c936, type: 3}
       propertyPath: defenderTransform
       value: 
       objectReference: {fileID: 312998510}
@@ -6790,6 +6957,10 @@ PrefabInstance:
       propertyPath: defenderTransforms.Array.data[1]
       value: 
       objectReference: {fileID: 1232322307}
+    - target: {fileID: 6032102299411559402, guid: 4c98c6ae2f898124bbd8ec166f02c936, type: 3}
+      propertyPath: ball
+      value: 
+      objectReference: {fileID: 683532152}
     - target: {fileID: 6053805071186877739, guid: 4c98c6ae2f898124bbd8ec166f02c936, type: 3}
       propertyPath: m_ExcludeLayers.m_Bits
       value: 64
@@ -6803,6 +6974,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4c98c6ae2f898124bbd8ec166f02c936, type: 3}
+--- !u!114 &5855348226929910679 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6032102299411559402, guid: 4c98c6ae2f898124bbd8ec166f02c936, type: 3}
+  m_PrefabInstance: {fileID: 5855348226929910678}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2b799cad2229014b9a5c632f71f4e22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &6447903539019368407 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 9040452230717059448, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}

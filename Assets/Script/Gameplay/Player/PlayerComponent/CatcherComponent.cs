@@ -5,7 +5,7 @@ using UnityEngine.Serialization;
 
 public class CatcherComponent : BasemanComponent
 {
-    [FormerlySerializedAs("pitcher")] [SerializeField] private PitcherComponent pitcherComponent;
+    [SerializeField] private PitcherComponent pitcherComponent;
     [SerializeField] private Transform[] defenderTransforms; //2
 
     [SerializeField] private int defendIndex = 0;
