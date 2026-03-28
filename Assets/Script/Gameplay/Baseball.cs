@@ -193,7 +193,7 @@ public class Baseball : MonoBehaviour
                 PitchResult();
                 
                 IsPassing = false;
-                IsThrown = false;
+                //IsThrown = false; 이거 경기중인데 상관없음
 
                 if (isBatTouch)
                 {
@@ -305,7 +305,7 @@ public class Baseball : MonoBehaviour
             {
                 isBack = false;
             }
-            //Debug.Log(isThrown);
+            Debug.Log("isThrown : " + isThrown);
         }
     }
 
@@ -326,7 +326,7 @@ public class Baseball : MonoBehaviour
         get => isBatTouch;
         set
         {
-            //Debug.Log("isBatTouch: " + value);
+            Debug.Log("isBatTouch: " + value);
             isBatTouch = value;
             if (isBatTouch)
             {
@@ -362,7 +362,7 @@ public class Baseball : MonoBehaviour
     ///공식 제거 함수
     public void RemoveDefender()
     {
-        Debug.Log("제거");
+        //Debug.Log("제거");
         if (!myDefenderComponent)
         {
             return;
@@ -553,10 +553,14 @@ public class Baseball : MonoBehaviour
     //player
     private void ThrowPlayerBall()
     {
-        if (IsThrown) return;
+        //경기중에 던지면 알아서 return인데...
+        if (IsThrown)
+        {
+            return;
+        }
 
         IsStrike = false;
-        isBatTouch = false;
+        IsBatTouch = false;
         IsZone = false;
         IsThrown = true;
         hasPassedStrikeZone = false;
@@ -660,7 +664,7 @@ public class Baseball : MonoBehaviour
     private void PitchResult()
     {
         //투수가 공을 안 던진경우
-        if (!IsThrown)
+        if (!IsThrown || isPassing)
         {
             return;
         }
@@ -709,7 +713,7 @@ public class Baseball : MonoBehaviour
             //임시 막기
             backToPitcherEvent.RaiseEvent(); //이게 IsBatTouch를 false로 만듬
         }
-        IsThrown = false;
+        //IsThrown = false;
     }
 
     /// <summary>

@@ -914,6 +914,7 @@ public class GamePlayManager : GameManager
         // 기본적으로 공을 가지고있는 상태
         if (!_ball.IsBatTouch || !GetDefenderComponent(base_index + 1).IsInPosition)
         {
+            Debug.LogError("1탄 : " + _ball.IsBatTouch + ", " + GetDefenderComponent(base_index + 1).IsInPosition);
             return;
         }
         //debug
@@ -925,6 +926,7 @@ public class GamePlayManager : GameManager
         //이미 베이스 인덱스는
         if (gamePlayModel.IsEmptyRunner(base_index))
         {
+            Debug.LogError("2탄");
             return;
         }
         
@@ -933,11 +935,13 @@ public class GamePlayManager : GameManager
         //만약 1루면 1루 전 러너가 있는지 확인. 러너가 달리지 않는다면
         if (!runner.IsMove)
         {
+            Debug.LogError("3탄");
             return;
         }
+        Debug.Log("4탄");
         //주자를 아웃시켯
         AddOut();
-        
+
         gamePlayModel.RemoveRunner(base_index);
         
         //Destroy();
