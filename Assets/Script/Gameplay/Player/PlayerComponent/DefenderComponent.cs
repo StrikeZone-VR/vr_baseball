@@ -120,10 +120,6 @@ public class DefenderComponent : PlayerComponent
         }
         Vector3 launchVelocity = CalculateLaunchVelocity(transform.position, position, 45f);
 
-        //cal dis
-        //_ball.ThrowBall(dir * dis);
-        
-        //ball을 myball로 바꿈
         _myBall.IsPassing = true;
         _myBall.ThrowBall(launchVelocity);
     }
@@ -170,6 +166,7 @@ public class DefenderComponent : PlayerComponent
     {
         myBall.RemoveDefender();
         _myBall = myBall;
+        //Debug.Log("[defender] : 잡잡기");
         _myBall.MyDefenderComponent = this;
         FrontBall();
         //IsTracking = false; => 어차피 MyDefender에서 모든 주자가 false임

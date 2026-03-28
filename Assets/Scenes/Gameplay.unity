@@ -5542,9 +5542,37 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6202057679712369912, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+      propertyPath: player
+      value: 
+      objectReference: {fileID: 1628165484}
+    - target: {fileID: 6202057679712369912, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+      propertyPath: strikeZone
+      value: 
+      objectReference: {fileID: 2031423781}
+    - target: {fileID: 6202057679712369912, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+      propertyPath: swingEvent
+      value: 
+      objectReference: {fileID: 11400000, guid: df19554b3a210624a8009953190bf9eb, type: 2}
+    - target: {fileID: 6202057679712369912, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+      propertyPath: flyingOutEvent
+      value: 
+      objectReference: {fileID: 11400000, guid: 67986d2f382121b4fae3d9df7e5e2ea8, type: 2}
+    - target: {fileID: 6202057679712369912, guid: 94dea2237579799438c711b8f54134c9, type: 3}
       propertyPath: handInteractor
       value: 
-      objectReference: {fileID: 1468785869}
+      objectReference: {fileID: 1732444602}
+    - target: {fileID: 6202057679712369912, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+      propertyPath: waitPitcherEvent
+      value: 
+      objectReference: {fileID: 11400000, guid: adc39812077ff9249bd346c0a7444b86, type: 2}
+    - target: {fileID: 6213781704411799925, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6213781704411799925, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+      propertyPath: m_ExcludeLayers.m_Bits
+      value: 128
+      objectReference: {fileID: 0}
     - target: {fileID: 6741284933134794247, guid: 94dea2237579799438c711b8f54134c9, type: 3}
       propertyPath: bat
       value: 
@@ -5640,6 +5668,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8547238369088094177, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
   m_PrefabInstance: {fileID: 2031423780}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1732444602 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3385890772825029785, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
+  m_PrefabInstance: {fileID: 1301521303}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4253f32900bcc4d499d675566142ded0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &1738157443 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1283731152875269901, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
@@ -7005,7 +7044,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1437758103643086679, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
       propertyPath: m_CollisionDetection
-      value: 2
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4046299293835020439, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
       propertyPath: m_UseDynamicAttach

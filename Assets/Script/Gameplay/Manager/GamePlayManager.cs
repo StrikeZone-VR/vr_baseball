@@ -179,6 +179,10 @@ public class GamePlayManager : GameManager
                 //다시 처음
                 PitcherGetBall();
             }
+            else //플레이어 투수가 공을 잡은 경우
+            {
+                
+            }
         }
         
         
@@ -1023,6 +1027,12 @@ public class GamePlayManager : GameManager
         {
             return false;
         }
+
+        //플레이어 투수인 경우. 어차피 자기가 던지니까
+        if (_ball.MyDefenderComponent == myBody.GetMyPitcherComponent())
+        {
+            return true;
+        }
     
         //타자의 0 1 2 3
         //던지기 => 만약 공 mydefender와 index가 같은 경우 => 무조건 자기 베이스로 돌아가야함
@@ -1046,7 +1056,9 @@ public class GamePlayManager : GameManager
     {
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            myBody.GetMyPitcherComponent().ThrowBall(bases[0].position + new Vector3(0, 0.5f, 0));
+            myBody.GetMyPitcherComponent().ThrowBall(
+                bases[0].position + new Vector3(0, 0.5f, 0)
+            );
         }
         if (Input.GetKeyDown(KeyCode.Alpha2))
         {

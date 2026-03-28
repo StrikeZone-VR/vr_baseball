@@ -342,6 +342,7 @@ public class Baseball : MonoBehaviour
         get => myDefenderComponent;
         set
         {
+            Debug.Log("설정");
             myDefenderComponent = value;
             if (myDefenderComponent)
             {
@@ -361,6 +362,7 @@ public class Baseball : MonoBehaviour
     ///공식 제거 함수
     public void RemoveDefender()
     {
+        Debug.Log("제거");
         if (!myDefenderComponent)
         {
             return;
@@ -529,7 +531,10 @@ public class Baseball : MonoBehaviour
         //_rigidbody.collisionDetectionMode = CollisionDetectionMode.Continuous; // 바닥 뚫림 방지
         
         _rigidbody.interpolation = RigidbodyInterpolation.Interpolate; // 부드러운 움직임 => 이거 안하면 오류 생기는 듯
-        _rigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic; // 충돌 감지 개선
+        
+        
+        //어차피 충돌 감지도 잘  안되고 오류만 생김
+        //_rigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic; // 충돌 감지 개선 =>
     }
     
     private void OnRelease(SelectExitEventArgs args)

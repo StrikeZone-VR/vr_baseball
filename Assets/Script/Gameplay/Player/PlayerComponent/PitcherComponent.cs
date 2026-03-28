@@ -47,9 +47,13 @@ public class PitcherComponent : DefenderComponent
     {
         base.SetMyBall(myBall);
         
-        Debug.Log("SetMyBall"); //수비를 하면 Pitching이 안되는지
+        //Debug.Log("SetMyBall"); //수비를 하면 Pitching이 안되는지
 
-        //원래 공이 있어도 무조건 기존 거는 제거.
+        //만약 배트가 터치됐다면 => 경기중
+        if (myBall.IsBatTouch)
+        {
+            return;
+        }
         StopPitching();
         coroutine = StartCoroutine(WaitPitching());
         
