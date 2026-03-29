@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,15 +6,18 @@ using UnityEngine.Serialization;
 using UnityEngine.UIElements;
 
 //수비수
-public class Defender : Player
+public class DefenderComponent : PlayerComponent
 {
+    protected Baseball _myBall = null;
+
     [SerializeField] protected Transform defenderTransform;
 
-    [SerializeField] protected IntEventSO outBatterEventSO; //gamemanager
+    [SerializeField] protected VoidEventSO flyingOutEvent; //gameplayManager
 
     [SerializeField] private bool isTracking = false;
     [SerializeField] protected bool isInPosition = false;
-
+    private const float BALL_DISTANCE = 0.5f;
+    private const float ISINPOSITION_RANGE = 10.0f;
 
     protected virtual void Update()
     {
@@ -23,16 +27,26 @@ public class Defender : Player
         }
 
         //defend my position
-        if (!IsTracking)
-        {
-            //long base dis => go to the base
-            if (!isInPosition)
-            {
-                nav.SetDestination(defenderTransform.position);
-                LookAtPlayer(defenderTransform.position);
-            }
-            //defend pos
-        }
+        // if (!IsTracking)
+        // {
+        //     //long base dis => go to the base
+        //     if (!IsInPosition)
+        //     {
+        //         MovePlayer(defenderTransform.position);
+        //     }
+        //     //defend pos
+        // }
+    }
+
+    private void FixedUpdate()
+    {
+        //Vector3.Distance(transform.position, defenderTransform.position);
+    }
+
+    protected void LookAtPlayer(Vector3 targetPosition)
+    {
+        player.LookAtPlayer(targetPosition);
+        FrontBall();
     }
     
     //touch ball
@@ -40,18 +54,45 @@ public class Defender : Player
     {
         //flyout 
         
-        // if (collision.gameObject.CompareTag("Ball") && _ball.MyDefender == null)
-        // {
-        //     //owner ball
-        //     SetMyBall(collision.gameObject.GetComponent<Baseball>());
-        //     Baseball baseball = _myBall;
-        //     
-        //     collision.rigidbody.velocity = Vector3.zero;
-        //     baseball.MyDefender = this;
-        //     isTracking = false;
-        //     
-        //     FlyingOutRunner();
-        // }
+        //Catch
+        //공을 건드린 경우
+        //ㄴ  물리적으로 공을 가지고있는 상태에서 MyDefender를 빠져 나간경우
+        //    계속 투수가 따라가서 enter 조건이 안 생겨서 SetBall을 설정할 수 없다.
+        //    ㄴ 근데 또 그러면 던졌는데 받았다 기술로 이상한 아웃이 생길 수 있음
+        //       ㄴ 어차피 디버깅 안타 함수도 오류 해결해서 Stay 함수 제거함.
+        if (collision.gameObject.CompareTag("Ball") && player.GetBallDefender() == null)
+        {
+            //owner ball
+            SetMyBall(collision.gameObject.GetComponent<Baseball>());
+            Baseball baseball = _myBall;
+            
+            collision.rigidbody.velocity = Vector3.zero;
+            baseball.MyDefenderComponent = this;
+            isTracking = false;
+            
+            OutRunner();
+        }
+    }
+
+    protected void FrontBall()
+    {
+        if (!_myBall)
+        {
+            return;
+        }
+        float x = Mathf.Sin(transform.rotation.eulerAngles.y * Mathf.PI / 180);
+        float z = Mathf.Cos(transform.rotation.eulerAngles.y * Mathf.PI / 180);
+
+        //player angle
+        _myBall.SetPosition(
+            transform.position 
+            + new Vector3(BALL_DISTANCE * x, 0.5f, BALL_DISTANCE * z)
+        );
+    }
+
+    public void RemoveBall()
+    {
+        _myBall = null;
     }
     
     
@@ -79,9 +120,8 @@ public class Defender : Player
         }
         Vector3 launchVelocity = CalculateLaunchVelocity(transform.position, position, 45f);
 
-        //cal dis
-        //_ball.ThrowBall(dir * dis);
-        _ball.ThrowBall(launchVelocity);
+        _myBall.IsPassing = true;
+        _myBall.ThrowBall(launchVelocity);
     }
     
     public Vector3 CalculateLaunchVelocity(Vector3 start, Vector3 target, float angleDeg)
@@ -118,11 +158,18 @@ public class Defender : Player
         return launchVelocity;
     }
     
+    /// <summary>
+    /// 기본 잡기
+    /// </summary>
+    /// <param name="myBall"></param>
     public virtual void SetMyBall(Baseball myBall)
     {
+        myBall.RemoveDefender();
         _myBall = myBall;
-        _myBall.MyDefender = this;
-        IsTracking = false;
+        //Debug.Log("[defender] : 잡잡기");
+        _myBall.MyDefenderComponent = this;
+        FrontBall();
+        //IsTracking = false; => 어차피 MyDefender에서 모든 주자가 false임
 
         //transform.LookAt(_ball.transform, Vector3.up);
     }
@@ -131,20 +178,24 @@ public class Defender : Player
     /// <summary>
     /// 플라잉아웃
     /// </summary>
-    protected virtual void FlyingOutRunner()
+    protected virtual void OutRunner()
     {
+        if (!_myBall)
+        {
+            return;
+        }
+        
         bool isGroundball = _myBall.IsGroundBall;
         bool isBatTouch = _myBall.IsBatTouch;
 
         //flying out
-        // if (isBatTouch && !isGroundball)
-        // {
-        //     Debug.Log("flying out");
-        //     _myBall.IsGroundBall = true; //어차피 플라잉 아웃 한번 잡으면 돌아가야함
-        //     //알고리즘 좀 복잡한데
-        //     
-        //     outBatterEventSO.RaiseEvent(0);
-        // }
+         if (isBatTouch && !isGroundball)
+         {
+             Debug.Log("[Batting] : 플라잉 아웃");
+             _myBall.IsGroundBall = true; //어차피 플라잉 아웃 한번 잡으면 돌아가야함
+             
+             flyingOutEvent.RaiseEvent();
+         }
     }
 
     #region PROPERTIES
@@ -154,20 +205,46 @@ public class Defender : Player
         set
         {
             isTracking = value;
-            if (!nav)
+
+            // if (gameObject.name == "ShortStop")
+            // {
+            //     Debug.Log("ShortStop : " + isTracking);
+            // }
+            
+            //분명 movePlayer에 !nav를 했는데...
+            
+            //공 패스중이면 그냥 대기해라
+            if (player.IsPassingBall())
             {
-                return;
+                isTracking = false;
             }
+            
             if (!isTracking)
             {
-                 nav.ResetPath();
+                //long base dis => go to the base
+                if (IsInPosition)
+                {
+                    player.StopMove();
+                }
+                else
+                {
+                    player.MovePlayer(defenderTransform.position);
+                }
             }
-            else //istracking 
+            else //istracking. 공 줍는 기능
             {
-                nav.SetDestination(_ball.transform.position);
+                player.MovePlayer(player.GetBallTargetPosition());
             }
             
         }
     }
+
+    //디버깅용  처리
+    public virtual bool IsInPosition
+    {
+        get => isInPosition;
+        set => isInPosition = value;
+    }
+
     #endregion
 }

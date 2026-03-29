@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 1437758103643086679}
   - component: {fileID: 4046299293835020439}
   - component: {fileID: 8324867596943280312}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Baseball
   m_TagString: Ball
   m_Icon: {fileID: 0}
@@ -301,18 +301,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   myDefender: {fileID: 0}
+  defenderDis: 0
+  bat: {fileID: 0}
   isGroundBall: 0
   isBatTouch: 0
   isPassing: 0
   isZone: 0
   isStrike: 0
   isThrown: 0
-  defenderDis: 0
-  bat: {fileID: 0}
+  isBack: 0
   allTrackingOffEvent: {fileID: 11400000, guid: eb943823faaa14e4b87ec836d9d214f4, type: 2}
   addBallCountEvent: {fileID: 11400000, guid: 60c42e35457ecd34d8efad8431a9dc85, type: 2}
   addStrikeEvent: {fileID: 11400000, guid: 7980c5f1d20201f48891aba9f1727e76, type: 2}
-  paulEvent: {fileID: 11400000, guid: 92f9d4b8ff2a53147a913724e0def414, type: 2}
+  foulEvent: {fileID: 11400000, guid: 92f9d4b8ff2a53147a913724e0def414, type: 2}
   homerunEvent: {fileID: 11400000, guid: 2c50fa93d15b0bd469de3b987b91d592, type: 2}
   pitchEvent: {fileID: 11400000, guid: 6ca9374e56161084ca2bd8dee328860a, type: 2}
   runSignalEvent: {fileID: 11400000, guid: 2f8b5c598135ebb49bd8c25de9d4678c, type: 2}
@@ -320,8 +321,6 @@ MonoBehaviour:
   inplayGameEvent: {fileID: 11400000, guid: d31ece9de1f0ded4e95897cfa47eaa57, type: 2}
   getVelocityEventSO: {fileID: 11400000, guid: c2305552fa4ae3741985e7e98ca99b92, type: 2}
   playAudioClipEvent: {fileID: 11400000, guid: d945dac53f32b4d47a9561b9d8dac9a6, type: 2}
-  baseThrowForce: 1
-  maxThrowForce: 2
   throwSmoothingCurve:
     serializedVersion: 2
     m_Curve:
@@ -354,5 +353,4 @@ MonoBehaviour:
   forkDropEffect: {fileID: 0}
   trajectoryLine: {fileID: 0}
   strikeZone: {fileID: 0}
-  aimAssistStrength: 0.8
-  enableRandomTargeting: 1
+  _debugVelocity: 0

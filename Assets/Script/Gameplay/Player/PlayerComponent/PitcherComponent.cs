@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-public class Pitcher : Defender
+public class PitcherComponent : DefenderComponent
 {
     private const float ADDFORCE = 20.0f;
     private Coroutine coroutine;
@@ -13,21 +13,20 @@ public class Pitcher : Defender
     [SerializeField] private float velocityXZ = 40;
     //_myBall
 
-    const int WAIT_TIME = 2; //5.0f
+    const int WAIT_TIME = 5; //5.0f
     protected bool isThrowBallStop = false; //debug
 
     protected override void Update()
     {
         float dis = Vector3.Distance(defenderTransform.position, transform.position);
 
-
         if (dis <= 1.0f)
         {
-            isInPosition = true;
+            IsInPosition = true;
         }
         else
         {
-            isInPosition = false;
+            IsInPosition = false;
         }
         
         base.Update();
@@ -47,24 +46,30 @@ public class Pitcher : Defender
     public override void SetMyBall(Baseball myBall)
     {
         base.SetMyBall(myBall);
+        
+        //Debug.Log("SetMyBall"); //수비를 하면 Pitching이 안되는지
 
-        _ball.IsThrown = false;
-        _ball.IsGroundBall = false;
-        _ball.IsPassing = false;
-        _ball.IsZone = false;
-        _ball.IsStrike = false;
-
-        //Debug.Log("back");
-
-        if (coroutine == null)
+        //만약 배트가 터치됐다면 => 경기중
+        if (myBall.IsBatTouch)
         {
-            coroutine = StartCoroutine(WaitPitching());
+            return;
         }
+        StopPitching();
+        coroutine = StartCoroutine(WaitPitching());
+        
+        //Debug.Log("음? : "+_ball.MyDefender.name);
         //transform.LookAt(_ball.transform, Vector3.up);
     }
 
     IEnumerator WaitPitching()
     {
+        //멈춰야 하거나 내 공이 없다면
+        if (IsThrowBallStop || !_myBall)
+        {
+            yield break;
+        }
+        LookAtPlayer(strikeZone.transform.position);
+        
         //5임
         for (int i = WAIT_TIME; i > 0; i--)
         {
@@ -80,9 +85,10 @@ public class Pitcher : Defender
     //AI 공 던지는 함수
     public void PitchingBall()
     {
-        _ball.IsThrown = true;
-        _ball.IsBatTouch = false;
-
+        _myBall.IsThrown = true;
+        _myBall.HasPassedStrikeZone = false;
+        _myBall.IsBatTouch = false;
+        
         //random value 0 ~ 24
         int index = Random.Range(0, 25);
         //index = 22; //한 가운데
@@ -90,37 +96,31 @@ public class Pitcher : Defender
         Transform SZTransform = strikeZone.GetZone(index);
 
         //Debug.Log("투수 : " + _ball.transform.position);
-        Debug.Log("스트라이크 존 " + index + " : "+ SZTransform.position);
+        //Debug.Log("스트라이크 존 " + index + " : "+ SZTransform.position);
         Vector3 velocity = new Vector3();
         
         int pitchTypeIndex = Random.Range(0, 10);
+        
         if (pitchTypeIndex <= 2)
         {
-            _ball.SelectPitchType = PitchType.Curve;
+            _myBall.SelectPitchType = PitchType.Curve;
             Debug.Log("커브");
         }
         else
         {
-            _ball.SelectPitchType = PitchType.FastBall;
+            _myBall.SelectPitchType = PitchType.FastBall;
             Debug.Log("직구");
         }
         
-        if(_ball.SelectPitchType == PitchType.FastBall)
-            velocity = CalculateSimpleVelocity(_ball.transform.position, SZTransform.position, velocityXZ);
-        //else if(_ball.SelectPitchType == PitchType.Curve)
+        if(_myBall.SelectPitchType == PitchType.FastBall)
+            velocity = CalculateSimpleVelocity(_myBall.transform.position, SZTransform.position, velocityXZ);
+        //else if(_myBall.SelectPitchType == PitchType.Curve)
         else
-            velocity = CalculateCurveVelocity(_ball.transform.position, SZTransform.position, velocityXZ);
+            velocity = CalculateCurveVelocity(_myBall.transform.position, SZTransform.position, velocityXZ);
 
         //Debug.Log("속력 : " + velocity.magnitude * 3.6f);
 
-        _ball.ThrowBall(velocity);
-        StartCoroutine(Swing());
-    }
-
-    IEnumerator Swing()
-    {
-        yield return new WaitForSeconds(0.5f);
-        swingEvent.RaiseEvent();
+        _myBall.ThrowBall(velocity);
     }
 
     public Vector3 CalculateVelocity(Vector3 start, Vector3 target, float velocity_xy)
@@ -161,7 +161,7 @@ public class Pitcher : Defender
     private Vector3 CalculateCurveVelocity(Vector3 start, Vector3 target, float velocityXZ)
     {
         velocityXZ /= 3.6f; //시속 평준화
-        float g = Mathf.Abs(Physics.gravity.y) + (velocityXZ / 100 * _ball.MAGNUS); // 9.81 (양수)
+        float g = Mathf.Abs(Physics.gravity.y) + (velocityXZ / 100 * _myBall.MAGNUS); // 9.81 (양수)
         Vector3 dis = target - start;
 
         float mytime = dis.magnitude / velocityXZ;
@@ -195,20 +195,16 @@ public class Pitcher : Defender
         {
             isThrowBallStop = value;
             
-            //일단 무조건 멈춰라
-            if (coroutine != null)
-            {
-                StopCoroutine(coroutine);
-            }
-            
-            if (!isThrowBallStop)
-            {
-                coroutine = StartCoroutine(WaitPitching());
-            }
+            StopPitching();
+            //어차피 WaitPitching에서 판별해준다. 
+            coroutine = StartCoroutine(WaitPitching());
         }
     }
     public void StopPitching()
     {
-        StopCoroutine(coroutine); 
+        if (coroutine != null)
+        {
+            StopCoroutine(coroutine); 
+        }
     }
 }

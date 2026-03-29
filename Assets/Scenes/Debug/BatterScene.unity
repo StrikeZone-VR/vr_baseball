@@ -248,7 +248,6 @@ MonoBehaviour:
   rotateOriginEvent: {fileID: 11400000, guid: d164c5b6bfab6604987cbe7b5a2ca409, type: 2}
   sceneEventSO: {fileID: 11400000, guid: 1614b16f3ac165a4095e5f466b87b7b6, type: 2}
   playAudioClipEvent: {fileID: 11400000, guid: d945dac53f32b4d47a9561b9d8dac9a6, type: 2}
-  pitcher: {fileID: 7423472532717417014}
   battingController: {fileID: 987369037}
   menuScene:
     m_AssetGUID: 649a1153b08a9334bb657f50f11d9b6a
@@ -567,6 +566,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 154e349ae33554748b1af1d118cee7a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pitcher: {fileID: 7423472532717417014}
+  ball: {fileID: 892084320}
   hitText: {fileID: 1783615860}
   groundBallText: {fileID: 138329563}
   foulText: {fileID: 1782404898}
@@ -1047,7 +1048,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4934351738625949845, guid: 7619a4777f860bd4ca3f693affa29280, type: 3}
       propertyPath: m_Constraints
-      value: 0
+      value: 126
       objectReference: {fileID: 0}
     - target: {fileID: 5328149003557680495, guid: 7619a4777f860bd4ca3f693affa29280, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1185,7 +1186,15 @@ PrefabInstance:
     - target: {fileID: 3287026240662051651, guid: 458e51f90f20699478a19d6b30f2cb37, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 701417564}
+      objectReference: {fileID: 987369037}
+    - target: {fileID: 3287026240662051651, guid: 458e51f90f20699478a19d6b30f2cb37, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: MinusVelocityBall
+      objectReference: {fileID: 0}
+    - target: {fileID: 3287026240662051651, guid: 458e51f90f20699478a19d6b30f2cb37, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: BattingController, Assembly-CSharp
+      objectReference: {fileID: 0}
     - target: {fileID: 3333891363551820651, guid: 458e51f90f20699478a19d6b30f2cb37, type: 3}
       propertyPath: m_Camera
       value: 
@@ -1245,7 +1254,15 @@ PrefabInstance:
     - target: {fileID: 5655330956172226307, guid: 458e51f90f20699478a19d6b30f2cb37, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 701417564}
+      objectReference: {fileID: 987369037}
+    - target: {fileID: 5655330956172226307, guid: 458e51f90f20699478a19d6b30f2cb37, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: PlusVelocityBall
+      objectReference: {fileID: 0}
+    - target: {fileID: 5655330956172226307, guid: 458e51f90f20699478a19d6b30f2cb37, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: BattingController, Assembly-CSharp
+      objectReference: {fileID: 0}
     - target: {fileID: 5923238637637229643, guid: 458e51f90f20699478a19d6b30f2cb37, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0

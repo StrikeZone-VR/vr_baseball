@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.Serialization;
 
 public class BattingController : GameController
 {
-    [SerializeField] private Pitcher pitcher;
+    [FormerlySerializedAs("pitcher")] [SerializeField] private PitcherComponent pitcherComponent;
     [SerializeField] private Baseball ball;
     
     [Header("UI")]
@@ -28,7 +29,14 @@ public class BattingController : GameController
 
     public void PitcherGetBall()
     {
-        pitcher.SetMyBall(ball);
+        ball.IsBatTouch = false;
+        ball.IsThrown = false;
+        ball.IsGroundBall = false;
+        ball.IsPassing = false;
+        ball.IsZone = false;
+        ball.IsStrike = false;
+        
+        pitcherComponent.SetMyBall(ball);
     }
     
     public void WaitPitchingToText(int time)
@@ -76,12 +84,12 @@ public class BattingController : GameController
     
     public void PlusVelocityBall()
     {
-        pitcher.VelocityXZ += 10f;
-        SetVelocityControllerText(pitcher.VelocityXZ);
+        pitcherComponent.VelocityXZ += 10f;
+        SetVelocityControllerText(pitcherComponent.VelocityXZ);
     }
     public void MinusVelocityBall()
     {
-        pitcher.VelocityXZ -= 10f;
-        SetVelocityControllerText(pitcher.VelocityXZ);
+        pitcherComponent.VelocityXZ -= 10f;
+        SetVelocityControllerText(pitcherComponent.VelocityXZ);
     }
 }

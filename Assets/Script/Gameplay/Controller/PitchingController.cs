@@ -48,7 +48,7 @@ public class PitchingController : GameController
     /// </summary>
     public void ResetBall()
     {
-        _ball.RemovePlayer();
+        _ball.RemoveDefender();
         _ball.IsBatTouch = false;
         _ball.IsGroundBall = false;
 

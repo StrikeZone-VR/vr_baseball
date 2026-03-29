@@ -9,9 +9,6 @@ using UnityEngine.Serialization;
 //게임 시작할때 실행되는 GameManager
 public class GameManager : MonoBehaviour
 {
-
-    
-    [SerializeField] protected XROrigin playerOrigin; //debug용
     [SerializeField] protected Baseball _ball; //일단 PitchingBallController도 여깄음
 
     [Header("Broadcasting on EventChannels")] 
@@ -29,6 +26,7 @@ public class GameManager : MonoBehaviour
     [Header("Listening to EventChannels")] 
     [SerializeField] protected Vector3EventSO moveOriginEvent;
     [SerializeField] protected Vector3EventSO rotateOriginEvent;
+    
     [SerializeField] protected SceneEventSO sceneEventSO;
     [SerializeField] protected IntEventSO playAudioClipEvent;
 

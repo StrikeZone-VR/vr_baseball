@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.PlayerLoop;
 
-public class Outfielder : Defender
+public class OutfielderComponent : DefenderComponent
 {
     protected override void Update()
     {
@@ -11,11 +11,11 @@ public class Outfielder : Defender
             
         if (dis <= 1.0f)
         {
-            isInPosition = true;
+            IsInPosition = true;
         }
         else
         {
-            isInPosition = false;
+            IsInPosition = false;
         }
         base.Update();
     }
