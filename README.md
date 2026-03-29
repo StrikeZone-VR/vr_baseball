@@ -29,4 +29,6 @@ VR 기기의 특성을 극대화하여 실제 마운드와 타석에서의 현�
 ![KakaoTalk_20250926_101553358](https://github.com/user-attachments/assets/3f574b02-7ca5-47e5-a029-1ac3980ef263)
 
 ---
-[게임 플레이](Readme/FEATURES.md)
+- [게임 플레이](Readme/FEATURES.md)
+- [트러블슈팅](Readme/TROUBLESHOOTING.md)
+- [아키텍처 문서](Readme/ARCHITECTURE.md)
