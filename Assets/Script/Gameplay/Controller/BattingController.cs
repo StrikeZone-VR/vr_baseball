@@ -7,7 +7,7 @@ using UnityEngine.Serialization;
 
 public class BattingController : GameController
 {
-    [FormerlySerializedAs("pitcher")] [SerializeField] private PitcherComponent pitcherComponent;
+    [SerializeField] private PitcherComponent pitcherComponent;
     [SerializeField] private Baseball ball;
     
     [Header("UI")]
@@ -29,12 +29,7 @@ public class BattingController : GameController
 
     public void PitcherGetBall()
     {
-        ball.IsBatTouch = false;
-        ball.IsThrown = false;
-        ball.IsGroundBall = false;
-        ball.IsPassing = false;
-        ball.IsZone = false;
-        ball.IsStrike = false;
+        ball.InitBall();
         
         pitcherComponent.SetMyBall(ball);
     }

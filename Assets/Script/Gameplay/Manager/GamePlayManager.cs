@@ -474,19 +474,26 @@ public class GamePlayManager : GameManager
     }
 
     //backToPitcherEvent => 이거 던질 곳 없거나 안타치는 순간 겹친다 그냥
+    /// <summary>
+    /// 
+    /// </summary>
     protected override void PitcherGetBall()
     {
+        
         isFlyingOut = false;
         
+        //포수 위치 변환
         CatcherComponent catcherComponent = GetDefenderComponent(4) as CatcherComponent;
         catcherComponent.DefendIndex = 0;
 
+        //디버그 베이스 세팅보여주기
         DebugBaseStatus();
         
         //batting mode
         if (gamePlayModel.IsMyTeamBatting())
         {
             waitPitcherCoroutine = StartCoroutine(WaitingBackToPitcher());
+            //PitcherGetBall
         }
         //이게 그러니까 pitchermode
         else
@@ -914,7 +921,7 @@ public class GamePlayManager : GameManager
         // 기본적으로 공을 가지고있는 상태
         if (!_ball.IsBatTouch || !GetDefenderComponent(base_index + 1).IsInPosition)
         {
-            Debug.LogError("1탄 : " + _ball.IsBatTouch + ", " + GetDefenderComponent(base_index + 1).IsInPosition);
+            //Debug.LogError("1탄 : " + _ball.IsBatTouch + ", " + GetDefenderComponent(base_index + 1).IsInPosition);
             return;
         }
         //debug
@@ -926,7 +933,7 @@ public class GamePlayManager : GameManager
         //이미 베이스 인덱스는
         if (gamePlayModel.IsEmptyRunner(base_index))
         {
-            Debug.LogError("2탄");
+            //Debug.LogError("2탄");
             return;
         }
         
@@ -935,10 +942,10 @@ public class GamePlayManager : GameManager
         //만약 1루면 1루 전 러너가 있는지 확인. 러너가 달리지 않는다면
         if (!runner.IsMove)
         {
-            Debug.LogError("3탄");
+            //Debug.LogError("3탄");
             return;
         }
-        Debug.Log("4탄");
+        //Debug.Log("4탄");
         //주자를 아웃시켯
         AddOut();
 
@@ -1060,17 +1067,24 @@ public class GamePlayManager : GameManager
     {
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
+            Debug.Log("1루 던지기");
             myBody.GetMyPitcherComponent().ThrowBall(
                 bases[0].position + new Vector3(0, 0.5f, 0)
             );
         }
         if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-            myBody.GetMyPitcherComponent().ThrowBall(bases[1].position + new Vector3(0, 0.5f, 0));
+            Debug.Log("2루 던지기");
+            myBody.GetMyPitcherComponent().ThrowBall(
+                bases[1].position + new Vector3(0, 0.5f, 0)
+            );
         }
         if (Input.GetKeyDown(KeyCode.Alpha3))
         {
-            myBody.GetMyPitcherComponent().ThrowBall(bases[2].position + new Vector3(0, 0.5f, 0));
+            Debug.Log("3루 던지기");
+            myBody.GetMyPitcherComponent().ThrowBall(
+                bases[2].position + new Vector3(0, 0.5f, 0)
+            );
         }
         //ThrowBase
         if (Input.GetKeyDown(KeyCode.C))
@@ -1164,7 +1178,8 @@ public class GamePlayManager : GameManager
         _ball.IsZone = true;
         _ball.IsStrike = true;
         _ball.IsGroundBall = false;
-
+        _ball.OnTouchBall(); //이거해야지 바로 잡을 수 있음
+        
         //_ball
         //batterPosition
         //속력 추가

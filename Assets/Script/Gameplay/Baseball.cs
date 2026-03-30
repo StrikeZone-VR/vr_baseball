@@ -9,11 +9,11 @@ using Random = UnityEngine.Random;
 [RequireComponent(typeof(Rigidbody), typeof(XRGrabInteractable))]
 public class Baseball : MonoBehaviour
 {
+    #region VARIABLE
     //public float ballMass = 0.145f; // kg
     //public float ballRadius = 0.037f; // m
     //public float airDensity = 1.225f; // kg/m³
-
-    [FormerlySerializedAs("myDefender")] [SerializeField] private DefenderComponent myDefenderComponent; //handling player
+    [SerializeField] private DefenderComponent myDefenderComponent; //handling player
     private Rigidbody _rigidbody;
     private XRGrabInteractable grabInteractable;
 
@@ -82,6 +82,8 @@ public class Baseball : MonoBehaviour
     private float beforeTime = 0f;
     private float debugShootTime;
     private float debugShootTime2;
+
+    #endregion
 
     #region EventFunction
 
@@ -272,16 +274,82 @@ public class Baseball : MonoBehaviour
     public void ThrowBall(Vector3 force)
     {
         RemoveDefender();
-
+    
         //rotation zero
-        _rigidbody.velocity = Vector3.zero;
-        _rigidbody.velocity = force;
+        SetVelocity(force);
+        //Debug.Log("[투수] 속력 : " + _rigidbody.velocity);
+        //Debug.Log("[투수] 타입 : " + SelectPitchType);
+
         beforeTime = Time.time;
         velocityXY = new Vector3(_rigidbody.velocity.x, 0, _rigidbody.velocity.z);
+    }
+    //피칭 결과 알려주는 함수
+    private void PitchResult()
+    {
+        //투수가 공을 안 던진경우
+        if (!IsThrown || IsPassing)
+        {
+            return;
+        }
+
+        if(isBack)//홈런이나 파울맞음
+        {
+            return;
+        }
+        
+        //볼을 맞춘 경우
+        if (IsBatTouch)
+        {
+            if (!isGroundBall) //groundball or flying ball
+            {
+                Debug.Log("[Batting] : 안타");
+                inplayGameEvent.RaiseEvent();
+                IsGroundBall = true;
+            }
+        }
+        //스윙 여부는 방망이의 회전값?
+        else if (bat.IsSwing()) //스윙여부 == true => 스윙했는데 방망이를 건들지 않은 경우
+        {
+            playAudioClipEvent.RaiseEvent(3);
+            Debug.Log("스트라이크1");
+            addStrikeEvent.RaiseEvent();
+            //backToPitcherEvent.RaiseEvent();
+        }
+        else if(IsStrike) //스윙 안했는데 스트라이크존에 들어간 경우
+        {
+            playAudioClipEvent.RaiseEvent(3);
+            Debug.Log("스트라이크2");
+            addStrikeEvent.RaiseEvent();
+            //backToPitcherEvent.RaiseEvent();
+        }
+        else //스트라이크 존에도 안 닿았고 스윙도 안했다면
+        {
+            Debug.Log("볼");
+            addBallCountEvent.RaiseEvent();
+            //backToPitcherEvent.RaiseEvent();
+        }
+        
+        //돌아가라 => 안타 제외
+        if(!isBack && !isBatTouch)
+        {
+            isBack = true;
+            //임시 막기
+            backToPitcherEvent.RaiseEvent(); //이게 IsBatTouch를 false로 만듬
+        }
+        //IsThrown = false;
     }
 
     #region PROPERTY
 
+    public void InitBall()
+    {
+        IsBatTouch = false;
+        IsThrown = false;
+        IsGroundBall = false;
+        IsPassing = false;
+        IsZone = false;
+        IsStrike = false;
+    }
     public PitchType SelectPitchType
     {
         get
@@ -293,7 +361,8 @@ public class Baseball : MonoBehaviour
             selectedPitchType = value;
         }
     }
-    public bool IsThrown
+    public bool 
+        IsThrown
     {
         get => isThrown;
         set
@@ -305,14 +374,18 @@ public class Baseball : MonoBehaviour
             {
                 isBack = false;
             }
-            Debug.Log("isThrown : " + isThrown);
+            //Debug.Log("isThrown : " + isThrown);
         }
     }
 
     public bool IsPassing
     {
         get => isPassing;
-        set => isPassing = value;
+        set
+        {
+            isPassing = value;
+            //Debug.Log("[depender] isPassing : " + isPassing);
+        }
     }
 
     public bool IsGroundBall
@@ -326,7 +399,7 @@ public class Baseball : MonoBehaviour
         get => isBatTouch;
         set
         {
-            Debug.Log("isBatTouch: " + value);
+            //Debug.Log("isBatTouch: " + value);
             isBatTouch = value;
             if (isBatTouch)
             {
@@ -342,7 +415,7 @@ public class Baseball : MonoBehaviour
         get => myDefenderComponent;
         set
         {
-            Debug.Log("설정");
+            //Debug.Log("설정");
             myDefenderComponent = value;
             if (myDefenderComponent)
             {
@@ -386,6 +459,7 @@ public class Baseball : MonoBehaviour
         get => isStrike;
         set
         {
+            Debug.Log("왜 스트라이크 : "  + value);
             isStrike = value;
         }
     }
@@ -396,12 +470,13 @@ public class Baseball : MonoBehaviour
         set => hasPassedStrikeZone = value;
     }
 
+    //위치관련
     public void SetVelocity(Vector3 velocity)
     {
         if (_rigidbody != null)
         {
             _rigidbody.velocity = velocity;
-            _rigidbody.angularVelocity = velocity;
+            //_rigidbody.angularVelocity = velocity;
         }
     }
     public void SetPosition(Vector3 position)
@@ -415,6 +490,34 @@ public class Baseball : MonoBehaviour
     public XRGrabInteractable GrabInteractable
     {
         get => grabInteractable;
+    }
+    
+    public Vector3 GetTargetPosition()
+    {
+        return _targetPosition;
+    }
+    
+    public bool GetIsSwing()
+    {
+        //Debug.Log("회전한 값 : " + bat.transform.rotation.eulerAngles.y);
+        if (bat == null)
+        {
+            return false;
+        }
+        return bat.IsSwing();
+    }
+
+
+    public float Ball_Accuracy_Weight
+    {
+        get
+        {
+            return ball_accuracy_weight;
+        }
+        set
+        {
+            ball_accuracy_weight = value;
+        }
     }
     
     #endregion
@@ -588,9 +691,11 @@ public class Baseball : MonoBehaviour
         //time - bat.RotationTime / 2)
         float ac = Mathf.Abs(Physics.gravity.y) * time / 2;
         //_rigidbody.velocity = ( direction) * _rigidbody.velocity.magnitude;
-        _rigidbody.velocity = ((1.0f - ball_accuracy_weight) * _rigidbody.velocity.normalized
-                                + ball_accuracy_weight * direction)
-            * _rigidbody.velocity.magnitude + new Vector3(0, ac, 0) * ball_accuracy_weight;
+        SetVelocity(
+            ( (1.0f - ball_accuracy_weight) * _rigidbody.velocity.normalized
+             + ball_accuracy_weight * direction )
+            * _rigidbody.velocity.magnitude + new Vector3(0, ac, 0) * ball_accuracy_weight
+        );
 
         playAudioClipEvent.RaiseEvent(0);
         
@@ -637,7 +742,7 @@ public class Baseball : MonoBehaviour
         float ac = Mathf.Abs(Physics.gravity.y) * time / 2;
 
         
-        _rigidbody.velocity = ( direction) * velocity + new Vector3(0, ac, 0);
+        SetVelocity((direction) * velocity + new Vector3(0, ac, 0));
         //_rigidbody.velocity = (ball_accuracy_weight * direction)
             //* velocity + new Vector3(0, ac, 0) * ball_accuracy_weight;
         //Debug.Log("_rigidbody.velocity : " + _rigidbody.velocity);
@@ -650,71 +755,18 @@ public class Baseball : MonoBehaviour
 
     public void OnTouchBall()
     {
+        Debug.Log("온온이");
         grabInteractable.enabled = true;
     }
 
     public void OffTouchBall()
     {
+        Debug.Log("어프어프이");
         grabInteractable.enabled = false;
     }
     
     #endregion
     
-    //피칭 결과 알려주는 함수
-    private void PitchResult()
-    {
-        //투수가 공을 안 던진경우
-        if (!IsThrown || isPassing)
-        {
-            return;
-        }
-
-        if(isBack)//홈런이나 파울맞음
-        {
-            return;
-        }
-        
-        //볼을 맞춘 경우
-        if (IsBatTouch)
-        {
-            if (!isGroundBall) //groundball or flying ball
-            {
-                Debug.Log("[Batting] : 안타");
-                inplayGameEvent.RaiseEvent();
-                IsGroundBall = true;
-            }
-        }
-        //스윙 여부는 방망이의 회전값?
-        else if (bat.IsSwing()) //스윙여부 == true => 스윙했는데 방망이를 건들지 않은 경우
-        {
-            playAudioClipEvent.RaiseEvent(3);
-            Debug.Log("스트라이크1");
-            addStrikeEvent.RaiseEvent();
-            //backToPitcherEvent.RaiseEvent();
-        }
-        else if(IsStrike) //스윙 안했는데 스트라이크존에 들어간 경우
-        {
-            playAudioClipEvent.RaiseEvent(3);
-            Debug.Log("스트라이크2");
-            addStrikeEvent.RaiseEvent();
-            //backToPitcherEvent.RaiseEvent();
-        }
-        else //스트라이크 존에도 안 닿았고 스윙도 안했다면
-        {
-            Debug.Log("볼");
-            addBallCountEvent.RaiseEvent();
-            //backToPitcherEvent.RaiseEvent();
-        }
-        
-        //돌아가라 => 안타 제외
-        if(!isBack && !isBatTouch)
-        {
-            isBack = true;
-            //임시 막기
-            backToPitcherEvent.RaiseEvent(); //이게 IsBatTouch를 false로 만듬
-        }
-        //IsThrown = false;
-    }
 
     /// <summary>
     /// 볼 속력 출력
@@ -737,29 +789,6 @@ public class Baseball : MonoBehaviour
     }
     
     
-    public bool GetIsSwing()
-    {
-        //Debug.Log("회전한 값 : " + bat.transform.rotation.eulerAngles.y);
-        if (bat == null)
-        {
-            return false;
-        }
-        return bat.IsSwing();
-    }
-
-
-    public float Ball_Accuracy_Weight
-    {
-        get
-        {
-            return ball_accuracy_weight;
-        }
-        set
-        {
-            ball_accuracy_weight = value;
-        }
-    }
-    
     IEnumerator StartSwingAfter(float delay)
     {
         
@@ -770,6 +799,7 @@ public class Baseball : MonoBehaviour
         bat.StartSwing();
     }
 
+    #region DEBUG
     void OnDrawGizmos()
     {
         CalTrajectory(true);
@@ -844,7 +874,7 @@ public class Baseball : MonoBehaviour
             p = nextP;
         }
     }
-
+    
     void DrawDashedSegment(Vector3 a, Vector3 b, float dashLen, float stepLen)
     {
         Vector3 ab = b - a;
@@ -860,11 +890,8 @@ public class Baseball : MonoBehaviour
             Gizmos.DrawLine(a + dir * t0, a + dir * t1);
         }
     }
-
-    public Vector3 GetTargetPosition()
-    {
-        return _targetPosition;
-    }
+    
+    #endregion
 
     private void Homerun()
     {

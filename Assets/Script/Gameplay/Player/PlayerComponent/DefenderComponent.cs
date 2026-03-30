@@ -62,12 +62,11 @@ public class DefenderComponent : PlayerComponent
         //       ㄴ 어차피 디버깅 안타 함수도 오류 해결해서 Stay 함수 제거함.
         if (collision.gameObject.CompareTag("Ball") && player.GetBallDefender() == null)
         {
+            Debug.Log("[depender] : 받았다");
+            Baseball baseball = collision.gameObject.GetComponent<Baseball>();
             //owner ball
-            SetMyBall(collision.gameObject.GetComponent<Baseball>());
-            Baseball baseball = _myBall;
-            
-            collision.rigidbody.velocity = Vector3.zero;
-            baseball.MyDefenderComponent = this;
+            SetMyBall(baseball);
+            baseball.SetVelocity(Vector3.zero);
             isTracking = false;
             
             OutRunner();
@@ -80,6 +79,7 @@ public class DefenderComponent : PlayerComponent
         {
             return;
         }
+        
         float x = Mathf.Sin(transform.rotation.eulerAngles.y * Mathf.PI / 180);
         float z = Mathf.Cos(transform.rotation.eulerAngles.y * Mathf.PI / 180);
 

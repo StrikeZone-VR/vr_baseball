@@ -49,8 +49,9 @@ public class PitchingController : GameController
     public void ResetBall()
     {
         _ball.RemoveDefender();
-        _ball.IsBatTouch = false;
-        _ball.IsGroundBall = false;
+        
+        //맞겠지?
+        _ball.InitBall();
 
         // XR Grab Interactable 강제 활성화 (새 공이 잡힐 수 있도록)
         //ball.OffBallPhysics();
