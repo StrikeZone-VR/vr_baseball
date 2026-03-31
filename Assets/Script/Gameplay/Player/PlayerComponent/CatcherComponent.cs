@@ -13,6 +13,24 @@ public class CatcherComponent : BasemanComponent
     [Header("Listening to Event")]
     [SerializeField] private VoidEventSO backToPitcherEvent;
     
+    protected override void OnTriggerEnter(Collider collision)
+    {
+        if (collision.gameObject.CompareTag("Base") && defendIndex == 1)
+        {
+            Debug.LogWarning("[Catcher] : 이거 포수가 수비도중에 중간에 멈추면 이거를 봐라");
+            IsInPosition = true;
+        }
+    }
+
+    protected override void OnTriggerExit(Collider collision)
+    {
+        if (collision.gameObject.CompareTag("Base") && defendIndex == 1)
+        {
+            Debug.LogWarning("[Catcher] : 이거 포수가 수비도중에 중간에 멈추면 이거를 봐라");
+            IsInPosition = false;
+        }
+    }
+    
     public override void SetMyBall(Baseball myBall)
     {
         base.SetMyBall(myBall);
@@ -36,12 +54,11 @@ public class CatcherComponent : BasemanComponent
     //IsBatTouch 기준
     private void SwitchingMove(int defendIndex)
     {
-        //0이면 
-        if (defendIndex == 0)
-        {
-            IsInPosition = false;
-        }
+        //0이면 뒤로 가라 1이면 앞으로
         defenderTransform = defenderTransforms[defendIndex];
+        
+        IsInPosition = false;
+        IsTracking = false; //공을 쫒아가지 마라 => 알아서 움직여야함
     }
 
     public int DefendIndex
@@ -50,6 +67,7 @@ public class CatcherComponent : BasemanComponent
         set
         {
             defendIndex = value;
+            Debug.Log(defendIndex);
             SwitchingMove(defendIndex);
         }
     }

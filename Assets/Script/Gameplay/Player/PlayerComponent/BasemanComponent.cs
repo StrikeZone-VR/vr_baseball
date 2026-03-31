@@ -16,7 +16,7 @@ public class BasemanComponent : DefenderComponent
     //     base.Update();
     // }
 
-    private void OnTriggerEnter(Collider collision)
+    protected virtual void OnTriggerEnter(Collider collision)
     {
         if (collision.gameObject.CompareTag("Base"))
         {
@@ -24,7 +24,7 @@ public class BasemanComponent : DefenderComponent
         }
     }
 
-    private void OnTriggerExit(Collider collision)
+    protected virtual void OnTriggerExit(Collider collision)
     {
         if (collision.gameObject.CompareTag("Base"))
         {
@@ -52,6 +52,10 @@ public class BasemanComponent : DefenderComponent
         get => isInPosition;
         set
         {
+            if (base_index == 4)
+            {
+                Debug.Log("[catchman] isInposition : " + value);
+            }
             isInPosition = value;
 
             //어차피 플라잉 아웃은 그 전에 된 게 아닐까

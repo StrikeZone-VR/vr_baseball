@@ -163,17 +163,21 @@ public class BatterComponent : PlayerComponent
 
     public void SetBaseIndexPosition(int baseIndex)
     {
+        
+        if (base_index == 0)
+        {
+            transform.position = bases[3].position;
+            BaseIndex = baseIndex;
+            IsMove = false;
+
+            return;
+        }
+        
         BaseIndex = baseIndex;
         IsMove = false;
         //1 => 
-        if (base_index == 0)
-        {
-            Debug.LogError("베이스index가 0인데?");
-            return;
-        }
 
         transform.position = bases[baseIndex - 1].position;
-        
     }
 
     #endregion

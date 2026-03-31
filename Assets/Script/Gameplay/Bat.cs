@@ -236,7 +236,7 @@ public class Bat : MonoBehaviour
 
         // 2. 우리가 흔히 아는 360도(Degree) 체계로 변환하기
         float angle = radian * Mathf.Rad2Deg;
-        Debug.Log("x : " + x + ", y : " + y +  ",각도 : " + angle);
+        //Debug.Log(" [AI Batter] - x : " + x + ", y : " + y +  ",각도 : " + angle);
         MoveAxis(angle);
         //기울기만큼 angle 수정
     }

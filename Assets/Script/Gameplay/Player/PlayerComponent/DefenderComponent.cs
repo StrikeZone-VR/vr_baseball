@@ -199,23 +199,25 @@ public class DefenderComponent : PlayerComponent
     }
 
     #region PROPERTIES
+    /// <summary>
+    /// isInPosition 뒤에 호출해라.
+    /// </summary>
     public bool IsTracking
     {
         get => isTracking;
         set
         {
             isTracking = value;
-
-            // if (gameObject.name == "ShortStop")
-            // {
-            //     Debug.Log("ShortStop : " + isTracking);
-            // }
             
             //분명 movePlayer에 !nav를 했는데...
             
             //공 패스중이면 그냥 대기해라
             if (player.IsPassingBall())
             {
+                if (gameObject.name == "Catcher")
+                {
+                    Debug.Log("[catchman] : um");
+                }
                 isTracking = false;
             }
             
@@ -224,10 +226,18 @@ public class DefenderComponent : PlayerComponent
                 //long base dis => go to the base
                 if (IsInPosition)
                 {
+                    if (gameObject.name == "Catcher")
+                    {
+                        Debug.Log("[catchman] : um2");
+                    }
                     player.StopMove();
                 }
                 else
                 {
+                    if (gameObject.name == "Catcher")
+                    {
+                        Debug.Log("<color=green>[catchman] : 썸띵온유얼 마인</color>" + defenderTransform.position);
+                    }
                     player.MovePlayer(defenderTransform.position);
                 }
             }

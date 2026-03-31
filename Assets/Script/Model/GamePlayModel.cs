@@ -222,6 +222,7 @@ public class GamePlayModel : GameModel
         }
         runners[runners.Count - 1] = batterComponent;
     }
+
     
     public void MoveBaseRunner()
     {
@@ -255,7 +256,7 @@ public class GamePlayModel : GameModel
     public void FoulRollbackBeforeStatus()
     {
         _teamStatus[GetTeamIndex()].Score = before_score;
-
+        
         //그리고 주자 맨 뒤는 제거. 혹시 모르니 if문으로 사이즈 오버되면 null처리
         for (int i = 0; i < before_runners.Count; i++)
         {

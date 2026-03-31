@@ -132,8 +132,6 @@ public class GamePlayManager : GameManager
         
         SetMyBodyCamera();
         
-        
-        
         gamePlayModel.SetPanel(_baseStatusPanel);
         Inning = 0;
     }
@@ -175,7 +173,7 @@ public class GamePlayManager : GameManager
                 {
                     return;
                 }
-                
+
                 //다시 처음
                 PitcherGetBall();
             }
@@ -273,14 +271,6 @@ public class GamePlayManager : GameManager
                 value = 0;
                 Inning++;
             }
-            else
-            {
-                //투수인 경우
-                if (!gamePlayModel.IsMyTeamBatting())
-                {
-                    NextBatter();
-                }
-            }
             gamePlayModel.OutCount = value;
 
             gamePlayController.SetUIGameStatusIndex(2, value);
@@ -341,6 +331,7 @@ public class GamePlayManager : GameManager
 
     private void AddOut()
     {
+        Debug.Log("[Batter] : out");
         OutCount++;
     }
 
@@ -479,15 +470,16 @@ public class GamePlayManager : GameManager
     /// </summary>
     protected override void PitcherGetBall()
     {
-        
         isFlyingOut = false;
         
+        Debug.Log("[Game] : ResetBall");
         //포수 위치 변환
         CatcherComponent catcherComponent = GetDefenderComponent(4) as CatcherComponent;
         catcherComponent.DefendIndex = 0;
 
         //디버그 베이스 세팅보여주기
         DebugBaseStatus();
+        
         
         //batting mode
         if (gamePlayModel.IsMyTeamBatting())
@@ -498,7 +490,19 @@ public class GamePlayManager : GameManager
         //이게 그러니까 pitchermode
         else
         {
-            //NextBatter(); //currentBatter에 어차피 들어감
+            //근데 player는 canBack때문에 Batter를 생성하는데 여기선 그런게 없잖아?
+            //문제는 아웃됐을때도 생성이 되는데?
+            //여기서 NextBatter를 하면 안되는 이유
+            
+            //1. Out한 경우에도 NextBatter가 있음
+            //2. 순서 꼬여서 이닝 바뀌었는데 적 주자가 생성될 수 있음
+            //3. Player의 TransformMyBodyToBatter 함수때문에
+            
+            //그러나 결국 여기에 NextBatter에 넣고
+            // 주자 꼬이는거 막자.
+            //currentBatter에 어차피 들어감
+            
+            NextBatter(); 
             pitchingController.ResetBall();
         }
     }
@@ -647,9 +651,15 @@ public class GamePlayManager : GameManager
         currentBatterComponent.IsMove = true;
     }
 
-    //AI, 타자 변환
+    /// <summary>
+    /// 투수모드에서 AI 타자 생성 
+    /// </summary>
+    /// <param name="isAI"></param>
+    /// <param name="base_index"></param>
+    /// <returns></returns>
     private BatterComponent NextBatter(bool isAI = true, int base_index = 0)
     {
+        Debug.Log("[Game] 생성");
         //어차피 아웃되거나 안타 확정될때 초기화 해야함
         BallCount = 0;
         Strike = 0;
@@ -734,6 +744,7 @@ public class GamePlayManager : GameManager
     
     private void RollbackBeforeStatus()
     {
+        gamePlayModel.DebugBeforeStatus();
         //되돌아가는데 점수를 얻은 경우
         if (gamePlayModel.BeforeScore != gamePlayModel.GetScore())
         {
@@ -744,12 +755,16 @@ public class GamePlayManager : GameManager
         
         currentBatterComponent.IsMove = false;
         gamePlayModel.FoulRollbackBeforeStatus(); //정보만 바뀜
-        
-        if(gamePlayModel.IsMyTeamBatting())
+
+        if (gamePlayModel.IsMyTeamBatting())
+        {
             StartCoroutine(TranslateBattingView());
+        }
         else //AI타자가 파울이면?
         {
-            //todo
+            gamePlayModel.GetLastRunner().SetBaseIndexPosition(0);
+            //맨 뒤 주자 제거
+            gamePlayModel.RemoveLastRunner();
         }
 
         //내가 타자라면 그냥 페이드아웃
@@ -794,7 +809,7 @@ public class GamePlayManager : GameManager
     //주자 돌아가는 함수 => 이게 가장 문제다.
     private void StartBatter()
     {
-        Debug.Log("타자 Mode On");
+        Debug.Log("<color=red>[GamePlay] : 타자 Mode On</color>");
 
         pitchingController.EndPitchingGame();
         defenders[0].gameObject.SetActive(true); //pitcher로 하면 mybody도 true가 될 수 있으니까
@@ -862,7 +877,7 @@ public class GamePlayManager : GameManager
     #region PITCHINGMODE
     private void StartPitcher()
     {
-        Debug.Log("투수 Mode On");
+        Debug.Log("<color=red>[GamePlay] : 투수 Mode On</color>");
 
         GetDefenderComponent(0).IsTracking = false;
         _pitcherComponent.IsThrowBallStop = true;
@@ -871,7 +886,11 @@ public class GamePlayManager : GameManager
 
         //방망이 위치 Vector3(-0.660000026,1.37,0.150000006) 여기로
         //방망이 중력, rotation position 얼리기
-        //NextBatter();
+        NextBatter();
+        
+        //포수 공 받는 위치로 변환
+        CatcherComponent catcherComponent = GetDefenderComponent(4) as CatcherComponent;
+        catcherComponent.DefendIndex = 0;
         
         StartCoroutine(TranslatePitchingView());
     }
@@ -1138,7 +1157,7 @@ public class GamePlayManager : GameManager
         
     }
 
-    void DebugHitting(bool isFoul = false)
+    void DebugHitting()
     {
         Debug.Log("디버깅용 타자 안타 함수 - player는 타자");
         //공을 던지면 isPassing, isThrown
@@ -1147,13 +1166,10 @@ public class GamePlayManager : GameManager
         float y = 0.5f;
         float z = Random.Range(-1.0f, 0f);
 
-        if (isFoul)
-        {
-            x = 0.5f;
-            z = 0.5f;
-        }
-        x = -0.5f;
-        z = -0.5f;
+
+        //파울
+        //x = 0.5f;
+        //z = 0.5f;
         
         //Debug.Log("던지기 + " + x + ", " + z);
         //공 던지는 코루틴도 제거

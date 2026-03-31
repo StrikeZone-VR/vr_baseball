@@ -149,7 +149,7 @@ public class Baseball : MonoBehaviour
             IsStrike = true;
             debugShootTime2 = Time.time - debugShootTime2;
 
-            Debug.Log("시간 차이(양수면 실제 시간이 오래 걸린겨) : " + (debugShootTime2 - debugShootTime));
+            //Debug.Log("[Pitcher] : 시간 차이(양수면 실제 시간이 오래 걸린겨) : " + (debugShootTime2 - debugShootTime));
             //Debug.Break();
             //addStrikeEvent.RaiseEvent();
         }
@@ -158,15 +158,7 @@ public class Baseball : MonoBehaviour
         //foul
         if (collider.CompareTag("Foul"))
         {
-            if (IsBatTouch && isThrown && !IsGroundBall )
-            {
-                foulEvent.RaiseEvent();
-            }
-            if(!isBack)
-            {
-                isBack = true;
-                backToPitcherEvent.RaiseEvent();
-            }
+            Foul();
         }
 
         //homerun
@@ -192,6 +184,12 @@ public class Baseball : MonoBehaviour
         {
             if (myDefenderComponent == null)
             {
+                //파울
+                if ((transform.position.x > 0 || transform.position.z > 0) && IsBatTouch)
+                {
+                    Foul();
+                    return;
+                }
                 PitchResult();
                 
                 IsPassing = false;
@@ -203,7 +201,9 @@ public class Baseball : MonoBehaviour
                     //throw ball but swing miss
                 }
             }
+
         }
+
 
         //in play game
         if (collision.collider.CompareTag("Bat"))
@@ -415,13 +415,18 @@ public class Baseball : MonoBehaviour
         get => myDefenderComponent;
         set
         {
-            //Debug.Log("설정");
             myDefenderComponent = value;
+            
             if (myDefenderComponent)
             {
                 DefenderDis = 0;
                 IsPassing = false;
+                _rigidbody.useGravity = false;
                 allTrackingOffEvent.RaiseEvent();
+            }
+            else
+            {
+                _rigidbody.useGravity = true;
             }
         }
     }
@@ -441,8 +446,8 @@ public class Baseball : MonoBehaviour
             return;
         }
 
-        myDefenderComponent.RemoveBall();
-        myDefenderComponent = null;
+        MyDefenderComponent.RemoveBall();
+        MyDefenderComponent = null;
     }
 
     public bool IsZone
@@ -459,7 +464,6 @@ public class Baseball : MonoBehaviour
         get => isStrike;
         set
         {
-            Debug.Log("왜 스트라이크 : "  + value);
             isStrike = value;
         }
     }
@@ -483,6 +487,7 @@ public class Baseball : MonoBehaviour
     {
         if (_rigidbody != null)
         {
+            //Debug.Log(position);
             _rigidbody.position = position;
         }
     }
@@ -755,13 +760,11 @@ public class Baseball : MonoBehaviour
 
     public void OnTouchBall()
     {
-        Debug.Log("온온이");
         grabInteractable.enabled = true;
     }
 
     public void OffTouchBall()
     {
-        Debug.Log("어프어프이");
         grabInteractable.enabled = false;
     }
     
@@ -791,7 +794,6 @@ public class Baseball : MonoBehaviour
     
     IEnumerator StartSwingAfter(float delay)
     {
-        
         //Debug.Log("시간 (음수면 안된다): " + delay); //3.3
         yield return new WaitForSeconds(delay);
         
@@ -904,5 +906,19 @@ public class Baseball : MonoBehaviour
             isBack = true;
             backToPitcherEvent.RaiseEvent();
         }
+    }
+
+    private void Foul()
+    {
+        if (IsBatTouch && isThrown && !IsGroundBall )
+        {
+            foulEvent.RaiseEvent();
+        }
+        if(!isBack)
+        {
+            isBack = true;
+            backToPitcherEvent.RaiseEvent();
+        }
+
     }
 }
