@@ -52,10 +52,10 @@ public class BasemanComponent : DefenderComponent
         get => isInPosition;
         set
         {
-            if (base_index == 4)
-            {
-                Debug.Log("[catchman] isInposition : " + value);
-            }
+            // if (base_index == 4)
+            // {
+            //     Debug.Log("[catchman] isInposition : " + value);
+            // }
             isInPosition = value;
 
             //어차피 플라잉 아웃은 그 전에 된 게 아닐까

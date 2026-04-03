@@ -214,10 +214,10 @@ public class DefenderComponent : PlayerComponent
             //공 패스중이면 그냥 대기해라
             if (player.IsPassingBall())
             {
-                if (gameObject.name == "Catcher")
-                {
-                    Debug.Log("[catchman] : um");
-                }
+                // if (gameObject.name == "Catcher")
+                // {
+                //     Debug.Log("[catchman] : um");
+                // }
                 isTracking = false;
             }
             
@@ -226,18 +226,18 @@ public class DefenderComponent : PlayerComponent
                 //long base dis => go to the base
                 if (IsInPosition)
                 {
-                    if (gameObject.name == "Catcher")
-                    {
-                        Debug.Log("[catchman] : um2");
-                    }
+                    // if (gameObject.name == "Catcher")
+                    // {
+                    //     Debug.Log("[catchman] : um2");
+                    // }
                     player.StopMove();
                 }
                 else
                 {
-                    if (gameObject.name == "Catcher")
-                    {
-                        Debug.Log("<color=green>[catchman] : 썸띵온유얼 마인</color>" + defenderTransform.position);
-                    }
+                    // if (gameObject.name == "Catcher")
+                    // {
+                    //     Debug.Log("<color=green>[catchman] : 썸띵온유얼 마인</color>" + defenderTransform.position);
+                    // }
                     player.MovePlayer(defenderTransform.position);
                 }
             }

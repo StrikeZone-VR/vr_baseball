@@ -50,7 +50,7 @@ public class GamePlayManager : GameManager
     [SerializeField] private VoidEventSO startPitcherModeEvent; //to batter
     [SerializeField] private VoidEventSO swingEvent; //to Pitcher, auto swing
     [SerializeField] private VoidEventSO pitchEvent; //to PitchingBallController
-    [SerializeField] private VoidEventSO onCanBackBatterEvent;
+    [SerializeField] private VoidEventSO onCanBackBatterEvent; //
 
     [Space]
     [SerializeField] private VoidEventSO allTrackingOffEvent; //to baseball
@@ -174,7 +174,8 @@ public class GamePlayManager : GameManager
                     return;
                 }
 
-                //다시 처음
+                
+                
                 PitcherGetBall();
             }
             else //플레이어 투수가 공을 잡은 경우
@@ -250,7 +251,7 @@ public class GamePlayManager : GameManager
             }
             else
             {
-                StartPitcher();
+                StartPitcherMode();
             }
             
             gamePlayController.SetInningText(value);
@@ -265,12 +266,25 @@ public class GamePlayManager : GameManager
             BallCount = 0;
             Strike = 0;
 
+            //debug
+            if (currentBatterComponent)
+            {
+                Debug.Log("[Batter] 아웃 주자 있음 : " + currentBatterComponent.name);
+            }
+            else
+            {
+                Debug.Log("[Batter] 주자 없음 : ");
+            }
+            
             //change inning
             if (value >= GamePlayModel.MAX_OUT_COUNT)
             {
                 value = 0;
                 Inning++;
             }
+            
+            
+            
             gamePlayModel.OutCount = value;
 
             gamePlayController.SetUIGameStatusIndex(2, value);
@@ -368,11 +382,15 @@ public class GamePlayManager : GameManager
         AddStrike();
     }
 
+    /// <summary>
+    /// 홈런치면 뒤에
+    /// </summary>
     protected override void Homerun()
     {
         Debug.Log("홈런");
         AddScore(gamePlayModel.GetRunnerCount());
         ClearRunners();
+        currentBatterComponent = NextBatter(); //주자 나와야 함
         ++HomerunCount;
     }
 
@@ -466,7 +484,8 @@ public class GamePlayManager : GameManager
 
     //backToPitcherEvent => 이거 던질 곳 없거나 안타치는 순간 겹친다 그냥
     /// <summary>
-    /// 
+    /// 애초에 공을 받는 함수
+    /// 파울, 스트라이크 뭐든 하면 이 함수가 출력 => 그래서 createBatter에 적합하지 않음
     /// </summary>
     protected override void PitcherGetBall()
     {
@@ -491,18 +510,33 @@ public class GamePlayManager : GameManager
         else
         {
             //근데 player는 canBack때문에 Batter를 생성하는데 여기선 그런게 없잖아?
+            // ㄴ 이거를 해결해야함
+            
             //문제는 아웃됐을때도 생성이 되는데?
+            
             //여기서 NextBatter를 하면 안되는 이유
+            //1. Player의 TransformMyBodyToBatter 함수때문에
+            //2. 이러니까 디버깅에서 꼬이네
             
-            //1. Out한 경우에도 NextBatter가 있음
-            //2. 순서 꼬여서 이닝 바뀌었는데 적 주자가 생성될 수 있음
-            //3. Player의 TransformMyBodyToBatter 함수때문에
             
-            //그러나 결국 여기에 NextBatter에 넣고
-            // 주자 꼬이는거 막자.
-            //currentBatter에 어차피 들어감
+            //주자 생성
+            //기본 조건 : 투수모드
+            //그냥 주자가 안 움직이고 index가 1 이상이면 Next?
+            //또는 current가 Null이면
+            if (!currentBatterComponent 
+                || (!currentBatterComponent.IsMove && currentBatterComponent.BaseIndex >= 1))
+            {
+                currentBatterComponent = NextBatter();
+            }
+            else if (currentBatterComponent)
+            {
+                Debug.Log("아직 살아있다...");
+            }
+            //애초에 
             
-            NextBatter(); 
+            //
+            
+            //NextBatter(); 
             pitchingController.ResetBall();
         }
     }
@@ -652,14 +686,16 @@ public class GamePlayManager : GameManager
     }
 
     /// <summary>
-    /// 투수모드에서 AI 타자 생성 
+    /// 투수모드에서 AI 타자 생성.
+    /// 아웃, 홈런, 사구 각각 있음
+    /// ㄴ 파울은 아님
     /// </summary>
     /// <param name="isAI"></param>
     /// <param name="base_index"></param>
     /// <returns></returns>
     private BatterComponent NextBatter(bool isAI = true, int base_index = 0)
     {
-        Debug.Log("[Game] 생성");
+        //Debug.Log("[Batter] 생성");
         //어차피 아웃되거나 안타 확정될때 초기화 해야함
         BallCount = 0;
         Strike = 0;
@@ -670,7 +706,7 @@ public class GamePlayManager : GameManager
     //AI, 타자 변환, 파울이나 플라잉아웃시 되돌아오는 것  모두 Batter를 생성
     private BatterComponent CreateBatter(bool isAI = true, int base_index = 0)
     {
-        Debug.Log("타자 생성");
+        Debug.Log("[Batter]  타자 생성");
         Player batter = Instantiate(batterPrefab, batterCreatePosition);
         BatterComponent batterComponent = batter.GetComponent<BatterComponent>();
         
@@ -728,7 +764,7 @@ public class GamePlayManager : GameManager
         else
         {
             gamePlayModel.AddRunner(currentBatterComponent);
-            gamePlayModel.MoveBaseRunner();
+            gamePlayModel.MoveBaseRunner(); // 왜 안움직이지
             currentBatterComponent = NextBatter();
         }
 
@@ -809,7 +845,7 @@ public class GamePlayManager : GameManager
     //주자 돌아가는 함수 => 이게 가장 문제다.
     private void StartBatter()
     {
-        Debug.Log("<color=red>[GamePlay] : 타자 Mode On</color>");
+        Debug.Log("<color=green>[GamePlay] : 타자 Mode On</color>");
 
         pitchingController.EndPitchingGame();
         defenders[0].gameObject.SetActive(true); //pitcher로 하면 mybody도 true가 될 수 있으니까
@@ -875,18 +911,20 @@ public class GamePlayManager : GameManager
     #endregion 
     
     #region PITCHINGMODE
-    private void StartPitcher()
+    private void StartPitcherMode()
     {
-        Debug.Log("<color=red>[GamePlay] : 투수 Mode On</color>");
+        Debug.Log("<color=green>[GamePlay] : 투수 Mode On</color>");
 
         GetDefenderComponent(0).IsTracking = false;
         _pitcherComponent.IsThrowBallStop = true;
         pitchingController.StartPitchingGame();
         defenders[0].gameObject.SetActive(false);
+        
+        currentBatterComponent = NextBatter();
 
         //방망이 위치 Vector3(-0.660000026,1.37,0.150000006) 여기로
         //방망이 중력, rotation position 얼리기
-        NextBatter();
+        //; //OutCount에 넣었으면 안 넣어도 됨
         
         //포수 공 받는 위치로 변환
         CatcherComponent catcherComponent = GetDefenderComponent(4) as CatcherComponent;
@@ -1205,7 +1243,7 @@ public class GamePlayManager : GameManager
 
     private void DebugThrowBall()
     {
-        PitcherGetBall();
+        PitcherGetBall(); //공을 가져옴
         _ball.DebugThrowPlayerBall();
     }
     

@@ -133,6 +133,12 @@ public class Baseball : MonoBehaviour
         {
             Homerun();
         }
+
+        //그냥 파울처리
+        if (transform.position.y < -100f)
+        {
+            Foul();
+        }
     }
 
     private void OnTriggerEnter(Collider collider)
