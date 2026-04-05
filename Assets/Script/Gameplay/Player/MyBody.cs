@@ -72,6 +72,21 @@ public class MyBody : Player
         BatterComponent batterComponent = _playerComponent as BatterComponent;
         return batterComponent.IsIntoBase(other);
     }
+
+    public void SetMode(bool isBatter)
+    {
+        Debug.Log(isBatter);
+        if (isBatter)
+        {
+            subComponent.enabled = false;
+            _playerComponent.enabled = true;
+        }
+        else
+        {
+            subComponent.enabled = true;
+            _playerComponent.enabled = false;
+        }
+    }
     
 
     public MyBatterComponent GetMyBatterComponent()

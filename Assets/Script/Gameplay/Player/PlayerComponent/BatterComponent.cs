@@ -12,6 +12,7 @@ public class BatterComponent : PlayerComponent
     [SerializeField] protected int base_index = 0; // 1 2 3 => 0은 1루 가기 전 상태
    
     [SerializeField] protected Transform[] bases;
+    [SerializeField] protected Transform init_base;
     [SerializeField] private Bat bat;
 
     [Header("Listening to Events")]
@@ -41,6 +42,7 @@ public class BatterComponent : PlayerComponent
         {
             if (base_index == 0)
             {
+                Debug.Log("이게 나오면 안된다.");
                 ReadyBatting();
             }
         }
@@ -96,6 +98,7 @@ public class BatterComponent : PlayerComponent
     public virtual void OutPlayer(bool isMove = true)
     {
         player.StopMove();
+        Debug.Log("진짜 아웃");
         Destroy(this.gameObject);
     }
 
@@ -156,17 +159,18 @@ public class BatterComponent : PlayerComponent
         }
     }
 
-    public void SetBases(Transform[] bases)
+    public void SetBases(Transform[] bases,Transform init_base)
     {
+        this.init_base = init_base;
         this.bases = bases;
     }
 
     public void SetBaseIndexPosition(int baseIndex)
     {
-        
         if (base_index == 0)
         {
-            transform.position = bases[3].position;
+            //이거 안하면 괜히 이상한 스트라이크존에 AI가 서있는다.
+            transform.position = init_base.position;
             BaseIndex = baseIndex;
             IsMove = false;
 

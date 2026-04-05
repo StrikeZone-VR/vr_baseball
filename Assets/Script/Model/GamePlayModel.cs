@@ -229,7 +229,7 @@ public class GamePlayModel : GameModel
         for (int i = 0; i < runners.Count; i++)
         {
             //1 안나오면 참사
-            Debug.Log("볼이니까 옴직이라고 베이스 : " + runners[i].BaseIndex + 1);
+            Debug.Log("볼이니까 옴직이라고 베이스 : " + (runners[i].BaseIndex + 1));
             runners[i].SetBaseIndexPosition(runners[i].BaseIndex + 1);
         }
     }

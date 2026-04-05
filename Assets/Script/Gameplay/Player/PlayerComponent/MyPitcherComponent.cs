@@ -10,8 +10,13 @@ public class MyPitcherComponent : PitcherComponent
 
     protected override void Update()
     {
+        //일부로 이렇게 함
     }
     
+    void OnCollisionEnter(Collision collision)
+    {
+        //일부로 이렇게 함
+    }
     public void ForceGrab()
     {
         //_ball

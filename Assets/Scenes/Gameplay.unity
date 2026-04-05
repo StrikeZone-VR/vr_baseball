@@ -3773,7 +3773,8 @@ MonoBehaviour:
   - {fileID: 577640461}
   - {fileID: 267951508}
   - {fileID: 48931140}
-  - {fileID: 1232322307}
+  - {fileID: 331307944}
+  init_base: {fileID: 331307944}
   myBody: {fileID: 1628165484}
   gamePlayController: {fileID: 213368713}
   pitchingController: {fileID: 768156389}
@@ -5514,6 +5515,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 877522169}
     - target: {fileID: 4782834798684806325, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+      propertyPath: init_base
+      value: 
+      objectReference: {fileID: 331307944}
+    - target: {fileID: 4782834798684806325, guid: 94dea2237579799438c711b8f54134c9, type: 3}
       propertyPath: bases.Array.size
       value: 4
       objectReference: {fileID: 0}
@@ -5567,6 +5572,10 @@ PrefabInstance:
       objectReference: {fileID: 11400000, guid: adc39812077ff9249bd346c0a7444b86, type: 2}
     - target: {fileID: 6213781704411799925, guid: 94dea2237579799438c711b8f54134c9, type: 3}
       propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6213781704411799925, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+      propertyPath: m_IsTrigger
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6213781704411799925, guid: 94dea2237579799438c711b8f54134c9, type: 3}
