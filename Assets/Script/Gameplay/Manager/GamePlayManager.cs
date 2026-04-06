@@ -73,6 +73,7 @@ public class GamePlayManager : GameManager
     private Coroutine waitPitcherCoroutine;
     
     private bool isFlyingOut = false;
+    private bool canGetBall = true; //호출 위치를 어디에 해야할지 모르겠네
     private bool isPrint = false; //debug
     
     //define
@@ -203,6 +204,7 @@ public class GamePlayManager : GameManager
     /// </summary>
     protected override void PitcherGetBall()
     {
+        canGetBall = false;
         isFlyingOut = false;
         
         Debug.Log("[Game] : ResetBall");
@@ -217,6 +219,7 @@ public class GamePlayManager : GameManager
         if (gamePlayModel.IsMyTeamBatting())
         {
             waitPitcherCoroutine = StartCoroutine(WaitingBackToPitcher());
+            //안에 canGetBall 변수가 있음. 
         }
         //이게 그러니까 pitchermode
         else
@@ -235,6 +238,7 @@ public class GamePlayManager : GameManager
                 Debug.Log("아직 살아있다...");
             }
             pitchingController.ResetBall();
+            canGetBall = true;
         }
     }
     
@@ -248,7 +252,8 @@ public class GamePlayManager : GameManager
         myBody.GetMyBatterComponent().IsOut = false;
         
         //yield return new WaitForSeconds(WAIT_TIME);
-        yield return null; //debug
+        yield return null; //빠른 테스트를 위해
+        canGetBall = true;
         
         //만약 돌아올때 비활성화 된 경우
         if (defenders[0].gameObject.activeSelf)
@@ -716,7 +721,8 @@ public class GamePlayManager : GameManager
                     return;
                 }
 
-                PitcherGetBall();
+                if(canGetBall)
+                    PitcherGetBall();
             }
             //플레이어 투수가 공을 잡은 경우
         }

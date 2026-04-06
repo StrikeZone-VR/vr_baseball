@@ -40,9 +40,11 @@ public class BatterComponent : PlayerComponent
 
         if (collision.gameObject.CompareTag("BatterPos"))
         {
+            Debug.Log("[Batter] : 이거는 나와도 되는데");
+
             if (base_index == 0)
             {
-                Debug.Log("이게 나오면 안된다.");
+                Debug.Log("[Batter] : 이거는 나오면 안된다");
                 ReadyBatting();
             }
         }
@@ -139,6 +141,7 @@ public class BatterComponent : PlayerComponent
                 return;
             }
 
+            Debug.Log("[Batter] base_index "+ name + ": " + value);
             //arrive home
             if (value >= bases.Length)
             {
@@ -167,7 +170,7 @@ public class BatterComponent : PlayerComponent
 
     public void SetBaseIndexPosition(int baseIndex)
     {
-        if (base_index == 0)
+        if (baseIndex == 0)
         {
             //이거 안하면 괜히 이상한 스트라이크존에 AI가 서있는다.
             transform.position = init_base.position;
@@ -179,7 +182,6 @@ public class BatterComponent : PlayerComponent
         
         BaseIndex = baseIndex;
         IsMove = false;
-        //1 => 
 
         transform.position = bases[baseIndex - 1].position;
     }

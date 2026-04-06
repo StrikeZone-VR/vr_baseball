@@ -317,14 +317,14 @@ public class Baseball : MonoBehaviour
         else if (bat.IsSwing()) //스윙여부 == true => 스윙했는데 방망이를 건들지 않은 경우
         {
             playAudioClipEvent.RaiseEvent(3);
-            Debug.Log("스트라이크1");
+            Debug.Log("[Game] : 스트라이크1");
             addStrikeEvent.RaiseEvent();
             //backToPitcherEvent.RaiseEvent();
         }
         else if(IsStrike) //스윙 안했는데 스트라이크존에 들어간 경우
         {
             playAudioClipEvent.RaiseEvent(3);
-            Debug.Log("스트라이크2");
+            Debug.Log("[Game] : 스트라이크2");
             addStrikeEvent.RaiseEvent();
             //backToPitcherEvent.RaiseEvent();
         }
