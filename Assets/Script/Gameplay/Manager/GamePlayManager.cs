@@ -671,7 +671,9 @@ public class GamePlayManager : GameManager
         }
         //tracking => 혹시 포수가 못 잡을 수 있으니 isBatTouch는 넣지말자
         //if (!_ball.IsPassing && _ball.IsGroundBall && !_ball.IsThrown)
-        if(_ball.IsBatTouch)
+        
+        //인 게임 플레이
+        if(_ball.CurrentState == BallState.Hit || _ball.CurrentState == BallState.FreeBall)
         {
             int index = FindClosestDefenderIndex();
             OnlyOneTrackingOn(index);
@@ -754,7 +756,7 @@ public class GamePlayManager : GameManager
         //수비수 : 1 2 3 4
         
         // 기본적으로 공을 가지고있는 상태
-        if (!_ball.IsBatTouch || !GetDefenderComponent(base_index + 1).IsInPosition)
+        if (!_ball.IsHit || !GetDefenderComponent(base_index + 1).IsInPosition)
         {
             //Debug.LogError("1탄 : " + _ball.IsBatTouch + ", " + GetDefenderComponent(base_index + 1).IsInPosition);
             return;
@@ -1224,7 +1226,7 @@ public class GamePlayManager : GameManager
         
         //no Defender
         _ball.RemoveDefender();
-        _ball.IsThrown = true;
+        _ball.CurrentState = BallState.Thrown;
         //_ball.IsPassing = true;
         _ball.SetPosition(batterPosition.position + new Vector3(0, 2.0f, 0));
         _ball.SetVelocity(new Vector3(x, y, z) * 22f);
@@ -1237,7 +1239,7 @@ public class GamePlayManager : GameManager
         
         //친 순간은
         //땅볼과 isBack 제외 모두 체크
-        _ball.IsBatTouch = true;
+        _ball.IsHit = true;
         _ball.IsZone = true;
         _ball.IsStrike = true;
         _ball.IsGroundBall = false;

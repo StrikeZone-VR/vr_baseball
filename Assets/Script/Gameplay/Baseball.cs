@@ -16,20 +16,20 @@ public class Baseball : MonoBehaviour
     [SerializeField] private DefenderComponent myDefenderComponent; //handling player
     private Rigidbody _rigidbody;
     private XRGrabInteractable grabInteractable;
-
     [SerializeField] private float defenderDis = 0.0f;
     [SerializeField] private Bat bat;
     
     [Space]
     [Header("Booleans")] 
-    [SerializeField] private bool isGroundBall = false;
-    [SerializeField] private bool isBatTouch = false;
-    [SerializeField] private bool isPassing = false;
+    [SerializeField] private bool isGroundBall = false; //플라잉 아웃 판별 
     [SerializeField] private bool isZone = false;
     [SerializeField] private bool isStrike = false;
-    [SerializeField] private bool isThrown = false;
-    [SerializeField] private bool isBack = false;
+    [SerializeField] public bool IsHit { get; set; } = false;
+
+    [SerializeField] private BallState _currentState = BallState.Idle;
     private bool hasPassedStrikeZone = true;
+    
+    //isStrike와 isZone은 킵?
 
     
     [Space]
@@ -104,7 +104,7 @@ public class Baseball : MonoBehaviour
     void FixedUpdate()
     {
         //커브
-        if (_rigidbody != null)
+        if (!_rigidbody)
         {
             //너무 빨라서 스트라이크존을 지나친 경우의 판정
             float dis = _rigidbody.velocity.magnitude * Time.deltaTime;
@@ -120,7 +120,7 @@ public class Baseball : MonoBehaviour
             }
 
             //curve
-            if (isThrown && SelectPitchType == PitchType.Curve)
+            if (_currentState == BallState.Pitched && SelectPitchType == PitchType.Curve)
             {
                 float deltaTime = Time.time - beforeTime;
                 beforeTime = Time.time;
@@ -191,20 +191,20 @@ public class Baseball : MonoBehaviour
             if (myDefenderComponent == null)
             {
                 //파울
-                if ((transform.position.x > 0 || transform.position.z > 0) && IsBatTouch)
+                if ((transform.position.x > 0 || transform.position.z > 0) && IsHit)
                 {
                     Foul();
                     return;
                 }
                 PitchResult();
                 
-                IsPassing = false;
-                //IsThrown = false; 이거 경기중인데 상관없음
+                //혹여나 송구미스
+                CurrentState = BallState.FreeBall;
 
-                if (isBatTouch)
+                if (IsHit)
                 {
-                    IsGroundBall = true;
                     //throw ball but swing miss
+                    IsGroundBall = true;
                 }
             }
 
@@ -215,7 +215,7 @@ public class Baseball : MonoBehaviour
         if (collision.collider.CompareTag("Bat"))
         {
             //두번 건드리는거 방지
-            if (IsBatTouch)
+            if (IsHit)
             {
                 return;
             };
@@ -227,7 +227,7 @@ public class Baseball : MonoBehaviour
             playAudioClipEvent.RaiseEvent(1); //hit
             
             //Debug.Log("인 플레이 게임");
-            IsBatTouch = true;
+            CurrentState = BallState.Hit;
             //IsThrown = true;
 
             // 공의 Rigidbody 컴포넌트 가져오기
@@ -289,22 +289,18 @@ public class Baseball : MonoBehaviour
         beforeTime = Time.time;
         velocityXY = new Vector3(_rigidbody.velocity.x, 0, _rigidbody.velocity.z);
     }
+    
     //피칭 결과 알려주는 함수
     private void PitchResult()
     {
         //투수가 공을 안 던진경우
-        if (!IsThrown || IsPassing)
+        if (_currentState is BallState.Dead or BallState.Thrown)
         {
             return;
         }
 
-        if(isBack)//홈런이나 파울맞음
-        {
-            return;
-        }
-        
         //볼을 맞춘 경우
-        if (IsBatTouch)
+        if (IsHit)
         {
             if (!isGroundBall) //groundball or flying ball
             {
@@ -328,17 +324,21 @@ public class Baseball : MonoBehaviour
             addStrikeEvent.RaiseEvent();
             //backToPitcherEvent.RaiseEvent();
         }
-        else //스트라이크 존에도 안 닿았고 스윙도 안했다면
+        else if(isZone)//스트라이크 존에도 안 닿았고 스윙도 안했다면
         {
             Debug.Log("볼");
             addBallCountEvent.RaiseEvent();
             //backToPitcherEvent.RaiseEvent();
         }
+        else
+        {
+            Debug.LogWarning("견제도 안했는데 이 경고가 뜬다면 문제가 있는거다.");
+        }
         
         //돌아가라 => 안타 제외
-        if(!isBack && !isBatTouch)
+        if(_currentState != BallState.Dead && _currentState != BallState.Hit)
         {
-            isBack = true;
+            CurrentState = BallState.Dead;
             //임시 막기
             backToPitcherEvent.RaiseEvent(); //이게 IsBatTouch를 false로 만듬
         }
@@ -349,12 +349,6 @@ public class Baseball : MonoBehaviour
 
     public void InitBall()
     {
-        IsBatTouch = false;
-        IsThrown = false;
-        IsGroundBall = false;
-        IsPassing = false;
-        IsZone = false;
-        IsStrike = false;
     }
     public PitchType SelectPitchType
     {
@@ -367,53 +361,42 @@ public class Baseball : MonoBehaviour
             selectedPitchType = value;
         }
     }
-    public bool 
-        IsThrown
-    {
-        get => isThrown;
-        set
-        {
-            isThrown = value;
-            
-            //true면 던지는 경우.
-            if (isThrown)
-            {
-                isBack = false;
-            }
-            //Debug.Log("isThrown : " + isThrown);
-        }
-    }
 
-    public bool IsPassing
+    public BallState CurrentState
     {
-        get => isPassing;
+        get => _currentState;
         set
         {
-            isPassing = value;
-            //Debug.Log("[depender] isPassing : " + isPassing);
+            _currentState = value;
+            switch (_currentState)
+            {
+                case BallState.Pitched:
+                    IsZone = false;
+                    IsStrike = false;
+                    HasPassedStrikeZone = false;
+                    IsHit = false;
+                    IsGroundBall = false;
+                    break;
+                case BallState.Grabbed:
+                    DefenderDis = 0;
+                    _rigidbody.useGravity = false;
+                    allTrackingOffEvent.RaiseEvent();
+                    break;
+
+                case BallState.Hit:
+                    IsHit = true;
+                    runSignalEvent.RaiseEvent();
+                    break;
+            }
         }
+
+
     }
 
     public bool IsGroundBall
     {
         get => isGroundBall;
         set => isGroundBall = value;
-    }
-
-    public bool IsBatTouch
-    {
-        get => isBatTouch;
-        set
-        {
-            //Debug.Log("isBatTouch: " + value);
-            isBatTouch = value;
-            if (isBatTouch)
-            {
-                runSignalEvent.RaiseEvent();
-            }
-
-        } 
-            
     }
 
     public DefenderComponent MyDefenderComponent
@@ -425,10 +408,7 @@ public class Baseball : MonoBehaviour
             
             if (myDefenderComponent)
             {
-                DefenderDis = 0;
-                IsPassing = false;
-                _rigidbody.useGravity = false;
-                allTrackingOffEvent.RaiseEvent();
+                CurrentState = BallState.Grabbed;
             }
             else
             {
@@ -474,7 +454,7 @@ public class Baseball : MonoBehaviour
         }
     }
 
-    public bool HasPassedStrikeZone
+    public bool HasPassedStrikeZone //디버깅
     {
         get => hasPassedStrikeZone;
         set => hasPassedStrikeZone = value;
@@ -483,7 +463,7 @@ public class Baseball : MonoBehaviour
     //위치관련
     public void SetVelocity(Vector3 velocity)
     {
-        if (_rigidbody != null)
+        if (!_rigidbody)
         {
             _rigidbody.velocity = velocity;
             //_rigidbody.angularVelocity = velocity;
@@ -491,7 +471,7 @@ public class Baseball : MonoBehaviour
     }
     public void SetPosition(Vector3 position)
     {
-        if (_rigidbody != null)
+        if (!_rigidbody)
         {
             //Debug.Log(position);
             _rigidbody.position = position;
@@ -668,17 +648,12 @@ public class Baseball : MonoBehaviour
     private void ThrowPlayerBall()
     {
         //경기중에 던지면 알아서 return인데...
-        if (IsThrown)
+        if (_currentState == BallState.Pitched)
         {
             return;
         }
 
-        IsStrike = false;
-        IsBatTouch = false;
-        IsZone = false;
-        IsThrown = true;
-        hasPassedStrikeZone = false;
-        //IsPassing = true;
+        CurrentState = BallState.Pitched;
 
         pitchEvent.RaiseEvent();
 
@@ -716,13 +691,9 @@ public class Baseball : MonoBehaviour
 
     public void DebugThrowPlayerBall()
     {
-        if (IsThrown) return;
+        if (_currentState == BallState.Pitched) return;
         
-        //_rigidbody.transform.position += Vector3.up * 2.0f;
-        IsStrike = false;
-        isBatTouch = false;
-        IsZone = false;
-        IsThrown = true;
+        CurrentState = BallState.Pitched;
         HasPassedStrikeZone = false;
         //IsPassing = true;
 
@@ -903,28 +874,41 @@ public class Baseball : MonoBehaviour
 
     private void Homerun()
     {
-        if (isBatTouch && !IsGroundBall)
+        //땅볼인데 홈런 범위로 넘어갔다면
+        if (IsHit && !IsGroundBall)
             homerunEvent.RaiseEvent();
             
         //만약에 홈런의 두 벽을 맞은 경우 => 두 번 호출 될지도
-        if(!isBack)
+        if(_currentState == BallState.Dead)
         {
-            isBack = true;
+            CurrentState = BallState.Dead;
             backToPitcherEvent.RaiseEvent();
         }
     }
 
     private void Foul()
     {
-        if (IsBatTouch && isThrown && !IsGroundBall )
+        if (IsHit && !IsGroundBall )
         {
             foulEvent.RaiseEvent();
         }
-        if(!isBack)
+        if(_currentState == BallState.Dead)
         {
-            isBack = true;
+            CurrentState = BallState.Dead;
             backToPitcherEvent.RaiseEvent();
         }
 
     }
+}
+
+public enum BallState
+{
+    Idle,       // 초기 상태 (투수 손에 있거나 대기)
+    Pitched,     // 투수가 던져서 허공을 날아가는 중
+    Grabbed,    // 플레이어, 수비수가 공을 잡고 있는 Set 상태
+    Hit,        // 배트에 맞은 상태 (아직)
+    FreeBall,     //Hit이랑 비슷함. 인 게임 플레이지만 아무도 소유하지 못한 상태
+    Thrown,     //passing. 인 게임 플레이?
+    Dead        // 땅에 닿거나, 파울, 홈런 등으로 플레이가 종료된 상태
+                // => 대기동안 주자들은 참는 상황. 돌아갈 준비
 }

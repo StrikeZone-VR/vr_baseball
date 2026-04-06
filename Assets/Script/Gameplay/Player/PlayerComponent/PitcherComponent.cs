@@ -50,7 +50,7 @@ public class PitcherComponent : DefenderComponent
         Debug.Log("[Pitcher] : SetMyBall"); //수비를 하면 Pitching이 안되는지
 
         //만약 배트가 터치됐다면 => 경기중
-        if (myBall.IsBatTouch)
+        if (myBall.IsHit)
         {
             return;
         }
@@ -85,9 +85,7 @@ public class PitcherComponent : DefenderComponent
     //AI 공 던지는 함수
     public void PitchingBall()
     {
-        _myBall.IsThrown = true;
-        _myBall.HasPassedStrikeZone = false;
-        _myBall.IsBatTouch = false;
+        _myBall.CurrentState = BallState.Pitched;
         
         //random value 0 ~ 24
         int index = Random.Range(0, 25);

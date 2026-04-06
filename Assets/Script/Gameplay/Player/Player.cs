@@ -98,9 +98,6 @@ public class Player : MonoBehaviour
     
     
     
-    
-    
-    
     public float GetBallDistance()
     {
         return this.ball.DefenderDis;
@@ -113,7 +110,7 @@ public class Player : MonoBehaviour
 
     public bool IsPassingBall()
     {
-        return ball.IsPassing;
+        return ball.CurrentState == BallState.Thrown;
     }
 
     public DefenderComponent GetBallDefender()

@@ -57,8 +57,8 @@ public class MyPitcherComponent : PitcherComponent
                 handInteractor.interactionManager.SelectExit(handInteractor, currentItems[i]);
             }
         }
-        
-        _myBall.IsPassing = true;
+
+        _myBall.CurrentState = BallState.Thrown;
         
         Vector3 launchVelocity = CalculateLaunchVelocity(transform.position, position, 45f);
         
