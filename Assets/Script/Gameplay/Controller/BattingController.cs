@@ -29,8 +29,6 @@ public class BattingController : GameController
 
     public void PitcherGetBall()
     {
-        ball.InitBall();
-        
         pitcherComponent.SetMyBall(ball);
     }
     

@@ -79,13 +79,12 @@ public class DefenderComponent : PlayerComponent
         {
             return;
         }
-        
         float x = Mathf.Sin(transform.rotation.eulerAngles.y * Mathf.PI / 180);
         float z = Mathf.Cos(transform.rotation.eulerAngles.y * Mathf.PI / 180);
-
+        
         //player angle
         _myBall.SetPosition(
-            transform.position 
+            transform.position
             + new Vector3(BALL_DISTANCE * x, 0.5f, BALL_DISTANCE * z)
         );
     }

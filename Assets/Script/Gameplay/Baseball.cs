@@ -347,9 +347,6 @@ public class Baseball : MonoBehaviour
 
     #region PROPERTY
 
-    public void InitBall()
-    {
-    }
     public PitchType SelectPitchType
     {
         get
@@ -463,7 +460,7 @@ public class Baseball : MonoBehaviour
     //위치관련
     public void SetVelocity(Vector3 velocity)
     {
-        if (!_rigidbody)
+        if (_rigidbody)
         {
             _rigidbody.velocity = velocity;
             //_rigidbody.angularVelocity = velocity;
@@ -471,9 +468,9 @@ public class Baseball : MonoBehaviour
     }
     public void SetPosition(Vector3 position)
     {
-        if (!_rigidbody)
+        if (_rigidbody)
         {
-            //Debug.Log(position);
+            //Debug.Log("공의 고정 위치 : " + position);
             _rigidbody.position = position;
         }
     }
