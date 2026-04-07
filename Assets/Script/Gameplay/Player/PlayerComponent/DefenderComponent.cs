@@ -188,7 +188,7 @@ public class DefenderComponent : PlayerComponent
         }
         
         bool isGroundball = _myBall.IsGroundBall;
-        bool isBatTouch = _myBall.IsHit;
+        bool isBatTouch = _myBall.IsInGamePlay;
 
         //flying out
          if (isBatTouch && !isGroundball)

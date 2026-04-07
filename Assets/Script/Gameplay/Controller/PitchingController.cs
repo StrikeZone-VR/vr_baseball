@@ -54,7 +54,7 @@ public class PitchingController : GameController
         // XR Grab Interactable 강제 활성화 (새 공이 잡힐 수 있도록)
         //ball.OffBallPhysics();
 
-        Debug.Log("설마 이게 계속 메세지가 나온다고?");
+        Debug.Log("이 메세지가 update마냥 나오면 안된다.");
         // init ball
         _ball.SetVelocity(Vector3.zero);
         _ball.SetPosition(ballResetPosition.position);

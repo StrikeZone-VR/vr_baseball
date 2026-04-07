@@ -50,7 +50,7 @@ public class PitcherComponent : DefenderComponent
         Debug.Log("[Pitcher] : SetMyBall"); //수비를 하면 Pitching이 안되는지
 
         //만약 배트가 터치됐다면 => 경기중
-        if (myBall.IsHit)
+        if (myBall.IsInGamePlay)
         {
             return;
         }
@@ -68,6 +68,8 @@ public class PitcherComponent : DefenderComponent
         {
             yield break;
         }
+
+        //스트라이크 보기
         LookAtPlayer(strikeZone.transform.position);
         
         //5임

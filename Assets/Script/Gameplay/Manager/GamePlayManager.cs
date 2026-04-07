@@ -199,8 +199,7 @@ public class GamePlayManager : GameManager
 
     //backToPitcherEvent => 이거 던질 곳 없거나 안타치는 순간 겹친다 그냥
     /// <summary>
-    /// 애초에 공을 받는 함수
-    /// 파울, 스트라이크 뭐든 하면 이 함수가 출력 => 그래서 createBatter에 적합하지 않음
+    /// 애초에 공을 받는 함수. **직접 호출하지 마라** _ball.Dead함수로 호출해라
     /// </summary>
     protected override void PitcherGetBall()
     {
@@ -336,9 +335,11 @@ public class GamePlayManager : GameManager
         if (gamePlayModel.IsMyTeamBatting())
         {
             //DebugMoveBase(1);
-            
+
             //todo : 컨트롤러 이동 허용시키게 해주는 기능
             //debug
+
+
 #if  UNITY_EDITOR
             XRDeviceSimulator xr = Object.FindAnyObjectByType<XRDeviceSimulator>();
             if (xr)
@@ -673,7 +674,7 @@ public class GamePlayManager : GameManager
         //if (!_ball.IsPassing && _ball.IsGroundBall && !_ball.IsThrown)
         
         //인 게임 플레이
-        if(_ball.CurrentState == BallState.Hit || _ball.CurrentState == BallState.FreeBall)
+        if(_ball.IsInGamePlay)
         {
             int index = FindClosestDefenderIndex();
             OnlyOneTrackingOn(index);
@@ -724,7 +725,10 @@ public class GamePlayManager : GameManager
                 }
 
                 if(canGetBall)
-                    PitcherGetBall();
+                {
+                    _ball.CurrentState = BallState.Dead;
+                    //PitcherGetBall();
+                }
             }
             //플레이어 투수가 공을 잡은 경우
         }
@@ -756,7 +760,7 @@ public class GamePlayManager : GameManager
         //수비수 : 1 2 3 4
         
         // 기본적으로 공을 가지고있는 상태
-        if (!_ball.IsHit || !GetDefenderComponent(base_index + 1).IsInPosition)
+        if (!_ball.IsInGamePlay || !GetDefenderComponent(base_index + 1).IsInPosition)
         {
             //Debug.LogError("1탄 : " + _ball.IsBatTouch + ", " + GetDefenderComponent(base_index + 1).IsInPosition);
             return;
@@ -1226,20 +1230,22 @@ public class GamePlayManager : GameManager
         
         //no Defender
         _ball.RemoveDefender();
-        _ball.CurrentState = BallState.Thrown;
-        //_ball.IsPassing = true;
+        
         _ball.SetPosition(batterPosition.position + new Vector3(0, 2.0f, 0));
-        _ball.SetVelocity(new Vector3(x, y, z) * 22f);
+        _ball.SetVelocity(new Vector3(x, y, z) * 20f);
         //10 : 내야 땅볼?
         //20 : 뜬 공
         
         //백 코루틴 제거?
         if(waitPitcherCoroutine != null)
             StopCoroutine(waitPitcherCoroutine);
-        
+
+
+        _ball.CurrentState = BallState.Thrown;
         //친 순간은
         //땅볼과 isBack 제외 모두 체크
-        _ball.IsHit = true;
+        _ball.Hit();
+
         _ball.IsZone = true;
         _ball.IsStrike = true;
         _ball.IsGroundBall = false;
@@ -1254,7 +1260,7 @@ public class GamePlayManager : GameManager
 
     private void DebugThrowBall()
     {
-        PitcherGetBall(); //공을 가져옴
+        _ball.CurrentState = BallState.Dead; //PitcherGetBall(); //공을 가져옴
         _ball.DebugThrowPlayerBall();
     }
     
