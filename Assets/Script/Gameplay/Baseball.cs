@@ -129,16 +129,18 @@ public class Baseball : MonoBehaviour
             }
         }
 
-        //그냥 홈런 범위를 넘어서면
-        if (transform.position.x < -500f && transform.position.z < -500f )
-        {
-            Homerun();
-        }
-
         //그냥 파울처리
         if (transform.position.y < -100f)
         {
-            Foul();
+            //그냥 홈런 범위를 넘어서면
+            if (transform.position.x < 0 && transform.position.z < 0 )
+            {
+                Homerun();
+            }
+            else
+            {
+                Foul();
+            }
         }
     }
 
@@ -467,8 +469,9 @@ public class Baseball : MonoBehaviour
     {
         if (_rigidbody)
         {
+            _rigidbody.transform.rotation = Quaternion.identity;
+            _rigidbody.angularVelocity = Vector3.zero;
             _rigidbody.velocity = velocity;
-            //_rigidbody.angularVelocity = velocity;
         }
     }
     public void SetPosition(Vector3 position)
@@ -783,12 +786,12 @@ public class Baseball : MonoBehaviour
     #region DEBUG
     void OnDrawGizmos()
     {
-        //CalTrajectory(true);
+        CalTrajectory(true);
     }
 
     void OnDrawGizmosSelected()
     {
-        //CalTrajectory(true);
+        CalTrajectory(true);
     }
     void CalTrajectory(bool isDebug = false)
     {
@@ -848,6 +851,8 @@ public class Baseball : MonoBehaviour
                         Gizmos.DrawWireSphere(hit.point, 0.2f);
             
                     _targetPosition = hit.point; // 최종 도착 지점 기록
+                    //Debug.Log("[Defender] : " + _targetPosition);
+
                     break; // 여기서 궤적 그리기 종료
                 }
             }
@@ -881,7 +886,7 @@ public class Baseball : MonoBehaviour
             homerunEvent.RaiseEvent();
             
         //만약에 홈런의 두 벽을 맞은 경우 => 두 번 호출 될지도
-        if(_currentState == BallState.Dead)
+        if(_currentState != BallState.Dead)
         {
             CurrentState = BallState.Dead;
         }
@@ -894,7 +899,7 @@ public class Baseball : MonoBehaviour
         {
             foulEvent.RaiseEvent();
         }
-        if(_currentState == BallState.Dead)
+        if(_currentState != BallState.Dead)
         {
             CurrentState = BallState.Dead;
         }
@@ -904,6 +909,7 @@ public class Baseball : MonoBehaviour
     public void Hit()
     {
         isInGamePlay = true;
+        CurrentState = BallState.FreeBall;
         runSignalEvent.RaiseEvent();
     }
 }

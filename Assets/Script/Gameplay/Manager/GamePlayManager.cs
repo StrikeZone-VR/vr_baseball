@@ -374,25 +374,41 @@ public class GamePlayManager : GameManager
     }
 
     /// <summary>
-    /// 투수모드에서 AI 타자 생성.
+    /// "투수모드"에서 타석에 서있는 AI 타자 생성.
     /// 아웃, 홈런, 사구 각각 있음
     /// ㄴ 파울은 아님
     /// </summary>
     /// <param name="isAI"></param>
     /// <param name="base_index"></param>
     /// <returns></returns>
-    private BatterComponent NextBatter(bool isAI = true, int base_index = 0)
+    private BatterComponent NextBatter(int base_index = 0)
     {
         //Debug.Log("[Batter] 생성");
         //어차피 아웃되거나 안타 확정될때 초기화 해야함
         BallCount = 0;
         Strike = 0;
         
-        return CreateBatter(isAI, base_index);
+        BatterComponent batter = CreateBatter(base_index);
+        
+        //타석인가?
+        // IsMove뒤에 둔 이유 : IsMove에 StopMove이 있음
+        //create 석으로 이동?
+        batter.transform.position = batterCreatePosition.position;
+
+        //베트 자리로 이동
+        batter.gameObject.GetComponent<Player>().MovePlayer(batterPosition.position);
+        currentBatterComponent = batter;
+        
+        return batter;
     }
     
-    //AI, 타자 변환, 파울이나 플라잉아웃시 되돌아오는 것  모두 Batter를 생성
-    private BatterComponent CreateBatter(bool isAI = true, int base_index = 0)
+    /// <summary>
+    /// AI, 타자 변환, 파울이나 플라잉아웃시 되돌아오는 것  모두 Batter를 생성
+    /// </summary>
+    /// <param name="isStartBatter"> true : 타석, false 나머지 </param>
+    /// <param name="base_index"></param>
+    /// <returns></returns>
+    private BatterComponent CreateBatter(int base_index = 0)
     {
         Debug.Log("[Batter]  타자 생성");
         Player batter = Instantiate(batterPrefab, batterCreatePosition);
@@ -413,24 +429,12 @@ public class GamePlayManager : GameManager
             batter.SetShirtColor(_yourTeamColor);
         }
         
-
         gamePlayModel.SaveBeforeStatus();
         
-        batterComponent.BaseIndex = base_index;
+        batterComponent.SetBaseIndexPosition(base_index);
         batterComponent.IsMove = false;
 
         _ball.OffTouchBall(); //.?
-
-        // IsMove뒤에 둔 이유 : IsMove에 StopMove이 있음
-        if (isAI) //AI 타석 
-        {
-            //create 석으로 이동?
-            batter.transform.position = batterCreatePosition.position;
-
-            //베트 자리로 이동
-            batter.MovePlayer(batterPosition.position);
-            currentBatterComponent = batterComponent;
-        }
 
         //runners[0].transform.rotation = Quaternion.LookRotation(bases[2].position);
         return batterComponent;
@@ -446,7 +450,8 @@ public class GamePlayManager : GameManager
         if(gamePlayModel.IsMyTeamBatting())
         {
             //그냥 AI를 생성해서 저쪽에 넣는다.
-            gamePlayModel.AddRunner(NextBatter());
+            gamePlayModel.AddRunner(CreateBatter());
+            Strike = 0;
             gamePlayModel.MoveBaseRunner();
         }
         else
@@ -473,7 +478,7 @@ public class GamePlayManager : GameManager
         if (gamePlayModel.BeforeScore != gamePlayModel.GetScore())
         {
             //runners의 insert 맨 앞 
-            gamePlayModel.InsertRunner(CreateBatter(false, 0));
+            gamePlayModel.InsertRunner(CreateBatter(0));
             //어차피 baseindex는 나중에 설정할거임
         }
         
@@ -543,7 +548,7 @@ public class GamePlayManager : GameManager
         int n = gamePlayModel.GetScore() - gamePlayModel.BeforeScore;
         for (int i = 0; i < n; i++)
         {
-            gamePlayModel.InsertRunner(CreateBatter(false, 0));
+            gamePlayModel.InsertRunner(CreateBatter(0));
         }
         
         gamePlayModel.FlyingOutRollbackBeforeStatus();
@@ -607,7 +612,9 @@ public class GamePlayManager : GameManager
         {
             return;
         }
-        BatterComponent batterComponent = NextBatter(false, myBody.GetMyBatterComponent().BaseIndex);
+        BatterComponent batterComponent = CreateBatter(myBody.GetMyBatterComponent().BaseIndex);
+        BallCount = 0;
+        Strike = 0;
 
         batterComponent.transform.position = myBody.transform.position;//프리펩 정보 이전
         
@@ -676,9 +683,10 @@ public class GamePlayManager : GameManager
         //인 게임 플레이
         if(_ball.IsInGamePlay)
         {
+            //떨어지는 공 위치중에서 가장 가까운 수비수
             int index = FindClosestDefenderIndex();
-            OnlyOneTrackingOn(index);
             //Debug.Log(index);
+            OnlyOneTrackingOn(index);
             
             //closestDefender set tracking
             if (index == -1)
@@ -820,6 +828,8 @@ public class GamePlayManager : GameManager
     private bool ThrowToBase(int index)
     {
         //0 1 2 3
+        //1루까지 2루까지 3루까지 홈까지
+        
         if (_ball.MyDefenderComponent)
         {
             if (index < 0 && 4 <= index) //1루수 ~ 4루수
@@ -829,7 +839,7 @@ public class GamePlayManager : GameManager
             
             //내 베이스맨이 주자가 있는 상태에서 공을 가진 경우. => 트래킹
             //1 2 3 4
-            if (_ball.MyDefenderComponent != defenders[index + 1])
+            if (_ball.MyDefenderComponent != defenders[index + 1].GetPlayerComponent())
             {
                 _ball.MyDefenderComponent.ThrowBall(bases[index].position + new Vector3(0, 0.5f, 0));
             }
@@ -1009,7 +1019,7 @@ public class GamePlayManager : GameManager
             if (value >= BaseballModel.MAX_BALL_COUNT)
             {
                 value = 0;
-
+                
                 //AddBaseStatus();
                 MoveOneBase();
             }
@@ -1067,7 +1077,15 @@ public class GamePlayManager : GameManager
         Debug.Log("홈런");
         AddScore(gamePlayModel.GetRunnerCount());
         ClearRunners();
-        currentBatterComponent = NextBatter(); //주자 나와야 함
+
+        if (gamePlayModel.IsMyTeamBatting())
+        {
+            StartCoroutine(TranslateBattingView());
+        }
+        else
+        {
+            currentBatterComponent = NextBatter(); //주자 나와야 함
+        }
         ++HomerunCount;
     }
 
@@ -1219,10 +1237,11 @@ public class GamePlayManager : GameManager
         float y = 0.5f;
         float z = Random.Range(-1.0f, 0f);
 
-
         //파울
         //x = 0.5f;
         //z = 0.5f;
+        x = -0.5f;
+        z = -0.5f;
         
         //Debug.Log("던지기 + " + x + ", " + z);
         //공 던지는 코루틴도 제거
@@ -1232,7 +1251,7 @@ public class GamePlayManager : GameManager
         _ball.RemoveDefender();
         
         _ball.SetPosition(batterPosition.position + new Vector3(0, 2.0f, 0));
-        _ball.SetVelocity(new Vector3(x, y, z) * 20f);
+        _ball.SetVelocity(new Vector3(x, y, z) * 50f);
         //10 : 내야 땅볼?
         //20 : 뜬 공
         
@@ -1241,7 +1260,7 @@ public class GamePlayManager : GameManager
             StopCoroutine(waitPitcherCoroutine);
 
 
-        _ball.CurrentState = BallState.Thrown;
+        _ball.CurrentState = BallState.Pitched;
         //친 순간은
         //땅볼과 isBack 제외 모두 체크
         _ball.Hit();

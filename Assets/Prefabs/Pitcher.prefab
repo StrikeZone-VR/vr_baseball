@@ -1117,7 +1117,7 @@ NavMeshAgent:
   m_Height: 2
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
-  m_ObstacleAvoidanceType: 4
+  m_ObstacleAvoidanceType: 0
 --- !u!114 &80578521422870307
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1132,6 +1132,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _playerComponent: {fileID: 4403092210914809006}
   shirt: {fileID: 2209532862828005672}
+  ball: {fileID: 0}
 --- !u!114 &4403092210914809006
 MonoBehaviour:
   m_ObjectHideFlags: 0
