@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Runtime.CompilerServices;
 using Unity.XR.CoreUtils;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -200,6 +201,7 @@ public class GamePlayManager : GameManager
     //backToPitcherEvent => 이거 던질 곳 없거나 안타치는 순간 겹친다 그냥
     /// <summary>
     /// 애초에 공을 받는 함수. **직접 호출하지 마라** _ball.Dead함수로 호출해라
+    /// 이거 제외한 함수에 투수에게 직접 공 주는 함수가 있다면 제거해라
     /// </summary>
     protected override void PitcherGetBall()
     {
@@ -232,10 +234,6 @@ public class GamePlayManager : GameManager
             {
                 currentBatterComponent = NextBatter();
             }
-            else if (currentBatterComponent)
-            {
-                Debug.Log("아직 살아있다...");
-            }
             pitchingController.ResetBall();
             canGetBall = true;
         }
@@ -258,7 +256,7 @@ public class GamePlayManager : GameManager
         if (defenders[0].gameObject.activeSelf)
         {
             //canBackRunner
-            battingController.PitcherGetBall();
+            battingController.PitcherGetBall(); //투수가 공 받는 함수
         }
     }
     
@@ -566,8 +564,11 @@ public class GamePlayManager : GameManager
         
         //투수 AI 세팅
         _pitcherComponent.IsThrowBallStop = false;
-        GetDefenderComponent(0).SetMyBall(_ball);
+        _ball.CurrentState = BallState.Dead;
+        
+        //GetDefenderComponent(0).SetMyBall(_ball);
         myBody.SetMode(true);
+        
         
         StartCoroutine(TranslateBattingView());
         //TranslateBattingView();
@@ -636,6 +637,8 @@ public class GamePlayManager : GameManager
         _pitcherComponent.IsThrowBallStop = true;
         pitchingController.StartPitchingGame();
         
+        _ball.CurrentState = BallState.Dead;
+        
         defenders[0].gameObject.SetActive(false);
         myBody.SetMode(false);
         
@@ -644,10 +647,6 @@ public class GamePlayManager : GameManager
         //방망이 위치 Vector3(-0.660000026,1.37,0.150000006) 여기로
         //방망이 중력, rotation position 얼리기
         //; //OutCount에 넣었으면 안 넣어도 됨
-        
-        //포수 공 받는 위치로 변환
-        CatcherComponent catcherComponent = GetDefenderComponent(4) as CatcherComponent;
-        catcherComponent.DefendIndex = 0;
         
         StartCoroutine(TranslatePitchingView());
     }
@@ -726,15 +725,17 @@ public class GamePlayManager : GameManager
                 }
                 
                 
-                //AI투수가 이미 가지고 있다면
+                //AI투수가 공을 가지고 있다면
                 if (_pitcherComponent && _ball.MyDefenderComponent == _pitcherComponent)
                 {
                     return;
                 }
 
+                
                 if(canGetBall)
                 {
-                    _ball.CurrentState = BallState.Dead;
+                    Debug.Log("[Baseball] 상태 : " + _ball.CurrentState);
+                    _ball.CurrentState = BallState.Dead; //죽으면 결국 다시 생기지 않나
                     //PitcherGetBall();
                 }
             }
@@ -744,7 +745,9 @@ public class GamePlayManager : GameManager
     
     private void FlyingOut()
     {
-        AddOut();
+        Debug.Log("[Batting] : 플라잉 아웃");
+
+        //여기에 AddOut을 넣으면 이닝이 바뀌었는데 주자를 제거하고 있음
         isFlyingOut = true;
         gamePlayModel.RemoveLastRunner(); //RemoveRunner로 하면 baseindex = 1이 두명이고 앞선 주자가 아웃이 된다. 
         
@@ -754,6 +757,7 @@ public class GamePlayManager : GameManager
 
         //되돌아가자
         ReverseMoveBase();
+        AddOut(); 
     }
 
     
@@ -859,8 +863,14 @@ public class GamePlayManager : GameManager
         float min = float.MaxValue;
         int index = -1;
         
+        
         for (int i = 0; i < defenders.Length; i++)
         {
+            //투수모드인 경우
+            if (!defenders[i].gameObject.activeSelf)
+            {
+                continue;
+            }
             float dis = GetDistanceBetween(_ball.GetTargetPosition(), defenders[i].transform.position);
             
             if (min > dis)
@@ -870,11 +880,6 @@ public class GamePlayManager : GameManager
             }
         }
 
-        //투수모드인 경우
-        if (!defenders[index].gameObject.activeSelf)
-        {
-            return -1;
-        }
 
         _ball.DefenderDis = min;
         return index;
@@ -953,15 +958,16 @@ public class GamePlayManager : GameManager
             BallCount = 0;
             Strike = 0;
 
-            //debug
-            if (currentBatterComponent)
-            {
-                Debug.Log("[Batter] 아웃 주자 있음 : " + currentBatterComponent.name);
-            }
-            else
-            {
-                Debug.Log("[Batter] 주자 없음 : ");
-            }
+            // //debug
+            // if (currentBatterComponent)
+            // {
+            //     Debug.Log("[Batter] 아웃 주자 있음 : " + currentBatterComponent.name);
+            // }
+            // else
+            // {
+            //     Debug.Log("[Batter] 주자 없음 : ");
+            // }
+            
             
             //change inning
             if (value >= GamePlayModel.MAX_OUT_COUNT)
@@ -969,8 +975,6 @@ public class GamePlayManager : GameManager
                 value = 0;
                 Inning++;
             }
-            
-            
             
             gamePlayModel.OutCount = value;
 
@@ -1022,6 +1026,7 @@ public class GamePlayManager : GameManager
                 
                 //AddBaseStatus();
                 MoveOneBase();
+                gamePlayModel.SaveBeforeStatus();
             }
 
             baseballModel.BallCount = value;
@@ -1193,6 +1198,8 @@ public class GamePlayManager : GameManager
         if (Input.GetKeyDown(KeyCode.C))
         {
             BallCount++;
+            //AddOut();
+            
             //DebugSwing();
 
 
@@ -1234,14 +1241,14 @@ public class GamePlayManager : GameManager
         //공을 던지면 isPassing, isThrown
 
         float x = Random.Range(-1.0f, 0f);
-        float y = 0.5f;
+        float y = 2f;
         float z = Random.Range(-1.0f, 0f);
+        float power = Random.Range(5f, 50f); //20f 5~50
 
         //파울
-        //x = 0.5f;
-        //z = 0.5f;
-        x = -0.5f;
-        z = -0.5f;
+        // x = -0.5f;
+        // z = -0.5f;
+        // power = 10f;
         
         //Debug.Log("던지기 + " + x + ", " + z);
         //공 던지는 코루틴도 제거
@@ -1251,7 +1258,7 @@ public class GamePlayManager : GameManager
         _ball.RemoveDefender();
         
         _ball.SetPosition(batterPosition.position + new Vector3(0, 2.0f, 0));
-        _ball.SetVelocity(new Vector3(x, y, z) * 50f);
+        _ball.SetVelocity(new Vector3(x, y, z) * power);
         //10 : 내야 땅볼?
         //20 : 뜬 공
         

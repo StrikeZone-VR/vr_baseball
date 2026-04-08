@@ -40,11 +40,9 @@ public class BatterComponent : PlayerComponent
 
         if (collision.gameObject.CompareTag("BatterPos"))
         {
-            Debug.Log("[Batter] : 이거는 나와도 되는데");
 
             if (base_index == 0)
             {
-                Debug.Log("[Batter] : 이거는 나오면 안된다");
                 ReadyBatting();
             }
         }
@@ -100,7 +98,7 @@ public class BatterComponent : PlayerComponent
     public virtual void OutPlayer(bool isMove = true)
     {
         player.StopMove();
-        Debug.Log("진짜 아웃");
+        Debug.Log("AI 아웃");
         Destroy(this.gameObject);
     }
 

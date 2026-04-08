@@ -103,7 +103,7 @@ public class GamePlayModel : GameModel
     {
         if (runners.Count <= 0)
         {
-            Debug.LogError("제거할 runner가 없는뎁쇼?");
+            Debug.LogError("[Batter] : 제거할 runner가 없는뎁쇼?");
             return;
         }
         runners.RemoveAt(runners.Count - 1);
@@ -263,6 +263,7 @@ public class GamePlayModel : GameModel
         //그리고 주자 맨 뒤는 제거. 혹시 모르니 if문으로 사이즈 오버되면 null처리
         for (int i = 0; i < before_runners.Count; i++)
         {
+            Debug.Log("메세지가 떠야한다");
             runners[i].SetBaseIndexPosition(before_runners[i]);
             runners[i].IsMove = false;
         }

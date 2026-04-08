@@ -21,7 +21,6 @@ public class Bat : MonoBehaviour
     const float AXIS_DISTANCE = 0.5f;
     float elapsed = 0f;
 
-    private float axisRotation = 0f;
     float startBatAngle = -45f;
     float totalOrbitAngle = -270f; // 공전 각도 (원하는 값으로) //270
 

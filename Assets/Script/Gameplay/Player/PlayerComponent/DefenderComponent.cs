@@ -60,9 +60,10 @@ public class DefenderComponent : PlayerComponent
         //    계속 투수가 따라가서 enter 조건이 안 생겨서 SetBall을 설정할 수 없다.
         //    ㄴ 근데 또 그러면 던졌는데 받았다 기술로 이상한 아웃이 생길 수 있음
         //       ㄴ 어차피 디버깅 안타 함수도 오류 해결해서 Stay 함수 제거함.
-        if (collision.gameObject.CompareTag("Ball") && player.GetBallDefender() == null)
+        if (collision.gameObject.CompareTag("Ball") 
+            && player.GetBallDefender() == null)
         {
-            Debug.Log("[depender] : 받았다");
+            
             Baseball baseball = collision.gameObject.GetComponent<Baseball>();
             //owner ball
             SetMyBall(baseball);
@@ -193,7 +194,6 @@ public class DefenderComponent : PlayerComponent
         //flying out
          if (isBatTouch && !isGroundball)
          {
-             Debug.Log("[Batting] : 플라잉 아웃");
              _myBall.IsGroundBall = true; //어차피 플라잉 아웃 한번 잡으면 돌아가야함
              
              flyingOutEvent.RaiseEvent();

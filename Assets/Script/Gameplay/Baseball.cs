@@ -286,12 +286,14 @@ public class Baseball : MonoBehaviour
         velocityXY = new Vector3(_rigidbody.velocity.x, 0, _rigidbody.velocity.z);
     }
     
+    /// //////////////////////////////////////////////////////////////////////
     //피칭 결과 알려주는 함수
     private void PitchResult()
     {
         //투수가 공을 안 던진경우
         if (_currentState == BallState.Dead || _currentState == BallState.Thrown)
         {
+            Debug.Log("설마?");
             return;
         }
 
@@ -334,7 +336,7 @@ public class Baseball : MonoBehaviour
         //돌아가라 => 안타, 돌아가는 상태 제외
         if(_currentState != BallState.Dead && !IsInGamePlay)
         {
-            Debug.Log("[Ball] 볼의 상태 : " + CurrentState);
+            //Debug.Log("[Ball] 볼의 상태 : " + CurrentState);
             CurrentState = BallState.Dead;
         }
         //IsThrown = false;
@@ -375,6 +377,7 @@ public class Baseball : MonoBehaviour
                 case BallState.Dead:
                     Debug.Log("이거 공  복귀할때 마다 떠야함");
 
+                    RemoveDefender();
                     IsZone = false;
                     IsStrike = false;
                     HasPassedStrikeZone = false;

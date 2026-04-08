@@ -75,7 +75,6 @@ public class MyBody : Player
 
     public void SetMode(bool isBatter)
     {
-        Debug.Log(isBatter);
         if (isBatter)
         {
             subComponent.enabled = false;

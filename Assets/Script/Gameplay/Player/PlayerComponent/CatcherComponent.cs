@@ -67,7 +67,7 @@ public class CatcherComponent : BasemanComponent
         set
         {
             defendIndex = value;
-            //Debug.Log(defendIndex);
+            Debug.Log("포수의 위치 : "  + defendIndex);
             SwitchingMove(defendIndex);
         }
     }
