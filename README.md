@@ -4,35 +4,31 @@ VR 컨트롤러 기반 야구 시뮬레이션 게임입니다.
 
 <img width="320" height="180" alt="image" src="https://github.com/user-attachments/assets/65e2b988-e8d3-455f-ba4c-1b6c49c360da" /><br>
 [유튜브 링크](https://youtu.be/OSQ_ilQuzXA?si=yBa4ve-0OWmFHTI8)<br>
-[1.3 버전 - 타자시점](https://youtu.be/xZLIFKc64FI)
 
+## 기간
+- 2025년 7월 7일 ~ 9월 25일 (2개월)
+- 2025년 24월 24일 ~ ing (2개월)
 
-![KakaoTalk_20250926_101553358](https://github.com/user-attachments/assets/3f574b02-7ca5-47e5-a029-1ac3980ef263)
-
-
-
+## 목적
+야구의 역동적인 긴장감을 가상 현실에서 실체화하기 위해 프로젝트를 시작했습니다. <br>
+VR 기기의 특성을 극대화하여 실제 마운드와 타석에서의 현장감을 구현하고, 정교한 물리 로직을 통해 유저가 직접 경기의 핵심 루프를 경험하게 하는 데 중점을 두었습니다.
 
 ---
-### 사용 설명서
+
+# 사용 설명서
 <img width="1024" height="1024" alt="제목 없음" src="https://github.com/user-attachments/assets/bfc2fce6-92a6-4931-8b8f-a43bba179542" />
 오른손잡이면 왼손컨트롤러를 잡고 야구 방망이 잡듯이 두 손으로 휘두르면 됩니다.
 
 ---
-# 게임 플레이
 
-### 게임 메뉴
-<img width="1920" height="936" alt="StrikeZone VR Test1 0-8 screenshot" src="https://github.com/user-attachments/assets/eba5864b-f2ac-4c5c-96d5-7124865ba189" />
-
-
-### 투수
-<img width="1920" height="936" alt="StrikeZone VR Test1 1-4 screenshot" src="https://github.com/user-attachments/assets/0e1eb183-8819-484a-8124-4015f0de891a" />
+# 유튜브
+- [1.3 버전 - 타자시점](https://youtu.be/xZLIFKc64FI)
+- [1.4 버전 - 투수시점](https://youtu.be/RwI4wwKEAyw)
 
 
-### 타자
+![KakaoTalk_20250926_101553358](https://github.com/user-attachments/assets/3f574b02-7ca5-47e5-a029-1ac3980ef263)
 
-![bandicam 2025-11-14 14-04-26-322](https://github.com/user-attachments/assets/c843d020-e9be-4904-9b7b-d8df1b67220b)
-- 타격
-
-<img width="905" height="398" alt="image" src="https://github.com/user-attachments/assets/9875f4a7-16ac-4562-8afb-0a47ed262a90" /><br>
-- 구속 설정 UI
-- 타격 지표 스텟 확인하는 UI
+---
+- [게임 플레이](Readme/FEATURES.md)
+- [트러블슈팅](Readme/TROUBLESHOOTING.md)
+- [아키텍처 문서](Readme/ARCHITECTURE.md)
