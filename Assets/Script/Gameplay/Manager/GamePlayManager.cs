@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using Unity.XR.CoreUtils;
 using UnityEngine;
 using UnityEngine.Serialization;
+using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Inputs.Simulation;
 
 public class GamePlayManager : GameManager
@@ -10,6 +11,7 @@ public class GamePlayManager : GameManager
     #region VARIABLES
     [Header("Debug")]
     [SerializeField] protected XROrigin playerOrigin; //debug용
+    [SerializeField] protected ActionBasedContinuousMoveProvider moveProvider; //debug용
     [SerializeField] private Color _myTeamColor;
     [SerializeField] private Color _yourTeamColor;
     
@@ -65,6 +67,8 @@ public class GamePlayManager : GameManager
     [Header("Broadcasting on")]
     [SerializeField] private FadeChannelSO fadeEvent;
     [SerializeField] private MyBodyEventSO _setBodyEvent ;
+    [SerializeField] private BoolEventSO _setPlayerMoveMode;
+
 
     [SerializeField] private bool canBackRunner = false;
     
@@ -103,6 +107,8 @@ public class GamePlayManager : GameManager
 
         onCanBackBatterEvent.onEventRaised += OnCanBackRunner;
         changedBaseStatus.onEventRaised += DebugBaseStatus;
+        
+        _ball.OnIsInGameplayChanged += SetPlayerMoveMode;
     }
 
     protected override void OnDisable()
@@ -122,6 +128,8 @@ public class GamePlayManager : GameManager
         
         onCanBackBatterEvent.onEventRaised -= OnCanBackRunner;
         changedBaseStatus.onEventRaised -= DebugBaseStatus;
+        
+        _ball.OnIsInGameplayChanged -= SetPlayerMoveMode;
     }
 
     #endregion
@@ -291,6 +299,35 @@ public class GamePlayManager : GameManager
         _ball.OnTouchBall();
     }
 
+    private void SetPlayerMoveMode(bool isMove)
+    {
+        Debug.Log("[Player] : isMove = " + isMove);
+
+        if (playerOrigin.gameObject.activeSelf)
+        {
+#if  UNITY_EDITOR
+            XRDeviceSimulator xr = Object.FindAnyObjectByType<XRDeviceSimulator>();
+            if (xr)
+            {
+                float speed = 0f;
+                if (isMove)
+                {
+                    speed = 1.5f;
+                }
+                xr.keyboardXTranslateSpeed = speed;
+                xr.keyboardYTranslateSpeed = speed;
+                xr.keyboardZTranslateSpeed = speed;
+            }
+#endif
+            moveProvider.enabled = isMove;
+        }
+        else
+        {
+            _setPlayerMoveMode.RaiseEvent(isMove);
+        }
+    }
+    
+
     #endregion
     
     #region BATTER
@@ -334,19 +371,6 @@ public class GamePlayManager : GameManager
         {
             //DebugMoveBase(1);
 
-            //todo : 컨트롤러 이동 허용시키게 해주는 기능
-            //debug
-
-
-#if  UNITY_EDITOR
-            XRDeviceSimulator xr = Object.FindAnyObjectByType<XRDeviceSimulator>();
-            if (xr)
-            {
-                xr.keyboardXTranslateSpeed = 1.5f;
-                xr.keyboardZTranslateSpeed = 1.5f;
-            }
-            
-#endif
             currentBatterComponent.SetBases(bases, init_base);
             
             //안타 두 번 이상 친 경우 (Debug Hitting 여러번 예방) => 비어있으면 어차피 처음임
@@ -638,7 +662,8 @@ public class GamePlayManager : GameManager
         pitchingController.StartPitchingGame();
         
         _ball.CurrentState = BallState.Dead;
-        
+        SetPlayerMoveMode(false);
+            
         defenders[0].gameObject.SetActive(false);
         myBody.SetMode(false);
         
@@ -1197,9 +1222,10 @@ public class GamePlayManager : GameManager
         }
         if (Input.GetKeyDown(KeyCode.C))
         {
-            BallCount++;
+            //BallCount++;
+            OutCount--;
             //AddOut();
-            
+
             //DebugSwing();
 
 
@@ -1272,8 +1298,8 @@ public class GamePlayManager : GameManager
         //땅볼과 isBack 제외 모두 체크
         _ball.Hit();
 
-        _ball.IsZone = true;
-        _ball.IsStrike = true;
+        // _ball.IsZone = true;
+        // _ball.IsStrike = true;
         _ball.IsGroundBall = false;
         _ball.OnTouchBall(); //이거해야지 바로 잡을 수 있음
         

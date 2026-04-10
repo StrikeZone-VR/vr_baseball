@@ -13,6 +13,7 @@ public class Bat : MonoBehaviour
     private Vector3 startPos = Vector3.zero;
 
     private FarNearGrab _farNearGrab;
+    private Rigidbody _rigidbody;
 
     private float currentSwingSpeed;
     private bool isSwing = false;
@@ -30,6 +31,7 @@ public class Bat : MonoBehaviour
     private void Start()
     {
         _farNearGrab = GetComponent<FarNearGrab>();
+        _rigidbody = GetComponent<Rigidbody>();
     }
 
     
@@ -114,7 +116,6 @@ public class Bat : MonoBehaviour
         Vector3 current_pos;
         Vector3 end_pos;
 
-        float prevCurve = 0f;
 
         Vector3 xWorld = axis.transform.TransformDirection(Vector3.right);
         Vector3 zWorld = axis.transform.TransformDirection(Vector3.forward);
@@ -143,8 +144,8 @@ public class Bat : MonoBehaviour
         start_rotation *= zRotateQuaternion;
         end_rotation *= zRotateQuaternion; 
 
-        transform.position = start_pos;
-        transform.localRotation = start_rotation;  //rotation
+        _rigidbody.transform.position = start_pos;
+        _rigidbody.transform.localRotation = start_rotation;  //rotation
         //Quaternion end = Quaternion.AngleAxis(180f, axis.transform.up) * start; 
 
         while (elapsed < ROTATION_TIME)
@@ -177,15 +178,15 @@ public class Bat : MonoBehaviour
             current_rotation = Quaternion.AngleAxis(batAngle, orbitYAxis);
             current_rotation *= zRotateQuaternion; //기울어라 => 계산 순서는 -90 -45
 
-            transform.position = current_pos;
-            transform.localRotation = current_rotation;
+            _rigidbody.transform.position = current_pos;
+            _rigidbody.transform.localRotation = current_rotation;
             yield return null;
         }
 
         isSwing = false;
         elapsed = 0;
-        transform.position = end_pos;
-        transform.localRotation = end_rotation;
+        _rigidbody.transform.position = end_pos;
+        _rigidbody.transform.localRotation = end_rotation;
     }
 
     public float RotationTime

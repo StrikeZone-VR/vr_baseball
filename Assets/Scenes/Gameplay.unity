@@ -3100,6 +3100,17 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 6807072103778800797, guid: 8f79d571a0dfeb940aeb614b71be5418, type: 3}
   m_PrefabInstance: {fileID: 698565504}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1031496102 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 9168142743249570444, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
+  m_PrefabInstance: {fileID: 1301521303}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b1e8c997df241c1a67045eeac79b41b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1036175184 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4403092210914809006, guid: 8f79d571a0dfeb940aeb614b71be5418, type: 3}
@@ -3757,6 +3768,7 @@ MonoBehaviour:
   sceneEventSO: {fileID: 11400000, guid: 1614b16f3ac165a4095e5f466b87b7b6, type: 2}
   playAudioClipEvent: {fileID: 11400000, guid: d945dac53f32b4d47a9561b9d8dac9a6, type: 2}
   playerOrigin: {fileID: 1388435485}
+  moveProvider: {fileID: 1031496102}
   _myTeamColor: {r: 0, g: 0, b: 1, a: 1}
   _yourTeamColor: {r: 1, g: 0, b: 0, a: 1}
   defenders:
@@ -3799,6 +3811,7 @@ MonoBehaviour:
   changedBaseStatus: {fileID: 11400000, guid: b3af6067612009f4dbbf61eda38651c3, type: 2}
   fadeEvent: {fileID: 11400000, guid: 0d08df4830bb8854bbdf510cf6cc0ff9, type: 2}
   _setBodyEvent: {fileID: 11400000, guid: efdb9d88f29b9064f889395a44c84e24, type: 2}
+  _setPlayerMoveMode: {fileID: 0}
   canBackRunner: 0
 --- !u!4 &1232322307 stripped
 Transform:

@@ -29,6 +29,8 @@ public class Baseball : MonoBehaviour
 
     [SerializeField] private BallState _currentState = default;
     private bool hasPassedStrikeZone = true;
+
+    public event Action<bool> OnIsInGameplayChanged;
     
     //isStrike와 isZone은 킵?
 
@@ -154,11 +156,18 @@ public class Baseball : MonoBehaviour
         if (collider.gameObject.CompareTag("BallZone"))
         {
             IsZone = true;
+            // 수직선 그리기
         }
         //into Strike Zone
         if (collider.gameObject.CompareTag("StrikeZone"))
         {
             IsZone = true;
+
+            if (!IsStrike)
+            {
+                Vector3 exactHitPoint = collider.ClosestPoint(transform.position);
+                DebugDrawSp(exactHitPoint);
+            }
             IsStrike = true;
             debugShootTime2 = Time.time - debugShootTime2;
 
@@ -375,8 +384,6 @@ public class Baseball : MonoBehaviour
                     allTrackingOffEvent.RaiseEvent();
                     break;
                 case BallState.Dead:
-                    Debug.Log("이거 공  복귀할때 마다 떠야함");
-
                     RemoveDefender();
                     IsZone = false;
                     IsStrike = false;
@@ -419,6 +426,7 @@ public class Baseball : MonoBehaviour
         set 
         {
             isInGamePlay = value;
+            OnIsInGameplayChanged.Invoke(value);
             CurrentState = BallState.FreeBall;
         }
     }
@@ -457,6 +465,7 @@ public class Baseball : MonoBehaviour
         get => isStrike;
         set
         {
+            //Debug.Log("[Baseball] : 대체 언제 호출" + value);
             isStrike = value;
         }
     }
@@ -708,12 +717,14 @@ public class Baseball : MonoBehaviour
         pitchEvent.RaiseEvent();
 
         //int index = Random.Range(0, 25);
+        IsZone = false;
+        IsStrike = false;
         
         //정면
         Vector3 targetPosition = strikeZone.GetZone(4).position;
         Vector3 targetVector = (targetPosition - _rigidbody.transform.position);
         
-        float velocity = 60.0f / 3.6f; 
+        float velocity = 100.0f / 3.6f; 
         float dis = targetVector.magnitude;
         // **정확한 직선 투구 - 스트라이크존 (0, 0.605, -14.06) 조준**
         Vector3 direction = targetVector.normalized;
@@ -733,6 +744,15 @@ public class Baseball : MonoBehaviour
 
         
         SetVelocity((direction) * velocity + new Vector3(0, ac, 0));
+        // 각속도
+        // float angularSpeed = 1500f * (2f * Mathf.PI) / 60f; // rad/s로 변환
+        //
+        //
+        // Vector3 spinAxis = -transform.right; 
+        //
+        // // 최종 각속도 적용!
+        // _rigidbody.angularVelocity = spinAxis * angularSpeed;
+        
         //_rigidbody.velocity = (ball_accuracy_weight * direction)
             //* velocity + new Vector3(0, ac, 0) * ball_accuracy_weight;
         //Debug.Log("_rigidbody.velocity : " + _rigidbody.velocity);
@@ -783,7 +803,40 @@ public class Baseball : MonoBehaviour
         yield return new WaitForSeconds(delay);
         
         //Debug.Log("cal hit time (" + Time.time+ ") : "+ delay);
+        
         bat.StartSwing();
+    }
+    private void Homerun()
+    {
+        //땅볼인데 홈런 범위로 넘어갔다면
+        if (IsInGamePlay && !IsGroundBall)
+            homerunEvent.RaiseEvent();
+            
+        //만약에 홈런의 두 벽을 맞은 경우 => 두 번 호출 될지도
+        if(_currentState != BallState.Dead)
+        {
+            CurrentState = BallState.Dead;
+        }
+    }
+
+    private void Foul()
+    {
+
+        if (IsInGamePlay && !IsGroundBall )
+        {
+            foulEvent.RaiseEvent();
+        }
+        if(_currentState != BallState.Dead)
+        {
+            CurrentState = BallState.Dead;
+        }
+
+    }
+
+    public void Hit()
+    {
+        IsInGamePlay = true;
+        runSignalEvent.RaiseEvent();
     }
 
     #region DEBUG
@@ -879,42 +932,29 @@ public class Baseball : MonoBehaviour
             Gizmos.DrawLine(a + dir * t0, a + dir * t1);
         }
     }
-    
+
+    private void DebugDrawSp(Vector3 point)
+    {
+        // 충돌 지점을 중심으로 평면에 평행한 아주 짧은 선 두 개를 그립니다.
+        float crossSize = 0.05f; // 십자선 크기
+        Color hitColor = Color.yellow; // 충돌 시 색상
+        float duration = 100f; // 시각화 지속 시간
+        
+        
+        // 평면의 로컬 좌표계 기준 방향 벡터 가져오기
+        Vector3 right = strikeZone.transform.right;
+        Vector3 up = strikeZone.transform.up;
+        
+        Debug.Log("[Baseball] position : " + point);
+        
+        // 수평선 그리기
+        Debug.DrawLine(point - right * crossSize, point + right * crossSize, hitColor, duration);
+        // 수직선 그리기
+        Debug.DrawLine(point - up * crossSize, point + up * crossSize, hitColor, duration);
+    }
+
     #endregion
 
-    private void Homerun()
-    {
-        //땅볼인데 홈런 범위로 넘어갔다면
-        if (IsInGamePlay && !IsGroundBall)
-            homerunEvent.RaiseEvent();
-            
-        //만약에 홈런의 두 벽을 맞은 경우 => 두 번 호출 될지도
-        if(_currentState != BallState.Dead)
-        {
-            CurrentState = BallState.Dead;
-        }
-    }
-
-    private void Foul()
-    {
-
-        if (IsInGamePlay && !IsGroundBall )
-        {
-            foulEvent.RaiseEvent();
-        }
-        if(_currentState != BallState.Dead)
-        {
-            CurrentState = BallState.Dead;
-        }
-
-    }
-
-    public void Hit()
-    {
-        isInGamePlay = true;
-        CurrentState = BallState.FreeBall;
-        runSignalEvent.RaiseEvent();
-    }
 }
 
 public enum BallState
