@@ -3798,6 +3798,16 @@ MonoBehaviour:
   _bat: {fileID: 877522169}
   _axis: {fileID: 1101660928}
   _baseStatusPanel: {fileID: 839898539}
+  gameMenu:
+    m_AssetGUID: 649a1153b08a9334bb657f50f11d9b6a
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
+  gameResultScene:
+    m_AssetGUID: b4930f947697e6e458557fa92b0fe141
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
   flyingOutEvent: {fileID: 11400000, guid: 67986d2f382121b4fae3d9df7e5e2ea8, type: 2}
   outRunnerEvent: {fileID: 11400000, guid: a7e00550afa182d4594b424474b58e00, type: 2}
   startPitcherModeEvent: {fileID: 11400000, guid: de4dabee6d962db4baf9d9791302d080, type: 2}
@@ -3811,7 +3821,8 @@ MonoBehaviour:
   changedBaseStatus: {fileID: 11400000, guid: b3af6067612009f4dbbf61eda38651c3, type: 2}
   fadeEvent: {fileID: 11400000, guid: 0d08df4830bb8854bbdf510cf6cc0ff9, type: 2}
   _setBodyEvent: {fileID: 11400000, guid: efdb9d88f29b9064f889395a44c84e24, type: 2}
-  _setPlayerMoveMode: {fileID: 0}
+  _setPlayerMoveMode: {fileID: 11400000, guid: c194a6305d813b242b8948102ed36588, type: 2}
+  sceneEvent: {fileID: 11400000, guid: 1614b16f3ac165a4095e5f466b87b7b6, type: 2}
   canBackRunner: 0
 --- !u!4 &1232322307 stripped
 Transform:
@@ -4033,7 +4044,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7313654230448209575, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7541965686890698588, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
       propertyPath: bat
@@ -4071,6 +4082,10 @@ PrefabInstance:
       propertyPath: changedBaseStatus
       value: 
       objectReference: {fileID: 11400000, guid: b3af6067612009f4dbbf61eda38651c3, type: 2}
+    - target: {fileID: 7696548424635294048, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7696548424635294051, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.777

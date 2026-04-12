@@ -39,9 +39,9 @@ public class MyXROriginManager : MonoBehaviour
     }
     private void RotateOrigin(Vector3 vector3)
     {
+        Debug.Log(vector3);
         //move
-        _origin.transform.rotation = Quaternion.Euler(vector3);
-        
+        _origin.MatchOriginUpCameraForward(Vector3.up, vector3);
     }
 
     private void SetPlayer(MyBody body)

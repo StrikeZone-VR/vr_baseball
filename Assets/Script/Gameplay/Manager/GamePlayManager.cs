@@ -2,6 +2,7 @@ using System.Collections;
 using System.Runtime.CompilerServices;
 using Unity.XR.CoreUtils;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.Serialization;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Inputs.Simulation;
@@ -42,8 +43,11 @@ public class GamePlayManager : GameManager
     [SerializeField] private GameObject _axis;
     [SerializeField] private BaseStatusPanel _baseStatusPanel; //debug
 
-
     [Space]
+    [SerializeField] private AssetReference gameMenu;
+    [SerializeField] private AssetReference gameResultScene;
+    [Space]
+    
 
     //A =>
 
@@ -55,7 +59,7 @@ public class GamePlayManager : GameManager
     [SerializeField] private VoidEventSO swingEvent; //to Pitcher, auto swing
     [SerializeField] private VoidEventSO pitchEvent; //to PitchingBallController
     [SerializeField] private VoidEventSO onCanBackBatterEvent; //
-
+    
     [Space]
     [SerializeField] private VoidEventSO allTrackingOffEvent; //to baseball
     [SerializeField] private VoidEventSO addScore; //to Batter
@@ -68,7 +72,7 @@ public class GamePlayManager : GameManager
     [SerializeField] private FadeChannelSO fadeEvent;
     [SerializeField] private MyBodyEventSO _setBodyEvent ;
     [SerializeField] private BoolEventSO _setPlayerMoveMode;
-
+    [SerializeField] private SceneEventSO sceneEvent;
 
     [SerializeField] private bool canBackRunner = false;
     
@@ -286,10 +290,12 @@ public class GamePlayManager : GameManager
     {
         if (playerOrigin.gameObject.activeSelf)
         {
+            Debug.Log("AAA");
             playerOrigin.MatchOriginUpCameraForward(Vector3.up, rotate);
         }
         else
         {
+            Debug.Log("BBB");
             rotateOriginEvent.RaiseEvent(rotate);
         }
     }
@@ -952,7 +958,9 @@ public class GamePlayManager : GameManager
             {
                 Debug.Log("Game Over, back to the menu...");
 
-                //GameEnd
+                sceneEventSO.RaiseEvent(gameResultScene);
+                
+                //정보 전달해야함
                 return;
             }
             
