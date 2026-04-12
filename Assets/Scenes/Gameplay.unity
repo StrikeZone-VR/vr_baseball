@@ -3767,6 +3767,7 @@ MonoBehaviour:
   rotateOriginEvent: {fileID: 11400000, guid: d164c5b6bfab6604987cbe7b5a2ca409, type: 2}
   sceneEventSO: {fileID: 11400000, guid: 1614b16f3ac165a4095e5f466b87b7b6, type: 2}
   playAudioClipEvent: {fileID: 11400000, guid: d945dac53f32b4d47a9561b9d8dac9a6, type: 2}
+  baseballModel: {fileID: 11400000, guid: 01b29855f5f11a2499e6ff19a77e8ca1, type: 2}
   playerOrigin: {fileID: 1388435485}
   moveProvider: {fileID: 1031496102}
   _myTeamColor: {r: 0, g: 0, b: 1, a: 1}
@@ -3824,6 +3825,8 @@ MonoBehaviour:
   _setPlayerMoveMode: {fileID: 11400000, guid: c194a6305d813b242b8948102ed36588, type: 2}
   sceneEvent: {fileID: 11400000, guid: 1614b16f3ac165a4095e5f466b87b7b6, type: 2}
   canBackRunner: 0
+  gamePlayModel: {fileID: 11400000, guid: 9d46fa24628b5bf4c98e92b0fc1bba4f, type: 2}
+  battingModel: {fileID: 11400000, guid: 032757da753c5ab40b7592eec7c2d411, type: 2}
 --- !u!4 &1232322307 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8112939749161389715, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}

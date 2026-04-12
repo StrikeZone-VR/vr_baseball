@@ -6,6 +6,8 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "NewGamePlayData", menuName = "Model/GamePlayData")]
 public class GamePlayModel : GameModel
 {
+    //생각해보니 Result에 전달할 필요가...? 앗 TeamStatus가 있었음
+    
     public BaseStatusPanel _baseStatusPanel; //debug
 
     //0 1 => 1이닝 공격 수비, => 0~17 => 짝수면 원정, 홀수면 홈 
@@ -27,7 +29,7 @@ public class GamePlayModel : GameModel
     //근데 이러면 또 CreateBatter에서 스트라이크 볼 초기화되는 문제가 생기는 구나
 
     private int myTeamIndex = 0; //0 or 1 => batter 기준
-    private TeamStatus[] _teamStatus = new TeamStatus[2];
+    [SerializeField] private TeamStatus[] _teamStatus = new TeamStatus[2];
     //사실 점수만 하고 싶은데
 
     //Define
@@ -270,6 +272,14 @@ public class GamePlayModel : GameModel
             runners[i].IsMove = false;
         }
     }
+
+    public void Init()
+    {
+        inning = 0;
+        out_count = 0;
+        _teamStatus[0].Init();
+        _teamStatus[1].Init();
+    }
     
     /// <summary>
     /// 어차피 이거 전에는 아웃 => 혹시 점수 바뀌면 전 사람 소환
@@ -375,5 +385,11 @@ struct TeamStatus
         get => score;
 
         set { score = value; }
+    }
+
+    public void Init()
+    {
+        score = 0;
+        batting_order = 0;
     }
 }

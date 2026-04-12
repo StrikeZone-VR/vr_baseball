@@ -30,8 +30,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] protected SceneEventSO sceneEventSO;
     [SerializeField] protected IntEventSO playAudioClipEvent;
 
-    
-    protected BaseballModel baseballModel = new BaseballModel();
+    [SerializeField] protected BaseballModel baseballModel;
 
     
     protected virtual void OnEnable()
@@ -60,7 +59,7 @@ public class GameManager : MonoBehaviour
 
     protected virtual void Start()
     {
-
+        baseballModel.Init();
     }
 
     #region PROPERTY

@@ -2,10 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[CreateAssetMenu(fileName = "NewBaseballData", menuName = "Model/Baseball Data")]
 public class BaseballModel : GameModel
 {
-    private int ball_count = 0;
-    private int strike_count = 0;
+    //근데 생각해보니까 ball_count는 정보를 전달 안해도 되지않을까
+    
+    [SerializeField] private int ball_count = 0;
+    [SerializeField] private int strike_count = 0;
     
     //define
     public const int MAX_BALL_COUNT = 4;
@@ -31,6 +34,12 @@ public class BaseballModel : GameModel
         {
             ball_count = value;
         }
+    }
+
+    public void Init()
+    {
+        ball_count = 0;
+        strike_count = 0;
     }
 
 }
