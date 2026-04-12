@@ -38,13 +38,14 @@ public class Player : MonoBehaviour
     
     public void StopMove()
     {
-        if (nav && nav.isActiveAndEnabled && nav.isOnNavMesh)
-        {
-            nav.ResetPath();
-        }
         if (!nav)
         {
             Debug.Log("nav is null");
+            return;
+        }
+        if (nav.isActiveAndEnabled && nav.isOnNavMesh)
+        {
+            nav.ResetPath();
         }
         if (!nav.isActiveAndEnabled)
         {
@@ -57,13 +58,6 @@ public class Player : MonoBehaviour
     }
     
     
-    
-    
-    
-    
-    
-    
-
     public void SetShirtColor(Color teamColor)
     {
         // 1. 렌더러 가져오기 (보통 캐릭터는 SkinnedMeshRenderer)

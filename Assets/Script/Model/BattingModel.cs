@@ -1,14 +1,15 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
+
+[CreateAssetMenu(fileName = "NewBattingData", menuName = "Model/Batting Data")]
 public class BattingModel : GameModel
 {
-    private int hit;
-    private int homerun;
-    private int foul;
-    private int ground_ball; //땅볼
+    [SerializeField] private int hit;
+    [SerializeField] private int homerun;
+    [SerializeField] private int foul;
+    [SerializeField] private int ground_ball; //땅볼
 
+    //이 값들을 전달해야함
     public int Hit
     {
         get => hit;
@@ -32,4 +33,14 @@ public class BattingModel : GameModel
         get => ground_ball;
         set => ground_ball = value;
     }
+
+    //
+    public void Init()
+    {
+        hit = 0;
+        homerun = 0;
+        foul = 0;
+        ground_ball = 0;
+    }
+    
 }

@@ -4,6 +4,7 @@ using UnityEngine;
 
 //GamePlayModel, BaseballModel => 공통 변수, BattingModel, Pitching<odel 
 //Model
-public class GameModel
+public class GameModel : ScriptableObject
 {
+    public void Init() { }
 }

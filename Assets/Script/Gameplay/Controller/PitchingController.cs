@@ -2,8 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-//---(SO)---> PitchingBallController
-//               ---(SO)---> UI
+
+//pitcher에 관련된 UI 총괄 컨트롤러
 public class PitchingController : GameController
 {
     [SerializeField] PitchSelectionUI pitchSelectionUI; // 구종 선택 UI

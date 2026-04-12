@@ -1,14 +1,16 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[CreateAssetMenu(fileName = "NewGamePlayData", menuName = "Model/GamePlayData")]
 public class GamePlayModel : GameModel
 {
     public BaseStatusPanel _baseStatusPanel; //debug
 
     //0 1 => 1이닝 공격 수비, => 0~17 => 짝수면 원정, 홀수면 홈 
-    private int inning = 0;
-    private int out_count = 0;
+    [SerializeField] private int inning = 0;
+    [SerializeField] private int out_count = 0;
 
     //베이스에 있는 주자들 : List로 해도 하도 주자가 적어서 동적으로 지워도 된다
     private List<BatterComponent> runners = new List<BatterComponent>();
@@ -340,12 +342,14 @@ public class GamePlayModel : GameModel
     }
 }
 
+
+[Serializable]
 struct TeamStatus
 {
-    private int score;
+    [SerializeField] private int score;
 
     //타순 0 ~ 8
-    public int batting_order;
+    [SerializeField] public int batting_order;
 
     //Define
     private const int MAX_BATTING_ORDER = 9;
