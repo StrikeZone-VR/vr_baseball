@@ -46,7 +46,6 @@ public class Baseball : MonoBehaviour
     [SerializeField] private VoidEventSO runSignalEvent;
     [SerializeField] private VoidEventSO backToPitcherEvent; //피쳐에게 돌아가라 => PitcherGetBall
     [SerializeField] private VoidEventSO inplayGameEvent; //from BattingSystem
-    [SerializeField] private FloatEventSO getVelocityEventSO; //from BattingSystem
     [SerializeField] private IntEventSO playAudioClipEvent; //from AudioManager
 
     [Header("구종 설정")] 
@@ -61,7 +60,8 @@ public class Baseball : MonoBehaviour
     [SerializeField] private ParticleSystem forkDropEffect; // 포크볼 전용
     [SerializeField] private LineRenderer trajectoryLine;
 
-    [Header("참조")] [SerializeField] private StrikeZone strikeZone;
+    [Header("참조")] 
+    [SerializeField] private StrikeZone strikeZone;
     //public PitchingSystemManager pitchingSystemManager;    // 새로운 통합 시스템
 
     private Vector3 _targetPosition;
@@ -136,7 +136,7 @@ public class Baseball : MonoBehaviour
     
     /// //////////////////////////////////////////////////////////////////////
     //피칭 결과 알려주는 함수
-    private void PitchResult()
+    public void PitchResult()
     {
         //투수가 공을 안 던진경우
         if (_currentState == BallState.Dead || _currentState == BallState.Thrown)
@@ -264,6 +264,7 @@ public class Baseball : MonoBehaviour
         {
             isInGamePlay = value;
             OnIsInGameplayChanged.Invoke(value);
+            _physics.PredictTrajectory(transform.position);
             CurrentState = BallState.FreeBall;
         }
     }
@@ -490,23 +491,7 @@ public class Baseball : MonoBehaviour
     #endregion
     
 
-    /// <summary>
-    /// 볼 속력 출력
-    /// </summary>
-    private void PrintBallVelocity()
-    {
-        if(IsZone)
-        {
-            return;
-        }
-
-        Vector3 v = _physics.GetVelocity(); 
-        Vector3 speed = new Vector3(v.x, 0, v.z);
-        float velocity = speed.magnitude * 3.6f; 
-        getVelocityEventSO.RaiseEvent(velocity);
-    }
-    
-    private void Homerun()
+    public void Homerun()
     {
         //땅볼인데 홈런 범위로 넘어갔다면
         if (IsInGamePlay && !IsGroundBall)
@@ -519,9 +504,8 @@ public class Baseball : MonoBehaviour
         }
     }
 
-    private void Foul()
+    public void Foul()
     {
-
         if (IsInGamePlay && !IsGroundBall )
         {
             foulEvent.RaiseEvent();

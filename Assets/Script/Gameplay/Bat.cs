@@ -226,6 +226,7 @@ public class Bat : MonoBehaviour
     }
     
     //**핵심 함수**
+    //공 오는 각도에 맞춰서 계산
     public void MoveAxis(Vector3 targetPosition)
     {
         float x = Vector3.Distance(axis.transform.position, new Vector3(targetPosition.x, axis.transform.position.y, targetPosition.z));
