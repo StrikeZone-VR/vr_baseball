@@ -9,6 +9,8 @@ public class BaseballPhysics : MonoBehaviour
     private Rigidbody _rigidbody;
     private Baseball _baseball;
 
+    private TrajectoryBaseBallData _trajectoryBaseBallData;
+    
     [Header("Debug")] 
     [SerializeField] private float _debugVelocity;
     
@@ -18,6 +20,8 @@ public class BaseballPhysics : MonoBehaviour
     //커브나 다른 무언가 사용하기 위해 만든 변수
     private Vector3 velocityXY; // 실제 목표 위치
     private float beforeTime = 0f;
+    
+    
     private readonly float MAGNUS = 60.0f; //100 기준
 
     private void Start()
@@ -83,23 +87,23 @@ public class BaseballPhysics : MonoBehaviour
     {
         if (collision.collider.CompareTag("Ground") || collision.collider.CompareTag("Base"))
         {
-            if (myDefenderComponent == null)
+            if (_baseball.myDefenderComponent == null)
             {
                 //파울
-                if ((transform.position.x > 0 || transform.position.z > 0) && IsInGamePlay)
+                if ((transform.position.x > 0 || transform.position.z > 0) && _baseball.IsInGamePlay)
                 {
-                    Foul();
+                    _baseball.Foul();
                     return;
                 }
-                PitchResult();
+                _baseball.PitchResult();
 
                 //혹여나 송구미스
-                CurrentState = BallState.FreeBall;
+                _baseball.CurrentState = BallState.FreeBall;
 
-                if (IsInGamePlay)
+                if (_baseball.IsInGamePlay)
                 {
                     //throw ball but swing miss
-                    IsGroundBall = true;
+                    _baseball.IsGroundBall = true;
                 }
             }
 
@@ -408,17 +412,56 @@ public class BaseballPhysics : MonoBehaviour
     
     //todo debug는 낙하 계산과 디버깅을 나눌 예정
     #region DEBUG
-    // void OnDrawGizmos()
-    // {
-    //     CalTrajectory(true);
-    // }
-    //
-    // void OnDrawGizmosSelected()
-    // {
-    //     CalTrajectory(true);
-    // }
+
     
-    
+    /// <summary>
+    /// 현재 위치와 속도를 바탕으로 미래의 궤적 데이터를 계산해 반환합니다.
+    /// </summary>
+    public void PredictTrajectory(Vector3 startPos, Vector3 initialVelocity)
+    {
+        _trajectoryBaseBallData.Init();
+        _trajectoryBaseBallData.AddPathPoint(startPos); // 시작점 저장
+
+        int steps = 160;
+        float dt = 0.05f;
+        Vector3 p = startPos;
+        Vector3 v = initialVelocity;
+        Vector3 g = Physics.gravity;
+
+        for (int i = 0; i < steps; i++)
+        {
+            v += g * dt; // 중력 적용
+            Vector3 nextP = p + v * dt;
+
+            // 🚨 충돌 감지 로직
+            if (Physics.Linecast(p, nextP, out var hit, -1, QueryTriggerInteraction.Collide))
+            {
+                // 1. 스트라이크 존 관통 확인
+                if (hit.collider.isTrigger && (hit.collider.CompareTag("BallZone") || hit.collider.CompareTag("StrikeZone")))
+                {
+                    if (!data.HasPassedStrikeZone) 
+                    {
+                        data.StrikeZonePoint = hit.point;
+                        data.HasPassedStrikeZone = true;
+                        
+                        // 🚨 주의: bat.MoveAxis는 여기서 호출하지 마! (Physics는 타자를 몰라야 함)
+                        // 나중에 이 반환된 데이터를 받은 타자AI나 매니저가 처리해야 해!
+                    }
+                }
+                // 2. 바닥/벽 등 물리적 충돌 확인
+                else if (!hit.collider.isTrigger)
+                {
+                    data.LandingPoint = hit.point;
+                    data.HasLanded = true;
+                    data.PathPoints.Add(hit.point); // 마지막 도착점 저장
+                    break; // 계산 종료
+                }
+            }
+
+            data.PathPoints.Add(nextP); // 궤적 점 저장
+            p = nextP;
+        }
+    }
     void CalTrajectory(bool isDebug = false)
     {
         Vector3 predictedStrikePos;
@@ -524,4 +567,6 @@ public class BaseballPhysics : MonoBehaviour
     }
 
     #endregion
+
+    public TrajectoryBaseBallData GetTrajectoryBaseBallData() => _trajectoryBaseBallData;
 }

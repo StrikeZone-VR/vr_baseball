@@ -67,7 +67,7 @@ public class Baseball : MonoBehaviour
     private Vector3 _targetPosition;
     
     [SerializeField] private BaseballPhysics _physics; 
-
+    
     /// <summary> 공이 투구되었는지 확인 </summary>  <returns>투구 상태</returns>
 
 
