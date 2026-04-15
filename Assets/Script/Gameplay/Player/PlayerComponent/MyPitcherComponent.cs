@@ -60,10 +60,8 @@ public class MyPitcherComponent : PitcherComponent
 
         _myBall.CurrentState = BallState.Thrown;
         
-        Vector3 launchVelocity = CalculateLaunchVelocity(transform.position, position, 45f);
-        
         // 🔥 4. 변경된 부분: 던지는 함수를 바로 부르지 않고, 코루틴에게 토스합니다!
-        StartCoroutine(DelayedThrowRoutine(launchVelocity));
+        StartCoroutine(DelayedThrowRoutine(position, 45f));
     }
     
     /// <summary>
@@ -71,13 +69,11 @@ public class MyPitcherComponent : PitcherComponent
     /// </summary>
     /// <param name="velocity"></param>
     /// <returns></returns>
-    private IEnumerator DelayedThrowRoutine(Vector3 velocity)
+    private IEnumerator DelayedThrowRoutine(Vector3 targetPosition, float velocity)
     {
-        //만약 안된다면 여기를 건드려라
-        // 유니티 물리 엔진(FixedUpdate)이 한 턴 돌 때까지 숨죽여 기다립니다.
         yield return new WaitForFixedUpdate(); // 물리 기준 1 프레임
     
-        // 매니저가 지나갔으니, 이제 우리가 계산한 진짜 속도를 공에 때려 넣습니다!
-        _myBall.ThrowBall(velocity);
+        //todo 근데 왜 transform.postion이지? myball로 해야하는 거 아닌가
+        _myBall.ThrowBall(transform.position, targetPosition, velocity, false);
     }
 }

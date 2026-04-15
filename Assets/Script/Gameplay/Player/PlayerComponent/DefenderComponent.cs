@@ -46,7 +46,6 @@ public class DefenderComponent : PlayerComponent
     protected void LookAtPlayer(Vector3 targetPosition)
     {
         player.LookAtPlayer(targetPosition);
-        FrontBall();
     }
     
     //touch ball
@@ -63,32 +62,15 @@ public class DefenderComponent : PlayerComponent
         if (collision.gameObject.CompareTag("Ball") 
             && player.GetBallDefender() == null)
         {
-            
             Baseball baseball = collision.gameObject.GetComponent<Baseball>();
             //owner ball
             SetMyBall(baseball);
-            baseball.SetVelocity(Vector3.zero);
             isTracking = false;
             
             OutRunner();
         }
     }
 
-    protected void FrontBall()
-    {
-        if (!_myBall)
-        {
-            return;
-        }
-        float x = Mathf.Sin(transform.rotation.eulerAngles.y * Mathf.PI / 180);
-        float z = Mathf.Cos(transform.rotation.eulerAngles.y * Mathf.PI / 180);
-        
-        //player angle
-        _myBall.SetPosition(
-            transform.position
-            + new Vector3(BALL_DISTANCE * x, 0.5f, BALL_DISTANCE * z)
-        );
-    }
 
     public void RemoveBall()
     {
@@ -119,7 +101,7 @@ public class DefenderComponent : PlayerComponent
             return;
         }
         //pass
-        _myBall.ThrowBall(transform.position, position, 45f);
+        _myBall.ThrowBall(transform.position, position, 45f, false);
     }
     
     /// <summary>

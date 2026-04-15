@@ -23,7 +23,7 @@ public class BaseballPhysics : MonoBehaviour
     //커브나 다른 무언가 사용하기 위해 만든 변수
     private Vector3 velocityXY; // 실제 목표 위치
     private float beforeTime = 0f;
-    
+    private float assistWeight = 0f; //가중치
     
     private readonly float MAGNUS = 60.0f; //100 기준
 
@@ -232,92 +232,6 @@ public class BaseballPhysics : MonoBehaviour
     //     );
     // }
     
-    
-    //todo debug
-    //절대 여기서 디버그 넣지말자
-    // public void DebugThrowPlayerBall()
-    // {
-    //     if (_currentState == BallState.Pitched) return;
-    //     
-    //     CurrentState = BallState.Pitched;
-    //     HasPassedStrikeZone = false;
-    //     //IsPassing = true;
-    //
-    //     pitchEvent.RaiseEvent();
-    //
-    //     //int index = Random.Range(0, 25);
-    //     IsZone = false;
-    //     IsStrike = false;
-    //     
-    //     //정면
-    //     Vector3 targetPosition = strikeZone.GetZone(4).position;
-    //     Vector3 targetVector = (targetPosition - _rigidbody.transform.position);
-    //     
-    //     float velocity = 100.0f / 3.6f; 
-    //     float dis = targetVector.magnitude;
-    //     // **정확한 직선 투구 - 스트라이크존 (0, 0.605, -14.06) 조준**
-    //     Vector3 direction = targetVector.normalized;
-    //
-    //     float time = dis / velocity;
-    //     //Debug.Log("time + time한 후에는 스트라이크가 (" + Time.time+ ") : "+ time);
-    //     
-    //     //Debug.Log("예측한 시간대 : " + (time - bat.RotationTime / 2 ));
-    //     debugShootTime = time - bat.RotationTime / 2f;
-    //     //0.08
-    //     debugShootTime2 = Time.time;
-    //     if(bat)
-    //         StartCoroutine(StartSwingAfter(time - bat.RotationTime / 2));
-    //     
-    //     //time - bat.RotationTime / 2)
-    //     float ac = Mathf.Abs(Physics.gravity.y) * time / 2;
-    //
-    //     SetVelocity((direction) * velocity + new Vector3(0, ac, 0));
-    //     playAudioClipEvent.RaiseEvent(0);
-    //     
-    //     // 이펙트
-    //     PlayThrowEffects();
-    // }
-    
-    //todo 마찬가지로 여기도 Pitcher에 있어야 함
-    //AI 공 던지는 함수
-    // public void PitchingBall()
-    // {
-    //     _myBall.CurrentState = BallState.Pitched;
-    //     
-    //     //random value 0 ~ 24
-    //     int index = Random.Range(0, 25);
-    //     //index = 22; //한 가운데
-    //
-    //     Transform SZTransform = strikeZone.GetZone(index);
-    //
-    //     //Debug.Log("투수 : " + _ball.transform.position);
-    //     //Debug.Log("스트라이크 존 " + index + " : "+ SZTransform.position);
-    //     Vector3 velocity = new Vector3();
-    //     
-    //     int pitchTypeIndex = Random.Range(0, 10);
-    //     
-    //     if (pitchTypeIndex <= 2)
-    //     {
-    //         _myBall.SelectPitchType = PitchType.Curve;
-    //         Debug.Log("커브");
-    //     }
-    //     else
-    //     {
-    //         _myBall.SelectPitchType = PitchType.FastBall;
-    //         Debug.Log("직구");
-    //     }
-    //     
-    //     if(_myBall.SelectPitchType == PitchType.FastBall)
-    //         velocity = CalculateSimpleVelocity(_myBall.transform.position, SZTransform.position, velocityXZ);
-    //     //else if(_myBall.SelectPitchType == PitchType.Curve)
-    //     else
-    //         velocity = CalculateCurveVelocity(_myBall.transform.position, SZTransform.position, velocityXZ);
-    //
-    //     //Debug.Log("속력 : " + velocity.magnitude * 3.6f);
-    //
-    //     _myBall.ThrowBall(velocity);
-    // }
-
     /// <summary>
     /// 통합 계산 단위
     /// </summary>
@@ -358,6 +272,38 @@ public class BaseballPhysics : MonoBehaviour
                 break;
         }
         return CalculateVelocity(start, target, velocityXZ,piterTypeForce);
+    }
+
+    public void ThrowPlayerBall(Vector3 targetPos, PitchType pitchType)
+    {
+        SetVelocity(CalculateAssistedVelocity(_rigidbody.velocity, targetPos, pitchType));
+    }
+    
+    
+    /// <summary>
+    /// Player 함수. 가중치를 추가로 적용해서 변경된 속력을 반환
+    /// </summary>
+    /// <param name="rawVRVelocity"></param>
+    /// <param name="targetPos"></param>
+    /// <param name="pitchType"></param>
+    /// <param name="assistWeight"></param>
+    /// <returns></returns>
+    public Vector3 CalculateAssistedVelocity(Vector3 rawVRVelocity, Vector3 targetPos, PitchType pitchType)
+    {
+        // 1. 유저가 팔을 휘두른 "진짜 물리적 속력(시속)"을 구함
+        float playerSpeedKmh = rawVRVelocity.magnitude * 3.6f;
+
+        // 만약 너무 살짝 던졌다면 보정 계산 중 0나누기 에러가 날 수 있으니 방어 코드
+        if (playerSpeedKmh <= 1.0f) return rawVRVelocity; 
+
+        // 2. 유저의 구속(Speed)은 그대로 유지한 채, 타겟에 완벽하게 꽂히는 정답 궤적(Velocity)을 알아냄
+        Vector3 perfectVelocity = GetVelocityByPitchType(transform.position, targetPos, playerSpeedKmh, pitchType);
+
+        // 3. 섞기 (Lerp 마법!)
+        // assistWeight가 0.0이면 100% 똥볼(rawVRVelocity), 1.0이면 100% 완벽한 스트라이크(perfectVelocity)
+        Vector3 finalVelocity = Vector3.Lerp(rawVRVelocity, perfectVelocity, Mathf.Clamp01(assistWeight));
+
+        return finalVelocity;
     }
     
     // public Vector3 CalculateSimpleVelocity(Vector3 start, Vector3 target, float velocityXZ)
@@ -428,7 +374,18 @@ public class BaseballPhysics : MonoBehaviour
         return _rigidbody.velocity;
     }
     
-    
+    public void CatchBall(Transform fielderTransform, Vector3 localOffset)
+    {
+        // 2. 수비수(또는 글러브)의 자식 오브젝트로 쏙 들어감!
+        transform.SetParent(fielderTransform); 
+
+        // 3. 수비수 기준(Local)으로 내 눈앞(localOffset)에 위치시킴
+        transform.localPosition = localOffset;
+    }
+    public void DoNotCatchBall()
+    {
+        transform.SetParent(); // 부모로부터 독립! 원래 자리로 놓자
+    }
     
     //todo debug는 낙하 계산과 디버깅을 나눌 예정
     #region TRAJECTORY

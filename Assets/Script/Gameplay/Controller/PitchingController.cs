@@ -25,7 +25,7 @@ public class PitchingController : GameController
     //pitch start
     public void StartPitchingGame()
     {
-        ResetBall();
+        PlayerPitcherResetBall();
         
         // UI 초기화
         if (pitchSelectionUI != null)
@@ -46,18 +46,9 @@ public class PitchingController : GameController
     /// <summary>
     /// init, ball status init 
     /// </summary>
-    public void ResetBall()
+    public void PlayerPitcherResetBall()
     {
-        _ball.RemoveDefender();
-
-        //맞겠지?
-        // XR Grab Interactable 강제 활성화 (새 공이 잡힐 수 있도록)
-        //ball.OffBallPhysics();
-
-        Debug.Log("이 메세지가 update마냥 나오면 안된다.");
-        // init ball
-        _ball.SetVelocity(Vector3.zero);
-        _ball.SetPosition(ballResetPosition.position);
+        _ball.ResetBallState(ballResetPosition.position);
     }
     
     private void OnPitchTypeSelected(PitchType pitchType)

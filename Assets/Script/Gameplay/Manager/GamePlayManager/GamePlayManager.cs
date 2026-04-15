@@ -251,7 +251,7 @@ public class GamePlayManager : GameManager
             {
                 currentBatterComponent = NextBatter();
             }
-            pitchingController.ResetBall();
+            pitchingController.PlayerPitcherResetBall();
             canGetBall = true;
         }
     }
@@ -1273,60 +1273,33 @@ public class GamePlayManager : GameManager
         gamePlayModel.DebugBaseStatus(isFlyingOut);
         
     }
-
     void DebugHitting()
     {
-        Debug.Log("디버깅용 타자 안타 함수 - player는 타자");
-        //공을 던지면 isPassing, isThrown
+        Debug.Log("디버깅용 타자 안타 함수 - 강제 타격 실행!");
 
+        // 1. 랜덤 속력 계산
         float x = Random.Range(-1.0f, 0f);
         float y = 2f;
         float z = Random.Range(-1.0f, 0f);
-        float power = Random.Range(5f, 50f); //20f 5~50
+        float power = Random.Range(5f, 50f); 
 
-        //파울
-        // x = -0.5f;
-        // z = -0.5f;
-        // power = 10f;
-        
-        //Debug.Log("던지기 + " + x + ", " + z);
-        //공 던지는 코루틴도 제거
+        // 2. 기존 매니저의 투수 및 코루틴 제어 (이건 매니저의 일이 맞음!)
         _pitcherComponent.StopPitching();
-        
-        //no Defender
         _ball.RemoveDefender();
-        
-        _ball.SetPosition(batterPosition.position + new Vector3(0, 2.0f, 0));
-        _ball.SetVelocity(new Vector3(x, y, z) * power);
-        //10 : 내야 땅볼?
-        //20 : 뜬 공
-        
-        //백 코루틴 제거?
+
         if(waitPitcherCoroutine != null)
             StopCoroutine(waitPitcherCoroutine);
 
+        Vector3 targetSpawnPos = batterPosition.position + new Vector3(0, 2.0f, 0);
+        Vector3 targetVelocity = new Vector3(x, y, z) * power;
 
-        _ball.CurrentState = BallState.Pitched;
-        //친 순간은
-        //땅볼과 isBack 제외 모두 체크
-        _ball.Hit();
-
-        // _ball.IsZone = true;
-        // _ball.IsStrike = true;
-        _ball.IsGroundBall = false;
-        _ball.OnTouchBall(); //이거해야지 바로 잡을 수 있음
-        
-        //_ball
-        //batterPosition
-        //속력 추가
-        
-        //만약 파울이면? => isPass와 isThrown 제거되는 듯 => 이거는 그냥 볼 필요는 없다.
+        _ball.DebugHit(targetSpawnPos, targetVelocity);
     }
-
+    
     private void DebugThrowBall()
     {
-        _ball.CurrentState = BallState.Dead; //PitcherGetBall(); //공을 가져옴
-        _ball.DebugThrowPlayerBall();
+        _ball.CurrentState = BallState.Dead; //PitcherGetBall(); //공을 가져옴 근데 가져오는 시간이 꽤 될텐데
+        _ball.DebugPitching();
     }
     
     //베이스 이동 디버그

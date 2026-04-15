@@ -127,12 +127,44 @@ public class Baseball : MonoBehaviour
     /// <param name="start"></param>
     /// <param name="target"></param>
     /// <param name="velocity_xy"></param>
-    public void ThrowBall(Vector3 start, Vector3 target, float velocity_xy) //이거 디폴트를 뭐로 할까
+    public void ThrowBall(Vector3 start, Vector3 target, float velocity_xy, bool isPitcher) //이거 디폴트를 뭐로 할까
     {
         RemoveDefender();
-        CurrentState = BallState.Thrown;
+
+        if (isPitcher)
+        {
+            CurrentState = BallState.Pitched;
+        }
+        else
+        {
+            CurrentState = BallState.Thrown;
+        }
         _physics.ThrowBall(start, target, velocity_xy);
+        
+        playAudioClipEvent.RaiseEvent(0);
+        PlayThrowEffects(); // 이펙트
     }
+    
+    //player
+    private void ThrowPlayerBall()
+    {
+        //경기중에 던지면 알아서 return인데...
+        if (_currentState == BallState.Pitched)
+        {
+            return;
+        }
+        CurrentState = BallState.Pitched;
+        pitchEvent.RaiseEvent();
+        
+        //todo physics의 던지는 함수
+        _physics.ThrowPlayerBall(strikeZone.transform.position, selectedPitchType);
+        
+        //_physics.PlayerThrowBall();
+        
+        playAudioClipEvent.RaiseEvent(0);
+        PlayThrowEffects(); // 이펙트
+    }
+    
     
     /// //////////////////////////////////////////////////////////////////////
     //피칭 결과 알려주는 함수
@@ -209,7 +241,15 @@ public class Baseball : MonoBehaviour
         get => _currentState;
         set
         {
+            //잡은 상태라면 놓아야 함
+            if (_currentState == BallState.Grabbed)
+            {
+                _physics.DoNotCatchBall();
+            }
             _currentState = value;
+
+            //잠만 그러면 
+            
             
             switch (_currentState)
             {
@@ -219,7 +259,12 @@ public class Baseball : MonoBehaviour
                     break;
                 case BallState.Grabbed: //
                     DefenderDis = 0;
+                    _physics.SetVelocity(Vector3.zero);
                     _physics.SetGravity(false);
+                    
+                    //todo myDefender에게 frontBall시켜주기
+                    _physics.CatchBall();
+                    
                     allTrackingOffEvent.RaiseEvent();
                     break;
                 case BallState.Dead:
@@ -460,22 +505,6 @@ public class Baseball : MonoBehaviour
         //Debug.Log("✋ 공을 잡았습니다! ");
     }
 
-    //player
-    private void ThrowPlayerBall(bool isDebug = false)
-    {
-        //경기중에 던지면 알아서 return인데...
-        if (_currentState == BallState.Pitched)
-        {
-            return;
-        }
-        CurrentState = BallState.Pitched;
-        pitchEvent.RaiseEvent();
-        
-        _physics.PlayerThrowBall();
-        
-        playAudioClipEvent.RaiseEvent(0);
-        PlayThrowEffects(); // 이펙트
-    }
 
 
     public void OnTouchBall()
@@ -529,6 +558,67 @@ public class Baseball : MonoBehaviour
         //Debug.Break();
     }
 
+    public void ResetBallState(Vector3 ballResetPosition)
+    {
+        RemoveDefender();
+
+        //맞겠지?
+        // XR Grab Interactable 강제 활성화 (새 공이 잡힐 수 있도록)
+        //ball.OffBallPhysics();
+
+        // init ball
+        _physics.SetVelocity(Vector3.zero);
+        _physics.SetPosition(ballResetPosition);
+    }
+
+    public void DebugHit(Vector3 position, Vector3 velocity)
+    {
+        //no Defender
+        RemoveDefender();
+        
+        CurrentState = BallState.Pitched;
+        
+        //친 순간은
+        //땅볼과 isBack 제외 모두 체크
+        Hit();
+
+        // IsZone = true;
+        // IsStrike = true;
+        IsGroundBall = false;
+        OnTouchBall();
+    }
+
+    public void DebugPitching()
+    {
+        
+        if (_currentState == BallState.Pitched) return;
+        
+        CurrentState = BallState.Pitched;
+        HasPassedStrikeZone = false;
+        //IsPassing = true;
+    
+        pitchEvent.RaiseEvent();
+        
+        //정면
+        Vector3 targetPosition = strikeZone.GetZone(4).position;
+
+        IsZone = false;
+        IsStrike = false;
+
+        
+        //스윙 함수
+        // float time = dis / velocity;
+        // //Debug.Log("time + time한 후에는 스트라이크가 (" + Time.time+ ") : "+ time);
+        //
+        // //Debug.Log("예측한 시간대 : " + (time - bat.RotationTime / 2 ));
+        // debugShootTime = time - bat.RotationTime / 2f;
+        // //0.08
+        // debugShootTime2 = Time.time;
+        // if(bat)
+        //     StartCoroutine(StartSwingAfter(time - bat.RotationTime / 2));
+        
+        ThrowBall(transform.position, targetPosition, 60f, true); //내부에 계산 함수 있음
+    }
 
 }
 
