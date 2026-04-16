@@ -8,8 +8,9 @@ public class BaseballPhysics : MonoBehaviour
 {
     private Rigidbody _rigidbody;
     private Baseball _baseball;
-
-    private TrajectoryBaseBallData _trajectoryBaseBallData;
+    
+    [SerializeField] private Transform defaultParentBaseball;
+    [SerializeField] private TrajectoryBaseBallData _trajectoryBaseBallData;
     
     [Header("Listening to EventChannels")] 
     [SerializeField] private FloatEventSO getVelocityEventSO; //from BattingSystem
@@ -35,10 +36,6 @@ public class BaseballPhysics : MonoBehaviour
         _rigidbody.interpolation = RigidbodyInterpolation.Interpolate; // 부드러운 움직임 => 이거 안하면 오류 생기는 듯
     }
 
-    // private void Update()
-    // {
-    //     PredictTrajectory();
-    // }
     
     private void FixedUpdate()
     {
@@ -243,17 +240,18 @@ public class BaseballPhysics : MonoBehaviour
     {
         velocity_xy /= 3.6f;
         float g = Mathf.Abs(Physics.gravity.y) + piterTypeForce; // 9.81 (양수)
+    
         Vector3 diff = target - start;
         Vector3 dirXZ = new Vector3(diff.x, 0, diff.z).normalized;
         float d = new Vector2(diff.x, diff.z).magnitude; // 수평 거리
         float h = diff.y; // 높이차
-
+    
         // 비행 시간 계산: t = d / velocity_xy
         float t = d / velocity_xy;
-
+    
         // y방향 초기 속도 Vy = (h + 0.5 * g * t^2) / t
-        float vy = (h + g * t * t) / t;
-
+        float vy = (h + 0.5f * g * t * t) / t; 
+    
         // 최종 속도 벡터
         Vector3 velocity = dirXZ * velocity_xy;
         velocity.y = vy;
@@ -348,7 +346,6 @@ public class BaseballPhysics : MonoBehaviour
     {
         if (_rigidbody)
         {
-            //Debug.Log("공의 고정 위치 : " + position);
             _rigidbody.position = position;
         }
     }
@@ -378,13 +375,19 @@ public class BaseballPhysics : MonoBehaviour
     {
         // 2. 수비수(또는 글러브)의 자식 오브젝트로 쏙 들어감!
         transform.SetParent(fielderTransform); 
-
+        // 부모 객체가 있다고 가정할 때, 로컬 좌표를 월드 좌표로 변환
+        Vector3 targetWorldPosition = fielderTransform.TransformPoint(localOffset);
+        
+        // 물리 엔진을 존중하면서 안전하게 이동! (충돌 판정 완벽하게 됨)
+        //SetPosition(new Vector3(-13.0f, 0.5f, -13.0f));
+        SetPosition(targetWorldPosition);
+        
         // 3. 수비수 기준(Local)으로 내 눈앞(localOffset)에 위치시킴
         transform.localPosition = localOffset;
     }
     public void DoNotCatchBall()
     {
-        transform.SetParent(); // 부모로부터 독립! 원래 자리로 놓자
+        transform.SetParent(defaultParentBaseball); // 부모로부터 독립! 원래 자리로 놓자
     }
     
     //todo debug는 낙하 계산과 디버깅을 나눌 예정

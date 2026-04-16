@@ -2,16 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TrajectoryBaseBallData : MonoBehaviour
+[CreateAssetMenu(fileName = "NewTrajectoryBaseBallData", menuName = "Model/Trajectory BaseBall Data")]
+public class TrajectoryBaseBallData : ScriptableObject
 {
-    private List<Vector3> pathPoints = new List<Vector3>(); // 날아가는 궤적 점들
+    [SerializeField] private List<Vector3> pathPoints = new List<Vector3>(); // 날아가는 궤적 점들
 
     //배트 예상 스윙을 위한 변수들
-    private bool hasPassedStrikeZone = false;
-    private Vector3 StrikeZonePoint; // 스트라이크 존 관통 좌표
+    [SerializeField] private bool hasPassedStrikeZone = false;
+    [SerializeField] private Vector3 StrikeZonePoint; // 스트라이크 존 관통 좌표
 
-    private bool hasLanded = false; //필요할지도
-    private Vector3 landingPoint; // 최종 바닥/벽 충돌 좌표
+    [SerializeField] private bool hasLanded = false; //필요할지도
+    [SerializeField] private Vector3 landingPoint; // 최종 바닥/벽 충돌 좌표
 
     public void Init()
     {

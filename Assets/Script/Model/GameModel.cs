@@ -6,5 +6,5 @@ using UnityEngine;
 //Model
 public class GameModel : ScriptableObject
 {
-    public void Init() { }
+    public virtual void Init() { }
 }

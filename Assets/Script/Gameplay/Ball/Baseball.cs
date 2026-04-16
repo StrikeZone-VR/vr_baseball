@@ -16,6 +16,8 @@ public class Baseball : MonoBehaviour
     [SerializeField] private DefenderComponent myDefenderComponent; //handling player
     [SerializeField] private float defenderDis = 0.0f;
     [SerializeField] private Bat bat;
+    [SerializeField] private BaseballPhysics _physics; 
+
     private XRGrabInteractable grabInteractable;
     
     [Space]
@@ -66,7 +68,6 @@ public class Baseball : MonoBehaviour
 
     private Vector3 _targetPosition;
     
-    [SerializeField] private BaseballPhysics _physics; 
     
     /// <summary> 공이 투구되었는지 확인 </summary>  <returns>투구 상태</returns>
 
@@ -90,7 +91,18 @@ public class Baseball : MonoBehaviour
         UpdatePitchData();
     }
 
-
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            //todo myDefender에게 frontBall시켜주기
+            _physics.CatchBall(
+                myDefenderComponent.transform,
+                Vector3.forward * 0.5f + new Vector3(0, 0.5f, 0)
+            );
+        }
+    }
+    
     void FixedUpdate()
     {
         //그냥 파울처리
@@ -257,13 +269,16 @@ public class Baseball : MonoBehaviour
                 case BallState.Thrown:
                     _physics.SetGravity(true);
                     break;
-                case BallState.Grabbed: //
+                case BallState.Grabbed: //그 전에 무조건 MyDefender를 설정해야 한다
                     DefenderDis = 0;
                     _physics.SetVelocity(Vector3.zero);
                     _physics.SetGravity(false);
                     
                     //todo myDefender에게 frontBall시켜주기
-                    _physics.CatchBall();
+                    _physics.CatchBall(
+                        myDefenderComponent.transform,
+                        Vector3.forward * 0.5f + new Vector3(0, 0.5f, 0)
+                    );
                     
                     allTrackingOffEvent.RaiseEvent();
                     break;
@@ -308,9 +323,13 @@ public class Baseball : MonoBehaviour
         set 
         {
             isInGamePlay = value;
-            OnIsInGameplayChanged.Invoke(value);
-            _physics.PredictTrajectory(transform.position);
-            CurrentState = BallState.FreeBall;
+
+            if (isInGamePlay)
+            {
+                OnIsInGameplayChanged.Invoke(value);
+                _physics.PredictTrajectory(transform.position);
+                CurrentState = BallState.FreeBall;
+            }
         }
     }
 
@@ -339,6 +358,7 @@ public class Baseball : MonoBehaviour
         get => isZone;
         set
         {
+            Debug.Log(value);
             isZone = value;
         }
     }

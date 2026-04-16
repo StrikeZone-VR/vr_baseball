@@ -21,11 +21,6 @@ public class DefenderComponent : PlayerComponent
 
     protected virtual void Update()
     {
-        if (_myBall)
-        {
-            FrontBall();
-        }
-
         //defend my position
         // if (!IsTracking)
         // {
@@ -36,11 +31,6 @@ public class DefenderComponent : PlayerComponent
         //     }
         //     //defend pos
         // }
-    }
-
-    private void FixedUpdate()
-    {
-        //Vector3.Distance(transform.position, defenderTransform.position);
     }
 
     protected void LookAtPlayer(Vector3 targetPosition)
@@ -113,10 +103,8 @@ public class DefenderComponent : PlayerComponent
         myBall.RemoveDefender();
         _myBall = myBall;
         //Debug.Log("[defender] : 잡잡기");
-        _myBall.MyDefenderComponent = this;
-        _myBall.CurrentState = BallState.Grabbed;
-        
-        FrontBall();
+        _myBall.MyDefenderComponent = this; // _myBall.CurrentState = BallState.Grabbed;
+
         //IsTracking = false; => 어차피 MyDefender에서 모든 주자가 false임
 
         //transform.LookAt(_ball.transform, Vector3.up);

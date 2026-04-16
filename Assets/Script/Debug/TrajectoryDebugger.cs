@@ -15,11 +15,8 @@ public class TrajectoryDebugger : MonoBehaviour
 
     void DrawTrajectory()
     {
-        Vector3 predictedStrikePos;
         float dashLength = 0.1f; // 그려지는 짧은 선 길이
         float gapLength  = 0.1f; // 대시 사이 공백
-        
-        float dt = 0.05f;
         
         Gizmos.color = Color.yellow;
 
@@ -71,7 +68,7 @@ public class TrajectoryDebugger : MonoBehaviour
         Vector3 right = strikeZone.transform.right;
         Vector3 up = strikeZone.transform.up;
         
-        Debug.Log("[Baseball] position : " + point);
+        //Debug.Log("[Baseball] position : " + point);
         
         // 수평선 그리기
         Debug.DrawLine(point - right * crossSize, point + right * crossSize, hitColor, duration);

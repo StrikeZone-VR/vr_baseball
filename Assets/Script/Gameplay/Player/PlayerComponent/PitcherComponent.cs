@@ -79,8 +79,15 @@ public class PitcherComponent : DefenderComponent
             yield return new WaitForSeconds(1.0f);
         }
         
+        Vector3 targetPosition = strikeZone.GetZone(4).position; //랜덤넣자
+        
         coroutine = null;
-        PitchingBall();
+        _myBall.ThrowBall(
+            transform.position,
+            targetPosition,
+            velocityXZ,
+            true
+        );
     }
 
 

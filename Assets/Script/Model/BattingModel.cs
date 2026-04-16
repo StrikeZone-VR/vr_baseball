@@ -35,7 +35,7 @@ public class BattingModel : GameModel
     }
 
     //
-    public void Init()
+    public override void Init()
     {
         hit = 0;
         homerun = 0;

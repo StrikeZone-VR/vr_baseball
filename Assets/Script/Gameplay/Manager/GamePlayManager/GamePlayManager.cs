@@ -737,6 +737,12 @@ public class GamePlayManager : GameManager
     
     private void BeforePitcherGetBall()
     {
+        Debug.LogWarning("이러면 1루 견제를 하면 못 돌아옴");
+        if (!_ball.IsInGamePlay)
+        {
+            return;
+        }
+        
         //수비 알고리즘
         //has ball and ball batting => 포수 방지용으로 존에 들어간 순간부터 하는게 낫지 않을까?
         if (_ball.MyDefenderComponent && _ball.IsZone)

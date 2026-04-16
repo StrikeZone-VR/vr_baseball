@@ -273,10 +273,18 @@ public class GamePlayModel : GameModel
         }
     }
 
-    public void Init()
+    public override void Init()
     {
         inning = 0;
         out_count = 0;
+        
+        runners.Clear();
+        before_runners.Clear();
+    
+        before_score = 0;
+
+        myTeamIndex = 0; //0 or 1 => batter 기준
+        
         _teamStatus[0].Init();
         _teamStatus[1].Init();
     }

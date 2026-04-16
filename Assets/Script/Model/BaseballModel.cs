@@ -36,7 +36,7 @@ public class BaseballModel : GameModel
         }
     }
 
-    public void Init()
+    public override void Init()
     {
         ball_count = 0;
         strike_count = 0;

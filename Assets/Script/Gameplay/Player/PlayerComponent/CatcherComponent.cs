@@ -35,7 +35,12 @@ public class CatcherComponent : BasemanComponent
     {
         base.SetMyBall(myBall);
         
-        //인플레이가 아닐때 받고 싶은데
+        //포수가 배트에 안 건드린 공을 만진 경우 
+        if (!_myBall.IsInGamePlay)
+        {
+            myBall.PitchResult();            
+        }
+        
         //StartCoroutine(WaitThrowToPitcher());
     }
     
