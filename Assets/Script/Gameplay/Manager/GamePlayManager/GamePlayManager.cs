@@ -745,7 +745,7 @@ public class GamePlayManager : GameManager
             return;
         }
         
-        //수비 알고리즘
+        //복귀 알고리즘
         //has ball and ball batting => 포수 방지용으로 존에 들어간 순간부터 하는게 낫지 않을까?
         if (_ball.MyDefenderComponent && _ball.IsZone)
         {
@@ -949,6 +949,7 @@ public class GamePlayManager : GameManager
         //던지기 => 만약 공 mydefender와 index가 같은 경우 => 무조건 자기 베이스로 돌아가야함
         if (ThrowToBase(index))
         {
+            Debug.Log("던져 제발 : " + index);
             return true;
         }
         return false;
@@ -1256,7 +1257,6 @@ public class GamePlayManager : GameManager
         }
         if (Input.GetKeyDown(KeyCode.V))
         {
-
             if (gamePlayModel.IsMyTeamBatting())
             {
                 Debug.Log("투수 스토프");
@@ -1293,7 +1293,7 @@ public class GamePlayManager : GameManager
 
         // 2. 기존 매니저의 투수 및 코루틴 제어 (이건 매니저의 일이 맞음!)
         _pitcherComponent.StopPitching();
-        _ball.RemoveDefender();
+        // _ball.RemoveDefender(); => DebugHit
 
         if(waitPitcherCoroutine != null)
             StopCoroutine(waitPitcherCoroutine);

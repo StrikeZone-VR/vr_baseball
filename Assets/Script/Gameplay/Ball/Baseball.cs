@@ -255,13 +255,6 @@ public class Baseball : MonoBehaviour
                     DefenderDis = 0;
                     _physics.SetVelocity(Vector3.zero);
                     _physics.SetGravity(false);
-                    
-                    //todo myDefender에게 frontBall시켜주기
-                    _physics.CatchBall(
-                        myDefenderComponent.transform,
-                        Vector3.forward * 0.6f + new Vector3(0, 0.5f, 0)
-                    );
-                    
                     allTrackingOffEvent.RaiseEvent();
                     break;
                 case BallState.Dead:
@@ -324,14 +317,12 @@ public class Baseball : MonoBehaviour
     ///공식 제거 함수
     public void RemoveDefender()
     {
-        //Debug.Log("제거");
+        Debug.Log("제거");
         if (!myDefenderComponent)
         {
             return;
         }
         
-        _physics.DoNotCatchBall();
-
         MyDefenderComponent.RemoveBall();
         MyDefenderComponent = null;
     }

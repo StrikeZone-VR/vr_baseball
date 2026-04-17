@@ -207,32 +207,6 @@ public class BaseballPhysics : MonoBehaviour
         beforeTime = Time.time;
         velocityXY = new Vector3(_rigidbody.velocity.x, 0, _rigidbody.velocity.z);
     }
-
-    
-    // todo player => 이거는 MyBodyPitcherComponet에 들어가야 함. 또는 어딘가 여기에 있으면 안됨
-    // public void PlayerThrowBall()
-    // {
-    //     Vector3 targetPosition = strikeZone.GetZone(4).position;
-    //
-    //     Vector3 targetVector = (targetPosition - transform.position);
-    //     float dis = targetVector.magnitude;
-    //     // **정확한 직선 투구 - 스트라이크존 (0, 0.605, -14.06) 조준**
-    //     Vector3 direction = targetVector.normalized;
-    //
-    //     float time = dis / _rigidbody.velocity.magnitude;
-    //     //Debug.Log("time + time한 후에는 스트라이크가 (" + Time.time+ ") : "+ time);
-    //     if(bat)
-    //         StartCoroutine(StartSwingAfter(time - bat.RotationTime / 2));
-    //     
-    //     //time - bat.RotationTime / 2)
-    //     float ac = Mathf.Abs(Physics.gravity.y) * time / 2;
-    //     //_rigidbody.velocity = ( direction) * _rigidbody.velocity.magnitude;
-    //     SetVelocity(
-    //         ( (1.0f - ball_accuracy_weight) * _rigidbody.velocity.normalized
-    //          + ball_accuracy_weight * direction )
-    //         * _rigidbody.velocity.magnitude + new Vector3(0, ac, 0) * ball_accuracy_weight
-    //     );
-    // }
     
     /// <summary>
     /// 통합 계산 단위
@@ -351,16 +325,14 @@ public class BaseballPhysics : MonoBehaviour
     {
         if (_rigidbody)
         {
-            _rigidbody.transform.rotation = Quaternion.identity;
-            _rigidbody.angularVelocity = Vector3.zero;
-            _rigidbody.transform.position = position;
+            _rigidbody.position = position;
         }
+            
     }
     
     //위치관련
     public void SetVelocity(Vector3 velocity)
     {
-        _rigidbody.isKinematic = false;
         if (_rigidbody)
         {
             _rigidbody.transform.rotation = Quaternion.identity;
@@ -379,27 +351,6 @@ public class BaseballPhysics : MonoBehaviour
         return _rigidbody.velocity;
     }
     
-    public void CatchBall(Transform fielderTransform, Vector3 localOffset)
-    {
-        _rigidbody.isKinematic = true;
-        
-        // 2. 수비수(또는 글러브)의 자식 오브젝트로 쏙 들어감!
-        transform.SetParent(fielderTransform); 
-        // 부모 객체가 있다고 가정할 때, 로컬 좌표를 월드 좌표로 변환
-        
-        Debug.Log("target : " + transform.parent);
-        // 물리 엔진을 존중하면서 안전하게 이동! (충돌 판정 완벽하게 됨)
-        //SetPosition(new Vector3(-13.0f, 0.5f, -13.0f));
-        //SetPosition(targetWorldPosition);
-
-        // // 3. 수비수 기준(Local)으로 내 눈앞(localOffset)에 위치시킴
-        transform.localPosition = localOffset;
-    }
-    public void DoNotCatchBall()
-    {
-        _rigidbody.isKinematic = false;
-        transform.SetParent(defaultParentBaseball); // 부모로부터 독립! 원래 자리로 놓자
-    }
     
     //todo debug는 낙하 계산과 디버깅을 나눌 예정
     #region TRAJECTORY

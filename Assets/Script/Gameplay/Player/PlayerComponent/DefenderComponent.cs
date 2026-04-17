@@ -23,6 +23,12 @@ public class DefenderComponent : PlayerComponent
 
     protected virtual void Update()
     {
+        
+        if (_myBall)
+        {
+            FrontBall();
+        }
+        
         //defend my position
         // if (!IsTracking)
         // {
@@ -35,9 +41,21 @@ public class DefenderComponent : PlayerComponent
         // }
     }
 
+    private void FixedUpdate()
+    {
+    }
+
     protected void LookAtPlayer(Vector3 targetPosition)
     {
         player.LookAtPlayer(targetPosition);
+        //_myBall.Setp(targetPosition);
+    }
+
+    private void FrontBall()
+    {
+        // 내 현재 위치 + (내가 바라보는 정면 방향 * 0.5f 거리)
+        Vector3 frontPosition = transform.position + (transform.forward * BALL_DISTANCE) + (Vector3.up * 0.5f);
+        _myBall.GetComponent<BaseballPhysics>().SetPosition(frontPosition);
     }
     
     //touch ball
@@ -55,7 +73,6 @@ public class DefenderComponent : PlayerComponent
         if (collision.gameObject.CompareTag("Ball") 
             && player.GetBallDefender() == null)
         {
-            Debug.Log("나나나");
             Baseball baseball = collision.gameObject.GetComponent<Baseball>();
             //owner ball
             SetMyBall(baseball);
@@ -76,24 +93,14 @@ public class DefenderComponent : PlayerComponent
     public void ThrowBall(Vector3 position)
     {
         LookAtPlayer(position);
-
-        // float x = Mathf.Sin(transform.rotation.eulerAngles.y * Mathf.PI / 180);
-        // float z = Mathf.Cos(transform.rotation.eulerAngles.y * Mathf.PI / 180);
-        //
-        // //front my ball
-        // _myBall.transform.position = transform.position + new Vector3(BALL_DISTANCE * x, 0, BALL_DISTANCE * z);
-        // float dis = Mathf.Sqrt(Mathf.Pow(position.x - transform.position.x, 2) + Mathf.Pow(position.z - transform.position.z, 2));
-        // Vector3 dir = new Vector3(x, 1, z);
-        // dir.Normalize();
-        // dis *= 0.75f;
+        //Debug.Break();
         
-        //Debug.Log(dis);
-
         //만약 던졌는데 던진 공이 닿아서 다시 붙여지는 경우
-        if (Vector3.Distance(position, transform.position) <= 0.3f)
-        {
-            return;
-        }
+        // if (Vector3.Distance(position, transform.position) <= 0.6f)
+        // {
+        //     Debug.LogError("??????????");
+        //     return;
+        // }
         //pass
         _myBall.ThrowBall(transform.position, position, 45f, false);
     }
