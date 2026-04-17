@@ -55,6 +55,7 @@ public class DefenderComponent : PlayerComponent
         if (collision.gameObject.CompareTag("Ball") 
             && player.GetBallDefender() == null)
         {
+            Debug.Log("나나나");
             Baseball baseball = collision.gameObject.GetComponent<Baseball>();
             //owner ball
             SetMyBall(baseball);

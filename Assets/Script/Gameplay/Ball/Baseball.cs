@@ -91,14 +91,6 @@ public class Baseball : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.M))
-        {
-            //todo myDefender에게 frontBall시켜주기
-            _physics.CatchBall(
-                myDefenderComponent.transform,
-                Vector3.forward * 0.5f + new Vector3(0, 0.5f, 0)
-            );
-        }
     }
     
     void FixedUpdate()
@@ -267,7 +259,7 @@ public class Baseball : MonoBehaviour
                     //todo myDefender에게 frontBall시켜주기
                     _physics.CatchBall(
                         myDefenderComponent.transform,
-                        Vector3.forward * 0.4f + new Vector3(0, 0.5f, 0)
+                        Vector3.forward * 0.6f + new Vector3(0, 0.5f, 0)
                     );
                     
                     allTrackingOffEvent.RaiseEvent();

@@ -360,6 +360,7 @@ public class BaseballPhysics : MonoBehaviour
     //위치관련
     public void SetVelocity(Vector3 velocity)
     {
+        _rigidbody.isKinematic = false;
         if (_rigidbody)
         {
             _rigidbody.transform.rotation = Quaternion.identity;
@@ -380,25 +381,23 @@ public class BaseballPhysics : MonoBehaviour
     
     public void CatchBall(Transform fielderTransform, Vector3 localOffset)
     {
-        //todo set parent rigidbody와 동기화 시키자
+        _rigidbody.isKinematic = true;
         
         // 2. 수비수(또는 글러브)의 자식 오브젝트로 쏙 들어감!
         transform.SetParent(fielderTransform); 
         // 부모 객체가 있다고 가정할 때, 로컬 좌표를 월드 좌표로 변환
         
-        //Debug.Log("target : " +targetWorldPosition);
+        Debug.Log("target : " + transform.parent);
         // 물리 엔진을 존중하면서 안전하게 이동! (충돌 판정 완벽하게 됨)
-        SetPosition(new Vector3(-13.0f, 0.5f, -13.0f));
+        //SetPosition(new Vector3(-13.0f, 0.5f, -13.0f));
         //SetPosition(targetWorldPosition);
 
-        // Debug.Log("ㅇㅇ"+transform.position);
         // // 3. 수비수 기준(Local)으로 내 눈앞(localOffset)에 위치시킴
-         //transform.localPosition = localOffset;
-         
-        // Debug.Log("ㅇㅇ2"+transform.position);
+        transform.localPosition = localOffset;
     }
     public void DoNotCatchBall()
     {
+        _rigidbody.isKinematic = false;
         transform.SetParent(defaultParentBaseball); // 부모로부터 독립! 원래 자리로 놓자
     }
     

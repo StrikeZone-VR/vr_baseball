@@ -774,7 +774,7 @@ public class GamePlayManager : GameManager
                 {
                     return;
                 }
-
+        
                 
                 if(canGetBall)
                 {
