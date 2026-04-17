@@ -36,6 +36,11 @@ public class BaseballPhysics : MonoBehaviour
         _rigidbody.interpolation = RigidbodyInterpolation.Interpolate; // 부드러운 움직임 => 이거 안하면 오류 생기는 듯
     }
 
+    private void Update()
+    {
+        PredictTrajectory(GetPosition());
+    }
+    
     
     private void FixedUpdate()
     {
@@ -88,6 +93,7 @@ public class BaseballPhysics : MonoBehaviour
     {
         if (collision.collider.CompareTag("Ground") || collision.collider.CompareTag("Base"))
         {
+            
             //잡지 않았다면
             if (_baseball.CurrentState != BallState.Grabbed)
             {
@@ -197,7 +203,6 @@ public class BaseballPhysics : MonoBehaviour
         
         //rotation zero
         SetVelocity(force); //계산하는 함수
-        PredictTrajectory(_rigidbody.transform.position);
 
         beforeTime = Time.time;
         velocityXY = new Vector3(_rigidbody.velocity.x, 0, _rigidbody.velocity.z);
@@ -346,7 +351,9 @@ public class BaseballPhysics : MonoBehaviour
     {
         if (_rigidbody)
         {
-            _rigidbody.position = position;
+            _rigidbody.transform.rotation = Quaternion.identity;
+            _rigidbody.angularVelocity = Vector3.zero;
+            _rigidbody.transform.position = position;
         }
     }
     
@@ -373,17 +380,22 @@ public class BaseballPhysics : MonoBehaviour
     
     public void CatchBall(Transform fielderTransform, Vector3 localOffset)
     {
+        //todo set parent rigidbody와 동기화 시키자
+        
         // 2. 수비수(또는 글러브)의 자식 오브젝트로 쏙 들어감!
         transform.SetParent(fielderTransform); 
         // 부모 객체가 있다고 가정할 때, 로컬 좌표를 월드 좌표로 변환
-        Vector3 targetWorldPosition = fielderTransform.TransformPoint(localOffset);
         
+        //Debug.Log("target : " +targetWorldPosition);
         // 물리 엔진을 존중하면서 안전하게 이동! (충돌 판정 완벽하게 됨)
-        //SetPosition(new Vector3(-13.0f, 0.5f, -13.0f));
-        SetPosition(targetWorldPosition);
-        
-        // 3. 수비수 기준(Local)으로 내 눈앞(localOffset)에 위치시킴
-        transform.localPosition = localOffset;
+        SetPosition(new Vector3(-13.0f, 0.5f, -13.0f));
+        //SetPosition(targetWorldPosition);
+
+        // Debug.Log("ㅇㅇ"+transform.position);
+        // // 3. 수비수 기준(Local)으로 내 눈앞(localOffset)에 위치시킴
+         //transform.localPosition = localOffset;
+         
+        // Debug.Log("ㅇㅇ2"+transform.position);
     }
     public void DoNotCatchBall()
     {
@@ -463,4 +475,9 @@ public class BaseballPhysics : MonoBehaviour
     #endregion
 
     public TrajectoryBaseBallData GetTrajectoryBaseBallData() => _trajectoryBaseBallData;
+
+    public Vector3 GetPosition()
+    {
+        return _rigidbody.position;
+    }
 }

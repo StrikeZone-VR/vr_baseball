@@ -66,8 +66,6 @@ public class Baseball : MonoBehaviour
     [SerializeField] private StrikeZone strikeZone;
     //public PitchingSystemManager pitchingSystemManager;    // 새로운 통합 시스템
 
-    private Vector3 _targetPosition;
-    
     
     /// <summary> 공이 투구되었는지 확인 </summary>  <returns>투구 상태</returns>
 
@@ -253,16 +251,8 @@ public class Baseball : MonoBehaviour
         get => _currentState;
         set
         {
-            //잡은 상태라면 놓아야 함
-            if (_currentState == BallState.Grabbed)
-            {
-                _physics.DoNotCatchBall();
-            }
             _currentState = value;
 
-            //잠만 그러면 
-            
-            
             switch (_currentState)
             {
                 case BallState.Pitched:
@@ -277,7 +267,7 @@ public class Baseball : MonoBehaviour
                     //todo myDefender에게 frontBall시켜주기
                     _physics.CatchBall(
                         myDefenderComponent.transform,
-                        Vector3.forward * 0.5f + new Vector3(0, 0.5f, 0)
+                        Vector3.forward * 0.4f + new Vector3(0, 0.5f, 0)
                     );
                     
                     allTrackingOffEvent.RaiseEvent();
@@ -327,7 +317,6 @@ public class Baseball : MonoBehaviour
             if (isInGamePlay)
             {
                 OnIsInGameplayChanged.Invoke(value);
-                _physics.PredictTrajectory(transform.position);
                 CurrentState = BallState.FreeBall;
             }
         }
@@ -348,6 +337,8 @@ public class Baseball : MonoBehaviour
         {
             return;
         }
+        
+        _physics.DoNotCatchBall();
 
         MyDefenderComponent.RemoveBall();
         MyDefenderComponent = null;
@@ -358,7 +349,6 @@ public class Baseball : MonoBehaviour
         get => isZone;
         set
         {
-            Debug.Log(value);
             isZone = value;
         }
     }
@@ -385,10 +375,6 @@ public class Baseball : MonoBehaviour
         get => grabInteractable;
     }
     
-    public Vector3 GetTargetPosition()
-    {
-        return _targetPosition;
-    }
 
     public float Ball_Accuracy_Weight
     {
@@ -600,7 +586,10 @@ public class Baseball : MonoBehaviour
         
         //친 순간은
         //땅볼과 isBack 제외 모두 체크
+        _physics.SetPosition(position);
+        _physics.SetVelocity(velocity);
         Hit();
+        
 
         // IsZone = true;
         // IsStrike = true;
@@ -648,7 +637,7 @@ public enum BallState
     Pitched,    // 투수가 던져서 허공을 날아가는 중
 
     Thrown,     // 수비수가 던져서 허공을 날아가는 중
-    FreeBall,   //인 플레이 기능으로 설정
+    FreeBall,   // 인 플레이 기능으로 설정
     Dead        // 땅에 닿거나, 파울, 홈런 등으로 플레이가 종료된 상태
                 // => 대기동안 주자들은 참는 상황. 돌아갈 준비
 }

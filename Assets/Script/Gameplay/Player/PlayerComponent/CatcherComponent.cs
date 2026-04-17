@@ -8,6 +8,7 @@ public class CatcherComponent : BasemanComponent
     [SerializeField] private PitcherComponent pitcherComponent;
     [SerializeField] private Transform[] defenderTransforms; //2
 
+    //0 => 공받기. 1 => 수비
     [SerializeField] private int defendIndex = 0;
     
     [Header("Listening to Event")]

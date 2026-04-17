@@ -83,7 +83,7 @@ public class PitcherComponent : DefenderComponent
         
         coroutine = null;
         _myBall.ThrowBall(
-            transform.position,
+            _myBall.transform.position,
             targetPosition,
             velocityXZ,
             true

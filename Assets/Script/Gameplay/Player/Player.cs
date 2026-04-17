@@ -90,17 +90,11 @@ public class Player : MonoBehaviour
         return ball;
     }
     
-    
-    
     public float GetBallDistance()
     {
         return this.ball.DefenderDis;
     }
 
-    public Vector3 GetBallTargetPosition()
-    {
-        return ball.GetTargetPosition();
-    }
 
     public bool IsPassingBall()
     {

@@ -15,6 +15,8 @@ GameObject:
   - component: {fileID: 1437758103643086679}
   - component: {fileID: 4046299293835020439}
   - component: {fileID: 8324867596943280312}
+  - component: {fileID: 8458786125471442576}
+  - component: {fileID: -4336775324136577172}
   m_Layer: 7
   m_Name: Baseball
   m_TagString: Ball
@@ -300,16 +302,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da16bbf45d769d64a83046e0ce1c89ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  myDefender: {fileID: 0}
+  myDefenderComponent: {fileID: 0}
   defenderDis: 0
   bat: {fileID: 0}
+  _physics: {fileID: 0}
   isGroundBall: 0
-  isBatTouch: 0
-  isPassing: 0
   isZone: 0
   isStrike: 0
-  isThrown: 0
-  isBack: 0
+  isInGamePlay: 0
+  _currentState: 0
   allTrackingOffEvent: {fileID: 11400000, guid: eb943823faaa14e4b87ec836d9d214f4, type: 2}
   addBallCountEvent: {fileID: 11400000, guid: 60c42e35457ecd34d8efad8431a9dc85, type: 2}
   addStrikeEvent: {fileID: 11400000, guid: 7980c5f1d20201f48891aba9f1727e76, type: 2}
@@ -319,32 +320,7 @@ MonoBehaviour:
   runSignalEvent: {fileID: 11400000, guid: 2f8b5c598135ebb49bd8c25de9d4678c, type: 2}
   backToPitcherEvent: {fileID: 11400000, guid: 38591f4b3ef079940be5f6a3e91e74ce, type: 2}
   inplayGameEvent: {fileID: 11400000, guid: d31ece9de1f0ded4e95897cfa47eaa57, type: 2}
-  getVelocityEventSO: {fileID: 11400000, guid: c2305552fa4ae3741985e7e98ca99b92, type: 2}
   playAudioClipEvent: {fileID: 11400000, guid: d945dac53f32b4d47a9561b9d8dac9a6, type: 2}
-  throwSmoothingCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 1
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 1
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
   selectedPitchType: 0
   trailEffect: {fileID: 0}
   fastBallSpeedLines: {fileID: 0}
@@ -353,4 +329,33 @@ MonoBehaviour:
   forkDropEffect: {fileID: 0}
   trajectoryLine: {fileID: 0}
   strikeZone: {fileID: 0}
+--- !u!114 &8458786125471442576
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8364105362300272789}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8de035fd49bbf1e408c657cfb30c0835, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _trajectoryData: {fileID: 11400000, guid: 1e6a5c4765370894cad39e6faf3c4015, type: 2}
+  strikeZone: {fileID: 0}
+--- !u!114 &-4336775324136577172
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8364105362300272789}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5c0ef1d98d03844982fca185c66ea93, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defaultParentBaseball: {fileID: 0}
+  _trajectoryBaseBallData: {fileID: 11400000, guid: 1e6a5c4765370894cad39e6faf3c4015, type: 2}
+  getVelocityEventSO: {fileID: 11400000, guid: c2305552fa4ae3741985e7e98ca99b92, type: 2}
   _debugVelocity: 0

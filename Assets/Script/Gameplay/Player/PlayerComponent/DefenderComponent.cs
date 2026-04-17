@@ -16,6 +16,8 @@ public class DefenderComponent : PlayerComponent
 
     [SerializeField] private bool isTracking = false;
     [SerializeField] protected bool isInPosition = false;
+    [SerializeField] protected TrajectoryBaseBallData _trajectoryBaseBallData;
+    
     private const float BALL_DISTANCE = 0.5f;
     private const float ISINPOSITION_RANGE = 10.0f;
 
@@ -41,6 +43,7 @@ public class DefenderComponent : PlayerComponent
     //touch ball
     void OnCollisionEnter(Collision collision)
     {
+        //Debug.Log("이게 업데이트마냥 안뜬다?");
         //flyout 
         
         //Catch
@@ -178,9 +181,8 @@ public class DefenderComponent : PlayerComponent
             }
             else //istracking. 공 줍는 기능
             {
-                player.MovePlayer(player.GetBallTargetPosition());
+                player.MovePlayer(_trajectoryBaseBallData.GetLandingPoint());
             }
-            
         }
     }
 

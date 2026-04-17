@@ -1672,8 +1672,9 @@ MonoBehaviour:
   flyingOutEvent: {fileID: 0}
   isTracking: 0
   isInPosition: 0
+  _trajectoryBaseBallData: {fileID: 11400000, guid: 1e6a5c4765370894cad39e6faf3c4015, type: 2}
   base_index: 4
-  outRunnerEvent: {fileID: 0}
+  outRunnerEvent: {fileID: 11400000, guid: a7e00550afa182d4594b424474b58e00, type: 2}
   pitcherComponent: {fileID: 0}
   defenderTransforms: []
   defendIndex: 0

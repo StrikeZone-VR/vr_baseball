@@ -42,6 +42,7 @@ public class GamePlayManager : GameManager
     [SerializeField] private Bat _bat;
     [SerializeField] private GameObject _axis;
     [SerializeField] private BaseStatusPanel _baseStatusPanel; //debug
+    [SerializeField] private TrajectoryBaseBallData _trajectoryBaseBallData;
 
     [Space]
     [SerializeField] private AssetReference gameMenu;
@@ -720,9 +721,10 @@ public class GamePlayManager : GameManager
         {
             //떨어지는 공 위치중에서 가장 가까운 수비수
             int index = FindClosestDefenderIndex();
-            //Debug.Log(index);
             OnlyOneTrackingOn(index);
             
+            //Debug.Log("엄준식2 + " + GetDefenderComponent(index).name);
+
             //closestDefender set tracking
             if (index == -1)
             {
@@ -737,7 +739,7 @@ public class GamePlayManager : GameManager
     
     private void BeforePitcherGetBall()
     {
-        Debug.LogWarning("이러면 1루 견제를 하면 못 돌아옴");
+        //Debug.LogWarning("이러면 1루 견제를 하면 못 돌아옴");
         if (!_ball.IsInGamePlay)
         {
             return;
@@ -909,11 +911,11 @@ public class GamePlayManager : GameManager
         for (int i = 0; i < defenders.Length; i++)
         {
             //투수모드인 경우
-            if (!defenders[i].gameObject.activeSelf)
+            if (!gamePlayModel.IsMyTeamBatting())
             {
                 continue;
             }
-            float dis = GetDistanceBetween(_ball.GetTargetPosition(), defenders[i].transform.position);
+            float dis = GetDistanceBetween(_trajectoryBaseBallData.GetLandingPoint(), defenders[i].transform.position);
             
             if (min > dis)
             {
@@ -1285,9 +1287,9 @@ public class GamePlayManager : GameManager
 
         // 1. 랜덤 속력 계산
         float x = Random.Range(-1.0f, 0f);
-        float y = 2f;
+        float y = 0.5f;
         float z = Random.Range(-1.0f, 0f);
-        float power = Random.Range(5f, 50f); 
+        float power = Random.Range(5f, 5f);  //50이 홈런
 
         // 2. 기존 매니저의 투수 및 코루틴 제어 (이건 매니저의 일이 맞음!)
         _pitcherComponent.StopPitching();
