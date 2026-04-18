@@ -48,7 +48,7 @@ public class DefenderComponent : PlayerComponent
     protected void LookAtPlayer(Vector3 targetPosition)
     {
         player.LookAtPlayer(targetPosition);
-        //_myBall.Setp(targetPosition);
+        FrontBall();
     }
 
     private void FrontBall()

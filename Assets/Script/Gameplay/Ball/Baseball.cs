@@ -175,7 +175,6 @@ public class Baseball : MonoBehaviour
         //투수가 공을 안 던진경우
         if (_currentState == BallState.Dead || _currentState == BallState.Thrown)
         {
-            Debug.Log("설마?");
             return;
         }
 
@@ -265,6 +264,7 @@ public class Baseball : MonoBehaviour
                     IsGroundBall = false;
                     IsInGamePlay = false;
 
+                    Debug.Log("[Baseball] : 주금");
                     backToPitcherEvent.RaiseEvent();
                     break;
             }
@@ -317,7 +317,6 @@ public class Baseball : MonoBehaviour
     ///공식 제거 함수
     public void RemoveDefender()
     {
-        Debug.Log("제거");
         if (!myDefenderComponent)
         {
             return;
@@ -524,13 +523,15 @@ public class Baseball : MonoBehaviour
 
     public void Foul()
     {
-        if (IsInGamePlay && !IsGroundBall )
+        //todo 페어볼은 아직 안함 => && !IsGroundBall 그냥 제거함
+        if (IsInGamePlay)
         {
             foulEvent.RaiseEvent();
-        }
-        if(_currentState != BallState.Dead)
-        {
-            CurrentState = BallState.Dead;
+
+            if (_currentState != BallState.Dead)
+            {
+                CurrentState = BallState.Dead;
+            }
         }
 
     }

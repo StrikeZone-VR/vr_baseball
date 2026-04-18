@@ -143,7 +143,6 @@ public class GamePlayManager : GameManager
     {
         base.Start();
         
-        
         Init();
        
         Inning = 0;
@@ -296,12 +295,10 @@ public class GamePlayManager : GameManager
     {
         if (playerOrigin.gameObject.activeSelf)
         {
-            Debug.Log("AAA");
             playerOrigin.MatchOriginUpCameraForward(Vector3.up, rotate);
         }
         else
         {
-            Debug.Log("BBB");
             rotateOriginEvent.RaiseEvent(rotate);
         }
     }
@@ -742,13 +739,15 @@ public class GamePlayManager : GameManager
         //Debug.LogWarning("이러면 1루 견제를 하면 못 돌아옴");
         if (!_ball.IsInGamePlay)
         {
+            //Debug.LogWarning("인플레이가 아니었다?");
             return;
         }
-        
+
         //복귀 알고리즘
         //has ball and ball batting => 포수 방지용으로 존에 들어간 순간부터 하는게 낫지 않을까?
         if (_ball.MyDefenderComponent && _ball.IsZone)
         {
+            Debug.Log("[Batter] canBackRunner : " + canBackRunner);
             //던질 곳 없으면 다시 투수 복귀
             if (!ThrowBallAlgorithm())
             {
@@ -757,13 +756,16 @@ public class GamePlayManager : GameManager
                 //안타나 플라잉아웃이면 나중에 복귀
                 if (canBackRunner) 
                 {
+                    //일단 여기라인이 떠야함
                     canBackRunner = false;
                     
                     //안타
                     if (!isFlyingOut && !myBody.GetMyBatterComponent().IsOut)
                     {
+                        //돌아오시고
                         TransformMyBodyToBatter();
                     }
+                    Debug.Log("파울이신가?");
                     StartCoroutine(TranslateBattingView());
                     DebugBaseStatus();
                 }
@@ -949,7 +951,6 @@ public class GamePlayManager : GameManager
         //던지기 => 만약 공 mydefender와 index가 같은 경우 => 무조건 자기 베이스로 돌아가야함
         if (ThrowToBase(index))
         {
-            Debug.Log("던져 제발 : " + index);
             return true;
         }
         return false;
@@ -1289,7 +1290,7 @@ public class GamePlayManager : GameManager
         float x = Random.Range(-1.0f, 0f);
         float y = 0.5f;
         float z = Random.Range(-1.0f, 0f);
-        float power = Random.Range(5f, 5f);  //50이 홈런
+        float power = Random.Range(5f, 20f);  //50이 홈런
 
         // 2. 기존 매니저의 투수 및 코루틴 제어 (이건 매니저의 일이 맞음!)
         _pitcherComponent.StopPitching();
