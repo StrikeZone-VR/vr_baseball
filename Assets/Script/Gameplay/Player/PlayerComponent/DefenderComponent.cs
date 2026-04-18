@@ -41,10 +41,6 @@ public class DefenderComponent : PlayerComponent
         // }
     }
 
-    private void FixedUpdate()
-    {
-    }
-
     protected void LookAtPlayer(Vector3 targetPosition)
     {
         player.LookAtPlayer(targetPosition);

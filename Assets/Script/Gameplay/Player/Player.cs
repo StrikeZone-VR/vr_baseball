@@ -18,7 +18,18 @@ public class Player : MonoBehaviour
     {
         nav = GetComponent<NavMeshAgent>();
     }
-    
+    public void SetActiveRole(PlayerComponent newRole)
+    {
+        // 기존 역할 끄기
+        if (_playerComponent != null)
+            _playerComponent.enabled = false;
+
+        // 새 역할 켜기
+        _playerComponent = newRole;
+        if (_playerComponent != null)
+            _playerComponent.enabled = true;
+    }
+
     public void LookAtPlayer(Vector3 target)
     {
         transform.LookAt(target, Vector3.up);

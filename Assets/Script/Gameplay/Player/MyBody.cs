@@ -8,9 +8,11 @@ using UnityEngine.XR.Interaction.Toolkit;
 //body
 public class MyBody : Player
 {
-    [Header("연결할 오브젝트")]
-    //대체로 playerComponent가 batter 
-    [SerializeField] private MyPitcherComponent subComponent; //pitcher 
+
+    [Header("VR 플레이어 전용 장비창")]
+    // Sub, Main 같은 이름 대신 역할을 아주 명확하게 명시!
+    [SerializeField] private MyBatterComponent batterRole;
+    [SerializeField] private MyPitcherComponent pitcherRole;
 
     [SerializeField] private Camera _camera;
 
@@ -72,20 +74,6 @@ public class MyBody : Player
         BatterComponent batterComponent = _playerComponent as BatterComponent;
         return batterComponent.IsIntoBase(other);
     }
-
-    public void SetMode(bool isBatter)
-    {
-        if (isBatter)
-        {
-            subComponent.enabled = false;
-            _playerComponent.enabled = true;
-        }
-        else
-        {
-            subComponent.enabled = true;
-            _playerComponent.enabled = false;
-        }
-    }
     
 
     public MyBatterComponent GetMyBatterComponent()
@@ -95,6 +83,7 @@ public class MyBody : Player
     }
     public MyPitcherComponent GetMyPitcherComponent()
     {
-        return subComponent;
+        MyPitcherComponent myPitcherComponent = _playerComponent as MyPitcherComponent;
+        return myPitcherComponent;
     }
 }
