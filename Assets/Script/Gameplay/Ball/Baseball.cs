@@ -140,6 +140,11 @@ public class Baseball : MonoBehaviour
             CurrentState = BallState.Thrown;
         }
         _physics.ThrowBall(start, target, velocity_xy);
+
+        if (isPitcher)
+        {
+            StartSwing(target);
+        }
         
         playAudioClipEvent.RaiseEvent(0);
         PlayThrowEffects(); // 이펙트
@@ -159,6 +164,7 @@ public class Baseball : MonoBehaviour
         //todo physics의 던지는 함수
         _physics.ThrowPlayerBall(strikeZone.transform.position, selectedPitchType);
         
+        StartSwing(strikeZone.transform.position);
         //_physics.PlayerThrowBall();
         
         playAudioClipEvent.RaiseEvent(0);
@@ -595,10 +601,24 @@ public class Baseball : MonoBehaviour
         IsZone = false;
         IsStrike = false;
         
-        
         ThrowBall(transform.position, targetPosition, 60f, true); //내부에 계산 함수 있음
     }
 
+    /// <summary>
+    /// 자동으로 배트 스윙하는 함수
+    /// </summary>
+    private void StartSwing(Vector3 target)
+    {
+        float flightTime = _physics.GetFlightTime() - bat.ROTATION_TIME / 2;
+        bat.MoveAxis(target);
+        StartCoroutine(WattingSwing(flightTime));
+    }
+
+    private IEnumerator WattingSwing(float time)
+    {
+        yield return new WaitForSeconds(time);
+        bat.StartSwing();
+    }
 }
 
 public enum BallState

@@ -21,6 +21,8 @@ public class BaseballPhysics : MonoBehaviour
 
     [Header("Debug")] 
     [SerializeField] private float _debugVelocity;
+
+    private float flightTime = 0;
     
     //이런 것도 있구나
     //AnimationCurve ㅇㅇ =  AnimationCurve.Linear(0, 0, 1, 1);
@@ -231,6 +233,7 @@ public class BaseballPhysics : MonoBehaviour
     
         // 비행 시간 계산: t = d / velocity_xy
         float t = d / velocity_xy;
+        flightTime = t;
     
         // y방향 초기 속도 Vy = (h + 0.5 * g * t^2) / t
         float vy = (h + 0.5f * g * t * t) / t; 
@@ -434,4 +437,6 @@ public class BaseballPhysics : MonoBehaviour
     {
         return _rigidbody.position;
     }
+
+    public float GetFlightTime() => flightTime;
 }

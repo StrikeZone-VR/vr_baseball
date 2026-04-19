@@ -1302,6 +1302,9 @@ public class GamePlayManager : GameManager
         Vector3 targetVelocity = new Vector3(x, y, z) * power;
 
         _ball.DebugHit(targetSpawnPos, targetVelocity);
+
+        
+        //physics time 가져와서 signal 보내기
     }
     
     private void DebugThrowBall()
