@@ -600,8 +600,7 @@ public class GamePlayManager : GameManager
         _ball.CurrentState = BallState.Dead;
         
         //GetDefenderComponent(0).SetMyBall(_ball);
-        myBody.SetMode(true);
-        
+        myBody.SetBatterComponent();
         
         StartCoroutine(TranslateBattingView());
         //TranslateBattingView();
@@ -674,7 +673,7 @@ public class GamePlayManager : GameManager
         SetPlayerMoveMode(false);
             
         defenders[0].gameObject.SetActive(false);
-        myBody.SetMode(false);
+        myBody.SetPitcherComponent();
         
         currentBatterComponent = NextBatter();
 

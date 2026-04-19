@@ -6,6 +6,10 @@ using UnityEngine;
 //todo : 던지면 그 _rigidbody.interpolation 를 조절하는 거를 목표로
 public class BaseballPhysics : MonoBehaviour
 {
+    //public float ballMass = 0.145f; // kg
+    //public float ballRadius = 0.037f; // m
+    //public float airDensity = 1.225f; // kg/m³
+    
     private Rigidbody _rigidbody;
     private Baseball _baseball;
     

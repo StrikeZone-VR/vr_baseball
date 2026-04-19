@@ -10,9 +10,7 @@ using Random = UnityEngine.Random;
 public class Baseball : MonoBehaviour
 {
     #region VARIABLE
-    //public float ballMass = 0.145f; // kg
-    //public float ballRadius = 0.037f; // m
-    //public float airDensity = 1.225f; // kg/m³
+    
     [SerializeField] private DefenderComponent myDefenderComponent; //handling player
     [SerializeField] private float defenderDis = 0.0f;
     [SerializeField] private Bat bat;
@@ -264,7 +262,6 @@ public class Baseball : MonoBehaviour
                     IsGroundBall = false;
                     IsInGamePlay = false;
 
-                    Debug.Log("[Baseball] : 주금");
                     backToPitcherEvent.RaiseEvent();
                     break;
             }
@@ -597,18 +594,7 @@ public class Baseball : MonoBehaviour
 
         IsZone = false;
         IsStrike = false;
-
         
-        //스윙 함수
-        // float time = dis / velocity;
-        // //Debug.Log("time + time한 후에는 스트라이크가 (" + Time.time+ ") : "+ time);
-        //
-        // //Debug.Log("예측한 시간대 : " + (time - bat.RotationTime / 2 ));
-        // debugShootTime = time - bat.RotationTime / 2f;
-        // //0.08
-        // debugShootTime2 = Time.time;
-        // if(bat)
-        //     StartCoroutine(StartSwingAfter(time - bat.RotationTime / 2));
         
         ThrowBall(transform.position, targetPosition, 60f, true); //내부에 계산 함수 있음
     }

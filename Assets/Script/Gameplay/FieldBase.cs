@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class FieldBase : MonoBehaviour
 {
-    int base_index;
+    [SerializeField] private int base_index;
     public int BaseIndex
     {
         get { return base_index; }

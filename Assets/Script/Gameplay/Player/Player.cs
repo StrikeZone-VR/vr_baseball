@@ -14,12 +14,13 @@ public class Player : MonoBehaviour
     protected NavMeshAgent nav;
 
     // Start is called before the first frame update
-    protected void Awake()
+    protected virtual void Awake()
     {
         nav = GetComponent<NavMeshAgent>();
     }
     public void SetActiveRole(PlayerComponent newRole)
     {
+        Debug.Log("모드 시작");
         // 기존 역할 끄기
         if (_playerComponent != null)
             _playerComponent.enabled = false;
@@ -43,8 +44,8 @@ public class Player : MonoBehaviour
     /// </summary>
     public virtual void MovePlayer(Vector3 pos)
     {
-        nav.SetDestination(pos);
         LookAtPlayer(pos);
+        nav.SetDestination(pos);
     }
     
     public void StopMove()
@@ -96,10 +97,7 @@ public class Player : MonoBehaviour
         this.ball = ball;
     }
 
-    public Baseball GetBall()
-    {
-        return ball;
-    }
+    public Baseball GetBaseBall() => ball;
     
     public float GetBallDistance()
     {
@@ -116,7 +114,4 @@ public class Player : MonoBehaviour
     {
         return ball.MyDefenderComponent;
     }
-    
-
-
 }

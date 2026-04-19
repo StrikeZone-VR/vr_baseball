@@ -5586,6 +5586,10 @@ PrefabInstance:
       propertyPath: waitPitcherEvent
       value: 
       objectReference: {fileID: 11400000, guid: adc39812077ff9249bd346c0a7444b86, type: 2}
+    - target: {fileID: 6202057679712369912, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+      propertyPath: _trajectoryBaseBallData
+      value: 
+      objectReference: {fileID: 11400000, guid: 1e6a5c4765370894cad39e6faf3c4015, type: 2}
     - target: {fileID: 6213781704411799925, guid: 94dea2237579799438c711b8f54134c9, type: 3}
       propertyPath: m_Enabled
       value: 1
@@ -5614,6 +5618,14 @@ PrefabInstance:
       propertyPath: addScore
       value: 
       objectReference: {fileID: 11400000, guid: 07585d6d7215d0b47a54c479469de714, type: 2}
+    - target: {fileID: 6741284933134794247, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+      propertyPath: batterRole
+      value: 
+      objectReference: {fileID: 1628165486}
+    - target: {fileID: 6741284933134794247, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+      propertyPath: pitcherRole
+      value: 
+      objectReference: {fileID: 1628165485}
     - target: {fileID: 6741284933134794247, guid: 94dea2237579799438c711b8f54134c9, type: 3}
       propertyPath: strikeEvent
       value: 
@@ -5681,6 +5693,28 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 95b35e83d6501e64695adfb147c11608, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1628165485 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6202057679712369912, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+  m_PrefabInstance: {fileID: 1628165482}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f52e859be50fa4c44a120700a0731cb9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1628165486 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4782834798684806325, guid: 94dea2237579799438c711b8f54134c9, type: 3}
+  m_PrefabInstance: {fileID: 1628165482}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba5dd1255addae74e8876a379bd976ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!4 &1668231837 stripped

@@ -33,16 +33,16 @@ public class MyPitcherComponent : PitcherComponent
         }
 
         // 2. XR Interaction Manager를 통해 손과 공을 강제로 연결(SelectEnter) 시킵니다!
-        handInteractor.interactionManager.SelectEnter(handInteractor, player.GetBall().GrabInteractable);
+        handInteractor.interactionManager.SelectEnter(handInteractor, player.GetBaseBall().GrabInteractable);
 
         //Debug.Log("⚾ B버튼 클릭: 야구공을 강제로 잡았습니다!");
-        SetMyBall(player.GetBall());
+        SetMyBall(player.GetBaseBall());
     }
 
     // 1루 2루 3루 홈
     public void ThrowBall(Vector3 position)
     {
-        if (!player.GetBall().MyDefenderComponent)
+        if (!player.GetBaseBall().MyDefenderComponent)
         {
             return;
         }
