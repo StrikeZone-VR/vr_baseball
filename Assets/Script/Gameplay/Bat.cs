@@ -13,6 +13,7 @@ public class Bat : MonoBehaviour
     private Vector3 startPos = Vector3.zero;
 
     private FarNearGrab _farNearGrab;
+    private Rigidbody _rigidbody;
 
     private float currentSwingSpeed;
     private bool isSwing = false;
@@ -21,7 +22,6 @@ public class Bat : MonoBehaviour
     const float AXIS_DISTANCE = 0.5f;
     float elapsed = 0f;
 
-    private float axisRotation = 0f;
     float startBatAngle = -45f;
     float totalOrbitAngle = -270f; // 공전 각도 (원하는 값으로) //270
 
@@ -31,6 +31,7 @@ public class Bat : MonoBehaviour
     private void Start()
     {
         _farNearGrab = GetComponent<FarNearGrab>();
+        _rigidbody = GetComponent<Rigidbody>();
     }
 
     
@@ -115,7 +116,6 @@ public class Bat : MonoBehaviour
         Vector3 current_pos;
         Vector3 end_pos;
 
-        float prevCurve = 0f;
 
         Vector3 xWorld = axis.transform.TransformDirection(Vector3.right);
         Vector3 zWorld = axis.transform.TransformDirection(Vector3.forward);
@@ -144,8 +144,8 @@ public class Bat : MonoBehaviour
         start_rotation *= zRotateQuaternion;
         end_rotation *= zRotateQuaternion; 
 
-        transform.position = start_pos;
-        transform.localRotation = start_rotation;  //rotation
+        _rigidbody.transform.position = start_pos;
+        _rigidbody.transform.localRotation = start_rotation;  //rotation
         //Quaternion end = Quaternion.AngleAxis(180f, axis.transform.up) * start; 
 
         while (elapsed < ROTATION_TIME)
@@ -178,15 +178,15 @@ public class Bat : MonoBehaviour
             current_rotation = Quaternion.AngleAxis(batAngle, orbitYAxis);
             current_rotation *= zRotateQuaternion; //기울어라 => 계산 순서는 -90 -45
 
-            transform.position = current_pos;
-            transform.localRotation = current_rotation;
+            _rigidbody.transform.position = current_pos;
+            _rigidbody.transform.localRotation = current_rotation;
             yield return null;
         }
 
         isSwing = false;
         elapsed = 0;
-        transform.position = end_pos;
-        transform.localRotation = end_rotation;
+        _rigidbody.transform.position = end_pos;
+        _rigidbody.transform.localRotation = end_rotation;
     }
 
     public float RotationTime
@@ -226,6 +226,7 @@ public class Bat : MonoBehaviour
     }
     
     //**핵심 함수**
+    //공 오는 각도에 맞춰서 계산
     public void MoveAxis(Vector3 targetPosition)
     {
         float x = Vector3.Distance(axis.transform.position, new Vector3(targetPosition.x, axis.transform.position.y, targetPosition.z));
@@ -236,7 +237,7 @@ public class Bat : MonoBehaviour
 
         // 2. 우리가 흔히 아는 360도(Degree) 체계로 변환하기
         float angle = radian * Mathf.Rad2Deg;
-        Debug.Log("x : " + x + ", y : " + y +  ",각도 : " + angle);
+        //Debug.Log(" [AI Batter] - x : " + x + ", y : " + y +  ",각도 : " + angle);
         MoveAxis(angle);
         //기울기만큼 angle 수정
     }

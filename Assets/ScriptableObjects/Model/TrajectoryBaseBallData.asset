@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 192e9aad92133f643b637f1d88316432, type: 3}
+  m_Name: TrajectoryBaseBallData
+  m_EditorClassIdentifier: 
+  pathPoints:
+  - {x: -15.056, y: 3.706228, z: -12.745}
+  - {x: -15.056, y: 3.681703, z: -12.745}
+  - {x: -15.056, y: 3.632653, z: -12.745}
+  - {x: -15.056, y: 3.559078, z: -12.745}
+  - {x: -15.056, y: 3.460978, z: -12.745}
+  - {x: -15.056, y: 3.338353, z: -12.745}
+  - {x: -15.056, y: 3.1912029, z: -12.745}
+  - {x: -15.056, y: 3.019528, z: -12.745}
+  - {x: -15.056, y: 2.823328, z: -12.745}
+  - {x: -15.056, y: 2.602603, z: -12.745}
+  - {x: -15.056, y: 2.357353, z: -12.745}
+  - {x: -15.056, y: 2.087578, z: -12.745}
+  - {x: -15.056, y: 1.793278, z: -12.745}
+  - {x: -15.056, y: 1.474453, z: -12.745}
+  - {x: -15.056, y: 1.1311029, z: -12.745}
+  - {x: -15.056, y: 0.76322794, z: -12.745}
+  - {x: -15.056, y: 0.37082794, z: -12.745}
+  - {x: -15.056, y: 0, z: -12.744999}
+  hasPassedStrikeZone: 0
+  StrikeZonePoint: {x: -1.9447187, y: 2.1974776, z: -1.762998}
+  hasLanded: 1
+  landingPoint: {x: -15.056, y: 0, z: -12.744999}

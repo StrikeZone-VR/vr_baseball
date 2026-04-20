@@ -12,6 +12,7 @@ public class BatterComponent : PlayerComponent
     [SerializeField] protected int base_index = 0; // 1 2 3 => 0은 1루 가기 전 상태
    
     [SerializeField] protected Transform[] bases;
+    [SerializeField] protected Transform init_base;
     [SerializeField] private Bat bat;
 
     [Header("Listening to Events")]
@@ -27,7 +28,14 @@ public class BatterComponent : PlayerComponent
     {
         if (collision.gameObject.CompareTag("Base"))
         {
-            if(IsIntoBase(collision))
+            FieldBase fieldBase = collision.GetComponent<FieldBase>();
+            if (!fieldBase)
+            {
+                Debug.LogWarning("fieldBase가 없음");
+                return;
+            }
+            
+            if(IsIntoBase(fieldBase))
             {
                 //수비수와 공 거리가 10f 이하면 가지마라
                 if (player.GetBallDistance() <= 10.0f)
@@ -39,6 +47,7 @@ public class BatterComponent : PlayerComponent
 
         if (collision.gameObject.CompareTag("BatterPos"))
         {
+
             if (base_index == 0)
             {
                 ReadyBatting();
@@ -64,20 +73,18 @@ public class BatterComponent : PlayerComponent
     }
 
     
-    public bool IsIntoBase(Collider collision)
+    public bool IsIntoBase(FieldBase fieldBase)
     {
-        string s = collision.name;
-        int a = Convert.ToInt32(s[s.Length - 1]);
-
         //is same going to the next base index
-        if (a - '0' == base_index + 1 || (a - '0' == 0 && base_index == 3))
+        //1 => 0 + 1, baseindex가 3인데 베이스가 0으로 간 경우
+        if (fieldBase.BaseIndex == base_index + 1 || (fieldBase.BaseIndex - '0' == 0 && base_index == 3))
         {
             //혻시 BaseIndex를 IsMove 아래로 둔 이유가 있을까? 
             BaseIndex++;
             return true;
         }
         //1 2 3만
-        if (a - '0' == base_index && base_index > 0)
+        if (fieldBase.BaseIndex == base_index && base_index > 0)
         {
             return true;
         }
@@ -96,6 +103,7 @@ public class BatterComponent : PlayerComponent
     public virtual void OutPlayer(bool isMove = true)
     {
         player.StopMove();
+        Debug.Log("AI 아웃");
         Destroy(this.gameObject);
     }
 
@@ -136,6 +144,7 @@ public class BatterComponent : PlayerComponent
                 return;
             }
 
+            Debug.Log("[Batter] base_index "+ name + ": " + value);
             //arrive home
             if (value >= bases.Length)
             {
@@ -156,24 +165,28 @@ public class BatterComponent : PlayerComponent
         }
     }
 
-    public void SetBases(Transform[] bases)
+    public void SetBases(Transform[] bases,Transform init_base)
     {
+        this.init_base = init_base;
         this.bases = bases;
     }
 
     public void SetBaseIndexPosition(int baseIndex)
     {
-        BaseIndex = baseIndex;
-        IsMove = false;
-        //1 => 
-        if (base_index == 0)
+        if (baseIndex == 0)
         {
-            Debug.LogError("베이스index가 0인데?");
+            //이거 안하면 괜히 이상한 스트라이크존에 AI가 서있는다.
+            transform.position = init_base.position;
+            BaseIndex = baseIndex;
+            IsMove = false;
+
             return;
         }
+        
+        BaseIndex = baseIndex;
+        IsMove = false;
 
         transform.position = bases[baseIndex - 1].position;
-        
     }
 
     #endregion

@@ -8,13 +8,20 @@ using UnityEngine.XR.Interaction.Toolkit;
 //body
 public class MyBody : Player
 {
-    [Header("연결할 오브젝트")]
-    //대체로 playerComponent가 batter 
-    [SerializeField] private MyPitcherComponent subComponent; //pitcher 
+    [Header("VR 플레이어 전용 장비창")]
+    // Sub, Main 같은 이름 대신 역할을 아주 명확하게 명시!
+    [SerializeField] private MyBatterComponent batterRole;
+    [SerializeField] private MyPitcherComponent pitcherRole;
 
     [SerializeField] private Camera _camera;
 
     
+    //override
+    protected override void Awake()
+    {
+        batterRole = GetComponentInParent<MyBatterComponent>();
+        pitcherRole = GetComponentInParent<MyPitcherComponent>();
+    }
 
     public void SetCamera(Camera camera)
     {
@@ -31,7 +38,14 @@ public class MyBody : Player
     {
         if (other.transform.CompareTag("Base"))
         {
-            if(IsIntoBase(other))
+            FieldBase fieldBase = other.GetComponent<FieldBase>();
+            if (!fieldBase)
+            {
+                Debug.LogWarning("fieldBase가 없음");
+                return;
+            }
+
+            if(IsIntoBase(fieldBase))
             {
                 SetIsMove(false);
             }
@@ -53,6 +67,12 @@ public class MyBody : Player
     public void SetIsMove(bool isMove)
     {
         BatterComponent batterComponent = _playerComponent as BatterComponent;
+        
+        if (!batterComponent)
+        {
+            Debug.LogWarning("Mode가 체인지 되면서 이 메세지가 뜰 수 있음");
+            return;
+        }
         batterComponent.IsMove = isMove;
     }
     
@@ -67,10 +87,27 @@ public class MyBody : Player
     }
 
 
-    private bool IsIntoBase(Collider other)
+    private bool IsIntoBase(FieldBase fieldBase)
     {
         BatterComponent batterComponent = _playerComponent as BatterComponent;
-        return batterComponent.IsIntoBase(other);
+
+        if (!batterComponent)
+        {
+            Debug.LogError("batterComponent가 없다.");
+            Debug.Break();
+            return false;
+        }
+        
+        return batterComponent.IsIntoBase(fieldBase);
+    }
+ 
+    public void SetPitcherComponent()
+    {
+        SetActiveRole(pitcherRole);
+    }
+    public void SetBatterComponent()
+    {
+        SetActiveRole(batterRole);
     }
     
 
@@ -81,6 +118,7 @@ public class MyBody : Player
     }
     public MyPitcherComponent GetMyPitcherComponent()
     {
-        return subComponent;
+        MyPitcherComponent myPitcherComponent = _playerComponent as MyPitcherComponent;
+        return myPitcherComponent;
     }
 }

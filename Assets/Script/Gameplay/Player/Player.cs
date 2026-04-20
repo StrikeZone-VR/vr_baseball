@@ -14,11 +14,23 @@ public class Player : MonoBehaviour
     protected NavMeshAgent nav;
 
     // Start is called before the first frame update
-    protected void Awake()
+    protected virtual void Awake()
     {
         nav = GetComponent<NavMeshAgent>();
     }
-    
+    public void SetActiveRole(PlayerComponent newRole)
+    {
+        Debug.Log("모드 시작");
+        // 기존 역할 끄기
+        if (_playerComponent != null)
+            _playerComponent.enabled = false;
+
+        // 새 역할 켜기
+        _playerComponent = newRole;
+        if (_playerComponent != null)
+            _playerComponent.enabled = true;
+    }
+
     public void LookAtPlayer(Vector3 target)
     {
         transform.LookAt(target, Vector3.up);
@@ -32,19 +44,20 @@ public class Player : MonoBehaviour
     /// </summary>
     public virtual void MovePlayer(Vector3 pos)
     {
-        nav.SetDestination(pos);
         LookAtPlayer(pos);
+        nav.SetDestination(pos);
     }
     
     public void StopMove()
     {
-        if (nav && nav.isActiveAndEnabled && nav.isOnNavMesh)
-        {
-            nav.ResetPath();
-        }
         if (!nav)
         {
             Debug.Log("nav is null");
+            return;
+        }
+        if (nav.isActiveAndEnabled && nav.isOnNavMesh)
+        {
+            nav.ResetPath();
         }
         if (!nav.isActiveAndEnabled)
         {
@@ -57,13 +70,6 @@ public class Player : MonoBehaviour
     }
     
     
-    
-    
-    
-    
-    
-    
-
     public void SetShirtColor(Color teamColor)
     {
         // 1. 렌더러 가져오기 (보통 캐릭터는 SkinnedMeshRenderer)
@@ -91,36 +97,21 @@ public class Player : MonoBehaviour
         this.ball = ball;
     }
 
-    public Baseball GetBall()
-    {
-        return ball;
-    }
-    
-    
-    
-    
-    
+    public Baseball GetBaseBall() => ball;
     
     public float GetBallDistance()
     {
         return this.ball.DefenderDis;
     }
 
-    public Vector3 GetBallTargetPosition()
-    {
-        return ball.GetTargetPosition();
-    }
 
     public bool IsPassingBall()
     {
-        return ball.IsPassing;
+        return ball.CurrentState == BallState.Thrown;
     }
 
     public DefenderComponent GetBallDefender()
     {
         return ball.MyDefenderComponent;
     }
-    
-
-
 }

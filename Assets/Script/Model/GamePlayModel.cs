@@ -1,14 +1,18 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[CreateAssetMenu(fileName = "NewGamePlayData", menuName = "Model/GamePlayData")]
 public class GamePlayModel : GameModel
 {
+    //생각해보니 Result에 전달할 필요가...? 앗 TeamStatus가 있었음
+    
     public BaseStatusPanel _baseStatusPanel; //debug
 
     //0 1 => 1이닝 공격 수비, => 0~17 => 짝수면 원정, 홀수면 홈 
-    private int inning = 0;
-    private int out_count = 0;
+    [SerializeField] private int inning = 0;
+    [SerializeField] private int out_count = 0;
 
     //베이스에 있는 주자들 : List로 해도 하도 주자가 적어서 동적으로 지워도 된다
     private List<BatterComponent> runners = new List<BatterComponent>();
@@ -25,7 +29,7 @@ public class GamePlayModel : GameModel
     //근데 이러면 또 CreateBatter에서 스트라이크 볼 초기화되는 문제가 생기는 구나
 
     private int myTeamIndex = 0; //0 or 1 => batter 기준
-    private TeamStatus[] _teamStatus = new TeamStatus[2];
+    [SerializeField] private TeamStatus[] _teamStatus = new TeamStatus[2];
     //사실 점수만 하고 싶은데
 
     //Define
@@ -103,7 +107,7 @@ public class GamePlayModel : GameModel
     {
         if (runners.Count <= 0)
         {
-            Debug.LogError("제거할 runner가 없는뎁쇼?");
+            Debug.LogError("[Batter] : 제거할 runner가 없는뎁쇼?");
             return;
         }
         runners.RemoveAt(runners.Count - 1);
@@ -222,11 +226,15 @@ public class GamePlayModel : GameModel
         }
         runners[runners.Count - 1] = batterComponent;
     }
+
     
     public void MoveBaseRunner()
     {
+
         for (int i = 0; i < runners.Count; i++)
         {
+            //1 안나오면 참사
+            Debug.Log("[Batter] 사구 : " + (runners[i].BaseIndex + 1));
             runners[i].SetBaseIndexPosition(runners[i].BaseIndex + 1);
         }
     }
@@ -255,13 +263,30 @@ public class GamePlayModel : GameModel
     public void FoulRollbackBeforeStatus()
     {
         _teamStatus[GetTeamIndex()].Score = before_score;
-
+        
         //그리고 주자 맨 뒤는 제거. 혹시 모르니 if문으로 사이즈 오버되면 null처리
         for (int i = 0; i < before_runners.Count; i++)
         {
+            Debug.Log("메세지가 떠야한다");
             runners[i].SetBaseIndexPosition(before_runners[i]);
             runners[i].IsMove = false;
         }
+    }
+
+    public override void Init()
+    {
+        inning = 0;
+        out_count = 0;
+        
+        runners.Clear();
+        before_runners.Clear();
+    
+        before_score = 0;
+
+        myTeamIndex = 0; //0 or 1 => batter 기준
+        
+        _teamStatus[0].Init();
+        _teamStatus[1].Init();
     }
     
     /// <summary>
@@ -335,12 +360,14 @@ public class GamePlayModel : GameModel
     }
 }
 
+
+[Serializable]
 struct TeamStatus
 {
-    private int score;
+    [SerializeField] private int score;
 
     //타순 0 ~ 8
-    public int batting_order;
+    [SerializeField] public int batting_order;
 
     //Define
     private const int MAX_BATTING_ORDER = 9;
@@ -366,5 +393,11 @@ struct TeamStatus
         get => score;
 
         set { score = value; }
+    }
+
+    public void Init()
+    {
+        score = 0;
+        batting_order = 0;
     }
 }

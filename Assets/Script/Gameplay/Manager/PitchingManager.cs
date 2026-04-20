@@ -81,7 +81,7 @@ public class PitchingManager : GameManager
     IEnumerator WaitingBackToPitcher()
     {
         yield return new WaitForSeconds(WAIT_TIME);
-        pitcherController.ResetBall();
+        pitcherController.PlayerPitcherResetBall();
     }
     
     

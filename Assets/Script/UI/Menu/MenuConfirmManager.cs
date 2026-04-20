@@ -5,8 +5,8 @@ using UnityEngine.AddressableAssets;
 
 public class MenuConfirmManager : MonoBehaviour
 {
-    [Header("버튼들")]
-    [SerializeField] private Button oneOnOneMatchButton;
+    [Header("Scene Navigation Buttons")]
+    [SerializeField] private Button gamePlayButton;
     [SerializeField] private Button pitchingPracticeButton;
     [SerializeField] private Button hittingPracticeButton;
     [SerializeField] private Button kboInfoButton;
@@ -30,7 +30,7 @@ public class MenuConfirmManager : MonoBehaviour
 
     [Space]
     [Header("Scenes")]
-    [SerializeField] private AssetReference gameScene;
+    [SerializeField] private AssetReference gameReadyScene;
     [SerializeField] private AssetReference pitcherScene;
     [SerializeField] private AssetReference batterScene;
 
@@ -58,8 +58,8 @@ public class MenuConfirmManager : MonoBehaviour
 
     void SetupButtonEvents()
     {
-        if (oneOnOneMatchButton != null)
-            oneOnOneMatchButton.onClick.AddListener(() => ShowConfirmation("1:1 매치를 시작하시겠습니까?", OnOneOnOneMatch));
+        if (gamePlayButton != null)
+            gamePlayButton.onClick.AddListener(() => ShowConfirmation("1:1 매치를 시작하시겠습니까?", GameReady));
 
         if (pitchingPracticeButton != null)
             pitchingPracticeButton.onClick.AddListener(() => ShowConfirmation("투수 연습을 시작하시겠습니까?", OnPitchingPractice));
@@ -115,11 +115,11 @@ public class MenuConfirmManager : MonoBehaviour
     }
 
     // 각 버튼의 확인 후 실행될 메서드들
-    void OnOneOnOneMatch()
+    void GameReady()
     {
         Debug.Log("1:1 매치 시작!");
-        sceneEventSO.RaiseEvent(gameScene);
         // TODO: 1:1 매치 씬 로드
+        sceneEventSO.RaiseEvent(gameReadyScene);
     }
 
     void OnPitchingPractice()

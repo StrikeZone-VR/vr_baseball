@@ -2,8 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-//---(SO)---> PitchingBallController
-//               ---(SO)---> UI
+
+//pitcher에 관련된 UI 총괄 컨트롤러
 public class PitchingController : GameController
 {
     [SerializeField] PitchSelectionUI pitchSelectionUI; // 구종 선택 UI
@@ -25,7 +25,7 @@ public class PitchingController : GameController
     //pitch start
     public void StartPitchingGame()
     {
-        ResetBall();
+        PlayerPitcherResetBall();
         
         // UI 초기화
         if (pitchSelectionUI != null)
@@ -46,18 +46,9 @@ public class PitchingController : GameController
     /// <summary>
     /// init, ball status init 
     /// </summary>
-    public void ResetBall()
+    public void PlayerPitcherResetBall()
     {
-        _ball.RemoveDefender();
-        _ball.IsBatTouch = false;
-        _ball.IsGroundBall = false;
-
-        // XR Grab Interactable 강제 활성화 (새 공이 잡힐 수 있도록)
-        //ball.OffBallPhysics();
-
-        // init ball
-        _ball.SetVelocity(Vector3.zero);
-        _ball.SetPosition(ballResetPosition.position);
+        _ball.ResetBallState(ballResetPosition.position);
     }
     
     private void OnPitchTypeSelected(PitchType pitchType)

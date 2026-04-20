@@ -10,8 +10,13 @@ public class MyPitcherComponent : PitcherComponent
 
     protected override void Update()
     {
+        //일부로 이렇게 함
     }
     
+    void OnCollisionEnter(Collision collision)
+    {
+        //일부로 이렇게 함
+    }
     public void ForceGrab()
     {
         //_ball
@@ -28,16 +33,16 @@ public class MyPitcherComponent : PitcherComponent
         }
 
         // 2. XR Interaction Manager를 통해 손과 공을 강제로 연결(SelectEnter) 시킵니다!
-        handInteractor.interactionManager.SelectEnter(handInteractor, player.GetBall().GrabInteractable);
+        handInteractor.interactionManager.SelectEnter(handInteractor, player.GetBaseBall().GrabInteractable);
 
         //Debug.Log("⚾ B버튼 클릭: 야구공을 강제로 잡았습니다!");
-        SetMyBall(player.GetBall());
+        SetMyBall(player.GetBaseBall());
     }
 
     // 1루 2루 3루 홈
     public void ThrowBall(Vector3 position)
     {
-        if (!player.GetBall().MyDefenderComponent)
+        if (!player.GetBaseBall().MyDefenderComponent)
         {
             return;
         }
@@ -52,11 +57,23 @@ public class MyPitcherComponent : PitcherComponent
                 handInteractor.interactionManager.SelectExit(handInteractor, currentItems[i]);
             }
         }
+
+        _myBall.CurrentState = BallState.Thrown;
         
-        _myBall.IsPassing = true;
-        
-        Vector3 launchVelocity = CalculateLaunchVelocity(transform.position, position, 45f);
-        //던질때 제거
-        _myBall.ThrowBall(launchVelocity);
+        // 🔥 4. 변경된 부분: 던지는 함수를 바로 부르지 않고, 코루틴에게 토스합니다!
+        StartCoroutine(DelayedThrowRoutine(position, 45f));
+    }
+    
+    /// <summary>
+    ///물리 엔진 1틱(0.02초)을 기다려주는 함수 
+    /// </summary>
+    /// <param name="velocity"></param>
+    /// <returns></returns>
+    private IEnumerator DelayedThrowRoutine(Vector3 targetPosition, float velocity)
+    {
+        yield return new WaitForFixedUpdate(); // 물리 기준 1 프레임
+    
+        //todo 근데 왜 transform.postion이지? myball로 해야하는 거 아닌가
+        _myBall.ThrowBall(transform.position, targetPosition, velocity, false);
     }
 }

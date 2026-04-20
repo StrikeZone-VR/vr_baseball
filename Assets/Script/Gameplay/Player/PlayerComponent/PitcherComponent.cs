@@ -47,10 +47,10 @@ public class PitcherComponent : DefenderComponent
     {
         base.SetMyBall(myBall);
         
-        //Debug.Log("SetMyBall"); //수비를 하면 Pitching이 안되는지
+        Debug.Log("[Pitcher] : SetMyBall"); //수비를 하면 Pitching이 안되는지
 
         //만약 배트가 터치됐다면 => 경기중
-        if (myBall.IsBatTouch)
+        if (myBall.IsInGamePlay)
         {
             return;
         }
@@ -68,6 +68,8 @@ public class PitcherComponent : DefenderComponent
         {
             yield break;
         }
+
+        //스트라이크 보기
         LookAtPlayer(strikeZone.transform.position);
         
         //5임
@@ -77,102 +79,18 @@ public class PitcherComponent : DefenderComponent
             yield return new WaitForSeconds(1.0f);
         }
         
+        Vector3 targetPosition = strikeZone.GetZone(4).position; //랜덤넣자
+        
         coroutine = null;
-        PitchingBall();
+        _myBall.ThrowBall(
+            _myBall.transform.position,
+            targetPosition,
+            velocityXZ,
+            true
+        );
     }
 
 
-    //AI 공 던지는 함수
-    public void PitchingBall()
-    {
-        _myBall.IsThrown = true;
-        _myBall.HasPassedStrikeZone = false;
-        _myBall.IsBatTouch = false;
-        
-        //random value 0 ~ 24
-        int index = Random.Range(0, 25);
-        //index = 22; //한 가운데
-
-        Transform SZTransform = strikeZone.GetZone(index);
-
-        //Debug.Log("투수 : " + _ball.transform.position);
-        //Debug.Log("스트라이크 존 " + index + " : "+ SZTransform.position);
-        Vector3 velocity = new Vector3();
-        
-        int pitchTypeIndex = Random.Range(0, 10);
-        
-        if (pitchTypeIndex <= 2)
-        {
-            _myBall.SelectPitchType = PitchType.Curve;
-            Debug.Log("커브");
-        }
-        else
-        {
-            _myBall.SelectPitchType = PitchType.FastBall;
-            Debug.Log("직구");
-        }
-        
-        if(_myBall.SelectPitchType == PitchType.FastBall)
-            velocity = CalculateSimpleVelocity(_myBall.transform.position, SZTransform.position, velocityXZ);
-        //else if(_myBall.SelectPitchType == PitchType.Curve)
-        else
-            velocity = CalculateCurveVelocity(_myBall.transform.position, SZTransform.position, velocityXZ);
-
-        //Debug.Log("속력 : " + velocity.magnitude * 3.6f);
-
-        _myBall.ThrowBall(velocity);
-    }
-
-    public Vector3 CalculateVelocity(Vector3 start, Vector3 target, float velocity_xy)
-    {
-        velocity_xy /= 3.6f;
-        float g = Mathf.Abs(Physics.gravity.y); // 9.81 (양수)
-        Vector3 diff = target - start;
-        Vector3 dirXZ = new Vector3(diff.x, 0, diff.z).normalized;
-        float d = new Vector2(diff.x, diff.z).magnitude; // 수평 거리
-        float h = diff.y; // 높이차
-
-        // 비행 시간 계산: t = d / velocity_xy
-        float t = d / velocity_xy;
-
-        // y방향 초기 속도 Vy = (h + 0.5 * g * t^2) / t
-        float vy = (h + g * t * t) / t;
-
-        // 최종 속도 벡터
-        Vector3 velocity = dirXZ * velocity_xy;
-        velocity.y = vy;
-        return velocity;
-    }
-    public Vector3 CalculateSimpleVelocity(Vector3 start, Vector3 target, float velocityXZ)
-    {
-        velocityXZ /= 3.6f; //시속 평준화
-        float g = Mathf.Abs(Physics.gravity.y); // 9.81 (양수)
-        Vector3 dis = target - start;
-
-        float mytime = dis.magnitude / velocityXZ;
-
-        float velocityY = mytime / 2 * g;
-        Vector3 velocityXZ_normal = dis.normalized;
-        velocityXZ_normal *= velocityXZ;
-
-        Vector3 result = velocityXZ_normal + new Vector3(0, velocityY, 0);
-        return result;
-    }
-    private Vector3 CalculateCurveVelocity(Vector3 start, Vector3 target, float velocityXZ)
-    {
-        velocityXZ /= 3.6f; //시속 평준화
-        float g = Mathf.Abs(Physics.gravity.y) + (velocityXZ / 100 * _myBall.MAGNUS); // 9.81 (양수)
-        Vector3 dis = target - start;
-
-        float mytime = dis.magnitude / velocityXZ;
-
-        float velocityY = mytime / 2 * g;
-        Vector3 velocityXZ_normal = dis.normalized;
-        velocityXZ_normal *= velocityXZ;
-
-        Vector3 result = velocityXZ_normal + new Vector3(0, velocityY, 0);
-        return result;
-    }
 
     public float VelocityXZ
     {
