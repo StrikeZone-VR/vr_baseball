@@ -164,7 +164,8 @@ public class Baseball : MonoBehaviour
         //todo physics의 던지는 함수
         _physics.ThrowPlayerBall(strikeZone.transform.position, selectedPitchType);
         
-        StartSwing(strikeZone.transform.position);
+        if(bat)
+            StartSwing(strikeZone.transform.position);
         //_physics.PlayerThrowBall();
         
         playAudioClipEvent.RaiseEvent(0);

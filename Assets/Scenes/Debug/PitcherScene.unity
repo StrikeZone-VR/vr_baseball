@@ -776,17 +776,6 @@ PrefabInstance:
       addedObject: {fileID: 523548593}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
---- !u!114 &895308233 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7873184977108000993, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
-  m_PrefabInstance: {fileID: 895308232}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e0cb9aa70a22847b5925ee5f067c10a9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &976180237
 GameObject:
   m_ObjectHideFlags: 0
@@ -798,7 +787,7 @@ GameObject:
   - component: {fileID: 976180240}
   - component: {fileID: 976180239}
   m_Layer: 0
-  m_Name: VRPitchingManager
+  m_Name: PitchingManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -816,7 +805,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f13226d5984bcc64a8371e346910bc21, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerOrigin: {fileID: 895308233}
   _ball: {fileID: 2044365753}
   addBallCountEvent: {fileID: 11400000, guid: 60c42e35457ecd34d8efad8431a9dc85, type: 2}
   strikeEvent: {fileID: 11400000, guid: 7980c5f1d20201f48891aba9f1727e76, type: 2}
@@ -829,6 +817,7 @@ MonoBehaviour:
   rotateOriginEvent: {fileID: 11400000, guid: d164c5b6bfab6604987cbe7b5a2ca409, type: 2}
   sceneEventSO: {fileID: 11400000, guid: 1614b16f3ac165a4095e5f466b87b7b6, type: 2}
   playAudioClipEvent: {fileID: 11400000, guid: d945dac53f32b4d47a9561b9d8dac9a6, type: 2}
+  baseballModel: {fileID: 11400000, guid: 01b29855f5f11a2499e6ff19a77e8ca1, type: 2}
   pitcherController: {fileID: 9797076}
 --- !u!4 &976180240
 Transform:
@@ -1171,6 +1160,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 248055998}
     m_Modifications:
+    - target: {fileID: -4336775324136577172, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
+      propertyPath: defaultParentBaseball
+      value: 
+      objectReference: {fileID: 248055998}
     - target: {fileID: 6078606214894840668, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
       propertyPath: m_Convex
       value: 1
@@ -1179,6 +1172,10 @@ PrefabInstance:
       propertyPath: bat
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
+      propertyPath: _physics
+      value: 
+      objectReference: {fileID: 2044365755}
     - target: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
       propertyPath: foulEvent
       value: 
@@ -1219,6 +1216,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8458786125471442576, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
+      propertyPath: strikeZone
+      value: 
+      objectReference: {fileID: 1496257332}
     - target: {fileID: 9040452230717059448, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
       propertyPath: m_LocalScale.x
       value: 3
@@ -1292,6 +1293,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 9040452230717059448, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
   m_PrefabInstance: {fileID: 2044365752}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &2044365755 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: -4336775324136577172, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
+  m_PrefabInstance: {fileID: 2044365752}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5c0ef1d98d03844982fca185c66ea93, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &5629718977804022449
 PrefabInstance:
   m_ObjectHideFlags: 0
