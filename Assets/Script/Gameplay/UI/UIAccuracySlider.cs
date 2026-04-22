@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class UIAccuracySlider : MonoBehaviour
 {
-    [SerializeField] private Baseball _baseball;
+    [SerializeField] private BaseballPhysics _physics;
     private Slider slider;
 
     private void Start()
@@ -16,6 +16,6 @@ public class UIAccuracySlider : MonoBehaviour
 
     public void ChangedValue()
     {
-        _baseball.Ball_Accuracy_Weight = slider.value;
+        _physics.Ball_Accuracy_Weight = slider.value;
     }
 }

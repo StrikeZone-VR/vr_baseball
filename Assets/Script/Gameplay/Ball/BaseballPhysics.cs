@@ -23,14 +23,14 @@ public class BaseballPhysics : MonoBehaviour
     [SerializeField] private float _debugVelocity;
 
     private float flightTime = 0;
-    
+    private float ball_accuracy_weight = 0.0f; //0~1, 1일수록 보정값이 매우 높음
+
     //이런 것도 있구나
     //AnimationCurve ㅇㅇ =  AnimationCurve.Linear(0, 0, 1, 1);
 
     //커브나 다른 무언가 사용하기 위해 만든 변수
     private Vector3 velocityXY; // 실제 목표 위치
     private float beforeTime = 0f;
-    private float assistWeight = 0f; //가중치
     
     private readonly float MAGNUS = 60.0f; //100 기준
 
@@ -255,7 +255,7 @@ public class BaseballPhysics : MonoBehaviour
             case PitchType.FastBall:
                 break;
         }
-        return CalculateVelocity(start, target, velocityXZ,piterTypeForce);
+        return CalculateVelocity(start, target, velocityXZ, piterTypeForce);
     }
 
     public void ThrowPlayerBall(Vector3 targetPos, PitchType pitchType)
@@ -278,14 +278,17 @@ public class BaseballPhysics : MonoBehaviour
         float playerSpeedKmh = rawVRVelocity.magnitude * 3.6f;
 
         // 만약 너무 살짝 던졌다면 보정 계산 중 0나누기 에러가 날 수 있으니 방어 코드
-        if (playerSpeedKmh <= 1.0f) return rawVRVelocity; 
+        if (playerSpeedKmh <= 1.0f) return rawVRVelocity;
 
-        // 2. 유저의 구속(Speed)은 그대로 유지한 채, 타겟에 완벽하게 꽂히는 정답 궤적(Velocity)을 알아냄
-        Vector3 perfectVelocity = GetVelocityByPitchType(transform.position, targetPos, playerSpeedKmh, pitchType);
-
+        playerSpeedKmh *= 2;
+// 🔥 핵심 방어선: 유저가 9km로 던졌어도 강제로 110km로 끌어올림!
+        float finalSpeedKmh = Mathf.Min(playerSpeedKmh, 160f);
         // 3. 섞기 (Lerp 마법!)
+        
+        // 2. 유저의 구속(Speed)은 그대로 유지한 채, 타겟에 완벽하게 꽂히는 정답 궤적(Velocity)을 알아냄
+        Vector3 perfectVelocity = GetVelocityByPitchType(transform.position, targetPos, finalSpeedKmh, pitchType);
         // assistWeight가 0.0이면 100% 똥볼(rawVRVelocity), 1.0이면 100% 완벽한 스트라이크(perfectVelocity)
-        Vector3 finalVelocity = Vector3.Lerp(rawVRVelocity, perfectVelocity, Mathf.Clamp01(assistWeight));
+        Vector3 finalVelocity = Vector3.Lerp(rawVRVelocity, perfectVelocity, Mathf.Clamp01(ball_accuracy_weight));
 
         return finalVelocity;
     }
@@ -325,7 +328,10 @@ public class BaseballPhysics : MonoBehaviour
 
     public void SetGravity(bool useGravity)
     {
-        _rigidbody.useGravity = useGravity;
+        if (_rigidbody)
+        {
+            _rigidbody.useGravity = useGravity;
+        }
     }
     
     public void SetPosition(Vector3 position)
@@ -439,4 +445,17 @@ public class BaseballPhysics : MonoBehaviour
     }
 
     public float GetFlightTime() => flightTime;
+    
+    
+    public float Ball_Accuracy_Weight
+    {
+        get
+        {
+            return ball_accuracy_weight;
+        }
+        set
+        {
+            ball_accuracy_weight = value;
+        }
+    }
 }

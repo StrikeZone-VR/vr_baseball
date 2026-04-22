@@ -66,9 +66,6 @@ public class Baseball : MonoBehaviour
 
     
     /// <summary> 공이 투구되었는지 확인 </summary>  <returns>투구 상태</returns>
-
-
-    private float ball_accuracy_weight = 0.0f; //0~1, 1일수록 보정값이 매우 높음
     
     // 속도 추적
     const float targetSpeed = 8.0f; // 8.0 => 25? , 32 => 140
@@ -96,13 +93,19 @@ public class Baseball : MonoBehaviour
         //그냥 파울처리
         if (transform.position.y < -100f)
         {
+            //투수모드에서 -100f 로 간 경우 => 오류나서 다시 돌아가야 함
+            if(!IsInGamePlay)
+            {
+                PitchResult();
+            }
             //그냥 홈런 범위를 넘어서면
-            if (transform.position.x < 0 && transform.position.z < 0 )
+            else if (transform.position.x < 0 && transform.position.z < 0 )
             {
                 Homerun();
             }
             else
             {
+                Debug.Log(" 좀 파울이라고좀 해라 ");
                 Foul();
             }
         }
@@ -194,7 +197,7 @@ public class Baseball : MonoBehaviour
             }
         }
         //스윙 여부는 방망이의 회전값?
-        else if (bat.IsSwing()) //스윙여부 == true => 스윙했는데 방망이를 건들지 않은 경우
+        else if (bat && bat.IsSwing()) //스윙여부 == true => 스윙했는데 방망이를 건들지 않은 경우
         {
             playAudioClipEvent.RaiseEvent(3);
             Debug.Log("[Game] : 스트라이크1");
@@ -251,6 +254,10 @@ public class Baseball : MonoBehaviour
 
             switch (_currentState)
             {
+                case BallState.Idle:
+                    _physics.SetVelocity(Vector3.zero);
+                    _physics.SetGravity(false);
+                    break;
                 case BallState.Pitched:
                 case BallState.Thrown:
                     _physics.SetGravity(true);
@@ -361,18 +368,6 @@ public class Baseball : MonoBehaviour
         get => grabInteractable;
     }
     
-
-    public float Ball_Accuracy_Weight
-    {
-        get
-        {
-            return ball_accuracy_weight;
-        }
-        set
-        {
-            ball_accuracy_weight = value;
-        }
-    }
     
     #endregion
     
@@ -527,7 +522,8 @@ public class Baseball : MonoBehaviour
 
     public void Foul()
     {
-        //todo 페어볼은 아직 안함 => && !IsGroundBall 그냥 제거함
+        //  && !IsGroundBall 그냥 제거함
+        //todo 페어볼은 아직 안함
         if (IsInGamePlay)
         {
             foulEvent.RaiseEvent();
@@ -624,6 +620,7 @@ public class Baseball : MonoBehaviour
 
 public enum BallState
 {
+    Idle, //잡기 전 대기 상태 : pitcherMode에서만 가능
     Grabbed,    // 투수만 공을 잡는 상태
     Pitched,    // 투수가 던져서 허공을 날아가는 중
 

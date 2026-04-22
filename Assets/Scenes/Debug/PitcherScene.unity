@@ -958,7 +958,7 @@ Transform:
   m_GameObject: {fileID: 1464780506}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -12.58, y: 0.41, z: -12.73}
+  m_LocalPosition: {x: -12.58, y: 1.333, z: -12.73}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1164,6 +1164,10 @@ PrefabInstance:
       propertyPath: defaultParentBaseball
       value: 
       objectReference: {fileID: 248055998}
+    - target: {fileID: 1437758103643086679, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
+      propertyPath: m_UseGravity
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6078606214894840668, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
       propertyPath: m_Convex
       value: 1
@@ -1238,7 +1242,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9040452230717059448, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.41
+      value: 1.306
       objectReference: {fileID: 0}
     - target: {fileID: 9040452230717059448, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1320,6 +1324,10 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 911987235423066159, guid: 6b632a987658c784fb8d018000345df0, type: 3}
+      propertyPath: _physics
+      value: 
+      objectReference: {fileID: 2044365755}
     - target: {fileID: 911987235423066159, guid: 6b632a987658c784fb8d018000345df0, type: 3}
       propertyPath: _baseball
       value: 

@@ -48,6 +48,7 @@ public class PitchingController : GameController
     /// </summary>
     public void PlayerPitcherResetBall()
     {
+        _ball.CurrentState = BallState.Idle;
         _ball.ResetBallState(ballResetPosition.position);
     }
     

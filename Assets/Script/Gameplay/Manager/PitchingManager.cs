@@ -83,7 +83,11 @@ public class PitchingManager : GameManager
         yield return new WaitForSeconds(WAIT_TIME);
         pitcherController.PlayerPitcherResetBall();
     }
-    
-    
+
+    protected override void Foul()
+    {
+        Debug.Log("파울");
+        pitcherController.PlayerPitcherResetBall();
+    }
 
 }
