@@ -17,10 +17,13 @@ public class SettingsController : MonoBehaviour
     //Input Action Asset의 하위 버전 : XRI : UI / Click 이런거
     [SerializeField] private InputActionReference toggleMenuAction;
 
+        //canceled
+        //performed
     private void OnEnable()
     {
         toggleMenuAction.action.Enable();
         toggleMenuAction.action.started += TogglePanel;
+        //started
     }
 
     private void OnDisable()
