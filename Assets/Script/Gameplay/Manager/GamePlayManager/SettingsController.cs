@@ -2,11 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
 
 public class SettingsController : MonoBehaviour
 {
     [Header("UI 패널")]
     [SerializeField] private GameObject settingsPanel;
+    [SerializeField] private Button quitButton;
+    [SerializeField] private Slider volumeSlider;
+    [SerializeField] private Slider vibrateSlider;
+    
 
     //메뉴로 되돌아가기
     //- [ ] 소리
@@ -23,6 +28,10 @@ public class SettingsController : MonoBehaviour
     {
         toggleMenuAction.action.Enable();
         toggleMenuAction.action.started += TogglePanel;
+        
+        quitButton.clicked += () => {
+            settingsPanel.SetActive(false);
+        };
         //started
     }
 
