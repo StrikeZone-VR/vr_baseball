@@ -38,6 +38,7 @@ public class TrajectoryDebugger : MonoBehaviour
         }
     }
     
+    // 땅에 닿는다면 구 형태로 그리는 함수
     void DrawDashedSegment(Vector3 a, Vector3 b, float dashLen, float stepLen)
     {
         Vector3 ab = b - a;
