@@ -10,14 +10,21 @@ using UnityEngine.UI;
 public class SettingsController : MonoBehaviour
 {
     private const string LanguagePrefKey = "settings.language";
+    private const string VolumePrefKey = "settings.volume";
     private const string DefaultLocaleCode = "ko";
+    private const float DefaultVolume = 1.0f;
 
     [Header("UI 패널")]
     [SerializeField] private GameObject settingsPanel;
     [SerializeField] private Button quitButton;
     [SerializeField] private Slider volumeSlider;
+    [SerializeField] private TMP_Text volumeValueText;
     [SerializeField] private Slider vibrateSlider;
+    [SerializeField] private TMP_Text vibrateValueText;
     [SerializeField] private TMP_Dropdown languageDropdown;
+
+    [Header("오디오 연결")]
+    [SerializeField] private AudioManager audioManager;
 
     [Header("인풋 액션 연결")]
     [Tooltip("VR 컨트롤러 등에서 메뉴 토글. 비워두면 키보드 P만 사용.")]
@@ -26,10 +33,10 @@ public class SettingsController : MonoBehaviour
     [SerializeField] private Key keyboardToggleKey = Key.P;
 
     [Header("VR 패널 배치")]
-    [Tooltip("플레이어 머리(메인 카메라) Transform. 비워두면 Camera.main 사용.")]
+    [Tooltip("플레이어 머리(메인 카메라) Transform.")]
     [SerializeField] private Transform headTransform;
-    [Tooltip("이동시킬 패널의 루트 (보통 SettingPanel의 부모 Canvas). 비워두면 settingsPanel.transform.parent 사용.")]
-    [SerializeField] private Transform panelRoot;
+    [Tooltip("이동시킬 패널의 루트 (보통 SettingPanel의 부모 Canvas).")]
+    [SerializeField] private Transform panelRootCanvas;
     [Tooltip("머리 정면으로부터 떨어진 거리 (월드 단위, 미터).")]
     [SerializeField] private float spawnDistance = 2.0f;
     [Tooltip("머리 높이 기준 수직 오프셋. 0이면 시선 높이.")]
@@ -42,8 +49,9 @@ public class SettingsController : MonoBehaviour
 
     private IEnumerator Start()
     {
-        ResolveReferences();
+        WarnIfMissingReferences();
         CacheOriginalTransform();
+        InitializeVolume();
         if (settingsPanel != null) settingsPanel.SetActive(false);
 
         yield return LocalizationSettings.InitializationOperation;
@@ -71,6 +79,9 @@ public class SettingsController : MonoBehaviour
         if (quitButton != null)
             quitButton.onClick.AddListener(OnQuitClicked);
 
+        if (volumeSlider != null)
+            volumeSlider.onValueChanged.AddListener(OnVolumeChanged);
+
         if (languageDropdown != null)
             languageDropdown.onValueChanged.AddListener(OnLanguageChanged);
     }
@@ -86,6 +97,9 @@ public class SettingsController : MonoBehaviour
         if (quitButton != null)
             quitButton.onClick.RemoveListener(OnQuitClicked);
 
+        if (volumeSlider != null)
+            volumeSlider.onValueChanged.RemoveListener(OnVolumeChanged);
+
         if (languageDropdown != null)
             languageDropdown.onValueChanged.RemoveListener(OnLanguageChanged);
     }
@@ -97,21 +111,24 @@ public class SettingsController : MonoBehaviour
             TogglePanel();
     }
 
-    private void ResolveReferences()
+    private void WarnIfMissingReferences()
     {
-        if (headTransform == null && Camera.main != null)
-            headTransform = Camera.main.transform;
-
-        if (panelRoot == null && settingsPanel != null)
-            panelRoot = settingsPanel.transform.parent;
+        if (settingsPanel == null) Debug.LogWarning("[SettingsController] settingsPanel 미할당.", this);
+        if (panelRootCanvas == null) Debug.LogWarning("[SettingsController] panelRootCanvas 미할당 — 패널이 머리 정면에 배치되지 않음.", this);
+        if (headTransform == null) Debug.LogWarning("[SettingsController] headTransform 미할당 — 패널이 머리 정면에 배치되지 않음.", this);
+        if (volumeSlider == null) Debug.LogWarning("[SettingsController] volumeSlider 미할당.", this);
+        if (volumeValueText == null) Debug.LogWarning("[SettingsController] volumeValueText 미할당.", this);
+        if (audioManager == null) Debug.LogWarning("[SettingsController] audioManager 미할당 — 볼륨 변경이 적용되지 않음.", this);
+        if (languageDropdown == null) Debug.LogWarning("[SettingsController] languageDropdown 미할당.", this);
+        if (quitButton == null) Debug.LogWarning("[SettingsController] quitButton 미할당.", this);
     }
 
     private void CacheOriginalTransform()
     {
-        if (panelRoot == null || _hasOriginalTransform) return;
-        _originalParent = panelRoot.parent;
-        _originalLocalPosition = panelRoot.localPosition;
-        _originalLocalRotation = panelRoot.localRotation;
+        if (panelRootCanvas == null || _hasOriginalTransform) return;
+        _originalParent = panelRootCanvas.parent;
+        _originalLocalPosition = panelRootCanvas.localPosition;
+        _originalLocalRotation = panelRootCanvas.localRotation;
         _hasOriginalTransform = true;
     }
 
@@ -120,14 +137,45 @@ public class SettingsController : MonoBehaviour
         ClosePanel();
     }
 
+    private void InitializeVolume()
+    {
+        float saved = PlayerPrefs.GetFloat(VolumePrefKey, DefaultVolume);
+
+        if (audioManager != null)
+            audioManager.SetVolume(saved);
+
+        if (volumeSlider != null)
+            volumeSlider.SetValueWithoutNotify(saved);
+
+        UpdateVolumeText(saved);
+    }
+
+    private void OnVolumeChanged(float value)
+    {
+        value = Mathf.Clamp01(value);
+
+        if (audioManager != null)
+            audioManager.SetVolume(value);
+
+        UpdateVolumeText(value);
+
+        PlayerPrefs.SetFloat(VolumePrefKey, value);
+        PlayerPrefs.Save();
+    }
+
+    private void UpdateVolumeText(float value01)
+    {
+        if (volumeValueText != null)
+            volumeValueText.text = Mathf.RoundToInt(value01 * 100f) + "%";
+    }
+
     private void OpenPanel()
     {
         if (settingsPanel == null) return;
-        ResolveReferences();
 
-        if (panelRoot != null && headTransform != null)
+        if (panelRootCanvas != null && headTransform != null)
         {
-            panelRoot.SetParent(null, false);
+            panelRootCanvas.SetParent(null, false);
 
             Vector3 forward = headTransform.forward;
             forward.y = 0f;
@@ -135,12 +183,11 @@ public class SettingsController : MonoBehaviour
                 forward = Vector3.forward;
             forward.Normalize();
 
-            panelRoot.position = headTransform.position + forward * spawnDistance + Vector3.up * verticalOffset;
-            panelRoot.rotation = Quaternion.LookRotation(forward);
+            panelRootCanvas.position = headTransform.position + forward * spawnDistance + Vector3.up * verticalOffset;
+            panelRootCanvas.rotation = Quaternion.LookRotation(forward);
         }
 
         settingsPanel.SetActive(true);
-        Debug.Log("환경설정 창 켜짐!");
     }
 
     private void ClosePanel()
@@ -148,11 +195,11 @@ public class SettingsController : MonoBehaviour
         if (settingsPanel != null)
             settingsPanel.SetActive(false);
 
-        if (panelRoot != null && _hasOriginalTransform)
+        if (panelRootCanvas != null && _hasOriginalTransform)
         {
-            panelRoot.SetParent(_originalParent, false);
-            panelRoot.localPosition = _originalLocalPosition;
-            panelRoot.localRotation = _originalLocalRotation;
+            panelRootCanvas.SetParent(_originalParent, false);
+            panelRootCanvas.localPosition = _originalLocalPosition;
+            panelRootCanvas.localRotation = _originalLocalRotation;
         }
     }
 
