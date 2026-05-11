@@ -15,6 +15,7 @@
 /.idea
 /.vscode
 /.claude
+/[Aa]ssets/.mcp.json
 
 /.utmp
 
