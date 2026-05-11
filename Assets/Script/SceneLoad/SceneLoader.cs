@@ -21,8 +21,36 @@ public class SceneLoader : MonoBehaviour
 
     private void Start()
     {
+        if (HasOtherSceneLoaded())
+        {
+            Debug.Log("[SceneLoader] 다른 씬이 이미 로드됨 → Menu 자동 로드 스킵");
+            currentScene = FindFirstNonPersistentScene();
+            return;
+        }
+
         LoadScene(GameMenuScene);
-        //currentScene = SceneManager.GetActiveScene();
+    }
+
+    private bool HasOtherSceneLoaded()
+    {
+        string mySceneName = gameObject.scene.name;
+        for (int i = 0; i < SceneManager.sceneCount; i++)
+        {
+            var s = SceneManager.GetSceneAt(i);
+            if (s.isLoaded && s.name != mySceneName) return true;
+        }
+        return false;
+    }
+
+    private Scene FindFirstNonPersistentScene()
+    {
+        string mySceneName = gameObject.scene.name;
+        for (int i = 0; i < SceneManager.sceneCount; i++)
+        {
+            var s = SceneManager.GetSceneAt(i);
+            if (s.isLoaded && s.name != mySceneName) return s;
+        }
+        return default;
     }
 
     private void OnEnable()
