@@ -230,8 +230,6 @@ public class PitchSelectionUI : MonoBehaviour
         if (currentBaseball != null)
             currentBaseball.SetPitchType(pitchType);
 
-        playAudioClipEvent.RaiseEvent(0);
-
         OnPitchSelected?.Invoke(pitchType);
 
         // 구종 사용 통계 업데이트

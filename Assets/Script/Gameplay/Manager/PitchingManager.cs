@@ -29,7 +29,7 @@ public class PitchingManager : GameManager
     {
         base.Start();
         
-        moveOriginEvent.RaiseEvent(new Vector3(0.6f, 1.3f, -0.98f));
+        moveOriginEvent.RaiseEvent(new Vector3(-13.21f, 1.3f, -13.35f));
         rotateOriginEvent.RaiseEvent(new Vector3(0, -135f, 0));
 
         Strike = 0;

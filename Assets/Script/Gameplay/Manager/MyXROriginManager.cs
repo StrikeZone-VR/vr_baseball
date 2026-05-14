@@ -38,8 +38,6 @@ public class MyXROriginManager : MonoBehaviour
     }
     private void RotateOrigin(Vector3 vector3)
     {
-        Debug.Log(vector3);
-        //move
         _origin.MatchOriginUpCameraForward(Vector3.up, vector3);
     }
 

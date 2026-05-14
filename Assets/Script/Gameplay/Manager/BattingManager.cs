@@ -16,7 +16,7 @@ public class BattingManager : GameManager
     [SerializeField] private VoidEventSO groundEventSO;
 
     const float WAIT_TIME = 2.0f; //원래 7임
-    BattingModel battingModel = new BattingModel();
+    [SerializeField] private BattingModel battingModel;
     
     protected override void OnEnable()
     {
