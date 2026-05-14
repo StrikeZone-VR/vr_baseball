@@ -74,6 +74,8 @@ public class GamePlayManager : GameManager
     [SerializeField] private MyBodyEventSO _setBodyEvent ;
     [SerializeField] private BoolEventSO _setPlayerMoveMode;
     [SerializeField] private SceneEventSO sceneEvent;
+    [SerializeField] private VoidEventSO walkEvent;
+    [SerializeField] private VoidEventSO addOutEvent;
 
     [SerializeField] private bool canBackRunner = false;
     
@@ -1070,10 +1072,11 @@ public class GamePlayManager : GameManager
             if (value >= BaseballModel.MAX_BALL_COUNT)
             {
                 value = 0;
-                
+
                 //AddBaseStatus();
                 MoveOneBase();
                 gamePlayModel.SaveBeforeStatus();
+                if (walkEvent != null) walkEvent.RaiseEvent();
             }
 
             baseballModel.BallCount = value;
@@ -1086,6 +1089,7 @@ public class GamePlayManager : GameManager
     {
         Debug.Log("[Batter] : out");
         OutCount++;
+        if (addOutEvent != null) addOutEvent.RaiseEvent();
     }
 
     //대체로 볼넷으로 준 경우 or 주자가 자연스럽게 옮긴 경우 (이거만 유일한 주자 조정 함수임)

@@ -15,7 +15,6 @@ public class MyXROriginManager : MonoBehaviour
     [SerializeField] private ActionBasedContinuousMoveProvider moveProvider;
     [SerializeField] private XROrigin _origin;
     
-
     private void OnEnable()
     {
         moveOriginEvent.onEventRaised += MoveOrigin;

@@ -225,19 +225,19 @@ public class BaseballPhysics : MonoBehaviour
     {
         velocity_xy /= 3.6f;
         float g = Mathf.Abs(Physics.gravity.y) + piterTypeForce; // 9.81 (양수)
-    
+
         Vector3 diff = target - start;
         Vector3 dirXZ = new Vector3(diff.x, 0, diff.z).normalized;
         float d = new Vector2(diff.x, diff.z).magnitude; // 수평 거리
         float h = diff.y; // 높이차
-    
+
         // 비행 시간 계산: t = d / velocity_xy
         float t = d / velocity_xy;
         flightTime = t;
-    
+
         // y방향 초기 속도 Vy = (h + 0.5 * g * t^2) / t
         float vy = (h + 0.5f * g * t * t) / t; 
-    
+
         // 최종 속도 벡터
         Vector3 velocity = dirXZ * velocity_xy;
         velocity.y = vy;

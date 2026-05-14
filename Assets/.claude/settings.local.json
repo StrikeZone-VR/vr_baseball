@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(claude mcp *)",
+      "PowerShell(Test-NetConnection *)",
+      "PowerShell(Get-NetTCPConnection *)",
+      "PowerShell($srv = \"D:/Code/Unity Projects/VR_Baseball/Library/PackageCache/com.gamelovers.mcp-unity@d176a9d737/Server~\"; Write-Output \"--- Server~ contents ---\"; cmd /c dir /a \"$srv\" 2>&1)",
+      "PowerShell(npm *)",
+      "mcp__mcp-unity__get_scene_info",
+      "mcp__mcp-unity__update_gameobject",
+      "mcp__mcp-unity__get_gameobject",
+      "mcp__mcp-unity__delete_gameobject",
+      "mcp__mcp-unity__update_component",
+      "mcp__mcp-unity__set_transform",
+      "mcp__mcp-unity__reparent_gameobject",
+      "mcp__mcp-unity__save_scene",
+      "mcp__mcp-unity__select_gameobject",
+      "mcp__mcp-unity__execute_menu_item",
+      "mcp__mcp-unity__send_console_log",
+      "mcp__mcp-unity__get_console_logs",
+      "mcp__mcp-unity__recompile_scripts",
+      "Bash(grep *)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "mcp-unity"
+  ]
+}
