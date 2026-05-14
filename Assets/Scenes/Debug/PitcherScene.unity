@@ -1364,9 +1364,25 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8458786125471442576, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
+      propertyPath: ball
+      value: 
+      objectReference: {fileID: 2044365758}
+    - target: {fileID: 8458786125471442576, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
       propertyPath: strikeZone
       value: 
       objectReference: {fileID: 1496257332}
+    - target: {fileID: 8458786125471442576, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
+      propertyPath: rightHandName
+      value: Right Controller
+      objectReference: {fileID: 0}
+    - target: {fileID: 8458786125471442576, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
+      propertyPath: swingEndEuler.x
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 8458786125471442576, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
+      propertyPath: swingStartEuler.x
+      value: -20
+      objectReference: {fileID: 0}
     - target: {fileID: 9040452230717059448, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
       propertyPath: m_LocalScale.x
       value: 3
@@ -1449,6 +1465,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e5c0ef1d98d03844982fca185c66ea93, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2044365758 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4046299293835020439, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
+  m_PrefabInstance: {fileID: 2044365752}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ad34abafad169848a38072baa96cdb2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1001 &5629718977804022449

@@ -14,95 +14,43 @@ public class BaseballDebugger : MonoBehaviour
     // ===== Debug Swing (A) =====
     [Header("Debug Swing")]
     [SerializeField] private Key swingKey = Key.Z;
-    [SerializeField] private Transform swingPivot;
-    [SerializeField] private Vector3 swingStartEuler = new Vector3(-40f, 0f, 0f);
-    [SerializeField] private Vector3 swingEndEuler   = new Vector3( 60f, 0f, 0f);
+    [SerializeField] private Vector3 swingStartEuler;
+    [SerializeField] private Vector3 swingEndEuler;
     [SerializeField] private float swingDuration = 0.25f;
     [SerializeField] private AnimationCurve swingEase = AnimationCurve.EaseInOut(0, 0, 1, 1);
     [SerializeField] private bool autoReleaseOnEnd = true;
+
     [SerializeField] private XRGrabInteractable ball;
     [SerializeField] private XRInteractionManager interactionManager;
 
-    private Quaternion swingRestRot;
+    [Header("Hand Lookup")]
+    [SerializeField] private string rightHandName;
+
+    // 런타임 참조 (reparent 안 함, TPD와 안 싸움)
+    private Transform rightHand;
+    private Transform pivotSource;          // 카메라 transform — 매 프레임 world 위치 가져옴
+    private bool swingActive;
+    private Quaternion currentSwingRot = Quaternion.identity;
 
     private void Start()
     {
-        ResolveCrossSceneRefs();
-        if (swingPivot != null)
-            swingRestRot = swingPivot.localRotation;
     }
 
     private void Update()
     {
-        if (Keyboard.current != null && Keyboard.current[swingKey].wasPressedThisFrame)
-            StartCoroutine(DebugDoSwing());
     }
 
-    private void ResolveCrossSceneRefs()
+    /// <summary>
+    /// TPD가 매 프레임 손 위치를 덮어쓴 직후, 카메라 위치를 pivot으로 한 회전을 손에 적용.
+    /// reparent 안 하므로 TPD와 충돌하지 않음.
+    /// </summary>
+    private void LateUpdate()
     {
-        if (interactionManager == null)
-            interactionManager = FindObjectOfType<XRInteractionManager>();
-
-        if (ball == null)
-        {
-            var ballGo = GameObject.FindWithTag("Ball");
-            if (ballGo != null)
-                ball = ballGo.GetComponent<XRGrabInteractable>();
-        }
-
-        if (swingPivot == null)
-        {
-            var pivotGo = GameObject.Find("DebugSwingPivot");
-            if (pivotGo != null)
-                swingPivot = pivotGo.transform;
-        }
     }
 
-    private IEnumerator DebugDoSwing()
-    {
-        ResolveCrossSceneRefs();
 
-        if (swingPivot == null)
-        {
-            Debug.LogWarning("[BaseballDebugger] swingPivot 미설정 — DebugSwingPivot GameObject가 씬에 있는지 확인하세요");
-            yield break;
-        }
-        if (ball != null && !ball.isSelected)
-        {
-            Debug.LogWarning("[BaseballDebugger] 공이 잡혀있지 않습니다 — trigger로 먼저 잡으세요");
-            yield break;
-        }
 
-        Quaternion start = Quaternion.Euler(swingStartEuler);
-        Quaternion end   = Quaternion.Euler(swingEndEuler);
-
-        swingPivot.localRotation = start;
-        yield return null;
-
-        float t = 0f;
-        while (t < swingDuration)
-        {
-            t += Time.deltaTime;
-            float u = swingEase.Evaluate(Mathf.Clamp01(t / swingDuration));
-            swingPivot.localRotation = Quaternion.Slerp(start, end, u);
-            yield return null;
-        }
-        swingPivot.localRotation = end;
-
-        if (autoReleaseOnEnd
-            && ball != null
-            && ball.isSelected
-            && interactionManager != null
-            && ball.interactorsSelecting.Count > 0)
-        {
-            var holder = ball.interactorsSelecting[0];
-            interactionManager.SelectExit(holder, (IXRSelectInteractable)ball);
-        }
-
-        yield return new WaitForSeconds(0.5f);
-        swingPivot.localRotation = swingRestRot;
-    }
-
+    #region TRAJECTORY
     // ===== Trajectory drawing (기존) =====
     private void OnDrawGizmos()
     {
@@ -166,4 +114,6 @@ public class BaseballDebugger : MonoBehaviour
         Debug.DrawLine(point - right * crossSize, point + right * crossSize, hitColor, duration);
         Debug.DrawLine(point - up    * crossSize, point + up    * crossSize, hitColor, duration);
     }
+    #endregion
+
 }
