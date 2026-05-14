@@ -29,7 +29,6 @@ public class AudioManager : MonoBehaviour
     //(click, throw) hit start strike swing
     private void PlayAudioClip(int index)
     {
-        Debug.Log("플레잉" + index);
         audioSource.PlayOneShot(audioClips[index]);
     }
 

@@ -1307,6 +1307,10 @@ PrefabInstance:
       propertyPath: m_UseGravity
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5989334004148865900, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
+      propertyPath: triggerAction
+      value: 
+      objectReference: {fileID: 3279264004350380116, guid: 187f6be54103f91438c4d84bc74196dd, type: 3}
     - target: {fileID: 6078606214894840668, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
       propertyPath: m_Convex
       value: 1

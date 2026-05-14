@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 8324867596943280312}
   - component: {fileID: 8458786125471442576}
   - component: {fileID: -4336775324136577172}
+  - component: {fileID: 5989334004148865900}
   m_Layer: 7
   m_Name: Baseball
   m_TagString: Ball
@@ -359,3 +360,18 @@ MonoBehaviour:
   _trajectoryBaseBallData: {fileID: 11400000, guid: 1e6a5c4765370894cad39e6faf3c4015, type: 2}
   getVelocityEventSO: {fileID: 11400000, guid: c2305552fa4ae3741985e7e98ca99b92, type: 2}
   _debugVelocity: 0
+--- !u!114 &5989334004148865900
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8364105362300272789}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c1aee472d874bd47be593b363f1b203, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  triggerAction: {fileID: 0}
+  handInteractors: []
+  manager: {fileID: 0}
