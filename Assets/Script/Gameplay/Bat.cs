@@ -224,7 +224,7 @@ public class Bat : MonoBehaviour
         start_rotation *= zRotateQuaternion;
         transform.localRotation = start_rotation;  //rotation
     }
-    
+
     //**핵심 함수**
     //공 오는 각도에 맞춰서 계산
     public void MoveAxis(Vector3 targetPosition)

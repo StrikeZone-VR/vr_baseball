@@ -100,7 +100,7 @@ public class MyBody : Player
         
         return batterComponent.IsIntoBase(fieldBase);
     }
- 
+
     public void SetPitcherComponent()
     {
         SetActiveRole(pitcherRole);

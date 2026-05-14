@@ -144,10 +144,11 @@ public class Baseball : MonoBehaviour
         }
         _physics.ThrowBall(start, target, velocity_xy);
 
-        if (isPitcher)
-        {
-            StartSwing(target);
-        }
+        //잠깐. AI 투수가 던지는데 이걸 활성화 하는 판단이 맞을까?
+        // if (isPitcher)
+        // {
+        //     StartSwing(target);
+        // }
         
         playAudioClipEvent.RaiseEvent(0);
         PlayThrowEffects(); // 이펙트
