@@ -86,7 +86,6 @@ public class GamePlayManager : GameManager
     
     private bool isFlyingOut = false;
     private bool canGetBall = true; //호출 위치를 어디에 해야할지 모르겠네
-    private bool isPrint = false; //debug
     
     //define
     const float WAIT_TIME = 7.0f;  //투수 던지기 전 대기 상태

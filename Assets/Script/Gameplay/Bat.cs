@@ -120,7 +120,6 @@ public class Bat : MonoBehaviour
         Vector3 xWorld = axis.transform.TransformDirection(Vector3.right);
         Vector3 zWorld = axis.transform.TransformDirection(Vector3.forward);
         
-
         //float batAngle = -45.0f; //y
 
         Vector3 orbitYAxis = axis.transform.up; // axis의 로컬 Y축을 월드로 
