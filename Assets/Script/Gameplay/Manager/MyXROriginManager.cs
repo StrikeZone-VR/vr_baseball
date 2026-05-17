@@ -13,6 +13,7 @@ public class MyXROriginManager : MonoBehaviour
     [SerializeField] private Vector3EventSO rotateOriginEvent;
     [SerializeField] private MyBodyEventSO bodyEvent;
     [SerializeField] private BoolEventSO setPlayerMoveMode;
+    [SerializeField] private VoidEventSO debugSwingEvent; //BaseballDebugger에서 raise
 
     [Header("플레이어 이동 컨트롤러")]
     [SerializeField] private ActionBasedContinuousMoveProvider moveProvider;
@@ -23,8 +24,8 @@ public class MyXROriginManager : MonoBehaviour
     [Tooltip("스윙 공전 축. 비워두면 XROrigin의 카메라를 사용한다.")]
     [SerializeField] private Transform swingAxis;
     [SerializeField] private float axisDistance = 0.5f;
-    [SerializeField] private float swingStartAngle = -45f;
-    [SerializeField] private float swingTotalOrbitAngle = -270f;
+    [SerializeField] private float swingStartAngle;
+    [SerializeField] private float swingTotalOrbitAngle;
     [SerializeField] private float swingDuration = 0.25f;
     [SerializeField] private AnimationCurve swingCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
@@ -36,6 +37,7 @@ public class MyXROriginManager : MonoBehaviour
         rotateOriginEvent.onEventRaised += RotateOrigin;
         bodyEvent.onEventRaised += SetPlayer;
         setPlayerMoveMode.onEventRaised += SetPlayerMoveMode;
+        if (debugSwingEvent != null) debugSwingEvent.onEventRaised += OnDebugSwingRaised;
     }
     private void OnDisable()
     {
@@ -43,16 +45,12 @@ public class MyXROriginManager : MonoBehaviour
         rotateOriginEvent.onEventRaised -= RotateOrigin;
         bodyEvent.onEventRaised -= SetPlayer;
         setPlayerMoveMode.onEventRaised -= SetPlayerMoveMode;
+        if (debugSwingEvent != null) debugSwingEvent.onEventRaised -= OnDebugSwingRaised;
     }
 
-    private void Update()
+    private void OnDebugSwingRaised()
     {
-        //키입력 (New Input System)
-        if (Keyboard.current != null && Keyboard.current[Key.Z].wasPressedThisFrame)
-        {
-            Debug.Log("Z 클릭 - 팔 휘두르기");
-            StartCoroutine(DebugDoSwing());
-        }
+        StartCoroutine(DebugDoSwing());
     }
 
     /// <summary>
@@ -75,12 +73,12 @@ public class MyXROriginManager : MonoBehaviour
         // 컨트롤러 포즈를 매 프레임 덮어쓰는 컴포넌트들 잠시 끄기
         List<Behaviour> suppressed = SuppressHandTrackers(rightHand);
 
-        Vector3 xWorld = pivot.TransformDirection(Vector3.right);
+        // X축(pivot.right) 공전: Y-Z 평면에서 수직 아크
+        Vector3 yWorld = pivot.TransformDirection(Vector3.up);
         Vector3 zWorld = pivot.TransformDirection(Vector3.forward);
-        Vector3 orbitYAxis = pivot.up;
-        Vector3 orbitZAxis = pivot.forward;
+        Vector3 orbitXAxis = pivot.right;
 
-        Quaternion zRotateQuaternion = Quaternion.AngleAxis(pivot.localEulerAngles.z - 90f, orbitZAxis);
+        Quaternion baseRot = rightHand.rotation; //원래 손 방향을 기준으로 회전
 
         float elapsed = 0f;
         try
@@ -93,10 +91,11 @@ public class MyXROriginManager : MonoBehaviour
                 float angle = swingStartAngle + swingTotalOrbitAngle * progress;
 
                 Vector3 pos = pivot.position
-                    + xWorld * (Mathf.Cos(angle * Mathf.Deg2Rad) * axisDistance)
+                    + yWorld * (Mathf.Cos(angle * Mathf.Deg2Rad) * axisDistance)
                     + zWorld * (-Mathf.Sin(angle * Mathf.Deg2Rad) * axisDistance);
 
-                Quaternion rot = Quaternion.AngleAxis(angle, orbitYAxis) * zRotateQuaternion;
+                //시작각으로부터의 변화량 기준으로 회전 (절대 angle을 쓰면 swingStartAngle 바꿀 때 시작 자세가 같이 틀어짐)
+                Quaternion rot = Quaternion.AngleAxis(angle - swingStartAngle, orbitXAxis) * baseRot;
 
                 rightHand.SetPositionAndRotation(pos, rot);
                 yield return null;

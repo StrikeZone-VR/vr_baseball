@@ -2522,9 +2522,39 @@ MonoBehaviour:
   rotateOriginEvent: {fileID: 11400000, guid: d164c5b6bfab6604987cbe7b5a2ca409, type: 2}
   bodyEvent: {fileID: 11400000, guid: efdb9d88f29b9064f889395a44c84e24, type: 2}
   setPlayerMoveMode: {fileID: 11400000, guid: c194a6305d813b242b8948102ed36588, type: 2}
+  debugSwingEvent: {fileID: 11400000, guid: 41fdc80bc8e34f3483e335951fd5a13c, type: 2}
   moveProvider: {fileID: 1132869864}
   _origin: {fileID: 2057171112}
   rightHand: {fileID: 453779108}
+  swingAxis: {fileID: 0}
+  axisDistance: 0.5
+  swingStartAngle: 50
+  swingTotalOrbitAngle: -180
+  swingDuration: 0.25
+  swingCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!114 &2057171112 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7873184977108000993, guid: 895f6f3c2d334633b5800312285058d2, type: 3}

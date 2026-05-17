@@ -23,6 +23,9 @@ public class BaseballDebugger : MonoBehaviour
     [SerializeField] private XRGrabInteractable ball;
     [SerializeField] private XRInteractionManager interactionManager;
 
+    //MyXROriginManager가 구독해서 스윙 실행
+    [SerializeField] private VoidEventSO debugSwingEvent;
+
     [Header("Hand Lookup")]
     [SerializeField] private string rightHandName;
 
@@ -38,6 +41,11 @@ public class BaseballDebugger : MonoBehaviour
 
     private void Update()
     {
+        if (Keyboard.current != null && Keyboard.current[swingKey].wasPressedThisFrame)
+        {
+            Debug.Log("Z 클릭 - 팔 휘두르기");
+            if (debugSwingEvent != null) debugSwingEvent.RaiseEvent();
+        }
     }
 
     /// <summary>

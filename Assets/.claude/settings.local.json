@@ -19,7 +19,8 @@
       "mcp__mcp-unity__send_console_log",
       "mcp__mcp-unity__get_console_logs",
       "mcp__mcp-unity__recompile_scripts",
-      "Bash(grep *)"
+      "Bash(grep *)",
+      "PowerShell([guid]::NewGuid\\(\\).ToString\\('N'\\))"
     ]
   },
   "enableAllProjectMcpServers": true,

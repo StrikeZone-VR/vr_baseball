@@ -344,6 +344,39 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _trajectoryData: {fileID: 11400000, guid: 1e6a5c4765370894cad39e6faf3c4015, type: 2}
   strikeZone: {fileID: 0}
+  swingKey: 40
+  swingStartEuler: {x: 0, y: 0, z: 0}
+  swingEndEuler: {x: 0, y: 0, z: 0}
+  swingDuration: 0.25
+  swingEase:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  autoReleaseOnEnd: 1
+  ball: {fileID: 0}
+  interactionManager: {fileID: 0}
+  debugSwingEvent: {fileID: 11400000, guid: 41fdc80bc8e34f3483e335951fd5a13c, type: 2}
+  rightHandName: 
 --- !u!114 &-4336775324136577172
 MonoBehaviour:
   m_ObjectHideFlags: 0
