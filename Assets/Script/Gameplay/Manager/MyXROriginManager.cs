@@ -28,6 +28,8 @@ public class MyXROriginManager : MonoBehaviour
     [SerializeField] private float swingTotalOrbitAngle;
     [SerializeField] private float swingDuration = 0.25f;
     [SerializeField] private AnimationCurve swingCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+    [Tooltip("스윙 시간 중 몇 % 지점에서 공을 놓을지 (0=시작 직후, 1=끝)")]
+    [SerializeField, Range(0f, 1f)] private float releaseProgress = 0.5f;
 
     private bool swingActive;
     
@@ -80,6 +82,7 @@ public class MyXROriginManager : MonoBehaviour
 
         Quaternion baseRot = rightHand.rotation; //원래 손 방향을 기준으로 회전
 
+        bool released = false;
         float elapsed = 0f;
         try
         {
@@ -89,6 +92,14 @@ public class MyXROriginManager : MonoBehaviour
                 float t = Mathf.Clamp01(elapsed / swingDuration);
                 float progress = swingCurve.Evaluate(t);
                 float angle = swingStartAngle + swingTotalOrbitAngle * progress;
+
+                //스윙 진행도가 releaseProgress 넘는 순간 한 번만 손 selection 해제
+                //공의 OnRelease가 알아서 ThrowPlayerBall 호출함
+                if (!released && t >= releaseProgress)
+                {
+                    released = true;
+                    ReleaseRightHandSelection();
+                }
 
                 Vector3 pos = pivot.position
                     + yWorld * (Mathf.Cos(angle * Mathf.Deg2Rad) * axisDistance)
@@ -134,6 +145,50 @@ public class MyXROriginManager : MonoBehaviour
         {
             if (suppressed[i] != null) suppressed[i].enabled = true;
         }
+    }
+
+    /// <summary>
+    /// 오른손 컨트롤러의 XR Interactor가 잡고 있는 모든 것을 SelectExit로 해제.
+    /// 잡힌 게 없으면 no-op. 공의 경우 Baseball.OnRelease가 자동으로 ThrowPlayerBall을 호출.
+    /// </summary>
+    private void ReleaseRightHandSelection()
+    {
+        if (rightHand == null) return;
+
+        //GetComponentInChildren는 첫 매칭 하나만 반환 → Ray/Direct interactor 중 selection 없는 게 먼저 잡힐 수 있음
+        //자식 트리 + 부모 트리 다 훑어서 hasSelection 인 놈을 찾자
+        XRBaseInteractor interactor = FindInteractorWithSelection(rightHand);
+        if (interactor == null)
+        {
+            Debug.Log("[Release] hasSelection==true 인 XRBaseInteractor 못 찾음 — 공 안 잡혔거나 rightHand 트리 밖에 있음");
+            return;
+        }
+
+        var manager = interactor.interactionManager;
+        if (manager == null) return;
+
+        //역순 순회: SelectExit가 리스트를 수정해도 안전하도록
+        var items = interactor.interactablesSelected;
+        for (int i = items.Count - 1; i >= 0; i--)
+        {
+            manager.SelectExit((IXRSelectInteractor)interactor, items[i]);
+        }
+    }
+
+    //자식과 부모에서 오브젝트 선택한 interactor 찾기
+    private static XRBaseInteractor FindInteractorWithSelection(Transform root)
+    {
+        var children = root.GetComponentsInChildren<XRBaseInteractor>(true);
+        for (int i = 0; i < children.Length; i++)
+        {
+            if (children[i] != null && children[i].hasSelection) return children[i];
+        }
+        var parents = root.GetComponentsInParent<XRBaseInteractor>(true);
+        for (int i = 0; i < parents.Length; i++)
+        {
+            if (parents[i] != null && parents[i].hasSelection) return parents[i];
+        }
+        return null;
     }
 
     private void MoveOrigin(Vector3 vector3)

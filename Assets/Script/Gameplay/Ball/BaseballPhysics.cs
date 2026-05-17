@@ -25,6 +25,9 @@ public class BaseballPhysics : MonoBehaviour
     private float flightTime = 0;
     private float ball_accuracy_weight = 0.0f; //0~1, 1일수록 보정값이 매우 높음
 
+    [Tooltip("플레이어 던지기 속력 배율 — UI 슬라이더로 런타임 조절")]
+    [SerializeField, Range(0.5f, 5f)] private float speedWeight = 2.0f;
+
     //이런 것도 있구나
     //AnimationCurve ㅇㅇ =  AnimationCurve.Linear(0, 0, 1, 1);
 
@@ -280,7 +283,7 @@ public class BaseballPhysics : MonoBehaviour
         // 만약 너무 살짝 던졌다면 보정 계산 중 0나누기 에러가 날 수 있으니 방어 코드
         if (playerSpeedKmh <= 1.0f) return rawVRVelocity;
 
-        playerSpeedKmh *= 2;
+        playerSpeedKmh *= Mathf.Max(0.1f, speedWeight); //UI 슬라이더로 조절
 // 🔥 핵심 방어선: 유저가 9km로 던졌어도 강제로 110km로 끌어올림!
         float finalSpeedKmh = Mathf.Min(playerSpeedKmh, 160f);
         // 3. 섞기 (Lerp 마법!)
@@ -457,5 +460,11 @@ public class BaseballPhysics : MonoBehaviour
         {
             ball_accuracy_weight = value;
         }
+    }
+
+    public float SpeedWeight
+    {
+        get => speedWeight;
+        set => speedWeight = value;
     }
 }

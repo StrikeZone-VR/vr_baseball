@@ -20,7 +20,8 @@
       "mcp__mcp-unity__get_console_logs",
       "mcp__mcp-unity__recompile_scripts",
       "Bash(grep *)",
-      "PowerShell([guid]::NewGuid\\(\\).ToString\\('N'\\))"
+      "PowerShell([guid]::NewGuid\\(\\).ToString\\('N'\\))",
+      "mcp__mcp-unity__duplicate_gameobject"
     ]
   },
   "enableAllProjectMcpServers": true,
