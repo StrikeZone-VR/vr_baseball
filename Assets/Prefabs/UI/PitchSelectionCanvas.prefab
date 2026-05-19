@@ -360,6 +360,7 @@ GameObject:
   - component: {fileID: 1853758056050514684}
   - component: {fileID: 243567093484421800}
   - component: {fileID: 8181511780479863402}
+  - component: {fileID: 7048592215039933198}
   m_Layer: 5
   m_Name: CurveButton
   m_TagString: Untagged
@@ -469,6 +470,19 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &7048592215039933198
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1072695466578493562}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79c56cfd90d61934b830b5ff12d48ca9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  radius: 60
 --- !u!1 &1544818599302423535
 GameObject:
   m_ObjectHideFlags: 0
@@ -1395,6 +1409,7 @@ GameObject:
   - component: {fileID: 2202804056469438472}
   - component: {fileID: 4821410781554928321}
   - component: {fileID: 514821700902745527}
+  - component: {fileID: 3333853534408921542}
   m_Layer: 5
   m_Name: FastBallButton
   m_TagString: Untagged
@@ -1504,6 +1519,19 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &3333853534408921542
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3348642531921912799}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79c56cfd90d61934b830b5ff12d48ca9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  radius: 60
 --- !u!1 &3463855886211678966
 GameObject:
   m_ObjectHideFlags: 0
@@ -1808,7 +1836,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 0
-  m_Spacing: 0
+  m_Spacing: 50
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 0
@@ -2831,6 +2859,7 @@ GameObject:
   - component: {fileID: 56507905096822162}
   - component: {fileID: 2847605680115330930}
   - component: {fileID: 5287032735060091199}
+  - component: {fileID: 6370195624473323596}
   m_Layer: 5
   m_Name: ContinuousStrikePanel
   m_TagString: Untagged
@@ -2923,6 +2952,19 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &6370195624473323596
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5313021463831938753}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79c56cfd90d61934b830b5ff12d48ca9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  radius: 60
 --- !u!1 &6135187425733510245
 GameObject:
   m_ObjectHideFlags: 0
@@ -3621,6 +3663,7 @@ GameObject:
   - component: {fileID: 2889330328698709413}
   - component: {fileID: 2530507592390329923}
   - component: {fileID: 4169519369260596310}
+  - component: {fileID: 6925036747897212120}
   m_Layer: 5
   m_Name: MainGamePanel
   m_TagString: Untagged
@@ -3716,6 +3759,19 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &6925036747897212120
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7026582906759536465}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79c56cfd90d61934b830b5ff12d48ca9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  radius: 200
 --- !u!1 &7174564682207071188
 GameObject:
   m_ObjectHideFlags: 0
@@ -3864,6 +3920,7 @@ GameObject:
   - component: {fileID: 1061684225379028990}
   - component: {fileID: 9208974288048373057}
   - component: {fileID: 175331625320450284}
+  - component: {fileID: 4023220921637814590}
   m_Layer: 5
   m_Name: StatisticsPanel
   m_TagString: Untagged
@@ -3944,7 +4001,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Padding:
-    m_Left: 50
+    m_Left: 80
     m_Right: 0
     m_Top: 50
     m_Bottom: 0
@@ -3957,6 +4014,19 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &4023220921637814590
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7227683410802987252}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79c56cfd90d61934b830b5ff12d48ca9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  radius: 80
 --- !u!1 &7241934166528678066
 GameObject:
   m_ObjectHideFlags: 0
@@ -4239,6 +4309,7 @@ GameObject:
   - component: {fileID: 1710805099153699478}
   - component: {fileID: 4544597546854802246}
   - component: {fileID: 2070709587826761061}
+  - component: {fileID: 2426235272493393552}
   m_Layer: 5
   m_Name: ForkBallButton
   m_TagString: Untagged
@@ -4348,6 +4419,19 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &2426235272493393552
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7514160923248352345}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79c56cfd90d61934b830b5ff12d48ca9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  radius: 60
 --- !u!1 &7647834785753548844
 GameObject:
   m_ObjectHideFlags: 0
@@ -4866,6 +4950,7 @@ GameObject:
   - component: {fileID: 5853097750673679481}
   - component: {fileID: 857707711733693436}
   - component: {fileID: 1498741028861644490}
+  - component: {fileID: 7797695397003852628}
   m_Layer: 5
   m_Name: SliderButton
   m_TagString: Untagged
@@ -4975,6 +5060,19 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &7797695397003852628
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8123444723495614060}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79c56cfd90d61934b830b5ff12d48ca9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  radius: 60
 --- !u!1 &8152486581428063574
 GameObject:
   m_ObjectHideFlags: 0
@@ -5123,6 +5221,7 @@ GameObject:
   - component: {fileID: 5983551577206993689}
   - component: {fileID: 2039927274060442922}
   - component: {fileID: 3595255294891899406}
+  - component: {fileID: 6566012967244209054}
   m_Layer: 5
   m_Name: CurrentPitcherPanel
   m_TagString: Untagged
@@ -5216,6 +5315,19 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &6566012967244209054
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8236623240234693390}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79c56cfd90d61934b830b5ff12d48ca9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  radius: 80
 --- !u!1 &8401531530725787328
 GameObject:
   m_ObjectHideFlags: 0
