@@ -75,4 +75,10 @@ public class PitchingController : GameController
     {
         pitchSelectionUI.UpdateStatisticsDisplay(total, strike);
     }
+
+    //최근 5구 결과 슬라이딩 윈도우에 새 결과 추가
+    public void AddPitchResultIndicator(bool isStrike)
+    {
+        pitchSelectionUI.AddPitchResultIndicator(isStrike);
+    }
 }

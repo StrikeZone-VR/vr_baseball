@@ -76,12 +76,12 @@ public class GameManager : MonoBehaviour
         set => baseballModel.BallCount = value;
     }
 
-    protected void AddBallCount()
+    protected virtual void AddBallCount()
     {
         BallCount++;
     }
-    
-    protected void AddStrike()
+
+    protected virtual void AddStrike()
     {
         Strike++;
     }

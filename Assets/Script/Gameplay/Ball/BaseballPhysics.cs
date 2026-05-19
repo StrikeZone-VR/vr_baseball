@@ -70,7 +70,6 @@ public class BaseballPhysics : MonoBehaviour
         if (collider.gameObject.CompareTag("BallZone"))
         {
             _baseball.IsZone = true;
-            // 수직선 그리기
         }
         //into Strike Zone
         if (collider.gameObject.CompareTag("StrikeZone"))

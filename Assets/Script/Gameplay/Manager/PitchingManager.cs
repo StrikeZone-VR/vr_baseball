@@ -70,6 +70,18 @@ public class PitchingManager : GameManager
         }
     }
     
+    protected override void AddStrike()
+    {
+        base.AddStrike();
+        pitcherController.AddPitchResultIndicator(true);
+    }
+
+    protected override void AddBallCount()
+    {
+        base.AddBallCount();
+        pitcherController.AddPitchResultIndicator(false);
+    }
+
     protected override void SetVelocityToText(float velocity)
     {
         pitcherController.SetVelocityUI(velocity);

@@ -20,9 +20,15 @@ public class PitchSelectionUI : MonoBehaviour
 
     [Header("실시간 투구 결과 패널")]
     public TextMeshProUGUI strikeCountText;      // "스트라이크: 2"
-    public TextMeshProUGUI ballCountText;        // "볼: 1"  
+    public TextMeshProUGUI ballCountText;        // "볼: 1"
     public TextMeshProUGUI lastPitchSpeedText;   // "투구 속도: 145 km/h"
     [SerializeField] private Image [] currentPitchImages; //5개
+    [SerializeField] private Color strikeIndicatorColor ;       // 스트라이크 표시 색
+    [SerializeField] private Color ballIndicatorColor ;       // 볼 표시 색
+    [SerializeField] private Color emptyIndicatorColor = new Color(1f, 1f, 1f, 0.15f); // 빈 슬롯 색
+
+    // 최근 투구 결과 슬라이딩 윈도우: 1~5구는 순서대로 채우고, 6구부터는 한 칸씩 왼쪽으로 밀고 마지막에 새 결과 삽입
+    private int currentPitchCount = 0;
 
     [Header("투구 통계 표시")]
     public TextMeshProUGUI totalPitchesText;     // "총 투구: 15"
@@ -109,6 +115,53 @@ public class PitchSelectionUI : MonoBehaviour
         SetStrikeUI(0);
         SetBallVelocityUI(0);
         UpdateStatisticsDisplay(0,0);
+        ResetPitchResultIndicators();
+    }
+
+    /// <summary>
+    /// 새 투구 결과를 슬라이딩 윈도우에 추가.
+    /// 1~5구: 다음 빈 슬롯을 채움. 6구 이상: 모두 한 칸씩 왼쪽으로 밀고 마지막 슬롯에 새 결과.
+    /// </summary>
+    public void AddPitchResultIndicator(bool isStrike)
+    {
+        if (currentPitchImages == null || currentPitchImages.Length == 0) return;
+
+        int capacity = currentPitchImages.Length;
+        Color newColor = isStrike ? strikeIndicatorColor : ballIndicatorColor;
+
+        if (currentPitchCount < capacity)
+        {
+            // 처음 N구: 빈 슬롯에 채워넣기
+            if (currentPitchImages[currentPitchCount] != null)
+                currentPitchImages[currentPitchCount].color = newColor;
+            currentPitchCount++;
+        }
+        else
+        {
+            // 풀(full) 상태: 왼쪽으로 시프트 (idx 0 이 가장 오래된 결과 → 버려짐)
+            for (int i = 0; i < capacity - 1; i++)
+            {
+                if (currentPitchImages[i] != null && currentPitchImages[i + 1] != null)
+                    currentPitchImages[i].color = currentPitchImages[i + 1].color;
+            }
+            // 가장 오른쪽 슬롯에 새 결과
+            if (currentPitchImages[capacity - 1] != null)
+                currentPitchImages[capacity - 1].color = newColor;
+        }
+    }
+
+    /// <summary>
+    /// 모든 슬롯을 비어있음 상태(반투명)로 리셋.
+    /// </summary>
+    public void ResetPitchResultIndicators()
+    {
+        currentPitchCount = 0;
+        if (currentPitchImages == null) return;
+        for (int i = 0; i < currentPitchImages.Length; i++)
+        {
+            if (currentPitchImages[i] != null)
+                currentPitchImages[i].color = emptyIndicatorColor;
+        }
     }
 
     public void SetBallCountUI(float ballCount)
