@@ -21,7 +21,8 @@
       "mcp__mcp-unity__recompile_scripts",
       "Bash(grep *)",
       "PowerShell([guid]::NewGuid\\(\\).ToString\\('N'\\))",
-      "mcp__mcp-unity__duplicate_gameobject"
+      "mcp__mcp-unity__duplicate_gameobject",
+      "mcp__mcp-unity__batch_execute"
     ]
   },
   "enableAllProjectMcpServers": true,
