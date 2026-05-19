@@ -14,58 +14,42 @@ public class PitchSelectionUI : MonoBehaviour
     [Header("UI 구성요소")]
     public Canvas pitchSelectionCanvas;
     public Button[] pitchButtons = new Button[4];
-    public TextMeshProUGUI selectedPitchText;
-    public Image selectedPitchIcon;
-    public Image[] pitchButtonImages;
+    public Image[] pitchButtonImages; 
+    [SerializeField] private Color defaultPitchColor; 
+    [SerializeField] private Color selectedPitchColor; 
 
     [Header("실시간 투구 결과 패널")]
     public TextMeshProUGUI strikeCountText;      // "스트라이크: 2"
     public TextMeshProUGUI ballCountText;        // "볼: 1"  
     public TextMeshProUGUI lastPitchSpeedText;   // "투구 속도: 145 km/h"
-    public TextMeshProUGUI lastPitchResultText;  // "결과: 스트라이크!"
-    public Image resultBackground;               // 결과 배경 (스트라이크=빨강, 볼=파랑)
+    [SerializeField] private Image [] currentPitchImages; //5개
 
     [Header("투구 통계 표시")]
     public TextMeshProUGUI totalPitchesText;     // "총 투구: 15"
-    public TextMeshProUGUI strikeRateText;       // "스트라이크율: 73%"
-    public TextMeshProUGUI[] pitchTypeCountTexts = new TextMeshProUGUI[4]; // 구종별 사용 횟수
+    public TextMeshProUGUI strikeRateText;       // "73%"
 
     [Header("게임 컨트롤")]
     public Button resetGameButton;               // 게임 리셋 버튼
-    public Button toggleUIButton;                // UI 토글 버튼
-    public TextMeshProUGUI gameStatusText;       // "게임 진행 중..."
 
     [Header("구종 설정")]
     public PitchData[] pitchDataArray = new PitchData[4];
 
-    [Header("VR 상호작용")]
-    public XRRayInteractor leftRayInteractor;
-    public XRRayInteractor rightRayInteractor;
-
-
     private PitchType currentSelectedPitch = PitchType.FastBall;
     private Baseball currentBaseball;
 
-    // 통계 데이터
-    private int totalPitches = 0;
-    private int strikeCount = 0;
-    private int ballCount = 0;
-    private int[] pitchTypeUsage = new int[4]; // 구종별 사용 횟수
-    private bool lastPitchWasStrike = false;
-
     public System.Action<PitchType> OnPitchSelected;
-    public System.Action OnGameReset;
 
     [Header("Listenin to Events")]
     [SerializeField] private SceneEventSO backMenuSceneEvent;
     [SerializeField] private IntEventSO playAudioClipEvent;
+    
+    
     void Start()
     {
         InitializePitchData();
         SetupUI();
         SetupGameControls();
         SelectPitch(PitchType.FastBall); // 기본 선택
-        UpdateAllUI();
     }
 
     private void InitializePitchData()
@@ -82,21 +66,15 @@ public class PitchSelectionUI : MonoBehaviour
         {
             if (pitchButtons[i] != null)
             {
-                int index = i; // 클로저 문제 해결
                 PitchType pitchType = pitchDataArray[i].pitchType;
 
                 // 버튼 클릭 이벤트
                 pitchButtons[i].onClick.AddListener(() => SelectPitch(pitchType));
 
-                // 버튼 텍스트 설정
-                TextMeshProUGUI buttonText = pitchButtons[i].GetComponentInChildren<TextMeshProUGUI>();
-                if (buttonText != null)
-                    buttonText.text = pitchDataArray[i].pitchName;
-
                 // 버튼 색상 설정
                 if (pitchButtonImages[i] != null)
-                    pitchButtonImages[i].color = pitchDataArray[i].pitchColor;
-
+                    pitchButtonImages[i].color = defaultPitchColor;
+                
                 // XR Interactable 추가 (VR 버튼 상호작용을 위해)
                 XRSimpleInteractable xrInteractable = pitchButtons[i].GetComponent<XRSimpleInteractable>();
                 if (xrInteractable == null)
@@ -123,105 +101,48 @@ public class PitchSelectionUI : MonoBehaviour
                 resetXR = resetGameButton.gameObject.AddComponent<XRSimpleInteractable>();
             resetXR.selectEntered.AddListener((args) => ResetGame());
         }
-
-        // UI 토글 버튼 설정
-        if (toggleUIButton != null)
-        {
-            toggleUIButton.onClick.AddListener(ToggleUI);
-
-            // VR 상호작용 추가
-            XRSimpleInteractable toggleXR = toggleUIButton.GetComponent<XRSimpleInteractable>();
-            if (toggleXR == null)
-                toggleXR = toggleUIButton.gameObject.AddComponent<XRSimpleInteractable>();
-            toggleXR.selectEntered.AddListener((args) => ToggleUI());
-        }
     }
 
-    private void UpdateAllUI()
+    private void InitAllUI()
     {
-        UpdateCountDisplay();
-        UpdateStatisticsDisplay();
-        UpdateGameStatusDisplay();
+        SetBallCountUI(0);
+        SetStrikeUI(0);
+        SetBallVelocityUI(0);
+        UpdateStatisticsDisplay(0,0);
     }
 
     public void SetBallCountUI(float ballCount)
     {
-        ballCountText.text = "볼 : " + ballCount;
+        ballCountText.text = ballCount.ToString();
     }
     public void SetStrikeUI(int strike)
     {
         //playAudioClipEvent.RaiseEvent(3);
-        strikeCountText.text = "스트라이크 : " + strike;
+        strikeCountText.text = strike.ToString();
     }
     public void SetBallVelocityUI(float velocity)
     {
-        lastPitchSpeedText.text = "구속 : " + velocity.ToString("F2") + "km/h";
-    }
-    private void UpdateCountDisplay()
-    {
-        if (lastPitchResultText != null)
-        {
-            string resultText = totalPitches == 0 ? "투구 대기 중..." :
-                               (lastPitchWasStrike ? "결과: 스트라이크!" : "결과: 볼!");
-            lastPitchResultText.text = resultText;
-        }
-
-        // 결과 배경 색상 변경
-        if (resultBackground != null && totalPitches > 0)
-        {
-            resultBackground.color = lastPitchWasStrike ?
-                new Color(1f, 0.2f, 0.2f, 0.8f) : // 빨간색 (스트라이크)
-                new Color(0.2f, 0.2f, 1f, 0.8f);   // 파란색 (볼)
-        }
+        lastPitchSpeedText.text = "투구 속도 : " + velocity.ToString("F2") + "km/h";
     }
 
-    private void UpdateStatisticsDisplay()
+    //총 갯수와 스트라이크율
+    public void UpdateStatisticsDisplay(float totalPitches, float strikeCount)
     {
         if (totalPitchesText != null)
-            totalPitchesText.text = $"총 투구: {totalPitches}";
+            totalPitchesText.text = $"{totalPitches}";
 
-        float strikeRate = totalPitches > 0 ? (float)(strikeCount + ballCount > 0 ? strikeCount : 0) / totalPitches * 100f : 0f;
+        //스트라이크율
+        float strikeRate = totalPitches > 0 ? (float)(totalPitches > 0 ? strikeCount : 0) / totalPitches * 100f : 0f;
         if (strikeRateText != null)
-            strikeRateText.text = $"스트라이크율: {strikeRate:F1}%";
-
-        // 구종별 사용 횟수 업데이트
-        for (int i = 0; i < pitchTypeCountTexts.Length && i < pitchDataArray.Length; i++)
-        {
-            if (pitchTypeCountTexts[i] != null)
-            {
-                pitchTypeCountTexts[i].text = $"{pitchDataArray[i].pitchName}: {pitchTypeUsage[i]}회";
-            }
-        }
+            strikeRateText.text = $"{strikeRate:F1}%";
+        
     }
 
-    private void UpdateGameStatusDisplay()
-    {
-        if (gameStatusText != null)
-        {
-            if (strikeCount >= 3)
-                gameStatusText.text = "삼진아웃!";
-            else if (ballCount >= 4)
-                gameStatusText.text = "포볼!";
-            else
-                gameStatusText.text = $"게임 진행 중... ({strikeCount}S-{ballCount}B)";
-        }
-    }
 
     public void SelectPitch(PitchType pitchType)
     {
         currentSelectedPitch = pitchType;
         PitchData selectedData = GetPitchData(pitchType);
-
-        // UI 업데이트
-        if (selectedPitchText != null)
-            selectedPitchText.text = $"선택된 구종: {selectedData.pitchName}";
-
-        if (selectedPitchIcon != null)
-        {
-            selectedPitchIcon.color = selectedData.pitchColor;
-            if (selectedData.pitchIcon != null)
-                selectedPitchIcon.sprite = selectedData.pitchIcon;
-        }
 
         // 버튼 하이라이트 업데이트
         UpdateButtonHighlights(pitchType);
@@ -231,14 +152,6 @@ public class PitchSelectionUI : MonoBehaviour
             currentBaseball.SetPitchType(pitchType);
 
         OnPitchSelected?.Invoke(pitchType);
-
-        // 구종 사용 통계 업데이트
-        int pitchIndex = System.Array.FindIndex(pitchDataArray, data => data.pitchType == pitchType);
-        if (pitchIndex >= 0 && pitchIndex < pitchTypeUsage.Length)
-        {
-            pitchTypeUsage[pitchIndex]++;
-            UpdateStatisticsDisplay();
-        }
 
         //Debug.Log($"구종 선택: {selectedData.pitchName}");
     }
@@ -293,6 +206,9 @@ public class PitchSelectionUI : MonoBehaviour
 
                 // 버튼 크기 조정
                 pitchButtons[i].transform.localScale = isSelected ? Vector3.one * 1.1f : Vector3.one;
+                
+                //색 변경
+                pitchButtonImages[i].color = isSelected ? selectedPitchColor : defaultPitchColor; 
             }
         }
     }
@@ -310,7 +226,7 @@ public class PitchSelectionUI : MonoBehaviour
         if (pitchSelectionCanvas != null)
         {
             pitchSelectionCanvas.gameObject.SetActive(true);
-            UpdateAllUI(); // UI 표시할 때 데이터 갱신
+            InitAllUI(); // UI 표시할 때 데이터 갱신
         }
     }
 

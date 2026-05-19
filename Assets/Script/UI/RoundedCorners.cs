@@ -5,9 +5,7 @@ namespace VR_Baseball.UI
 {
     /// <summary>
     /// UI Graphic(Image/RawImage) 의 모서리를 셰이더 기반으로 둥글게 만든다.
-    ///
-    /// 캔버스 배칭이 vertex 위치를 canvas-local 로 변환해 버리기 때문에, 셰이더에서 v.vertex.xy 만 보면
-    /// 각 RectTransform 의 로컬 좌표를 알 수 없다(MainGamePanel 처럼 캔버스 중앙에 있는 케이스만 우연히 맞음).
+    
     /// 그래서 IMeshModifier 로 각 정점의 rect-local 좌표(rect.center 기준 오프셋)를 UV1 에 박아넣는다.
     /// UV1 은 캔버스 배칭이 변환하지 않고 그대로 통과시키므로 SDF 가 정확히 동작한다.
     /// </summary>
@@ -38,18 +36,6 @@ namespace VR_Baseball.UI
             }
         }
 
-        private Graphic GetGraphic()
-        {
-            if (_graphic == null) _graphic = GetComponent<Graphic>();
-            return _graphic;
-        }
-
-        private RectTransform GetRect()
-        {
-            if (_rect == null) _rect = (RectTransform)transform;
-            return _rect;
-        }
-
         private void OnEnable()
         {
             MarkDirty();
@@ -78,6 +64,18 @@ namespace VR_Baseball.UI
         private void OnRectTransformDimensionsChange()
         {
             MarkDirty();
+        }
+
+        private Graphic GetGraphic()
+        {
+            if (_graphic == null) _graphic = GetComponent<Graphic>();
+            return _graphic;
+        }
+
+        private RectTransform GetRect()
+        {
+            if (_rect == null) _rect = (RectTransform)transform;
+            return _rect;
         }
 
         private void MarkDirty()

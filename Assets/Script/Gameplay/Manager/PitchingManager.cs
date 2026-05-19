@@ -55,6 +55,7 @@ public class PitchingManager : GameManager
         {
             baseballModel.Strike = value;
             pitcherController.SetStrike(value);
+            pitcherController.SetTotalBallStatus(baseballModel.Strike + baseballModel.BallCount, baseballModel.Strike);
         }
     }
     
@@ -65,6 +66,7 @@ public class PitchingManager : GameManager
         {
             baseballModel.BallCount = value;
             pitcherController.SetBallCount(value);
+            pitcherController.SetTotalBallStatus(baseballModel.Strike + baseballModel.BallCount, baseballModel.Strike);
         }
     }
     

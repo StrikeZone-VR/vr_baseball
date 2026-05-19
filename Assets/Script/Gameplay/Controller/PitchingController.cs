@@ -70,4 +70,9 @@ public class PitchingController : GameController
     {
         pitchSelectionUI.SetBallCountUI(value);
     }
+
+    public void SetTotalBallStatus(int total, int strike)
+    {
+        pitchSelectionUI.UpdateStatisticsDisplay(total, strike);
+    }
 }

@@ -51,7 +51,7 @@ public class TriggerGrabBall : MonoBehaviour
         {
             if (hand == null) continue;
             bool hovering = hand.interactablesHovered.Contains(ball);
-            Debug.Log($"[TriggerGrabBall] hand={hand.name} hovering={hovering}");
+            //Debug.Log($"[TriggerGrabBall] hand={hand.name} hovering={hovering}");
             if (!hovering) continue;
             anyHover = true;
 
@@ -59,7 +59,7 @@ public class TriggerGrabBall : MonoBehaviour
             return;
         }
 
-        if (!anyHover) Debug.Log("[TriggerGrabBall] no hand is hovering the ball");
+        //if (!anyHover) Debug.Log("[TriggerGrabBall] no hand is hovering the ball");
     }
 
     private void OnTriggerReleased(InputAction.CallbackContext _)
