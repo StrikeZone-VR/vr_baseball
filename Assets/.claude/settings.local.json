@@ -22,7 +22,10 @@
       "Bash(grep *)",
       "PowerShell([guid]::NewGuid\\(\\).ToString\\('N'\\))",
       "mcp__mcp-unity__duplicate_gameobject",
-      "mcp__mcp-unity__batch_execute"
+      "mcp__mcp-unity__batch_execute",
+      "Bash(git --no-pager show 7f06f10 -- Assets/Script/Gameplay/Manager/GamePlayManager.cs)",
+      "Bash(git --no-pager show 7f06f10)",
+      "Bash(git *)"
     ]
   },
   "enableAllProjectMcpServers": true,

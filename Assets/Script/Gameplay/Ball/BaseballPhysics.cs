@@ -35,7 +35,7 @@ public class BaseballPhysics : MonoBehaviour
     private Vector3 velocityXY; // 실제 목표 위치
     private float beforeTime = 0f;
     
-    private readonly float MAGNUS = 60.0f; //100 기준
+    private readonly float MAGNUS = 10.0f; //100 기준 => 60이었으나
 
     private void Start()
     {
@@ -199,7 +199,7 @@ public class BaseballPhysics : MonoBehaviour
                 case PitchType.Curve:
                     float deltaTime = Time.time - beforeTime;
                     beforeTime = Time.time;
-                    _rigidbody.velocity += new Vector3(0, -deltaTime * velocityXY.magnitude / 100 * MAGNUS,0);
+                    _rigidbody.velocity += new Vector3(0, -deltaTime * (velocityXY.magnitude) * (velocityXY.magnitude) / 100 * MAGNUS,0); //m / s
                     break;
             }
         }
@@ -207,7 +207,7 @@ public class BaseballPhysics : MonoBehaviour
 
     public void ThrowBall(Vector3 start, Vector3 target, float velocity_xy)
     {
-        Vector3 force = CalculateVelocity(start, target, velocity_xy);
+        Vector3 force = GetVelocityByPitchType(start, target, velocity_xy, _baseball.SelectPitchType);
         
         //rotation zero
         SetVelocity(force); //계산하는 함수
@@ -246,13 +246,15 @@ public class BaseballPhysics : MonoBehaviour
         return velocity;
     }
 
+    //velocityXZ는 km/h
     public Vector3 GetVelocityByPitchType(Vector3 start, Vector3 target, float velocityXZ, PitchType pitchType)
     {
         float piterTypeForce = 0; 
+        Debug.Log("구종 : " + pitchType);
         switch (pitchType)
         {
             case PitchType.Curve:
-                piterTypeForce += velocityXZ / 100 * MAGNUS;
+                piterTypeForce += (velocityXZ/3.6f) * (velocityXZ/3.6f) / 100 * MAGNUS; //초속 단위로 변환
                 break;
             case PitchType.FastBall:
                 break;
