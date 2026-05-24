@@ -1,3 +1,4 @@
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -246,7 +247,16 @@ public class BaseballPhysics : MonoBehaviour
         return velocity;
     }
 
+    
     //velocityXZ는 km/h
+    /// <summary>
+    /// 던질때 타입에 따라 추가 힘 계산
+    /// </summary>
+    /// <param name="start"></param>
+    /// <param name="target"></param>
+    /// <param name="velocityXZ"></param>
+    /// <param name="pitchType"></param>
+    /// <returns></returns>
     public Vector3 GetVelocityByPitchType(Vector3 start, Vector3 target, float velocityXZ, PitchType pitchType)
     {
         float piterTypeForce = 0; 
