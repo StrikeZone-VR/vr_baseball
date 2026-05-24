@@ -260,6 +260,9 @@ public class Baseball : MonoBehaviour
                     _physics.SetGravity(false);
                     break;
                 case BallState.Pitched:
+                    _physics.SetGravity(true);
+                    _physics.CanMeasureVelocity = true;
+                    break;
                 case BallState.Thrown:
                     _physics.SetGravity(true);
                     break;

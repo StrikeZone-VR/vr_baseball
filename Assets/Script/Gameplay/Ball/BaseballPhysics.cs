@@ -25,6 +25,7 @@ public class BaseballPhysics : MonoBehaviour
 
     private float flightTime = 0;
     private float ball_accuracy_weight = 0.0f; //0~1, 1일수록 보정값이 매우 높음
+    private bool _canMeasureVelocity = true; //velocity 측정
 
     [Tooltip("플레이어 던지기 속력 배율 — UI 슬라이더로 런타임 조절")]
     [SerializeField, Range(0.5f, 5f)] private float speedWeight = 2.0f;
@@ -209,12 +210,13 @@ public class BaseballPhysics : MonoBehaviour
     public void ThrowBall(Vector3 start, Vector3 target, float velocity_xy)
     {
         Vector3 force = GetVelocityByPitchType(start, target, velocity_xy, _baseball.SelectPitchType);
-        
+
         //rotation zero
         SetVelocity(force); //계산하는 함수
 
         beforeTime = Time.time;
         velocityXY = new Vector3(_rigidbody.velocity.x, 0, _rigidbody.velocity.z);
+        _canMeasureVelocity = true; //속력 측정 준비 (VelocityZone 통과시 한번 출력)
     }
     
     /// <summary>
@@ -439,15 +441,16 @@ public class BaseballPhysics : MonoBehaviour
     private void PrintBallVelocity()
     {
         //중첩 방지인가?
-        if(_baseball.IsZone)
+        //IsZone 대신 별도 플래그 사용: 던질때만 켜지고, 한번 측정하면 끈다
+        if(!_canMeasureVelocity)
         {
             return;
         }
+        _canMeasureVelocity = false;
 
         Vector3 v = GetVelocity();  //ms
         Vector3 speed = new Vector3(v.x, 0, v.z);
         float velocity = speed.magnitude * 3.6f;
-        Debug.Log("속력 : " + velocity);
         getVelocityEventSO.RaiseEvent(velocity);
     }
 
@@ -479,5 +482,11 @@ public class BaseballPhysics : MonoBehaviour
     {
         get => speedWeight;
         set => speedWeight = value;
+    }
+
+    public bool CanMeasureVelocity
+    {
+        get => _canMeasureVelocity;
+        set => _canMeasureVelocity = value;
     }
 }
