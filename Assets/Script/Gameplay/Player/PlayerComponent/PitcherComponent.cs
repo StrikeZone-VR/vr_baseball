@@ -47,7 +47,7 @@ public class PitcherComponent : DefenderComponent
     {
         base.SetMyBall(myBall);
         
-        Debug.Log("[Pitcher] : SetMyBall"); //수비를 하면 Pitching이 안되는지
+        //Debug.Log("[Pitcher] : SetMyBall"); //수비를 하면 Pitching이 안되는지
 
         //만약 배트가 터치됐다면 => 경기중
         if (myBall.IsInGamePlay)

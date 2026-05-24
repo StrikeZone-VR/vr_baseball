@@ -438,14 +438,16 @@ public class BaseballPhysics : MonoBehaviour
     /// </summary>
     private void PrintBallVelocity()
     {
+        //중첩 방지인가?
         if(_baseball.IsZone)
         {
             return;
         }
 
-        Vector3 v = GetVelocity(); 
+        Vector3 v = GetVelocity();  //ms
         Vector3 speed = new Vector3(v.x, 0, v.z);
-        float velocity = speed.magnitude * 3.6f; 
+        float velocity = speed.magnitude * 3.6f;
+        Debug.Log("속력 : " + velocity);
         getVelocityEventSO.RaiseEvent(velocity);
     }
 
