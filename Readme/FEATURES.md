@@ -41,24 +41,63 @@ public Vector3 CalculateSimpleVelocity(Vector3 start, Vector3 target, float velo
 }
 ```
 
+### 커브
 ![bandicam 2025-12-24 22-11-19-358](https://github.com/user-attachments/assets/36571b80-12b0-46dc-89c9-7caa7fe25e4c)
 - 커브
 기존의 직구에서 마그누스 효과를 적용했습니다. 속력이 클수록 마그누스 힘을 증가시켜 실제 커브처럼 날카롭게 떨어지는 움직임을 구현했습니다.
+
+### 슬라이더
+<img width="400" height="184" alt="bandicam 2026-05-25 22-53-03-233" src="https://github.com/user-attachments/assets/69a46cbc-35ad-4690-b767-6673622ab612" /><br>
+x값에 가중치를 둬서 옆으로 휘어지게 만들었습니다.
+
 ```
-private Vector3 CalculateCurveVelocity(Vector3 start, Vector3 target, float velocityXZ)
+/// <summary>
+/// 통합 계산 단위 => 직구, 슬라이더, 커브 통합
+/// </summary>
+/// <param name="start"></param>
+/// <param name="target"></param>
+/// <param name="velocity_xy">km/h단위</param>
+/// <returns></returns>
+public Vector3 CalculateVelocity(Vector3 start, Vector3 target
+    , float velocity_xy, Vector3 piterTypeForce)
 {
-    velocityXZ /= 3.6f; //시속 평준화
-    float g = Mathf.Abs(Physics.gravity.y) + (velocityXZ / 100 * _myBall.MAGNUS); // 9.81 (양수)
-    Vector3 dis = target - start;
+    velocity_xy /= 3.6f;
+    float g = Mathf.Abs(Physics.gravity.y); // 9.81 (양수)
+    //g -= piterTypeForce.y;
 
-    float mytime = dis.magnitude / velocityXZ;
+    Vector3 diff = target - start;
+    Vector3 dirXZ = new Vector3(diff.x, 0, diff.z).normalized;
+    float d = new Vector2(diff.x, diff.z).magnitude; // 수평 거리
+    float h = diff.y; // 높이차
 
-    float velocityY = mytime / 2 * g;
-    Vector3 velocityXZ_normal = dis.normalized;
-    velocityXZ_normal *= velocityXZ;
+    // 비행 시간 계산: t = d / velocity_xy
+    float t = d / velocity_xy;
+    flightTime = t;
 
-    Vector3 result = velocityXZ_normal + new Vector3(0, velocityY, 0);
-    return result;
+    float vSq = velocity_xy * velocity_xy; //제곱
+    float aX_rough = vSq * piterTypeForce.x;
+    float aZ_rough = vSq * piterTypeForce.z;
+    float vxComp = -0.5f * aX_rough * t;
+    float vzComp = -0.5f * aZ_rough * t;
+    float vSqAdjusted = vSq + (vxComp * vxComp + vzComp * vzComp) / 3f;
+
+    float aX = vSqAdjusted * piterTypeForce.x;
+    float aY = vSqAdjusted * piterTypeForce.y; // 보통 음수 (아래로 휨)
+    float aZ = vSqAdjusted * piterTypeForce.z;
+
+    // y방향 초기 속도 Vy = (h + 0.5 * g * t^2) / t
+    // 유효 중력 = g - aY (forceWeight.y < 0 이면 더 빨리 떨어짐)
+    float effectiveG = g - aY;
+    float vy = (h + 0.5f * effectiveG * t * t) / t;
+
+    // 최종 속도 벡터
+    Vector3 velocity = dirXZ * velocity_xy;
+    // x/z 옆 휨 보정: 0.5*a*t² 만큼 휘므로 초기 방향을 반대로 살짝 틀어준다
+    velocity.x -= 0.5f * aX * t;
+    velocity.z -= 0.5f * aZ * t;
+    velocity.y = vy;
+
+    return velocity;
 }
 ```
 ---
