@@ -94,18 +94,31 @@ public class BaseballDebugger : MonoBehaviour
 
     private void DrawDashedSegment(Vector3 a, Vector3 b, float dashLen, float stepLen)
     {
+        // NaN/Infinity/극단 좌표 방어 — for-loop 무한반복 → Unity 프리즈 막기
+        if (!IsFiniteVec(a) || !IsFiniteVec(b)) return;
+
         Vector3 ab = b - a;
         float len = ab.magnitude;
         if (len < 0.00001f) return;
+        if (len > 1000f) return; // 비정상 좌표 (정상 야구공 궤적은 수십 m)
 
         Vector3 dir = ab / len;
 
-        for (float t = 0f; t < len; t += stepLen)
+        int maxIter = 10000; // 안전 한도
+        int iter = 0;
+        for (float t = 0f; t < len && iter < maxIter; t += stepLen, iter++)
         {
             float t0 = t;
             float t1 = Mathf.Min(t + dashLen, len);
             Gizmos.DrawLine(a + dir * t0, a + dir * t1);
         }
+    }
+
+    private static bool IsFiniteVec(Vector3 v)
+    {
+        return !float.IsNaN(v.x) && !float.IsInfinity(v.x)
+            && !float.IsNaN(v.y) && !float.IsInfinity(v.y)
+            && !float.IsNaN(v.z) && !float.IsInfinity(v.z);
     }
 
     private void DebugDrawSp(Vector3 point)

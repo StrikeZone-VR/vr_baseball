@@ -38,7 +38,7 @@ public class PitchSelectionUI : MonoBehaviour
     public Button resetGameButton;               // 게임 리셋 버튼
 
     [Header("구종 설정")]
-    public PitchData[] pitchDataArray = new PitchData[4];
+    [SerializeField] private PitchDataRegistry pitchDataRegistry;
 
     private PitchType currentSelectedPitch = PitchType.FastBall;
     private Baseball currentBaseball;
@@ -52,27 +52,19 @@ public class PitchSelectionUI : MonoBehaviour
     
     void Start()
     {
-        InitializePitchData();
         SetupUI();
         SetupGameControls();
         SelectPitch(PitchType.FastBall); // 기본 선택
     }
 
-    private void InitializePitchData()
-    {
-        pitchDataArray[0] = PitchData.GetDefaultPitchData(PitchType.FastBall);
-        pitchDataArray[1] = PitchData.GetDefaultPitchData(PitchType.Curve);
-        pitchDataArray[2] = PitchData.GetDefaultPitchData(PitchType.Slider);
-        pitchDataArray[3] = PitchData.GetDefaultPitchData(PitchType.ForkBall);
-    }
-
     private void SetupUI()
     {
+        // 버튼 인덱스 → PitchType 매핑 (enum 선언 순서: FastBall=0, Curve=1, Slider=2, ForkBall=3)
         for (int i = 0; i < pitchButtons.Length; i++)
         {
             if (pitchButtons[i] != null)
             {
-                PitchType pitchType = pitchDataArray[i].pitchType;
+                PitchType pitchType = (PitchType)i;
 
                 // 버튼 클릭 이벤트
                 pitchButtons[i].onClick.AddListener(() => SelectPitch(pitchType));
@@ -195,7 +187,7 @@ public class PitchSelectionUI : MonoBehaviour
     public void SelectPitch(PitchType pitchType)
     {
         currentSelectedPitch = pitchType;
-        PitchData selectedData = GetPitchData(pitchType);
+        PitchTypeSO selectedData = GetPitchData(pitchType);
 
         // 버튼 하이라이트 업데이트
         UpdateButtonHighlights(pitchType);
@@ -250,7 +242,7 @@ public class PitchSelectionUI : MonoBehaviour
         {
             if (pitchButtons[i] != null)
             {
-                bool isSelected = pitchDataArray[i].pitchType == selectedType;
+                bool isSelected = (PitchType)i == selectedType;
 
                 // 선택된 버튼 강조
                 Transform highlight = pitchButtons[i].transform.Find("Highlight");
@@ -294,19 +286,19 @@ public class PitchSelectionUI : MonoBehaviour
         return currentSelectedPitch;
     }
 
-    public PitchData GetCurrentPitchData()
+    public PitchTypeSO GetCurrentPitchData()
     {
         return GetPitchData(currentSelectedPitch);
     }
 
-    private PitchData GetPitchData(PitchType pitchType)
+    private PitchTypeSO GetPitchData(PitchType pitchType)
     {
-        for (int i = 0; i < pitchDataArray.Length; i++)
+        if (pitchDataRegistry == null)
         {
-            if (pitchDataArray[i].pitchType == pitchType)
-                return pitchDataArray[i];
+            Debug.LogError("[PitchSelectionUI] pitchDataRegistry가 비어있음. 인스펙터 확인 요망.");
+            return null;
         }
-        return pitchDataArray[0]; // 기본값
+        return pitchDataRegistry.Get(pitchType);
     }
 
 }

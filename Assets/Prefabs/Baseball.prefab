@@ -322,6 +322,7 @@ MonoBehaviour:
   backToPitcherEvent: {fileID: 11400000, guid: 38591f4b3ef079940be5f6a3e91e74ce, type: 2}
   inplayGameEvent: {fileID: 11400000, guid: d31ece9de1f0ded4e95897cfa47eaa57, type: 2}
   playAudioClipEvent: {fileID: 11400000, guid: d945dac53f32b4d47a9561b9d8dac9a6, type: 2}
+  pitchDataRegistry: {fileID: 11400000, guid: f8404c1ed124fed4281ba1490349fbb4, type: 2}
   selectedPitchType: 0
   trailEffect: {fileID: 0}
   fastBallSpeedLines: {fileID: 0}

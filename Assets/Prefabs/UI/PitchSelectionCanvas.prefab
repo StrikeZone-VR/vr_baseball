@@ -919,75 +919,24 @@ MonoBehaviour:
   - {fileID: 8181511780479863402}
   - {fileID: 1498741028861644490}
   - {fileID: 2070709587826761061}
-  selectedPitchText: {fileID: 0}
-  selectedPitchIcon: {fileID: 0}
   pitchButtonImages:
   - {fileID: 4821410781554928321}
   - {fileID: 243567093484421800}
   - {fileID: 857707711733693436}
   - {fileID: 4544597546854802246}
+  defaultPitchColor: {r: 0, g: 0, b: 0, a: 0}
+  selectedPitchColor: {r: 0, g: 0, b: 0, a: 0}
   strikeCountText: {fileID: 3144192235145461100}
   ballCountText: {fileID: 2583795804183799118}
   lastPitchSpeedText: {fileID: 6103015920876991374}
-  lastPitchResultText: {fileID: 0}
-  resultBackground: {fileID: 0}
+  currentPitchImages: []
+  strikeIndicatorColor: {r: 0, g: 0, b: 0, a: 0}
+  ballIndicatorColor: {r: 0, g: 0, b: 0, a: 0}
+  emptyIndicatorColor: {r: 1, g: 1, b: 1, a: 0.15}
   totalPitchesText: {fileID: 1317679791662203507}
   strikeRateText: {fileID: 5879747961518419884}
-  pitchTypeCountTexts:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
   resetGameButton: {fileID: 1783237083804006266}
-  toggleUIButton: {fileID: 3274772195290904840}
-  gameStatusText: {fileID: 0}
-  pitchDataArray:
-  - pitchType: 0
-    pitchName: 
-    pitchColor: {r: 1, g: 1, b: 1, a: 1}
-    speedMultiplier: 1
-    curveDirection: {x: 0, y: 0, z: 0}
-    curveStrength: 0
-    curveDelay: 0.3
-    gravityMultiplier: 1
-    spinDirection: {x: 0, y: 0, z: 0}
-    spinStrength: 0
-    pitchIcon: {fileID: 0}
-  - pitchType: 0
-    pitchName: 
-    pitchColor: {r: 1, g: 1, b: 1, a: 1}
-    speedMultiplier: 1
-    curveDirection: {x: 0, y: 0, z: 0}
-    curveStrength: 0
-    curveDelay: 0.3
-    gravityMultiplier: 1
-    spinDirection: {x: 0, y: 0, z: 0}
-    spinStrength: 0
-    pitchIcon: {fileID: 0}
-  - pitchType: 0
-    pitchName: 
-    pitchColor: {r: 1, g: 1, b: 1, a: 1}
-    speedMultiplier: 1
-    curveDirection: {x: 0, y: 0, z: 0}
-    curveStrength: 0
-    curveDelay: 0.3
-    gravityMultiplier: 1
-    spinDirection: {x: 0, y: 0, z: 0}
-    spinStrength: 0
-    pitchIcon: {fileID: 0}
-  - pitchType: 0
-    pitchName: 
-    pitchColor: {r: 1, g: 1, b: 1, a: 1}
-    speedMultiplier: 1
-    curveDirection: {x: 0, y: 0, z: 0}
-    curveStrength: 0
-    curveDelay: 0.3
-    gravityMultiplier: 1
-    spinDirection: {x: 0, y: 0, z: 0}
-    spinStrength: 0
-    pitchIcon: {fileID: 0}
-  leftRayInteractor: {fileID: 0}
-  rightRayInteractor: {fileID: 0}
+  pitchDataRegistry: {fileID: 11400000, guid: f8404c1ed124fed4281ba1490349fbb4, type: 2}
   backMenuSceneEvent: {fileID: 11400000, guid: 1614b16f3ac165a4095e5f466b87b7b6, type: 2}
   playAudioClipEvent: {fileID: 11400000, guid: d945dac53f32b4d47a9561b9d8dac9a6, type: 2}
 --- !u!1 &2091920400346999526

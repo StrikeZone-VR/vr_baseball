@@ -48,9 +48,9 @@ public class Baseball : MonoBehaviour
     [SerializeField] private VoidEventSO inplayGameEvent; //from BattingSystem
     [SerializeField] private IntEventSO playAudioClipEvent; //from AudioManager
 
-    [Header("구종 설정")] 
+    [Header("구종 설정")]
+    [SerializeField] private PitchDataRegistry pitchDataRegistry;
     [SerializeField] private PitchType selectedPitchType = PitchType.FastBall;
-    private PitchData currentPitchData;
 
     [Header("이펙트")] 
     [SerializeField] private ParticleSystem trailEffect; // 메인 트레일
@@ -81,7 +81,6 @@ public class Baseball : MonoBehaviour
         grabInteractable = GetComponent<XRGrabInteractable>();
 
         InitializeComponents();
-        UpdatePitchData();
     }
 
     private void Update()
@@ -233,17 +232,9 @@ public class Baseball : MonoBehaviour
     }
 
     #region PROPERTY
-
-    public PitchType SelectPitchType
+    public PitchTypeSO GetSelectedPitchTypeSO()
     {
-        get
-        {
-            return selectedPitchType;
-        }
-        set
-        {
-            selectedPitchType = value;
-        }
+        return pitchDataRegistry.Get(selectedPitchType);
     }
 
     public BallState CurrentState
@@ -380,21 +371,8 @@ public class Baseball : MonoBehaviour
     public void SetPitchType(PitchType pitchType)
     {
         selectedPitchType = pitchType;
-        UpdatePitchData();
-
-        // UI 피드백
-        if (trailEffect != null)
-        {
-            var main = trailEffect.main;
-            main.startColor = currentPitchData.pitchColor;
-        }
     }
 
-    private void UpdatePitchData()
-    {
-        currentPitchData = PitchData.GetDefaultPitchData(selectedPitchType);
-    }
-    
     
     private void PlayThrowEffects()
     {

@@ -36,9 +36,6 @@ public class BaseballPhysics : MonoBehaviour
     //커브나 다른 무언가 사용하기 위해 만든 변수
     private Vector3 velocityXY; // 실제 목표 위치
     private float beforeTime = 0f;
-    
-    private readonly float MAGNUS = 10.0f; //100 기준 => 60이었으나
-
     private void Start()
     {
         _rigidbody = GetComponent<Rigidbody>();
@@ -191,25 +188,21 @@ public class BaseballPhysics : MonoBehaviour
     {
         if (_rigidbody)
         {
+            //던지는 함수가 아니라면 => 땅볼인데 커브라면 무조건 땅바닥으로 박는다
             if (_baseball.CurrentState != BallState.Pitched)
             {
                 return;
             }
 
-            switch (_baseball.SelectPitchType)
-            {
-                case PitchType.Curve:
-                    float deltaTime = Time.time - beforeTime;
-                    beforeTime = Time.time;
-                    _rigidbody.velocity += new Vector3(0, -deltaTime * (velocityXY.magnitude) * (velocityXY.magnitude) / 100 * MAGNUS,0); //m / s
-                    break;
-            }
+            Vector3 force = _baseball.GetSelectedPitchTypeSO()
+                .GetForce(_rigidbody.velocity);
+            _rigidbody.velocity += Time.fixedDeltaTime * force; //m / s
         }
     }
 
     public void ThrowBall(Vector3 start, Vector3 target, float velocity_xy)
     {
-        Vector3 force = GetVelocityByPitchType(start, target, velocity_xy, _baseball.SelectPitchType);
+        Vector3 force = GetVelocityByPitchType(start, target, velocity_xy);
 
         //rotation zero
         SetVelocity(force); //계산하는 함수
@@ -226,10 +219,13 @@ public class BaseballPhysics : MonoBehaviour
     /// <param name="target"></param>
     /// <param name="velocity_xy">km/h단위</param>
     /// <returns></returns>
-    public Vector3 CalculateVelocity(Vector3 start, Vector3 target, float velocity_xy, float piterTypeForce = 0)
+    public Vector3 CalculateVelocity(Vector3 start, Vector3 target
+        , float velocity_xy, Vector3 piterTypeForce )
     {
         velocity_xy /= 3.6f;
-        float g = Mathf.Abs(Physics.gravity.y) + piterTypeForce; // 9.81 (양수)
+        float g = Mathf.Abs(Physics.gravity.y); // 9.81 (양수)
+        Debug.Log(g);
+        //g -= piterTypeForce.y;
 
         Vector3 diff = target - start;
         Vector3 dirXZ = new Vector3(diff.x, 0, diff.z).normalized;
@@ -240,16 +236,84 @@ public class BaseballPhysics : MonoBehaviour
         float t = d / velocity_xy;
         flightTime = t;
 
+        // 평균(=초기) 속도에서의 축별 추가 가속도 (m/s²)
+        // GetForce(v) = forceWeight * vXZ² 를 평균속도로 근사
+        // 2-pass: 1차 보정이 만드는 횡속도가 vXZ²를 키워서 Magnus가 더 강해짐
+        //         → mean(vx²) = vx_comp²/3 (대칭 운동 적분 결과)를 vSq에 더해 재계산
+        float vSq = velocity_xy * velocity_xy;
+        float aX_rough = vSq * piterTypeForce.x;
+        float aZ_rough = vSq * piterTypeForce.z;
+        float vxComp = -0.5f * aX_rough * t;
+        float vzComp = -0.5f * aZ_rough * t;
+        float vSqAdjusted = vSq + (vxComp * vxComp + vzComp * vzComp) / 3f;
+
+        float aX = vSqAdjusted * piterTypeForce.x;
+        float aY = vSqAdjusted * piterTypeForce.y; // 보통 음수 (아래로 휨)
+        float aZ = vSqAdjusted * piterTypeForce.z;
+
         // y방향 초기 속도 Vy = (h + 0.5 * g * t^2) / t
-        float vy = (h + 0.5f * g * t * t) / t; 
+        // 유효 중력 = g - aY (forceWeight.y < 0 이면 더 빨리 떨어짐)
+        float effectiveG = g - aY;
+        float vy = (h + 0.5f * effectiveG * t * t) / t;
 
         // 최종 속도 벡터
         Vector3 velocity = dirXZ * velocity_xy;
+        // x/z 옆 휨 보정: 0.5*a*t² 만큼 휘므로 초기 방향을 반대로 살짝 틀어준다
+        velocity.x -= 0.5f * aX * t;
+        velocity.z -= 0.5f * aZ * t;
         velocity.y = vy;
+
+        // Shooting method: 위 닫힌공식은 vXZ² 상수 가정의 근사라 강한 forceWeight에서 오차 큼.
+        // 수치 시뮬레이션으로 실제 ApplyPitchMovement와 동일하게 적분해서 오차 보정 반복.
+        // 보통 3~5회면 1cm 이내로 수렴.
+        for (int iter = 0; iter < 6; iter++)
+        {
+            Vector3 simulated = SimulateForward(start, velocity, piterTypeForce, t);
+            Vector3 error = target - simulated;
+            if (error.sqrMagnitude < 0.0001f) break; // 1cm² = 0.0001 미만이면 종료
+            velocity += error / t; // 선형 보정: ∆x = ∆v0 * t 가정
+        }
+
+        // 안전망: NaN/Infinity/극단치 방지 (Gizmo for-loop 무한반복 + Linecast 크래시 막기)
+        const float MAX_SPEED = 200f; // 시속 720km 넘으면 비정상
+        if (float.IsNaN(velocity.x) || float.IsInfinity(velocity.x) ||
+            float.IsNaN(velocity.y) || float.IsInfinity(velocity.y) ||
+            float.IsNaN(velocity.z) || float.IsInfinity(velocity.z) ||
+            Mathf.Abs(velocity.x) > MAX_SPEED ||
+            Mathf.Abs(velocity.y) > MAX_SPEED ||
+            Mathf.Abs(velocity.z) > MAX_SPEED)
+        {
+            Debug.LogError($"[CalculateVelocity] 비정상 값! velocity={velocity}, piterTypeForce={piterTypeForce}, velocity_xy={velocity_xy}, t={t}. forceWeight 너무 큼 의심.");
+            return Vector3.zero;
+        }
         return velocity;
     }
 
     
+    /// <summary>
+    /// ApplyPitchMovement와 동일한 식으로 비행 궤적을 수치 적분해서 duration 후 위치 반환.
+    /// CalculateVelocity의 shooting method 보정에서 사용.
+    /// </summary>
+    private Vector3 SimulateForward(Vector3 start, Vector3 v0, Vector3 forceWeight, float duration)
+    {
+        Vector3 p = start;
+        Vector3 v = v0;
+        Vector3 g = Physics.gravity;
+        const float dt = 0.01f; // 충분히 작은 스텝 (정확도 vs 비용)
+        int steps = Mathf.CeilToInt(duration / dt);
+
+        for (int i = 0; i < steps; i++)
+        {
+            Vector3 vXZ = new Vector3(v.x, 0, v.z);
+            float vSqH = vXZ.sqrMagnitude;
+            Vector3 force = forceWeight * vSqH; // GetForce와 동일
+            v += (force + g) * dt;
+            p += v * dt;
+        }
+        return p;
+    }
+
+
     //velocityXZ는 km/h
     /// <summary>
     /// 던질때 타입에 따라 추가 힘 계산
@@ -259,18 +323,9 @@ public class BaseballPhysics : MonoBehaviour
     /// <param name="velocityXZ"></param>
     /// <param name="pitchType"></param>
     /// <returns></returns>
-    public Vector3 GetVelocityByPitchType(Vector3 start, Vector3 target, float velocityXZ, PitchType pitchType)
+    public Vector3 GetVelocityByPitchType(Vector3 start, Vector3 target, float velocityXZ)
     {
-        float piterTypeForce = 0; 
-        Debug.Log("구종 : " + pitchType);
-        switch (pitchType)
-        {
-            case PitchType.Curve:
-                piterTypeForce += (velocityXZ/3.6f) * (velocityXZ/3.6f) / 100 * MAGNUS; //초속 단위로 변환
-                break;
-            case PitchType.FastBall:
-                break;
-        }
+        Vector3 piterTypeForce = _baseball.GetSelectedPitchTypeSO().ForceWeight;
         return CalculateVelocity(start, target, velocityXZ, piterTypeForce);
     }
 
@@ -302,7 +357,8 @@ public class BaseballPhysics : MonoBehaviour
         // 3. 섞기 (Lerp 마법!)
         
         // 2. 유저의 구속(Speed)은 그대로 유지한 채, 타겟에 완벽하게 꽂히는 정답 궤적(Velocity)을 알아냄
-        Vector3 perfectVelocity = GetVelocityByPitchType(transform.position, targetPos, finalSpeedKmh, pitchType);
+        Vector3 perfectVelocity = GetVelocityByPitchType(transform.position, targetPos, finalSpeedKmh);
+        
         // assistWeight가 0.0이면 100% 똥볼(rawVRVelocity), 1.0이면 100% 완벽한 스트라이크(perfectVelocity)
         Vector3 finalVelocity = Vector3.Lerp(rawVRVelocity, perfectVelocity, Mathf.Clamp01(ball_accuracy_weight));
 
@@ -393,7 +449,21 @@ public class BaseballPhysics : MonoBehaviour
     {
         //속력 넣기
         Vector3 initialVelocity = _rigidbody.velocity;
-        
+
+        // 안전망: NaN/Infinity/극단치면 Physics.Linecast 크래시 + Gizmo 무한루프 → 조기 종료
+        const float MAX_SPEED = 200f;
+        const float MAX_COORD = 10000f;
+        if (float.IsNaN(startPos.x) || float.IsInfinity(startPos.x) ||
+            Mathf.Abs(startPos.x) > MAX_COORD || Mathf.Abs(startPos.y) > MAX_COORD || Mathf.Abs(startPos.z) > MAX_COORD ||
+            float.IsNaN(initialVelocity.x) || float.IsInfinity(initialVelocity.x) ||
+            float.IsNaN(initialVelocity.y) || float.IsInfinity(initialVelocity.y) ||
+            float.IsNaN(initialVelocity.z) || float.IsInfinity(initialVelocity.z) ||
+            initialVelocity.magnitude > MAX_SPEED)
+        {
+            Debug.LogError($"[PredictTrajectory] 비정상 값 감지! startPos={startPos}, velocity={initialVelocity}. 궤적 계산 건너뜀.");
+            return;
+        }
+
         _trajectoryBaseBallData.Init();
         _trajectoryBaseBallData.AddPathPoint(startPos); // 시작점 저장
 
