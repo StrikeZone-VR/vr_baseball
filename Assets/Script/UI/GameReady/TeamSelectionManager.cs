@@ -42,6 +42,14 @@ public class TeamSelectionManager : MonoBehaviour
     [Header("게임 시작")]
     [SerializeField] private Button playBallButton;
 
+    [Header("이닝 선택 (라디오)")]
+    [Tooltip("순서대로 1, 3, 6, 9 이닝에 대응되는 Toggle 4개")]
+    [SerializeField] private Toggle[] inningToggles; //0=1이닝, 1=3이닝, 2=6이닝, 3=9이닝
+    [SerializeField] private int defaultInningIndex = 3; //기본 9이닝
+    [SerializeField] private GameConfigSO gameConfigSO;
+
+    private readonly int[] inningValues = { 1, 3, 6, 9 };
+
     [Header("애니메이션 설정")]
     [SerializeField] private float scrollAnimationDuration = 0.3f;
     [SerializeField] private AnimationCurve scrollAnimationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
@@ -67,6 +75,45 @@ public class TeamSelectionManager : MonoBehaviour
         SetupScrollEvents();
         SetupScrollRects();
         UpdateTeamDisplays();
+        SetupInningToggles();
+    }
+
+    void SetupInningToggles()
+    {
+        if (inningToggles == null || inningToggles.Length == 0) return;
+
+        //라디오 동작: 최초 한 개만 켜져 있도록 초기화
+        int initIdx = Mathf.Clamp(defaultInningIndex, 0, inningToggles.Length - 1);
+        for (int i = 0; i < inningToggles.Length; i++)
+        {
+            if (inningToggles[i] == null) continue;
+            inningToggles[i].isOn = (i == initIdx);
+
+            //하나만 켜지도록(같은 ToggleGroup에 묶이지 않은 경우 대비) 직접 처리
+            int captured = i;
+            inningToggles[i].onValueChanged.AddListener(isOn =>
+            {
+                if (!isOn) return;
+                for (int j = 0; j < inningToggles.Length; j++)
+                {
+                    if (j != captured && inningToggles[j] != null && inningToggles[j].isOn)
+                        inningToggles[j].isOn = false;
+                }
+            });
+        }
+    }
+
+    int GetSelectedInningValue()
+    {
+        if (inningToggles != null)
+        {
+            for (int i = 0; i < inningToggles.Length; i++)
+            {
+                if (inningToggles[i] != null && inningToggles[i].isOn && i < inningValues.Length)
+                    return inningValues[i];
+            }
+        }
+        return inningValues[Mathf.Clamp(defaultInningIndex, 0, inningValues.Length - 1)];
     }
 
     void InitializeTeams()
@@ -421,9 +468,22 @@ public class TeamSelectionManager : MonoBehaviour
 
     void OnPlayBallClicked()
     {
+        int innings = GetSelectedInningValue();
+
         Debug.Log("GameStart!");
         Debug.Log($"컴퓨터 팀: {teams[currentComputerTeamIndex].teamName}");
         Debug.Log($"플레이어 팀: {teams[currentPlayerTeamIndex].teamName}");
+        Debug.Log($"선택 이닝: {innings}");
+
+        //선택된 이닝 수를 SO에 저장 → Gameplay 씬에서 읽음
+        if (gameConfigSO != null)
+        {
+            gameConfigSO.SelectedInnings = innings;
+        }
+        else
+        {
+            Debug.LogWarning("[GameReady] GameConfigSO 미할당 → 이닝 설정이 전달되지 않습니다.");
+        }
 
         // TODO: 게임플레이 씬으로 전환
         sceneEventSO.RaiseEvent(gamePlayScene);

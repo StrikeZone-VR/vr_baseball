@@ -81,6 +81,7 @@ public class GamePlayManager : GameManager
     
     [SerializeField] private GamePlayModel gamePlayModel;
     [SerializeField] private BattingModel battingModel;
+    [SerializeField] private GameConfigSO gameConfigSO; //GameReady에서 선택한 이닝 수 전달용
 
     private Coroutine waitPitcherCoroutine;
     
@@ -747,7 +748,6 @@ public class GamePlayManager : GameManager
         //has ball and ball batting => 포수 방지용으로 존에 들어간 순간부터 하는게 낫지 않을까?
         if (_ball.MyDefenderComponent && _ball.IsZone)
         {
-            Debug.Log("[Batter] canBackRunner : " + canBackRunner);
             //던질 곳 없으면 다시 투수 복귀
             if (!ThrowBallAlgorithm())
             {
@@ -969,12 +969,14 @@ public class GamePlayManager : GameManager
         get { return gamePlayModel.Inning; }
         set
         {
-            if (value >= GamePlayModel.MAX_INNING_COUNT)
+            //GameReady에서 선택한 이닝 수가 있으면 그걸 우선, 아니면 기본 9이닝(MAX_INNING_COUNT)
+            int maxInning = gameConfigSO != null ? gameConfigSO.MaxInningCount : GamePlayModel.MAX_INNING_COUNT;
+            if (value >= maxInning)
             {
-                Debug.Log("Game Over, back to the menu...");
+                Debug.Log($"Game Over, back to the menu... (maxInning={maxInning})");
 
                 sceneEventSO.RaiseEvent(gameResultScene);
-                
+
                 //정보 전달해야함
                 return;
             }

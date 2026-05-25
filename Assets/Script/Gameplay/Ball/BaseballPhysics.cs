@@ -265,7 +265,7 @@ public class BaseballPhysics : MonoBehaviour
         float aZ_rough = vSq * piterTypeForce.z;
         float vxComp = -0.5f * aX_rough * t;
         float vzComp = -0.5f * aZ_rough * t;
-        float vSqAdjusted = vSq + (vxComp * vxComp + vzComp * vzComp) / 3f;
+        float vSqAdjusted = vSq + (vxComp * vxComp + vzComp * vzComp) / 3f; //평균
 
         float aX = vSqAdjusted * piterTypeForce.x;
         float aY = vSqAdjusted * piterTypeForce.y; // 보통 음수 (아래로 휨)
