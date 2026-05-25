@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: SliderBallSO
   m_EditorClassIdentifier: 
   pitchType: 2
-  ForceWeight: {x: -0.05, y: -0.01, z: 0}
+  ForceWeight: {x: -0.05, y: 0, z: 0}

@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: ForkBallSO
   m_EditorClassIdentifier: 
   pitchType: 3
-  ForceWeight: {x: 0, y: 0, z: 0}
+  ForceWeight: {x: 0, y: -0.1, z: 0}

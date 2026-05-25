@@ -994,7 +994,7 @@ PrefabInstance:
       objectReference: {fileID: 11400000, guid: f8404c1ed124fed4281ba1490349fbb4, type: 2}
     - target: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
       propertyPath: selectedPitchType
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8364105362300272789, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
       propertyPath: m_Name

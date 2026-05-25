@@ -202,7 +202,14 @@ public class BaseballPhysics : MonoBehaviour
 
     public void ThrowBall(Vector3 start, Vector3 target, float velocity_xy)
     {
+        Vector3 fw = _baseball.GetSelectedPitchTypeSO().ForceWeight;
+        Debug.Log($"[Throw] 요청속력={velocity_xy}km/h, start={start}, target={target}, forceWeight={fw}");
+
         Vector3 force = GetVelocityByPitchType(start, target, velocity_xy);
+
+        Debug.Log($"[Throw] CalculateVelocity 결과: v=({force.x:F2},{force.y:F2},{force.z:F2}), " +
+                  $"|h|={new Vector2(force.x, force.z).magnitude * 3.6f:F1}km/h, " +
+                  $"|total|={force.magnitude * 3.6f:F1}km/h");
 
         //rotation zero
         SetVelocity(force); //계산하는 함수
@@ -220,11 +227,10 @@ public class BaseballPhysics : MonoBehaviour
     /// <param name="velocity_xy">km/h단위</param>
     /// <returns></returns>
     public Vector3 CalculateVelocity(Vector3 start, Vector3 target
-        , float velocity_xy, Vector3 piterTypeForce )
+        , float velocity_xy, Vector3 piterTypeForce)
     {
         velocity_xy /= 3.6f;
         float g = Mathf.Abs(Physics.gravity.y); // 9.81 (양수)
-        Debug.Log(g);
         //g -= piterTypeForce.y;
 
         Vector3 diff = target - start;
@@ -240,7 +246,7 @@ public class BaseballPhysics : MonoBehaviour
         // GetForce(v) = forceWeight * vXZ² 를 평균속도로 근사
         // 2-pass: 1차 보정이 만드는 횡속도가 vXZ²를 키워서 Magnus가 더 강해짐
         //         → mean(vx²) = vx_comp²/3 (대칭 운동 적분 결과)를 vSq에 더해 재계산
-        float vSq = velocity_xy * velocity_xy;
+        float vSq = velocity_xy * velocity_xy; //제곱
         float aX_rough = vSq * piterTypeForce.x;
         float aZ_rough = vSq * piterTypeForce.z;
         float vxComp = -0.5f * aX_rough * t;
@@ -263,16 +269,6 @@ public class BaseballPhysics : MonoBehaviour
         velocity.z -= 0.5f * aZ * t;
         velocity.y = vy;
 
-        // Shooting method: 위 닫힌공식은 vXZ² 상수 가정의 근사라 강한 forceWeight에서 오차 큼.
-        // 수치 시뮬레이션으로 실제 ApplyPitchMovement와 동일하게 적분해서 오차 보정 반복.
-        // 보통 3~5회면 1cm 이내로 수렴.
-        for (int iter = 0; iter < 6; iter++)
-        {
-            Vector3 simulated = SimulateForward(start, velocity, piterTypeForce, t);
-            Vector3 error = target - simulated;
-            if (error.sqrMagnitude < 0.0001f) break; // 1cm² = 0.0001 미만이면 종료
-            velocity += error / t; // 선형 보정: ∆x = ∆v0 * t 가정
-        }
 
         // 안전망: NaN/Infinity/극단치 방지 (Gizmo for-loop 무한반복 + Linecast 크래시 막기)
         const float MAX_SPEED = 200f; // 시속 720km 넘으면 비정상
@@ -364,39 +360,6 @@ public class BaseballPhysics : MonoBehaviour
 
         return finalVelocity;
     }
-    
-    // public Vector3 CalculateSimpleVelocity(Vector3 start, Vector3 target, float velocityXZ)
-    // {
-    //     velocityXZ /= 3.6f; //시속 평준화
-    //     float g = Mathf.Abs(Physics.gravity.y); // 9.81 (양수)
-    //     Vector3 dis = target - start;
-    //
-    //     float mytime = dis.magnitude / velocityXZ;
-    //
-    //     float velocityY = mytime / 2 * g;
-    //     Vector3 velocityXZ_normal = dis.normalized;
-    //     velocityXZ_normal *= velocityXZ;
-    //
-    //     Vector3 result = velocityXZ_normal + new Vector3(0, velocityY, 0);
-    //     return result;
-    // }
-    //
-    // private Vector3 CalculateCurveVelocity(Vector3 start, Vector3 target, float velocityXZ)
-    // {
-    //     velocityXZ /= 3.6f; //시속 평준화
-    //     float g = Mathf.Abs(Physics.gravity.y) + (velocityXZ / 100 * MAGNUS); // 9.81 (양수)
-    //     Vector3 dis = target - start;
-    //
-    //     float mytime = dis.magnitude / velocityXZ;
-    //
-    //     float velocityY = mytime / 2 * g;
-    //     Vector3 velocityXZ_normal = dis.normalized;
-    //     velocityXZ_normal *= velocityXZ;
-    //
-    //     Vector3 result = velocityXZ_normal + new Vector3(0, velocityY, 0);
-    //     return result;
-    // }
-    
 
     public void SetGravity(bool useGravity)
     {
@@ -521,6 +484,12 @@ public class BaseballPhysics : MonoBehaviour
         Vector3 v = GetVelocity();  //ms
         Vector3 speed = new Vector3(v.x, 0, v.z);
         float velocity = speed.magnitude * 3.6f;
+
+        Debug.Log($"[측정] pos={_rigidbody.position}, " +
+                  $"v=({v.x:F2},{v.y:F2},{v.z:F2}), " +
+                  $"|h|={velocity:F1}km/h, " +
+                  $"forceWeight={_baseball.GetSelectedPitchTypeSO().ForceWeight}");
+
         getVelocityEventSO.RaiseEvent(velocity);
     }
 
