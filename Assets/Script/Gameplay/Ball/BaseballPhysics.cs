@@ -27,6 +27,10 @@ public class BaseballPhysics : MonoBehaviour
     private float ball_accuracy_weight = 0.0f; //0~1, 1일수록 보정값이 매우 높음
     private bool _canMeasureVelocity = true; //velocity 측정
 
+    //거리/시간으로 속력 측정용: Pitched 상태 진입 시점에 기록
+    private float _pitchStartTime = 0f;
+    private Vector3 _pitchStartPos = Vector3.zero;
+
     [Tooltip("플레이어 던지기 속력 배율 — UI 슬라이더로 런타임 조절")]
     [SerializeField, Range(0.5f, 5f)] private float speedWeight = 2.0f;
 
@@ -200,6 +204,16 @@ public class BaseballPhysics : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Pitched 상태 진입 시 시작 시간/위치 기록 (거리/시간 속력 측정용)
+    /// </summary>
+    public void RecordPitchStart()
+    {
+        if (!_rigidbody) return;
+        _pitchStartTime = Time.time;
+        _pitchStartPos = _rigidbody.position;
+    }
+
     public void ThrowBall(Vector3 start, Vector3 target, float velocity_xy)
     {
         Vector3 fw = _baseball.GetSelectedPitchTypeSO().ForceWeight;
@@ -208,7 +222,7 @@ public class BaseballPhysics : MonoBehaviour
         Vector3 force = GetVelocityByPitchType(start, target, velocity_xy);
 
         Debug.Log($"[Throw] CalculateVelocity 결과: v=({force.x:F2},{force.y:F2},{force.z:F2}), " +
-                  $"|h|={new Vector2(force.x, force.z).magnitude * 3.6f:F1}km/h, " +
+                  $"|원래 xz속력|={new Vector2(force.x, force.z).magnitude * 3.6f:F1}km/h, " +
                   $"|total|={force.magnitude * 3.6f:F1}km/h");
 
         //rotation zero
@@ -469,7 +483,7 @@ public class BaseballPhysics : MonoBehaviour
     }
 
     /// <summary>
-    /// 볼 속력 출력
+    /// 볼 속력 출력 (거리/시간 방식)
     /// </summary>
     private void PrintBallVelocity()
     {
@@ -481,12 +495,25 @@ public class BaseballPhysics : MonoBehaviour
         }
         _canMeasureVelocity = false;
 
-        Vector3 v = GetVelocity();  //ms
-        Vector3 speed = new Vector3(v.x, 0, v.z);
-        float velocity = speed.magnitude * 3.6f;
+        //끝나는 시간 / 도착 포지션
+        float endTime = Time.time;
+        Vector3 endPos = _rigidbody.position;
 
-        Debug.Log($"[측정] pos={_rigidbody.position}, " +
+        float elapsedTime = endTime - _pitchStartTime;
+        if (elapsedTime <= 0f)
+        {
+            Debug.LogWarning("[측정] 경과 시간이 0 이하 → 측정 불가. _pitchStartTime이 설정되었는지 확인.");
+            return;
+        }
+
+        Vector3 displacement = endPos - _pitchStartPos;
+        Vector3 displacementXZ = new Vector3(displacement.x, 0, displacement.z); //ms 단위 계산용 (수평 거리)
+        float velocity = (displacementXZ.magnitude / elapsedTime) * 3.6f; // m/s → km/h
+
+        Vector3 v = GetVelocity();  //ms (참고용 rigidbody.velocity)
+        Debug.Log($"[측정] startPos={_pitchStartPos}, endPos={endPos}, " +
                   $"v=({v.x:F2},{v.y:F2},{v.z:F2}), " +
+                  $"distXZ={displacementXZ.magnitude:F2}m, elapsed={elapsedTime:F3}s, " +
                   $"|h|={velocity:F1}km/h, " +
                   $"forceWeight={_baseball.GetSelectedPitchTypeSO().ForceWeight}");
 

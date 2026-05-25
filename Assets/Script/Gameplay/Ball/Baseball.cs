@@ -253,6 +253,7 @@ public class Baseball : MonoBehaviour
                 case BallState.Pitched:
                     _physics.SetGravity(true);
                     _physics.CanMeasureVelocity = true;
+                    _physics.RecordPitchStart(); //거리/시간 속력 측정용 시작 시점 기록
                     break;
                 case BallState.Thrown:
                     _physics.SetGravity(true);
