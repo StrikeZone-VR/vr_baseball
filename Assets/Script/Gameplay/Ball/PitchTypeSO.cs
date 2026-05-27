@@ -24,11 +24,8 @@ public class PitchTypeSO : ScriptableObject
 
     public Vector3 GetForce(Vector3 velocity)
     {
-        //todo 각자의 구종 가중치값을 곱 할 생각이다.
-        //Magnus 모델: 방향은 ForceWeight가 고정, 크기는 수평 속도²로 스케일
-        //CalculateVelocity의 보정식과 동일한 수평속도² 기반 → 두 식이 일치해서 타겟 명중
         Vector3 vXZ = new Vector3(velocity.x, 0, velocity.z);
-        float vSqHorizontal = vXZ.sqrMagnitude;
+        float vSqHorizontal = vXZ.sqrMagnitude; //제곱
         return ForceWeight * vSqHorizontal;
     }
 }

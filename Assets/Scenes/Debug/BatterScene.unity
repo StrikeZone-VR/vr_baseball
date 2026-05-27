@@ -486,7 +486,8 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 9151188423825954298, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
@@ -994,7 +995,7 @@ PrefabInstance:
       objectReference: {fileID: 11400000, guid: f8404c1ed124fed4281ba1490349fbb4, type: 2}
     - target: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
       propertyPath: selectedPitchType
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8364105362300272789, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
       propertyPath: m_Name

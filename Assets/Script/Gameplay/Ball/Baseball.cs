@@ -254,12 +254,14 @@ public class Baseball : MonoBehaviour
                     _physics.SetGravity(true);
                     _physics.CanMeasureVelocity = true;
                     _physics.RecordPitchStart(); //거리/시간 속력 측정용 시작 시점 기록
+                    _physics.SetRigidbodyMode(true);
                     break;
                 case BallState.Thrown:
                     _physics.SetGravity(true);
                     break;
                 case BallState.Grabbed: //그 전에 무조건 MyDefender를 설정해야 한다
                     DefenderDis = 0;
+                    _physics.SetRigidbodyMode(false);
                     _physics.SetVelocity(Vector3.zero);
                     _physics.SetGravity(false);
                     allTrackingOffEvent.RaiseEvent();
@@ -271,6 +273,7 @@ public class Baseball : MonoBehaviour
                     HasPassedStrikeZone = false;
                     IsGroundBall = false;
                     IsInGamePlay = false;
+                    _physics.SetRigidbodyMode(false);
 
                     backToPitcherEvent.RaiseEvent();
                     break;

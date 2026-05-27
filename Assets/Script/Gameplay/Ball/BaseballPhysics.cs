@@ -56,15 +56,13 @@ public class BaseballPhysics : MonoBehaviour
     
     private void FixedUpdate()
     {
-        if (_rigidbody)
-        {
-            //CheckStrikeZoneTunneling();
-            ApplyPitchMovement();
-        }
+        CheckStrikeZoneTunneling();
+        ApplyPitchMovement();
     }
 
     private void OnTriggerEnter(Collider collider)
     {
+        Debug.Log("공 접촉한 트리거 : " + collider.gameObject.name);
         if (collider.gameObject.CompareTag("VelocityZone"))
         {
             PrintBallVelocity();
@@ -172,21 +170,31 @@ public class BaseballPhysics : MonoBehaviour
         }
     }
     //todo 나중에 공 rigidbody Continuous Dynamic로 전환하고 이 함수는 제거할거임
-    // private void CheckStrikeZoneTunneling()
-    // {
-    //     //너무 빨라서 스트라이크존을 지나친 경우의 판정
-    //     float dis = _rigidbody.velocity.magnitude * Time.deltaTime;
-    //     Ray ray = new Ray(this.transform.position, _rigidbody.velocity);
-    //
-    //     if (Physics.Raycast(ray.origin, ray.direction, out RaycastHit rayHit, dis))
-    //     {
-    //         //Debug.DrawRay(ray.origin, ray.direction, Color.red, 0.5f);
-    //         if(rayHit.transform.CompareTag("StrikeZone"))
-    //         {
-    //             IsStrike = true;
-    //         }
-    //     }
-    // }
+    //=> Continuous Dynamic으로도 트리거 터널링은 안 잡혀서 이 함수 유지 필요
+    private void CheckStrikeZoneTunneling()
+    {
+        //너무 빨라서 스트라이크존을 지나친 경우의 판정
+        if (_baseball.CurrentState != BallState.Pitched) return;
+        if (_baseball.IsStrike) return; //이미 트리거로 잡혔으면 중복 방지
+
+        Vector3 velocity = _rigidbody.velocity;
+        if (velocity.sqrMagnitude < 0.0001f) return; //정지/0속도 보호
+
+        float dis = velocity.magnitude * Time.deltaTime;
+        Ray ray = new Ray(this.transform.position, velocity);
+
+        //트리거도 감지하도록 QueryTriggerInteraction.Collide
+        if (Physics.Raycast(ray.origin, ray.direction, out RaycastHit rayHit, dis,
+                Physics.DefaultRaycastLayers, QueryTriggerInteraction.Collide))
+        {
+            //Debug.DrawRay(ray.origin, ray.direction, Color.red, 0.5f);
+            if(rayHit.transform.CompareTag("StrikeZone"))
+            {
+                _baseball.IsZone = true;
+                _baseball.IsStrike = true;
+            }
+        }
+    }
 
     private void ApplyPitchMovement()
     {
@@ -198,6 +206,7 @@ public class BaseballPhysics : MonoBehaviour
                 return;
             }
 
+            //슬라이더면 슬라이더 힘 추가 커브면 커브 힘 추가
             Vector3 force = _baseball.GetSelectedPitchTypeSO()
                 .GetForce(_rigidbody.velocity);
             _rigidbody.velocity += Time.fixedDeltaTime * force; //m / s
@@ -212,6 +221,18 @@ public class BaseballPhysics : MonoBehaviour
         if (!_rigidbody) return;
         _pitchStartTime = Time.time;
         _pitchStartPos = _rigidbody.position;
+    }
+
+    public void SetRigidbodyMode(bool isContinusMode)
+    {
+        if (isContinusMode)
+        {
+            _rigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+        }
+        else
+        {
+            _rigidbody.collisionDetectionMode = CollisionDetectionMode.Discrete;
+        }
     }
 
     public void ThrowBall(Vector3 start, Vector3 target, float velocity_xy)
@@ -240,12 +261,11 @@ public class BaseballPhysics : MonoBehaviour
     /// <param name="target"></param>
     /// <param name="velocity_xy">km/h단위</param>
     /// <returns></returns>
-    public Vector3 CalculateVelocity(Vector3 start, Vector3 target
-        , float velocity_xy, Vector3 piterTypeForce)
+    public Vector3 CalculateVelocity(Vector3 start, Vector3 target,
+        float velocity_xy, Vector3 piterTypeForce)
     {
         velocity_xy /= 3.6f;
         float g = Mathf.Abs(Physics.gravity.y); // 9.81 (양수)
-        //g -= piterTypeForce.y;
 
         Vector3 diff = target - start;
         Vector3 dirXZ = new Vector3(diff.x, 0, diff.z).normalized;
@@ -263,13 +283,14 @@ public class BaseballPhysics : MonoBehaviour
         float vSq = velocity_xy * velocity_xy; //제곱
         float aX_rough = vSq * piterTypeForce.x;
         float aZ_rough = vSq * piterTypeForce.z;
-        float vxComp = -0.5f * aX_rough * t;
+        float vxComp = -0.5f * aX_rough * t; //마그누스 공식보면 1/2를 곱한다.
         float vzComp = -0.5f * aZ_rough * t;
-        float vSqAdjusted = vSq + (vxComp * vxComp + vzComp * vzComp) / 3f; //평균
+        float vSqAdjusted = vSq + (vxComp * vxComp + vzComp * vzComp) / 3f; //평균 => 슬라이더일때만 값이 바뀐다.
 
-        float aX = vSqAdjusted * piterTypeForce.x;
-        float aY = vSqAdjusted * piterTypeForce.y; // 보통 음수 (아래로 휨)
-        float aZ = vSqAdjusted * piterTypeForce.z;
+        //마그누스 공식
+        float aX = vSq * piterTypeForce.x;
+        float aY = vSq * piterTypeForce.y; // 보통 음수 (아래로 휨)
+        float aZ = vSq * piterTypeForce.z;
 
         // y방향 초기 속도 Vy = (h + 0.5 * g * t^2) / t
         // 유효 중력 = g - aY (forceWeight.y < 0 이면 더 빨리 떨어짐)
@@ -277,6 +298,7 @@ public class BaseballPhysics : MonoBehaviour
         float vy = (h + 0.5f * effectiveG * t * t) / t;
 
         // 최종 속도 벡터
+        //v₀t + ½at² = 거리0. v_0 = -1/2at => 
         Vector3 velocity = dirXZ * velocity_xy;
         // x/z 옆 휨 보정: 0.5*a*t² 만큼 휘므로 초기 방향을 반대로 살짝 틀어준다
         velocity.x -= 0.5f * aX * t;
