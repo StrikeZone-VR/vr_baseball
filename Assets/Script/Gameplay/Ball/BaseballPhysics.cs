@@ -281,16 +281,27 @@ public class BaseballPhysics : MonoBehaviour
         // 2-pass: 1차 보정이 만드는 횡속도가 vXZ²를 키워서 Magnus가 더 강해짐
         //         → mean(vx²) = vx_comp²/3 (대칭 운동 적분 결과)를 vSq에 더해 재계산
         float vSq = velocity_xy * velocity_xy; //제곱
-        float aX_rough = vSq * piterTypeForce.x;
-        float aZ_rough = vSq * piterTypeForce.z;
+
+        //ForceWeight를 비행 로컬 → 월드 변환 (PitchTypeSO.GetForce와 동일한 규약)
+        //x = 비행 방향 기준 오른쪽, y = 월드 위, z = 비행 방향 전진
+        //Unity는 왼손좌표계 → up × forward = right (forward × up이 아님!)
+        Vector3 rightXZ = Vector3.Cross(Vector3.up, dirXZ); //외적 순서 유의
+        Vector3 forceWorld = rightXZ * piterTypeForce.x
+                           + Vector3.up * piterTypeForce.y
+                           + dirXZ * piterTypeForce.z;
+
+        Debug.Log("달콤한 오른쪽 +, - : " + rightXZ); //x가 양수, z가 음수
+        
+        float aX_rough = vSq * forceWorld.x;
+        float aZ_rough = vSq * forceWorld.z;
         float vxComp = -0.5f * aX_rough * t; //마그누스 공식보면 1/2를 곱한다.
         float vzComp = -0.5f * aZ_rough * t;
         float vSqAdjusted = vSq + (vxComp * vxComp + vzComp * vzComp) / 3f; //평균 => 슬라이더일때만 값이 바뀐다.
 
         //마그누스 공식
-        float aX = vSq * piterTypeForce.x;
-        float aY = vSq * piterTypeForce.y; // 보통 음수 (아래로 휨)
-        float aZ = vSq * piterTypeForce.z;
+        float aX = vSq * forceWorld.x;
+        float aY = vSq * forceWorld.y; // 보통 음수 (아래로 휨)
+        float aZ = vSq * forceWorld.z;
 
         // y방향 초기 속도 Vy = (h + 0.5 * g * t^2) / t
         // 유효 중력 = g - aY (forceWeight.y < 0 이면 더 빨리 떨어짐)
@@ -338,7 +349,22 @@ public class BaseballPhysics : MonoBehaviour
         {
             Vector3 vXZ = new Vector3(v.x, 0, v.z);
             float vSqH = vXZ.sqrMagnitude;
-            Vector3 force = forceWeight * vSqH; // GetForce와 동일
+
+            //GetForce와 동일: ForceWeight를 비행 로컬 → 월드 변환
+            Vector3 force;
+            if (vSqH < 0.0001f)
+            {
+                force = Vector3.zero;
+            }
+            else
+            {
+                Vector3 forward = vXZ.normalized;
+                Vector3 right = new Vector3(forward.z, 0, -forward.x);
+                Vector3 forceWorld = right * forceWeight.x
+                                   + Vector3.up * forceWeight.y
+                                   + forward * forceWeight.z;
+                force = forceWorld * vSqH;
+            }
             v += (force + g) * dt;
             p += v * dt;
         }

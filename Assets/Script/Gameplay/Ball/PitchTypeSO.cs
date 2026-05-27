@@ -26,6 +26,19 @@ public class PitchTypeSO : ScriptableObject
     {
         Vector3 vXZ = new Vector3(velocity.x, 0, velocity.z);
         float vSqHorizontal = vXZ.sqrMagnitude; //제곱
-        return ForceWeight * vSqHorizontal;
+
+        //방어: 정지 상태일 때 0벡터 normalize 회피
+        if (vSqHorizontal < 0.0001f) return Vector3.zero;
+
+        //ForceWeight를 비행 로컬 좌표계로 해석 → 월드 변환
+        //x = 비행 방향 기준 오른쪽, y = 월드 위, z = 비행 방향 전진
+        //어떤 방향으로 던지든 슬라이더는 항상 비행 기준 동일한 방향으로 휨
+        Vector3 forward = vXZ.normalized;
+        Vector3 right = new Vector3(forward.z, 0, -forward.x);
+
+        Vector3 forceWorld = right * ForceWeight.x
+                           + Vector3.up * ForceWeight.y
+                           + forward * ForceWeight.z;
+        return forceWorld * vSqHorizontal;
     }
 }
