@@ -55,6 +55,7 @@ public class BattingManager : GameManager
     }
     IEnumerator WaitingBackToPitcher()
     {
+        _ball.IsInGamePlay = false; //true인 순간 SetBall에서 투수가 공을 안던짐
         //StartCoroutine(BackPitching());
 
         yield return new WaitForSeconds(WAIT_TIME);
@@ -101,6 +102,7 @@ public class BattingManager : GameManager
     void AddHit()
     {
         ++HitCount;
+        PitcherGetBall(); //BatterMode는 수비수가 없으니 안타 후 공을 바로 투수에게 복귀
     }
 
     void AddGroundBallCount()

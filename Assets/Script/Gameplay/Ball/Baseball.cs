@@ -311,7 +311,11 @@ public class Baseball : MonoBehaviour
 
             if (isInGamePlay)
             {
-                OnIsInGameplayChanged.Invoke(value);
+                if (OnIsInGameplayChanged != null)
+                {
+                    OnIsInGameplayChanged.Invoke(value);
+                }
+                    
                 CurrentState = BallState.FreeBall;
             }
         }

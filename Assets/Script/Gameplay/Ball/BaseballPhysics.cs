@@ -162,9 +162,8 @@ public class BaseballPhysics : MonoBehaviour
             //배트 터치
             float speed = bat.GetSwingSpeed();
 
-            Debug.LogWarning("[Bat] : 가중치는 4배에서 2배로 줄임");
             //가중치 4배 * speed * 4f
-            _rigidbody.AddForce(hitDirection * speed * 2, ForceMode.Impulse);
+            _rigidbody.AddForce(hitDirection * speed * 4, ForceMode.Impulse);
         }
     }
 

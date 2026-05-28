@@ -145,7 +145,6 @@ public class GamePlayManager : GameManager
         base.Start();
         
         Init();
-       
         Inning = 0;
     }
 
