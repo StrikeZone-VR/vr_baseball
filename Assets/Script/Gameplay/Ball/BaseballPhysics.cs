@@ -10,17 +10,17 @@ public class BaseballPhysics : MonoBehaviour
     //public float ballMass = 0.145f; // kg
     //public float ballRadius = 0.037f; // m
     //public float airDensity = 1.225f; // kg/m³
-    
+
     private Rigidbody _rigidbody;
     private Baseball _baseball;
-    
+
     [SerializeField] private Transform defaultParentBaseball;
     [SerializeField] private TrajectoryBaseBallData _trajectoryBaseBallData;
-    
-    [Header("Listening to EventChannels")] 
+
+    [Header("Listening to EventChannels")]
     [SerializeField] private FloatEventSO getVelocityEventSO; //from BattingSystem
 
-    [Header("Debug")] 
+    [Header("Debug")]
     [SerializeField] private float _debugVelocity;
 
     private float flightTime = 0;
@@ -40,11 +40,14 @@ public class BaseballPhysics : MonoBehaviour
     //커브나 다른 무언가 사용하기 위해 만든 변수
     private Vector3 velocityXY; // 실제 목표 위치
     private float beforeTime = 0f;
+
+    #region Unity Lifecycle
+
     private void Start()
     {
         _rigidbody = GetComponent<Rigidbody>();
         _baseball = GetComponent<Baseball>();
-        
+
         _rigidbody.interpolation = RigidbodyInterpolation.Interpolate; // 부드러운 움직임 => 이거 안하면 오류 생기는 듯
     }
 
@@ -52,17 +55,20 @@ public class BaseballPhysics : MonoBehaviour
     {
         PredictTrajectory(GetPosition());
     }
-    
-    
+
+
     private void FixedUpdate()
     {
         CheckStrikeZoneTunneling();
         ApplyPitchMovement();
     }
 
+    #endregion
+
+    #region Unity Callbacks
+
     private void OnTriggerEnter(Collider collider)
     {
-        Debug.Log("공 접촉한 트리거 : " + collider.gameObject.name);
         if (collider.gameObject.CompareTag("VelocityZone"))
         {
             PrintBallVelocity();
@@ -102,7 +108,7 @@ public class BaseballPhysics : MonoBehaviour
     {
         if (collision.collider.CompareTag("Ground") || collision.collider.CompareTag("Base"))
         {
-            
+
             //잡지 않았다면
             if (_baseball.CurrentState != BallState.Grabbed)
             {
@@ -134,7 +140,7 @@ public class BaseballPhysics : MonoBehaviour
             {
                 return;
             };
-            
+
             _baseball.Hit();
             ApplyBatHitForce(collision);
         }
@@ -152,7 +158,7 @@ public class BaseballPhysics : MonoBehaviour
             // 충돌 방향 계산 (배트에서 공으로의 방향)
             Vector3 hitDirection = (transform.position - collision.GetContact(0).point ).normalized;
             Bat bat = collision.transform.GetComponent<Bat>();
-                
+
             //배트 터치
             float speed = bat.GetSwingSpeed();
 
@@ -169,34 +175,36 @@ public class BaseballPhysics : MonoBehaviour
             Debug.Log("hit! 공 속도 :" + _rigidbody.velocity);
         }
     }
-    //todo 나중에 공 rigidbody Continuous Dynamic로 전환하고 이 함수는 제거할거임
-    //=> Continuous Dynamic으로도 트리거 터널링은 안 잡혀서 이 함수 유지 필요
-    private void CheckStrikeZoneTunneling()
+
+    #endregion
+
+    #region Pitching
+
+    public void ThrowBall(Vector3 start, Vector3 target, float velocity_xy)
     {
-        //너무 빨라서 스트라이크존을 지나친 경우의 판정
-        if (_baseball.CurrentState != BallState.Pitched) return;
-        if (_baseball.IsStrike) return; //이미 트리거로 잡혔으면 중복 방지
+        Vector3 fw = _baseball.GetSelectedPitchTypeSO().ForceWeight;
+        Debug.Log($"[Throw] 요청속력={velocity_xy}km/h, start={start}, target={target}, forceWeight={fw}");
 
-        Vector3 velocity = _rigidbody.velocity;
-        if (velocity.sqrMagnitude < 0.0001f) return; //정지/0속도 보호
+        Vector3 force = GetVelocityByPitchType(start, target, velocity_xy);
 
-        float dis = velocity.magnitude * Time.deltaTime;
-        Ray ray = new Ray(this.transform.position, velocity);
+        Debug.Log($"[Throw] CalculateVelocity 결과: v=({force.x:F2},{force.y:F2},{force.z:F2}), " +
+                  $"|원래 xz속력|={new Vector2(force.x, force.z).magnitude * 3.6f:F1}km/h, " +
+                  $"|total|={force.magnitude * 3.6f:F1}km/h");
 
-        //트리거도 감지하도록 QueryTriggerInteraction.Collide
-        if (Physics.Raycast(ray.origin, ray.direction, out RaycastHit rayHit, dis,
-                Physics.DefaultRaycastLayers, QueryTriggerInteraction.Collide))
-        {
-            //Debug.DrawRay(ray.origin, ray.direction, Color.red, 0.5f);
-            if(rayHit.transform.CompareTag("StrikeZone"))
-            {
-                _baseball.IsZone = true;
-                _baseball.IsStrike = true;
-            }
-        }
+        //rotation zero
+        SetVelocity(force); //계산하는 함수
+
+        beforeTime = Time.time;
+        velocityXY = new Vector3(_rigidbody.velocity.x, 0, _rigidbody.velocity.z);
+        _canMeasureVelocity = true; //속력 측정 준비 (VelocityZone 통과시 한번 출력)
     }
 
-    private void ApplyPitchMovement()
+    public void ThrowPlayerBall(Vector3 targetPos, PitchType pitchType)
+    {
+        SetVelocity(CalculateAssistedVelocity(_rigidbody.velocity, targetPos, pitchType));
+    }
+
+    private void ApplyPitchMovement() //FixedUpdated
     {
         if (_rigidbody)
         {
@@ -223,37 +231,10 @@ public class BaseballPhysics : MonoBehaviour
         _pitchStartPos = _rigidbody.position;
     }
 
-    public void SetRigidbodyMode(bool isContinusMode)
-    {
-        if (isContinusMode)
-        {
-            _rigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-        }
-        else
-        {
-            _rigidbody.collisionDetectionMode = CollisionDetectionMode.Discrete;
-        }
-    }
+    #endregion
 
-    public void ThrowBall(Vector3 start, Vector3 target, float velocity_xy)
-    {
-        Vector3 fw = _baseball.GetSelectedPitchTypeSO().ForceWeight;
-        Debug.Log($"[Throw] 요청속력={velocity_xy}km/h, start={start}, target={target}, forceWeight={fw}");
+    #region Velocity Calculation
 
-        Vector3 force = GetVelocityByPitchType(start, target, velocity_xy);
-
-        Debug.Log($"[Throw] CalculateVelocity 결과: v=({force.x:F2},{force.y:F2},{force.z:F2}), " +
-                  $"|원래 xz속력|={new Vector2(force.x, force.z).magnitude * 3.6f:F1}km/h, " +
-                  $"|total|={force.magnitude * 3.6f:F1}km/h");
-
-        //rotation zero
-        SetVelocity(force); //계산하는 함수
-
-        beforeTime = Time.time;
-        velocityXY = new Vector3(_rigidbody.velocity.x, 0, _rigidbody.velocity.z);
-        _canMeasureVelocity = true; //속력 측정 준비 (VelocityZone 통과시 한번 출력)
-    }
-    
     /// <summary>
     /// 통합 계산 단위
     /// </summary>
@@ -285,18 +266,10 @@ public class BaseballPhysics : MonoBehaviour
         //ForceWeight를 비행 로컬 → 월드 변환 (PitchTypeSO.GetForce와 동일한 규약)
         //x = 비행 방향 기준 오른쪽, y = 월드 위, z = 비행 방향 전진
         //Unity는 왼손좌표계 → up × forward = right (forward × up이 아님!)
-        Vector3 rightXZ = Vector3.Cross(Vector3.up, dirXZ); //외적 순서 유의
-        Vector3 forceWorld = rightXZ * piterTypeForce.x
-                           + Vector3.up * piterTypeForce.y
-                           + dirXZ * piterTypeForce.z;
-
-        Debug.Log("달콤한 오른쪽 +, - : " + rightXZ); //x가 양수, z가 음수
-        
-        float aX_rough = vSq * forceWorld.x;
-        float aZ_rough = vSq * forceWorld.z;
-        float vxComp = -0.5f * aX_rough * t; //마그누스 공식보면 1/2를 곱한다.
-        float vzComp = -0.5f * aZ_rough * t;
-        float vSqAdjusted = vSq + (vxComp * vxComp + vzComp * vzComp) / 3f; //평균 => 슬라이더일때만 값이 바뀐다.
+        Vector3 leftXZ = Vector3.Cross(Vector3.up, dirXZ); //외적 순서 유의 => z가 양수
+        Vector3 forceWorld = leftXZ * piterTypeForce.x
+                             + Vector3.up * piterTypeForce.y
+                             + dirXZ * piterTypeForce.z;
 
         //마그누스 공식
         float aX = vSq * forceWorld.x;
@@ -309,8 +282,12 @@ public class BaseballPhysics : MonoBehaviour
         float vy = (h + 0.5f * effectiveG * t * t) / t;
 
         // 최종 속도 벡터
-        //v₀t + ½at² = 거리0. v_0 = -1/2at => 
+        //v₀t + ½at² = 거리0. v_0 = -1/2at =>
         Vector3 velocity = dirXZ * velocity_xy;
+        
+        //dirXZ : +0.7, +0.7
+        Debug.Log("forceWorld : " + leftXZ * piterTypeForce.x);
+        
         // x/z 옆 휨 보정: 0.5*a*t² 만큼 휘므로 초기 방향을 반대로 살짝 틀어준다
         velocity.x -= 0.5f * aX * t;
         velocity.z -= 0.5f * aZ * t;
@@ -329,10 +306,69 @@ public class BaseballPhysics : MonoBehaviour
             Debug.LogError($"[CalculateVelocity] 비정상 값! velocity={velocity}, piterTypeForce={piterTypeForce}, velocity_xy={velocity_xy}, t={t}. forceWeight 너무 큼 의심.");
             return Vector3.zero;
         }
+
+        //=== Shooting method: 분석 공식(constant-a 가정)의 잔여 drift를 SimulateForward로 inverse 보정 ===
+        //forceWeight가 크거나 비행이 길어 구속/방향이 크게 변하면 1차 분석 보정만으론 부족 → 시뮬 결과의 오차를 초기 속도에서 빼주는 방식으로 1~3회 수렴
+        Vector3 preShootingLanding = SimulateForward(start, velocity, piterTypeForce, t);
+        Vector3 currentLanding = preShootingLanding;
+        const int MAX_ITER = 3;
+        const float CONVERGE_SQ = 0.0001f; //1cm 임계
+        for (int iter = 0; iter < MAX_ITER; iter++)
+        {
+            Vector3 driftIter = currentLanding - target;
+            if (driftIter.sqrMagnitude < CONVERGE_SQ) break;
+            velocity -= driftIter / t; //1차 선형 보정: 도달점이 target보다 X쪽으로 +dx 어긋났으면 초기 vx를 dx/t만큼 줄임
+            currentLanding = SimulateForward(start, velocity, piterTypeForce, t);
+        }
+
         return velocity;
     }
 
-    
+    //velocityXZ는 km/h
+    /// <summary>
+    /// 던질때 타입에 따라 추가 힘 계산
+    /// </summary>
+    /// <param name="start"></param>
+    /// <param name="target"></param>
+    /// <param name="velocityXZ"></param>
+    /// <param name="pitchType"></param>
+    /// <returns></returns>
+    public Vector3 GetVelocityByPitchType(Vector3 start, Vector3 target, float velocityXZ)
+    {
+        Vector3 piterTypeForce = _baseball.GetSelectedPitchTypeSO().ForceWeight;
+        return CalculateVelocity(start, target, velocityXZ, piterTypeForce);
+    }
+
+    /// <summary>
+    /// Player 함수. 가중치를 추가로 적용해서 변경된 속력을 반환
+    /// </summary>
+    /// <param name="rawVRVelocity"></param>
+    /// <param name="targetPos"></param>
+    /// <param name="pitchType"></param>
+    /// <param name="assistWeight"></param>
+    /// <returns></returns>
+    public Vector3 CalculateAssistedVelocity(Vector3 rawVRVelocity, Vector3 targetPos, PitchType pitchType)
+    {
+        // 1. 유저가 팔을 휘두른 "진짜 물리적 속력(시속)"을 구함
+        float playerSpeedKmh = rawVRVelocity.magnitude * 3.6f;
+
+        // 만약 너무 살짝 던졌다면 보정 계산 중 0나누기 에러가 날 수 있으니 방어 코드
+        if (playerSpeedKmh <= 1.0f) return rawVRVelocity;
+
+        playerSpeedKmh *= Mathf.Max(0.1f, speedWeight); //UI 슬라이더로 조절
+// 🔥 핵심 방어선: 유저가 9km로 던졌어도 강제로 110km로 끌어올림!
+        float finalSpeedKmh = Mathf.Min(playerSpeedKmh, 160f);
+        // 3. 섞기 (Lerp 마법!)
+
+        // 2. 유저의 구속(Speed)은 그대로 유지한 채, 타겟에 완벽하게 꽂히는 정답 궤적(Velocity)을 알아냄
+        Vector3 perfectVelocity = GetVelocityByPitchType(transform.position, targetPos, finalSpeedKmh);
+
+        // assistWeight가 0.0이면 100% 똥볼(rawVRVelocity), 1.0이면 100% 완벽한 스트라이크(perfectVelocity)
+        Vector3 finalVelocity = Vector3.Lerp(rawVRVelocity, perfectVelocity, Mathf.Clamp01(ball_accuracy_weight));
+
+        return finalVelocity;
+    }
+
     /// <summary>
     /// ApplyPitchMovement와 동일한 식으로 비행 궤적을 수치 적분해서 duration 후 위치 반환.
     /// CalculateVelocity의 shooting method 보정에서 사용.
@@ -371,104 +407,13 @@ public class BaseballPhysics : MonoBehaviour
         return p;
     }
 
+    #endregion
 
-    //velocityXZ는 km/h
-    /// <summary>
-    /// 던질때 타입에 따라 추가 힘 계산
-    /// </summary>
-    /// <param name="start"></param>
-    /// <param name="target"></param>
-    /// <param name="velocityXZ"></param>
-    /// <param name="pitchType"></param>
-    /// <returns></returns>
-    public Vector3 GetVelocityByPitchType(Vector3 start, Vector3 target, float velocityXZ)
-    {
-        Vector3 piterTypeForce = _baseball.GetSelectedPitchTypeSO().ForceWeight;
-        return CalculateVelocity(start, target, velocityXZ, piterTypeForce);
-    }
+    #region Trajectory
 
-    public void ThrowPlayerBall(Vector3 targetPos, PitchType pitchType)
-    {
-        SetVelocity(CalculateAssistedVelocity(_rigidbody.velocity, targetPos, pitchType));
-    }
-    
-    
-    /// <summary>
-    /// Player 함수. 가중치를 추가로 적용해서 변경된 속력을 반환
-    /// </summary>
-    /// <param name="rawVRVelocity"></param>
-    /// <param name="targetPos"></param>
-    /// <param name="pitchType"></param>
-    /// <param name="assistWeight"></param>
-    /// <returns></returns>
-    public Vector3 CalculateAssistedVelocity(Vector3 rawVRVelocity, Vector3 targetPos, PitchType pitchType)
-    {
-        // 1. 유저가 팔을 휘두른 "진짜 물리적 속력(시속)"을 구함
-        float playerSpeedKmh = rawVRVelocity.magnitude * 3.6f;
-
-        // 만약 너무 살짝 던졌다면 보정 계산 중 0나누기 에러가 날 수 있으니 방어 코드
-        if (playerSpeedKmh <= 1.0f) return rawVRVelocity;
-
-        playerSpeedKmh *= Mathf.Max(0.1f, speedWeight); //UI 슬라이더로 조절
-// 🔥 핵심 방어선: 유저가 9km로 던졌어도 강제로 110km로 끌어올림!
-        float finalSpeedKmh = Mathf.Min(playerSpeedKmh, 160f);
-        // 3. 섞기 (Lerp 마법!)
-        
-        // 2. 유저의 구속(Speed)은 그대로 유지한 채, 타겟에 완벽하게 꽂히는 정답 궤적(Velocity)을 알아냄
-        Vector3 perfectVelocity = GetVelocityByPitchType(transform.position, targetPos, finalSpeedKmh);
-        
-        // assistWeight가 0.0이면 100% 똥볼(rawVRVelocity), 1.0이면 100% 완벽한 스트라이크(perfectVelocity)
-        Vector3 finalVelocity = Vector3.Lerp(rawVRVelocity, perfectVelocity, Mathf.Clamp01(ball_accuracy_weight));
-
-        return finalVelocity;
-    }
-
-    public void SetGravity(bool useGravity)
-    {
-        if (_rigidbody)
-        {
-            _rigidbody.useGravity = useGravity;
-        }
-    }
-    
-    public void SetPosition(Vector3 position)
-    {
-        if (_rigidbody)
-        {
-            _rigidbody.position = position;
-        }
-            
-    }
-    
-    //위치관련
-    public void SetVelocity(Vector3 velocity)
-    {
-        if (_rigidbody)
-        {
-            _rigidbody.transform.rotation = Quaternion.identity;
-            _rigidbody.angularVelocity = Vector3.zero;
-            _rigidbody.velocity = velocity;
-        }
-    }
-
-    public Vector3 GetVelocity()
-    {
-        if (!_rigidbody)
-        {
-            Debug.LogError("No rigidbody found");
-            return Vector3.zero;
-        }
-        return _rigidbody.velocity;
-    }
-    
-    
-    //todo debug는 낙하 계산과 디버깅을 나눌 예정
-    #region TRAJECTORY
-
-    
     /// <summary>
     /// 현재 위치와 속도를 바탕으로 미래의 궤적 데이터를 계산해 반환
-    /// 치거나 던질때 
+    /// 치거나 던질때
     /// </summary>
     public void PredictTrajectory(Vector3 startPos)
     {
@@ -509,7 +454,7 @@ public class BaseballPhysics : MonoBehaviour
                 // 1. 스트라이크 존 관통 확인
                 if (hit.collider.isTrigger && (hit.collider.CompareTag("BallZone") || hit.collider.CompareTag("StrikeZone")))
                 {
-                    if (!_trajectoryBaseBallData.GetHasPassedStrikeZone()) 
+                    if (!_trajectoryBaseBallData.GetHasPassedStrikeZone())
                     {
                         _trajectoryBaseBallData.SetStrikeZonePoint(hit.point);
                         _trajectoryBaseBallData.SetHasPassedStrikeZone(true);
@@ -527,6 +472,33 @@ public class BaseballPhysics : MonoBehaviour
 
             _trajectoryBaseBallData.AddPathPoint(nextP); // 궤적 점 저장
             p = nextP;
+        }
+    }
+
+    //todo 나중에 공 rigidbody Continuous Dynamic로 전환하고 이 함수는 제거할거임
+    //=> Continuous Dynamic으로도 트리거 터널링은 안 잡혀서 이 함수 유지 필요
+    private void CheckStrikeZoneTunneling()
+    {
+        //너무 빨라서 스트라이크존을 지나친 경우의 판정
+        if (_baseball.CurrentState != BallState.Pitched) return;
+        if (_baseball.IsStrike) return; //이미 트리거로 잡혔으면 중복 방지
+
+        Vector3 velocity = _rigidbody.velocity;
+        if (velocity.sqrMagnitude < 0.0001f) return; //정지/0속도 보호
+
+        float dis = velocity.magnitude * Time.deltaTime;
+        Ray ray = new Ray(this.transform.position, velocity);
+
+        //트리거도 감지하도록 QueryTriggerInteraction.Collide
+        if (Physics.Raycast(ray.origin, ray.direction, out RaycastHit rayHit, dis,
+                Physics.DefaultRaycastLayers, QueryTriggerInteraction.Collide))
+        {
+            //Debug.DrawRay(ray.origin, ray.direction, Color.red, 0.5f);
+            if(rayHit.transform.CompareTag("StrikeZone"))
+            {
+                _baseball.IsZone = true;
+                _baseball.IsStrike = true;
+            }
         }
     }
 
@@ -570,16 +542,73 @@ public class BaseballPhysics : MonoBehaviour
 
     #endregion
 
-    public TrajectoryBaseBallData GetTrajectoryBaseBallData() => _trajectoryBaseBallData;
+    #region Accessors
+
+    public void SetGravity(bool useGravity)
+    {
+        if (_rigidbody)
+        {
+            _rigidbody.useGravity = useGravity;
+        }
+    }
+
+    public void SetPosition(Vector3 position)
+    {
+        if (_rigidbody)
+        {
+            _rigidbody.position = position;
+        }
+
+    }
+
+    //위치관련
+    public void SetVelocity(Vector3 velocity)
+    {
+        if (_rigidbody)
+        {
+            _rigidbody.transform.rotation = Quaternion.identity;
+            _rigidbody.angularVelocity = Vector3.zero;
+            _rigidbody.velocity = velocity;
+        }
+    }
+
+    public Vector3 GetVelocity()
+    {
+        if (!_rigidbody)
+        {
+            Debug.LogError("No rigidbody found");
+            return Vector3.zero;
+        }
+        return _rigidbody.velocity;
+    }
 
     public Vector3 GetPosition()
     {
         return _rigidbody.position;
     }
 
+    public void SetRigidbodyMode(bool isContinusMode)
+    {
+        if (!_rigidbody)
+            return;
+        if (isContinusMode)
+        {
+            _rigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+        }
+        else
+        {
+            _rigidbody.collisionDetectionMode = CollisionDetectionMode.Discrete;
+        }
+    }
+
     public float GetFlightTime() => flightTime;
-    
-    
+
+    public TrajectoryBaseBallData GetTrajectoryBaseBallData() => _trajectoryBaseBallData;
+
+    #endregion
+
+    #region Properties
+
     public float Ball_Accuracy_Weight
     {
         get
@@ -603,4 +632,6 @@ public class BaseballPhysics : MonoBehaviour
         get => _canMeasureVelocity;
         set => _canMeasureVelocity = value;
     }
+
+    #endregion
 }

@@ -17,6 +17,7 @@ public class MyXROriginManager : MonoBehaviour
 
     [Header("플레이어 이동 컨트롤러")]
     [SerializeField] private ActionBasedContinuousMoveProvider moveProvider;
+    [SerializeField] private float playerMoveSpeed = 4.5f; //AI 타자 NavMeshAgent(3.5) 살짝 위. prefab moveSpeed 덮어씀
     [SerializeField] private XROrigin _origin;
     [SerializeField] private Transform rightHand;
 
@@ -40,6 +41,8 @@ public class MyXROriginManager : MonoBehaviour
         bodyEvent.onEventRaised += SetPlayer;
         setPlayerMoveMode.onEventRaised += SetPlayerMoveMode;
         if (debugSwingEvent != null) debugSwingEvent.onEventRaised += OnDebugSwingRaised;
+
+        if (moveProvider != null) moveProvider.moveSpeed = playerMoveSpeed;
     }
     private void OnDisable()
     {

@@ -11,7 +11,6 @@ public class GamePlayManager : GameManager
 {
     #region VARIABLES
     [Header("Debug")]
-    [SerializeField] protected XROrigin playerOrigin; //debug용
     [SerializeField] protected ActionBasedContinuousMoveProvider moveProvider; //debug용
     [SerializeField] private Color _myTeamColor;
     [SerializeField] private Color _yourTeamColor;
@@ -281,28 +280,12 @@ public class GamePlayManager : GameManager
     
     void MovePlayer(Vector3 position)
     {
-        //debug
-        if (playerOrigin.gameObject.activeSelf)
-        {
-            //방망이 중력, rotation position 풀기
-            playerOrigin.MoveCameraToWorldLocation(position); //시점 타자 시점
-        }
-        else
-        {
-            moveOriginEvent.RaiseEvent(position);
-        }
+        moveOriginEvent.RaiseEvent(position);
     }
     
     void RotatePlayer(Vector3 rotate)
     {
-        if (playerOrigin.gameObject.activeSelf)
-        {
-            playerOrigin.MatchOriginUpCameraForward(Vector3.up, rotate);
-        }
-        else
-        {
-            rotateOriginEvent.RaiseEvent(rotate);
-        }
+        rotateOriginEvent.RaiseEvent(rotate);
     }
     
     private void OnTouchBall()
@@ -314,28 +297,21 @@ public class GamePlayManager : GameManager
     {
         Debug.Log("[Player] : isMove = " + isMove);
 
-        if (playerOrigin.gameObject.activeSelf)
-        {
 #if  UNITY_EDITOR
-            XRDeviceSimulator xr = Object.FindAnyObjectByType<XRDeviceSimulator>();
-            if (xr)
-            {
-                float speed = 0f;
-                if (isMove)
-                {
-                    speed = 1.5f;
-                }
-                xr.keyboardXTranslateSpeed = speed;
-                xr.keyboardYTranslateSpeed = speed;
-                xr.keyboardZTranslateSpeed = speed;
-            }
-#endif
-            moveProvider.enabled = isMove;
-        }
-        else
+        XRDeviceSimulator xr = Object.FindAnyObjectByType<XRDeviceSimulator>();
+        if (xr)
         {
-            _setPlayerMoveMode.RaiseEvent(isMove);
+            float speed = 0f;
+            if (isMove)
+            {
+                speed = 1.5f;
+            }
+            xr.keyboardXTranslateSpeed = speed;
+            xr.keyboardYTranslateSpeed = speed;
+            xr.keyboardZTranslateSpeed = speed;
         }
+#endif
+        _setPlayerMoveMode.RaiseEvent(isMove);
     }
     
 
@@ -603,11 +579,14 @@ public class GamePlayManager : GameManager
         
         //GetDefenderComponent(0).SetMyBall(_ball);
         myBody.SetBatterComponent();
-        
+
+        SetPlayerMoveMode(true); //StartPitcherMode에서 false로 잠갔던 걸 복원 (비대칭 방지)
+
         StartCoroutine(TranslateBattingView());
         //TranslateBattingView();
     }
 
+    //타석 이동
     IEnumerator TranslateBattingView()
     {
         fadeEvent.FadeOut(FADE_WAIT_TIME); //이동하기 전
@@ -621,6 +600,8 @@ public class GamePlayManager : GameManager
         fadeEvent.FadeIn(FADE_WAIT_TIME); //이동하고 나서
         currentBatterComponent = myBody.GetMyBatterComponent();
         
+        //타석에는 움직이지 마라 todo
+        //SetPlayerMoveMode(false);
     }
     
     //override
@@ -672,7 +653,9 @@ public class GamePlayManager : GameManager
         pitchingController.StartPitchingGame();
         
         _ball.CurrentState = BallState.Dead;
-        SetPlayerMoveMode(false);
+        
+        //todo
+        //SetPlayerMoveMode(false);
             
         defenders[0].gameObject.SetActive(false);
         myBody.SetPitcherComponent();
@@ -1198,15 +1181,7 @@ public class GamePlayManager : GameManager
 
     private void SetMyBodyCamera()
     {
-        //debug
-        if (playerOrigin.gameObject.activeSelf)
-        {
-            myBody.SetCamera(playerOrigin.Camera);
-        }
-        else
-        {
-            _setBodyEvent.RaiseEvent(myBody);
-        }
+        _setBodyEvent.RaiseEvent(myBody);
     }
 
     #endregion

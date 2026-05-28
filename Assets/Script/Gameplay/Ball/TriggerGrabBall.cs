@@ -37,7 +37,7 @@ public class TriggerGrabBall : MonoBehaviour
 
     private void OnTriggerPressed(InputAction.CallbackContext _)
     {
-        Debug.Log("[TriggerGrabBall] trigger pressed");
+        //Debug.Log("[TriggerGrabBall] trigger pressed");
 
         if (!EnsureRefs())
         {
