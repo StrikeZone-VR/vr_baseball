@@ -279,11 +279,13 @@ public class GamePlayManager : GameManager
     
     void MovePlayer(Vector3 position)
     {
+        Debug.Log("엄준식은");
         moveOriginEvent.RaiseEvent(position);
     }
     
     void RotatePlayer(Vector3 rotate)
     {
+        Debug.Log("살아있다.");
         rotateOriginEvent.RaiseEvent(rotate);
     }
     

@@ -42,7 +42,12 @@ public class MyXROriginManager : MonoBehaviour
         setPlayerMoveMode.onEventRaised += SetPlayerMoveMode;
         if (debugSwingEvent != null) debugSwingEvent.onEventRaised += OnDebugSwingRaised;
 
-        if (moveProvider != null) moveProvider.moveSpeed = playerMoveSpeed;
+        if (moveProvider != null)
+        {
+            moveProvider.moveSpeed = playerMoveSpeed;
+            //중력을 '이동 시도 시'(AttemptingMove)가 아니라 '즉시' 적용 → 떠 있어도 바로 바닥에 안착
+            moveProvider.gravityApplicationMode = ContinuousMoveProviderBase.GravityApplicationMode.Immediately;
+        }
     }
     private void OnDisable()
     {
@@ -197,8 +202,12 @@ public class MyXROriginManager : MonoBehaviour
     private void MoveOrigin(Vector3 vector3)
     {
         //move
-        _origin.MoveCameraToWorldLocation(vector3);
-        
+        //MoveCameraToWorldLocation은 '카메라(머리)'를 그 좌표에 맞추는 함수라
+        //y를 직접 주면 트래킹된 머리 높이와 충돌해 극초반/이후 스폰 높이가 들쭉날쭉(y2/y1)해진다.
+        //→ 수평(x,z)만 목표로 맞추고 높이는 현재 카메라 높이를 유지(중력이 발을 바닥에 안착시킴)
+        Camera cam = _origin != null ? _origin.Camera : null;
+        float keepY = cam != null ? cam.transform.position.y : vector3.y;
+        _origin.MoveCameraToWorldLocation(new Vector3(vector3.x, keepY, vector3.z));
     }
     private void RotateOrigin(Vector3 vector3)
     {
