@@ -25,7 +25,10 @@
       "mcp__mcp-unity__batch_execute",
       "Bash(git --no-pager show 7f06f10 -- Assets/Script/Gameplay/Manager/GamePlayManager.cs)",
       "Bash(git --no-pager show 7f06f10)",
-      "Bash(git *)"
+      "Bash(git *)",
+      "Bash(grep -rl \"menuButton\\\\|/menu\\\\|Menu\" --include=*.inputactions .)",
+      "Bash(grep -rl \"SettingsController\" --include=*.unity --include=*.prefab .)",
+      "Bash(awk 'NR>=58 && NR<=72' \"Samples/XR Interaction Toolkit/2.6.4/XR Device Simulator/XR Device Controller Controls.inputactions\")"
     ]
   },
   "enableAllProjectMcpServers": true,

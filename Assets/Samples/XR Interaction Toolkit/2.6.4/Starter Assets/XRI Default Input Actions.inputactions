@@ -2730,6 +2730,34 @@
                     "isPartOfComposite": true
                 }
             ]
+        },
+        {
+            "name": "Setting",
+            "id": "f553b6b8-f429-4dad-9590-62812e93b6b4",
+            "actions": [
+                {
+                    "name": "onSetting",
+                    "type": "Button",
+                    "id": "b0c43fce-f229-4173-8603-87d143a5584a",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "f55c9533-a0de-4aee-9350-fb20dcdba16c",
+                    "path": "<XRController>{LeftHand}/{MenuButton}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "onSetting",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": [

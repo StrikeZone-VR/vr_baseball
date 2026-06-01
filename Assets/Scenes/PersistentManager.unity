@@ -391,7 +391,7 @@ MonoBehaviour:
   vibrateValueText: {fileID: 998613309}
   languageDropdown: {fileID: 942395943}
   audioManager: {fileID: 579327865}
-  toggleMenuAction: {fileID: 4116954447336496447, guid: 0be0028c24f2a4c14a96b6aa39055933, type: 3}
+  toggleMenuAction: {fileID: -5387318287704004520, guid: c348712bda248c246b8c49b3db54643f, type: 3}
   keyboardToggleKey: 30
   headTransform: {fileID: 1692753976}
   panelRootCanvas: {fileID: 131795318}
@@ -2529,6 +2529,7 @@ MonoBehaviour:
   debugSwingEvent: {fileID: 11400000, guid: 41fdc80bc8e34f3483e335951fd5a13c, type: 2}
   moveProvider: {fileID: 1132869864}
   playerMoveSpeed: 4.5
+  groundSettleDuration: 0.5
   _origin: {fileID: 2057171112}
   rightHand: {fileID: 453779108}
   swingAxis: {fileID: 0}
