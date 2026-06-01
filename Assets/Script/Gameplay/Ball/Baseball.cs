@@ -100,6 +100,7 @@ public class Baseball : MonoBehaviour
             //그냥 홈런 범위를 넘어서면
             else if (transform.position.x < 0 && transform.position.z < 0 )
             {
+                Debug.Log("홈런의 위치가? : " +transform.position.x + " , " + transform.position.z);
                 Homerun();
             }
             else

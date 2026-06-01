@@ -18,6 +18,8 @@ public class MyXROriginManager : MonoBehaviour
     [Header("플레이어 이동 컨트롤러")]
     [SerializeField] private ActionBasedContinuousMoveProvider moveProvider;
     [SerializeField] private float playerMoveSpeed = 4.5f; //AI 타자 NavMeshAgent(3.5) 살짝 위. prefab moveSpeed 덮어씀
+    [Tooltip("스폰/이동 직후 이 시간 동안만 중력을 '즉시' 적용해 바닥에 안착시킨다. 그 뒤엔 AttemptingMove로 복귀.")]
+    [SerializeField] private float groundSettleDuration = 0.5f;
     [SerializeField] private XROrigin _origin;
     [SerializeField] private Transform rightHand;
 
@@ -33,7 +35,8 @@ public class MyXROriginManager : MonoBehaviour
     [SerializeField, Range(0f, 1f)] private float releaseProgress = 0.5f;
 
     private bool swingActive;
-    
+    private Coroutine settleRoutine;
+
     private void OnEnable()
     {
         moveOriginEvent.onEventRaised += MoveOrigin;
@@ -45,8 +48,10 @@ public class MyXROriginManager : MonoBehaviour
         if (moveProvider != null)
         {
             moveProvider.moveSpeed = playerMoveSpeed;
-            //중력을 '이동 시도 시'(AttemptingMove)가 아니라 '즉시' 적용 → 떠 있어도 바로 바닥에 안착
-            moveProvider.gravityApplicationMode = ContinuousMoveProviderBase.GravityApplicationMode.Immediately;
+            //평소엔 AttemptingMove 유지. Immediately로 두면 가만히 서 있어도 매 프레임 MoveRig가 호출돼
+            //locomotionPhase가 Moving에 고정 → TunnelingVignette가 계속 닫혀(주변 시야 까맣게) 버린다.
+            //'떠 있어도 바로 바닥에 안착'은 MoveOrigin 직후 BeginGroundSettle에서 잠깐만 Immediately로 처리한다.
+            moveProvider.gravityApplicationMode = ContinuousMoveProviderBase.GravityApplicationMode.AttemptingMove;
         }
     }
     private void OnDisable()
@@ -208,7 +213,28 @@ public class MyXROriginManager : MonoBehaviour
         Camera cam = _origin != null ? _origin.Camera : null;
         float keepY = cam != null ? cam.transform.position.y : vector3.y;
         _origin.MoveCameraToWorldLocation(new Vector3(vector3.x, keepY, vector3.z));
+
+        //방금 수평 이동으로 공중에 떴을 수 있으니 잠깐만 중력 즉시 적용해 바닥에 안착시킨다.
+        BeginGroundSettle();
     }
+
+    //스폰/이동 직후 짧게만 Immediately로 바꿔 바닥에 안착시키고 다시 AttemptingMove로 복귀.
+    //(계속 Immediately면 서 있어도 비네트가 닫히므로 잠깐만)
+    private void BeginGroundSettle()
+    {
+        if (moveProvider == null) return;
+        if (settleRoutine != null) StopCoroutine(settleRoutine);
+        settleRoutine = StartCoroutine(GroundSettleRoutine());
+    }
+
+    private IEnumerator GroundSettleRoutine()
+    {
+        moveProvider.gravityApplicationMode = ContinuousMoveProviderBase.GravityApplicationMode.Immediately;
+        yield return new WaitForSeconds(groundSettleDuration);
+        moveProvider.gravityApplicationMode = ContinuousMoveProviderBase.GravityApplicationMode.AttemptingMove;
+        settleRoutine = null;
+    }
+
     private void RotateOrigin(Vector3 vector3)
     {
         _origin.MatchOriginUpCameraForward(Vector3.up, vector3);
