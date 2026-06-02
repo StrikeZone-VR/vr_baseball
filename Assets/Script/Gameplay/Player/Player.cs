@@ -20,7 +20,6 @@ public class Player : MonoBehaviour
     }
     public void SetActiveRole(PlayerComponent newRole)
     {
-        Debug.Log("모드 시작");
         // 기존 역할 끄기
         if (_playerComponent != null)
             _playerComponent.enabled = false;

@@ -192,7 +192,7 @@ public class Baseball : MonoBehaviour
         {
             if (!isGroundBall) //groundball or flying ball
             {
-                Debug.Log("[Batting] : 안타");
+                GameLog.BallLog("[Batting] : 안타");
                 inplayGameEvent.RaiseEvent();
                 IsGroundBall = true;
             }
@@ -201,20 +201,20 @@ public class Baseball : MonoBehaviour
         else if (bat && bat.IsSwing()) //스윙여부 == true => 스윙했는데 방망이를 건들지 않은 경우
         {
             playAudioClipEvent.RaiseEvent(3);
-            Debug.Log("[Game] : 스트라이크1");
+            GameLog.BallLog("[Game] : 스트라이크1");
             addStrikeEvent.RaiseEvent();
             //backToPitcherEvent.RaiseEvent();
         }
         else if(IsStrike) //스윙 안했는데 스트라이크존에 들어간 경우
         {
             playAudioClipEvent.RaiseEvent(3);
-            Debug.Log("[Game] : 스트라이크2");
+            GameLog.BallLog("[Game] : 스트라이크2");
             addStrikeEvent.RaiseEvent();
             //backToPitcherEvent.RaiseEvent();
         }
         else if(IsZone)//스트라이크 존에도 안 닿았고 스윙도 안했다면
         {
-            Debug.Log("볼");
+            GameLog.BallLog("볼");
             addBallCountEvent.RaiseEvent();
             //backToPitcherEvent.RaiseEvent();
         }
@@ -244,6 +244,7 @@ public class Baseball : MonoBehaviour
         set
         {
             _currentState = value;
+            GameLog.BallLog("공의 상태" + _currentState + ", 중력 : " + _physics.GetGravity());
 
             switch (_currentState)
             {

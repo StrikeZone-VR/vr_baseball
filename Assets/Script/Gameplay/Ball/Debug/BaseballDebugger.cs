@@ -43,7 +43,7 @@ public class BaseballDebugger : MonoBehaviour
     {
         if (Keyboard.current != null && Keyboard.current[swingKey].wasPressedThisFrame)
         {
-            Debug.Log("Z 클릭 - 팔 휘두르기");
+            GameLog.Pitch("Z 클릭 - 팔 휘두르기");
             if (debugSwingEvent != null) debugSwingEvent.RaiseEvent();
         }
     }

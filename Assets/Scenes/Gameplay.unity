@@ -3173,7 +3173,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1128552219}
   m_Layer: 0
-  m_Name: BaseballObjects
+  m_Name: '***BaseballObjects***'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3534,6 +3534,11 @@ MonoBehaviour:
   - {fileID: 1232322307}
   init_base: {fileID: 331307944}
   myBody: {fileID: 1628165484}
+  rightBatterPositionTemp:
+  - {fileID: 2031423785}
+  - {fileID: 2031423784}
+  - {fileID: 2031423783}
+  - {fileID: 2031423782}
   gamePlayController: {fileID: 213368713}
   pitchingController: {fileID: 768156389}
   battingController: {fileID: 1480665834}
@@ -5645,6 +5650,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 911987235423066159, guid: 6b632a987658c784fb8d018000345df0, type: 3}
+      propertyPath: _physics
+      value: 
+      objectReference: {fileID: 9125010748214181301}
+    - target: {fileID: 911987235423066159, guid: 6b632a987658c784fb8d018000345df0, type: 3}
       propertyPath: _baseball
       value: 
       objectReference: {fileID: 683532152}
@@ -5852,6 +5861,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: PitchSelectionCanvas
       objectReference: {fileID: 0}
+    - target: {fileID: 2348512824562167732, guid: 6b632a987658c784fb8d018000345df0, type: 3}
+      propertyPath: _physics
+      value: 
+      objectReference: {fileID: 9125010748214181301}
     - target: {fileID: 2803231929523047881, guid: 6b632a987658c784fb8d018000345df0, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -6878,6 +6891,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 019fbe4d8ddc3a54cab87bcba6387fd2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!4 &2031423782 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1044042755762262982, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
+  m_PrefabInstance: {fileID: 2031423780}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &2031423783 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 792862663660663057, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
+  m_PrefabInstance: {fileID: 2031423780}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &2031423784 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 104331179738056191, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
+  m_PrefabInstance: {fileID: 2031423780}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &2031423785 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5734979143216724519, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
+  m_PrefabInstance: {fileID: 2031423780}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2043770331
 GameObject:
   m_ObjectHideFlags: 0

@@ -69,6 +69,7 @@ public class BaseballPhysics : MonoBehaviour
 
     private void OnTriggerEnter(Collider collider)
     {
+        GameLog.BallLog("소리쳐 내이름 : " + collider.transform.name);
         if (collider.gameObject.CompareTag("VelocityZone"))
         {
             PrintBallVelocity();
@@ -106,9 +107,9 @@ public class BaseballPhysics : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+        GameLog.BallLog("소리쳐 내이름 : " + collision.transform.name);
         if (collision.collider.CompareTag("Ground") || collision.collider.CompareTag("Base"))
         {
-
             //잡지 않았다면
             if (_baseball.CurrentState != BallState.Grabbed)
             {
@@ -163,7 +164,17 @@ public class BaseballPhysics : MonoBehaviour
             float speed = bat.GetSwingSpeed();
 
             //가중치 4배 * speed * 4f
-            _rigidbody.AddForce(hitDirection * speed * 4, ForceMode.Impulse);
+            //안전망: 스윙 속력 스파이크(스크립트 스윙 순간이동/VR 트래킹 튐)로 타구가 비현실적으로 빨라지는 것 방지.
+            //OnCollisionEnter 안의 AddForce(Impulse)는 콜백 직후 적분돼 _rigidbody.velocity에 즉시 반영되지 않으므로,
+            //결과 속도를 직접 계산(Impulse 모드 = Δv = J/mass)해서 상한 적용 후 대입한다.
+            Vector3 impulse = hitDirection * speed * 4;
+            Vector3 newVelocity = _rigidbody.velocity + impulse / _rigidbody.mass;
+            const float MAX_HIT_SPEED = 60f; // 216km/h, 실제 타구 최대치 수준
+            if (newVelocity.magnitude > MAX_HIT_SPEED)
+            {
+                newVelocity = newVelocity.normalized * MAX_HIT_SPEED;
+            }
+            _rigidbody.velocity = newVelocity;
         }
     }
 
@@ -171,7 +182,7 @@ public class BaseballPhysics : MonoBehaviour
     {
         if (other.collider.CompareTag("Bat"))
         {
-            Debug.Log("hit! 공 속도 :" + _rigidbody.velocity);
+            GameLog.HitLog("hit! 공 속도 :" + _rigidbody.velocity);
         }
     }
 
@@ -182,13 +193,13 @@ public class BaseballPhysics : MonoBehaviour
     public void ThrowBall(Vector3 start, Vector3 target, float velocity_xy)
     {
         Vector3 fw = _baseball.GetSelectedPitchTypeSO().ForceWeight;
-        Debug.Log($"[Throw] 요청속력={velocity_xy}km/h, start={start}, target={target}, forceWeight={fw}");
+        GameLog.BallLog($"[BaseBall] 요청속력={velocity_xy}km/h, start={start}, target={target}, forceWeight={fw}");
 
         Vector3 force = GetVelocityByPitchType(start, target, velocity_xy);
 
-        Debug.Log($"[Throw] CalculateVelocity 결과: v=({force.x:F2},{force.y:F2},{force.z:F2}), " +
-                  $"|원래 xz속력|={new Vector2(force.x, force.z).magnitude * 3.6f:F1}km/h, " +
-                  $"|total|={force.magnitude * 3.6f:F1}km/h");
+        GameLog.BallLog($"[BaseBall] CalculateVelocity 결과: v=({force.x:F2},{force.y:F2},{force.z:F2}), " +
+                        $"|원래 xz속력|={new Vector2(force.x, force.z).magnitude * 3.6f:F1}km/h, " +
+                        $"|total|={force.magnitude * 3.6f:F1}km/h");
 
         //rotation zero
         SetVelocity(force); //계산하는 함수
@@ -284,14 +295,10 @@ public class BaseballPhysics : MonoBehaviour
         //v₀t + ½at² = 거리0. v_0 = -1/2at =>
         Vector3 velocity = dirXZ * velocity_xy;
         
-        //dirXZ : +0.7, +0.7
-        Debug.Log("forceWorld : " + leftXZ * piterTypeForce.x);
-        
         // x/z 옆 휨 보정: 0.5*a*t² 만큼 휘므로 초기 방향을 반대로 살짝 틀어준다
         velocity.x -= 0.5f * aX * t;
         velocity.z -= 0.5f * aZ * t;
         velocity.y = vy;
-
 
         // 안전망: NaN/Infinity/극단치 방지 (Gizmo for-loop 무한반복 + Linecast 크래시 막기)
         const float MAX_SPEED = 200f; // 시속 720km 넘으면 비정상
@@ -530,24 +537,34 @@ public class BaseballPhysics : MonoBehaviour
         float velocity = (displacementXZ.magnitude / elapsedTime) * 3.6f; // m/s → km/h
 
         Vector3 v = GetVelocity();  //ms (참고용 rigidbody.velocity)
-        Debug.Log($"[측정] startPos={_pitchStartPos}, endPos={endPos}, " +
-                  $"v=({v.x:F2},{v.y:F2},{v.z:F2}), " +
-                  $"distXZ={displacementXZ.magnitude:F2}m, elapsed={elapsedTime:F3}s, " +
-                  $"|h|={velocity:F1}km/h, " +
-                  $"forceWeight={_baseball.GetSelectedPitchTypeSO().ForceWeight}");
+        // GameLog.BallLog($"[측정] startPos={_pitchStartPos}, endPos={endPos}, " +
+        //           $"v=({v.x:F2},{v.y:F2},{v.z:F2}), " +
+        //           $"distXZ={displacementXZ.magnitude:F2}m, elapsed={elapsedTime:F3}s, " +
+        //           $"|h|={velocity:F1}km/h, " +
+        //           $"forceWeight={_baseball.GetSelectedPitchTypeSO().ForceWeight}");
 
         getVelocityEventSO.RaiseEvent(velocity);
     }
 
     #endregion
 
-    #region Accessors
+    #region PROPERTY
 
     public void SetGravity(bool useGravity)
     {
         if (_rigidbody)
         {
             _rigidbody.useGravity = useGravity;
+        }
+    }
+
+    public bool GetGravity()
+    {
+        if(_rigidbody)
+            return _rigidbody.useGravity;
+        else
+        {
+            return false;
         }
     }
 

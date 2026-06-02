@@ -34,7 +34,6 @@ public class FarNearGrab : XRGrabInteractable
     {
         List<XRBaseController> list = new List<XRBaseController>();
         
-        Debug.Log("사이즈 : " + interactorsSelecting.Count);
         foreach (IXRSelectInteractor interactor in interactorsSelecting)
         {
             //애초에 부모가 XRController이고 매개변수는 RayInteractor임

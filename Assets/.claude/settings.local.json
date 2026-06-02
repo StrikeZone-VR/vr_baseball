@@ -28,7 +28,9 @@
       "Bash(git *)",
       "Bash(grep -rl \"menuButton\\\\|/menu\\\\|Menu\" --include=*.inputactions .)",
       "Bash(grep -rl \"SettingsController\" --include=*.unity --include=*.prefab .)",
-      "Bash(awk 'NR>=58 && NR<=72' \"Samples/XR Interaction Toolkit/2.6.4/XR Device Simulator/XR Device Controller Controls.inputactions\")"
+      "Bash(awk 'NR>=58 && NR<=72' \"Samples/XR Interaction Toolkit/2.6.4/XR Device Simulator/XR Device Controller Controls.inputactions\")",
+      "Bash(findstr /s \"outRunnerEvent.RaiseEvent\\\\|outRunnerEvent\\\\.RaiseEvent\" \"D:\\\\Code\\\\Unity Projects\\\\VR_Baseball\\\\Assets\\\\Script\\\\Gameplay\" /C)",
+      "WebSearch"
     ]
   },
   "enableAllProjectMcpServers": true,

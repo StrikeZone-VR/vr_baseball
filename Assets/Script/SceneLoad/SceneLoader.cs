@@ -23,7 +23,6 @@ public class SceneLoader : MonoBehaviour
     {
         if (HasOtherSceneLoaded())
         {
-            Debug.Log("[SceneLoader] 다른 씬이 이미 로드됨 → Menu 자동 로드 스킵");
             currentScene = FindFirstNonPersistentScene();
             return;
         }

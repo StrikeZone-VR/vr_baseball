@@ -14,6 +14,7 @@ public class GamePlayManager : GameManager
     [SerializeField] protected ActionBasedContinuousMoveProvider moveProvider; //debug용
     [SerializeField] private Color _myTeamColor;
     [SerializeField] private Color _yourTeamColor;
+    private float player_y = 1.7f; //1.7
     
     [Space]
     
@@ -21,7 +22,9 @@ public class GamePlayManager : GameManager
     [SerializeField] private Player[] defenders; // pitcher => 0
     [SerializeField] private Transform[] bases;
     [SerializeField] private Transform init_base;
-    [SerializeField] private MyBody myBody; //플레이어 타자 <= 이거를 event로 통신해야하는데
+    [SerializeField] private MyBody myBody; //플레이어 타자
+    [SerializeField] private Transform[] rightBatterPositionTemp; //4개
+    
     private PitcherComponent _pitcherComponent;
     
     [Space]
@@ -86,6 +89,9 @@ public class GamePlayManager : GameManager
     
     private bool isFlyingOut = false;
     private bool canGetBall = true; //호출 위치를 어디에 해야할지 모르겠네
+
+    private int _lastDebugRunningIndex = -2; //[복귀디버그] 임시 - 값 바뀔 때만 로그 출력용
+    private string _lastGateDebug = ""; //[복귀디버그] 임시 - 게이트 상태 변화 추적용
     
     //define
     const float WAIT_TIME = 7.0f;  //투수 던지기 전 대기 상태
@@ -224,8 +230,7 @@ public class GamePlayManager : GameManager
     {
         canGetBall = false;
         isFlyingOut = false;
-        
-        Debug.Log("[Game] : ResetBall");
+        GameLog.Defend($"[Game] : ResetBall");
         //포수 위치 변환
         CatcherComponent catcherComponent = GetDefenderComponent(4) as CatcherComponent;
         catcherComponent.DefendIndex = 0;
@@ -294,7 +299,7 @@ public class GamePlayManager : GameManager
 
     private void SetPlayerMoveMode(bool isMove)
     {
-        Debug.Log("[Player] : isMove = " + isMove);
+        GameLog.Run($"Player  : isMove = " + isMove);
 
 #if  UNITY_EDITOR
         XRDeviceSimulator xr = Object.FindAnyObjectByType<XRDeviceSimulator>();
@@ -591,7 +596,14 @@ public class GamePlayManager : GameManager
         fadeEvent.FadeOut(FADE_WAIT_TIME); //이동하기 전
         yield return new WaitForSeconds(FADE_WAIT_TIME);
 
-        Vector3 movePosition = new Vector3(0, 1.0f, 0);
+        //Vector3 movePosition = new Vector3(0, player_y, 0);
+        Vector3 movePosition = Vector3.zero;
+        for (int i = 0; i < rightBatterPositionTemp.Length; i++)
+        {
+            movePosition += rightBatterPositionTemp[i].position;
+        }
+        movePosition /= rightBatterPositionTemp.Length;
+        movePosition.y = player_y; 
         Vector3 rotateVector = new Vector3(-1, 0, -1);
         MovePlayer(movePosition);
         RotatePlayer(rotateVector);
@@ -673,7 +685,7 @@ public class GamePlayManager : GameManager
         fadeEvent.FadeOut(FADE_WAIT_TIME);
         yield return new WaitForSeconds(FADE_WAIT_TIME);
         
-        Vector3 movePosition = new Vector3(-13.46f, 1.0f, -13.46f);
+        Vector3 movePosition = new Vector3(-13.46f, player_y, -13.46f);
         Vector3 rotateVector = new Vector3(1, 0, 1);
         MovePlayer(movePosition);
         RotatePlayer(rotateVector);
@@ -719,10 +731,19 @@ public class GamePlayManager : GameManager
     
     private void BeforePitcherGetBall()
     {
+        //[복귀디버그] 게이트 상태 추적 - 복귀 로직에 들어가기 위한 3가지 조건이 어디서 막히는지. 값 바뀔 때만 출력
+        string gate = $"InGamePlay={_ball.IsInGamePlay}, Defender={(_ball.MyDefenderComponent ? _ball.MyDefenderComponent.name : "null")}, IsZone={_ball.IsZone}";
+        if (gate != _lastGateDebug)
+        {
+            _lastGateDebug = gate;
+            Debug.Log($"<color=yellow>[복귀디버그]게이트</color> {gate}");
+        }
+
         //Debug.LogWarning("이러면 1루 견제를 하면 못 돌아옴");
         if (!_ball.IsInGamePlay)
         {
             //Debug.LogWarning("인플레이가 아니었다?");
+            _lastDebugRunningIndex = -2; //[복귀디버그] 인플레이 끝나면 리셋해서 다음 타구도 처음부터 찍히게
             return;
         }
 
@@ -730,8 +751,11 @@ public class GamePlayManager : GameManager
         //has ball and ball batting => 포수 방지용으로 존에 들어간 순간부터 하는게 낫지 않을까?
         if (_ball.MyDefenderComponent && _ball.IsZone)
         {
+            //[복귀디버그] ThrowBallAlgorithm은 내부에서 송구(부수효과)가 있으니 1번만 호출하고 캐싱
+            bool canThrow = ThrowBallAlgorithm();
+
             //던질 곳 없으면 다시 투수 복귀
-            if (!ThrowBallAlgorithm())
+            if (!canThrow)
             {
                 //어차피 근데 타자모드일때만 이라고 해도 canBackRunner자체가 여기에서만 나올듯
                 //위치를 여기다 둔 이유. 피쳐가 수비하면 타자 복귀가 안됨
@@ -752,13 +776,11 @@ public class GamePlayManager : GameManager
                     DebugBaseStatus();
                 }
                 
-                
                 //AI투수가 공을 가지고 있다면
                 if (_pitcherComponent && _ball.MyDefenderComponent == _pitcherComponent)
                 {
                     return;
                 }
-        
                 
                 if(canGetBall)
                 {
@@ -798,11 +820,12 @@ public class GamePlayManager : GameManager
         //주자의 base_index0 1 2 3
         //1루가기전 2루가기전 3루가기전 홈으로가기전
         //수비수 : 1 2 3 4
-        
+
         // 기본적으로 공을 가지고있는 상태
         if (!_ball.IsInGamePlay || !GetDefenderComponent(base_index + 1).IsInPosition)
         {
             //Debug.LogError("1탄 : " + _ball.IsBatTouch + ", " + GetDefenderComponent(base_index + 1).IsInPosition);
+            Debug.Log($"<color=orange>[복귀디버그]</color> OutRunner 1탄 early-return: IsInGamePlay={_ball.IsInGamePlay}, IsInPosition={GetDefenderComponent(base_index + 1).IsInPosition}");
             return;
         }
         //debug
@@ -815,15 +838,17 @@ public class GamePlayManager : GameManager
         if (gamePlayModel.IsEmptyRunner(base_index))
         {
             //Debug.LogError("2탄");
+            Debug.Log($"<color=red>[복귀디버그]</color> OutRunner 2탄 early-return: base_index={base_index}에 주자 없음 → 아웃 누락! (1루 도착하며 BaseIndex가 올라간 레이스 의심)");
             return;
         }
-        
+
         BatterComponent runner = gamePlayModel.GetRunner(base_index);
 
         //만약 1루면 1루 전 러너가 있는지 확인. 러너가 달리지 않는다면
         if (!runner.IsMove)
         {
             //Debug.LogError("3탄");
+            Debug.Log($"<color=red>[복귀디버그]</color> OutRunner 3탄 early-return: {runner.name}가 IsMove=false라 아웃 누락");
             return;
         }
         //Debug.Log("4탄");
@@ -831,7 +856,8 @@ public class GamePlayManager : GameManager
         AddOut();
 
         gamePlayModel.RemoveRunner(base_index);
-        
+        Debug.Log($"<color=lime>[복귀디버그]</color> OutRunner 아웃 성공 base_index={base_index}, 제거 후 RunningIndex={gamePlayModel.RunningIndex()}");
+
         //Destroy();
         runner.OutPlayer();
         DebugBaseStatus();
@@ -1214,8 +1240,8 @@ public class GamePlayManager : GameManager
         {
             if (gamePlayModel.IsMyTeamBatting())
                 DebugHitting();
-            else
-                DebugThrowBall();
+            // else
+            //     DebugThrowBall();
         }
         if (Input.GetKeyDown(KeyCode.X))
         {
@@ -1258,8 +1284,9 @@ public class GamePlayManager : GameManager
     void DebugBaseStatus()
     {
         gamePlayModel.DebugBaseStatus(isFlyingOut);
-        
+
     }
+
     void DebugHitting()
     {
         Debug.Log("디버깅용 타자 안타 함수 - 강제 타격 실행!");
@@ -1296,7 +1323,7 @@ public class GamePlayManager : GameManager
     void DebugMoveBase(int index)
     {
         RunRunner();
-        MovePlayer(bases[index].position + new Vector3(0, 1.0f, 0));
+        MovePlayer(bases[index].position + new Vector3(0, player_y, 0));
     }
 
     private void DebugSwing()

@@ -173,7 +173,6 @@ public class MyXROriginManager : MonoBehaviour
         XRBaseInteractor interactor = FindInteractorWithSelection(rightHand);
         if (interactor == null)
         {
-            Debug.Log("[Release] hasSelection==true 인 XRBaseInteractor 못 찾음 — 공 안 잡혔거나 rightHand 트리 밖에 있음");
             return;
         }
 
