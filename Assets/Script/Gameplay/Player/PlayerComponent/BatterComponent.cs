@@ -75,15 +75,16 @@ public class BatterComponent : PlayerComponent
     
     public bool IsIntoBase(FieldBase fieldBase)
     {
+        GameLog.RunnerLog("흐엉엉 : " + base_index);
         //is same going to the next base index
         //1 => 0 + 1, baseindex가 3인데 베이스가 0으로 간 경우
-        if (fieldBase.BaseIndex == base_index + 1 || (fieldBase.BaseIndex - '0' == 0 && base_index == 3))
+        if (fieldBase.BaseIndex == base_index + 1 || (fieldBase.BaseIndex == 0 && base_index == 3))
         {
             //혻시 BaseIndex를 IsMove 아래로 둔 이유가 있을까? 
             BaseIndex++;
             return true;
         }
-        //1 2 3만
+        //fieldBase.BaseIndex가 1 2 3만
         if (fieldBase.BaseIndex == base_index && base_index > 0)
         {
             return true;
@@ -143,7 +144,7 @@ public class BatterComponent : PlayerComponent
                 return;
             }
 
-            Debug.Log("[Batter] base_index "+ name + ": " + value);
+            //Debug.Log("[Batter] base_index "+ name + ": " + value);
             //arrive home
             if (value >= bases.Length)
             {

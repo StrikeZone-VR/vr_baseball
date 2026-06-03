@@ -32,10 +32,15 @@ public class GamePlayModel : GameModel
     [SerializeField] private TeamStatus[] _teamStatus = new TeamStatus[2];
     //사실 점수만 하고 싶은데
 
+    //전광판 라인스코어용 이닝별 득점 [팀, 이닝(0~8)]. 런타임 전용이라 Init에서 리셋
+    private int[,] inningScores = new int[2, MAX_DISPLAY_INNING];
+    private int before_inning_score = 0; //파울/플라잉아웃 롤백 시 현재 이닝 득점 복원용
+
     //Define
     public const int MAX_INNING_COUNT = 18;
     public const int MAX_OUT_COUNT = 3;
     public const int MAX_BASE_COUNT = 4;
+    public const int MAX_DISPLAY_INNING = 9; //전광판에 표시할 이닝 수(정규이닝)
     
     #region PROPERTY
 
@@ -210,7 +215,33 @@ public class GamePlayModel : GameModel
     public int AddScore(int value)
     {
         _teamStatus[GetTeamIndex()].Score += value;
+        //전광판 라인스코어: 현재 이닝 칸에도 누적
+        inningScores[GetTeamIndex(), CurInningNo()] += value;
         return _teamStatus[GetTeamIndex()].Score;
+    }
+
+    //현재 표시 이닝 번호(0~MAX_DISPLAY_INNING-1)
+    private int CurInningNo()
+    {
+        int n = inning / 2;
+        if (n < 0) n = 0;
+        if (n >= MAX_DISPLAY_INNING) n = MAX_DISPLAY_INNING - 1;
+        return n;
+    }
+
+    //전광판용: 특정 팀의 특정 이닝 득점
+    public int GetInningScore(int teamIndex, int inningNo)
+    {
+        if (teamIndex < 0 || teamIndex > 1) return 0;
+        if (inningNo < 0 || inningNo >= MAX_DISPLAY_INNING) return 0;
+        return inningScores[teamIndex, inningNo];
+    }
+
+    //전광판용: 특정 팀의 총점 (GetScore는 공격팀 기준이라 별도로 둠)
+    public int GetTeamScore(int teamIndex)
+    {
+        if (teamIndex < 0 || teamIndex > 1) return 0;
+        return _teamStatus[teamIndex].Score;
     }
 
 
@@ -250,7 +281,8 @@ public class GamePlayModel : GameModel
     public void SaveBeforeStatus()
     {
         before_score = _teamStatus[GetTeamIndex()].Score;
-        
+        before_inning_score = inningScores[GetTeamIndex(), CurInningNo()]; //이닝 득점도 함께 스냅샷
+
         before_runners.Clear();
         for (int i = 0; i < runners.Count; i++)
         {
@@ -262,7 +294,8 @@ public class GamePlayModel : GameModel
     public void FoulRollbackBeforeStatus()
     {
         _teamStatus[GetTeamIndex()].Score = before_score;
-        
+        inningScores[GetTeamIndex(), CurInningNo()] = before_inning_score; //이닝 득점도 되돌림
+
         //그리고 주자 맨 뒤는 제거. 혹시 모르니 if문으로 사이즈 오버되면 null처리
         for (int i = 0; i < before_runners.Count; i++)
         {
@@ -281,9 +314,19 @@ public class GamePlayModel : GameModel
         before_runners.Clear();
     
         before_score = 0;
+        before_inning_score = 0;
+
+        //전광판 이닝별 득점 리셋
+        for (int t = 0; t < 2; t++)
+        {
+            for (int n = 0; n < MAX_DISPLAY_INNING; n++)
+            {
+                inningScores[t, n] = 0;
+            }
+        }
 
         myTeamIndex = 0; //0 or 1 => batter 기준
-        
+
         _teamStatus[0].Init();
         _teamStatus[1].Init();
     }
@@ -295,6 +338,7 @@ public class GamePlayModel : GameModel
     public void FlyingOutRollbackBeforeStatus()
     {
         _teamStatus[GetTeamIndex()].Score = before_score;
+        inningScores[GetTeamIndex(), CurInningNo()] = before_inning_score; //이닝 득점도 되돌림
 
         // 그냥 before 비교하고
         // before값에서 -1로 설정하고

@@ -1241,8 +1241,8 @@ public class GamePlayManager : GameManager
         }
         if (Input.GetKeyDown(KeyCode.C))
         {
-            //BallCount++;
-            OutCount--;
+            BallCount++;
+            //OutCount--;
             //AddOut();
 
             //DebugSwing();
@@ -1287,10 +1287,7 @@ public class GamePlayManager : GameManager
         float x = Random.Range(-1.0f, 0f);
         float y = 0.5f;
         float z = Random.Range(-1.0f, 0f);
-        float power = Random.Range(5f, 5f);  //50이 홈런
-
-        x = -0.5f;
-        z = -0.5f;
+        float power = Random.Range(15f, 35f);  //50이 홈런
 
         // 2. 기존 매니저의 투수 및 코루틴 제어 (이건 매니저의 일이 맞음!)
         _pitcherComponent.StopPitching();
