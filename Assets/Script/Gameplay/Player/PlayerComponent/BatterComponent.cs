@@ -103,7 +103,6 @@ public class BatterComponent : PlayerComponent
     public virtual void OutPlayer(bool isMove = true)
     {
         player.StopMove();
-        Debug.Log("AI 아웃");
         Destroy(this.gameObject);
     }
 

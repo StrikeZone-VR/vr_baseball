@@ -17,8 +17,8 @@ public class BaseballDebugger : MonoBehaviour
     [SerializeField] private Vector3 swingStartEuler;
     [SerializeField] private Vector3 swingEndEuler;
     [SerializeField] private float swingDuration = 0.25f;
-    [SerializeField] private AnimationCurve swingEase = AnimationCurve.EaseInOut(0, 0, 1, 1);
-    [SerializeField] private bool autoReleaseOnEnd = true;
+    //[SerializeField] private AnimationCurve swingEase = AnimationCurve.EaseInOut(0, 0, 1, 1);
+    //[SerializeField] private bool autoReleaseOnEnd = true;
 
     [SerializeField] private XRGrabInteractable ball;
     [SerializeField] private XRInteractionManager interactionManager;

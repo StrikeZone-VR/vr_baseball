@@ -632,8 +632,6 @@ public class GamePlayManager : GameManager
     
     void TransformMyBodyToBatter()
     {
-        Debug.Log("몸 체인지");
-        
         //만약 플라잉 아웃이든 뭐든 아웃됐다면 타자를 생성할 이유가 없음
         if (myBody.GetMyBatterComponent().BaseIndex == 0)
         {
@@ -771,7 +769,6 @@ public class GamePlayManager : GameManager
                         //돌아오시고
                         TransformMyBodyToBatter();
                     }
-                    Debug.Log("파울이신가?");
                     StartCoroutine(TranslateBattingView());
                     DebugBaseStatus();
                 }
@@ -825,7 +822,6 @@ public class GamePlayManager : GameManager
         if (!_ball.IsInGamePlay || !GetDefenderComponent(base_index + 1).IsInPosition)
         {
             //Debug.LogError("1탄 : " + _ball.IsBatTouch + ", " + GetDefenderComponent(base_index + 1).IsInPosition);
-            Debug.Log($"<color=orange>[복귀디버그]</color> OutRunner 1탄 early-return: IsInGamePlay={_ball.IsInGamePlay}, IsInPosition={GetDefenderComponent(base_index + 1).IsInPosition}");
             return;
         }
         //debug
@@ -838,7 +834,6 @@ public class GamePlayManager : GameManager
         if (gamePlayModel.IsEmptyRunner(base_index))
         {
             //Debug.LogError("2탄");
-            Debug.Log($"<color=red>[복귀디버그]</color> OutRunner 2탄 early-return: base_index={base_index}에 주자 없음 → 아웃 누락! (1루 도착하며 BaseIndex가 올라간 레이스 의심)");
             return;
         }
 
@@ -848,7 +843,6 @@ public class GamePlayManager : GameManager
         if (!runner.IsMove)
         {
             //Debug.LogError("3탄");
-            Debug.Log($"<color=red>[복귀디버그]</color> OutRunner 3탄 early-return: {runner.name}가 IsMove=false라 아웃 누락");
             return;
         }
         //Debug.Log("4탄");
@@ -856,7 +850,6 @@ public class GamePlayManager : GameManager
         AddOut();
 
         gamePlayModel.RemoveRunner(base_index);
-        Debug.Log($"<color=lime>[복귀디버그]</color> OutRunner 아웃 성공 base_index={base_index}, 제거 후 RunningIndex={gamePlayModel.RunningIndex()}");
 
         //Destroy();
         runner.OutPlayer();
@@ -1295,7 +1288,10 @@ public class GamePlayManager : GameManager
         float x = Random.Range(-1.0f, 0f);
         float y = 0.5f;
         float z = Random.Range(-1.0f, 0f);
-        float power = Random.Range(5f, 20f);  //50이 홈런
+        float power = Random.Range(10f, 10f);  //50이 홈런
+
+        x = -0.5f;
+        z = -0.5f;
 
         // 2. 기존 매니저의 투수 및 코루틴 제어 (이건 매니저의 일이 맞음!)
         _pitcherComponent.StopPitching();

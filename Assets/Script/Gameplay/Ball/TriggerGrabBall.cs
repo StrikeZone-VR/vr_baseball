@@ -46,14 +46,12 @@ public class TriggerGrabBall : MonoBehaviour
         }
         if (ball.isSelected) { Debug.Log("[TriggerGrabBall] already selected"); return; }
 
-        bool anyHover = false;
         foreach (var hand in handInteractors)
         {
             if (hand == null) continue;
             bool hovering = hand.interactablesHovered.Contains(ball);
             //Debug.Log($"[TriggerGrabBall] hand={hand.name} hovering={hovering}");
             if (!hovering) continue;
-            anyHover = true;
 
             manager.SelectEnter((IXRSelectInteractor)hand, (IXRSelectInteractable)ball);
             return;
