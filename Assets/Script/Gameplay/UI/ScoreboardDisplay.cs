@@ -253,12 +253,12 @@ public class ScoreboardDisplay : MonoBehaviour
 
         // ── 팀 이름 (좌측) ──
         awayTeamText = EnsureText(rootT, "AwayTeam", font);
-        ConfigText(awayTeamText, 28, TextAlignmentOptions.MidlineLeft);
-        SetRect(awayTeamText.rectTransform, TL, TL, TL, new Vector2(20, -86), new Vector2(140, 40));
+        ConfigText(awayTeamText, 34, TextAlignmentOptions.MidlineLeft);
+        SetRect(awayTeamText.rectTransform, TL, TL, TL, new Vector2(14, -92), new Vector2(132, 44));
 
         homeTeamText = EnsureText(rootT, "HomeTeam", font);
-        ConfigText(homeTeamText, 28, TextAlignmentOptions.MidlineLeft);
-        SetRect(homeTeamText.rectTransform, TL, TL, TL, new Vector2(20, -120), new Vector2(140, 40));
+        ConfigText(homeTeamText, 34, TextAlignmentOptions.MidlineLeft);
+        SetRect(homeTeamText.rectTransform, TL, TL, TL, new Vector2(14, -132), new Vector2(132, 44));
 
         // ── 라인스코어 격자 (가운데) ──
         // 각 칸이 독립 셀(가운데정렬 + 자동축소)이라 두 자리 이상 득점도 칸 안에서 알아서 맞춰지고
@@ -270,8 +270,8 @@ public class ScoreboardDisplay : MonoBehaviour
         RectTransform grid = Ensure(rootT, "LineGrid");
         SetRect(grid, TL, TL, TL, Vector2.zero, new Vector2(500, 300));
 
-        const float gridX = 165f, colW = 21f, cellH = 30f;
-        const float headerY = -52f, awayY = -86f, homeY = -120f;
+        const float gridX = 150f, colW = 25f, cellH = 36f;
+        const float headerY = -52f, awayY = -92f, homeY = -132f;
         Color headerColor = new Color(0.95f, 0.85f, 0.35f, 1f); // 헤더(이닝번호) 노란빛
 
         awayCells = new TMP_Text[DISPLAY_INNING + 1];
@@ -289,15 +289,15 @@ public class ScoreboardDisplay : MonoBehaviour
             homeCells[c] = MakeCell(grid, "M" + c, x, homeY, colW, cellH, font);
         }
 
-        // ── B/S/O 점들: 우측 상단으로 재배치 + 작게 ──
-        RelayoutCountRow(ballDots, -54f);
-        RelayoutCountRow(strikeDots, -88f);
-        RelayoutCountRow(outDots, -122f);
+        // ── B/S/O 점들: 우측, 라인스코어 3줄과 같은 높이로 ──
+        RelayoutCountRow(ballDots, -52f);
+        RelayoutCountRow(strikeDots, -92f);
+        RelayoutCountRow(outDots, -132f);
 
         // ── 주자 다이아몬드 (우측 하단) ──
         RectTransform diamond = Ensure(rootT, "RunnerDiamond");
         SetRect(diamond, TL, TL, TL, Vector2.zero, new Vector2(500, 300));
-        float cx = 430f, cy = -225f, r = 26f, s = 20f;
+        float cx = 446f, cy = -232f, r = 30f, s = 24f;
         // 0:1루(우) 1:2루(상) 2:3루(좌)
         runnerBases = new Image[3];
         runnerBases[0] = MakeBase(diamond, "Base1", cx + r, cy, s);       // 1루
@@ -346,10 +346,10 @@ public class ScoreboardDisplay : MonoBehaviour
         if (labelT != null)
         {
             TMP_Text lt = labelT.GetComponent<TMP_Text>();
-            if (lt != null) lt.fontSize = 20;
+            if (lt != null) lt.fontSize = 24;
             LayoutElement le = labelT.GetComponent<LayoutElement>();
             if (le != null) DestroyImmediate(le);
-            SetRect(labelT as RectTransform, TL, TL, TL, new Vector2(384, y + 2), new Vector2(24, 22));
+            SetRect(labelT as RectTransform, TL, TL, TL, new Vector2(405, y + 2), new Vector2(26, 28));
         }
 
         // 점들
@@ -358,7 +358,7 @@ public class ScoreboardDisplay : MonoBehaviour
             if (dots[i] == null) continue;
             LayoutElement le = dots[i].GetComponent<LayoutElement>();
             if (le != null) DestroyImmediate(le);
-            SetRect(dots[i].rectTransform, TL, TL, TL, new Vector2(410 + i * 22, y), new Vector2(18, 18));
+            SetRect(dots[i].rectTransform, TL, TL, TL, new Vector2(432 + i * 22, y), new Vector2(20, 20));
             dots[i].color = unlitColor;
         }
     }
@@ -382,7 +382,7 @@ public class ScoreboardDisplay : MonoBehaviour
         t.richText = false;
         t.enableAutoSizing = true; // 칸보다 큰 숫자(세 자리 등)는 자동으로 줄어듦
         t.fontSizeMin = 8f;
-        t.fontSizeMax = 20f;
+        t.fontSizeMax = 28f;
     }
 
     private void DeleteChild(Transform parent, string name)
