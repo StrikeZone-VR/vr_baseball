@@ -57,6 +57,7 @@ public class Player : MonoBehaviour
         if (nav.isActiveAndEnabled && nav.isOnNavMesh)
         {
             nav.ResetPath();
+            nav.velocity = Vector3.zero;
         }
         if (!nav.isActiveAndEnabled)
         {
@@ -66,6 +67,11 @@ public class Player : MonoBehaviour
         {
             Debug.Log("isOnNavMesh is null");
         }
+    }
+
+    public void SetNavUpdateRotation(bool value)
+    {
+        if (nav) nav.updateRotation = value;
     }
     
     

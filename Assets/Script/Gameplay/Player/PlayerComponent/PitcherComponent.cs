@@ -16,6 +16,13 @@ public class PitcherComponent : DefenderComponent
     const int WAIT_TIME = 5; //5.0f
     protected bool isThrowBallStop = false; //debug
 
+    void Awake()
+    {
+        //투수는 LookAtPlayer로만 회전 제어. nav가 velocity 잔류로 덮어쓰는 거 차단.
+        //if (player == null) player = GetComponent<Player>();
+        //player.SetNavUpdateRotation(false);
+    }
+
     protected override void Update()
     {
         float dis = Vector3.Distance(defenderTransform.position, transform.position);
@@ -47,8 +54,6 @@ public class PitcherComponent : DefenderComponent
     {
         base.SetMyBall(myBall);
         
-        //Debug.Log("[Pitcher] : SetMyBall"); //수비를 하면 Pitching이 안되는지
-
         //만약 배트가 터치됐다면 => 경기중
         if (myBall.IsInGamePlay)
         {
@@ -69,15 +74,17 @@ public class PitcherComponent : DefenderComponent
             yield break;
         }
 
-        //스트라이크 보기
+        //nav가 회전 덮어쓰지 않도록 정지
+        player.StopMove();
         LookAtPlayer(strikeZone.transform.position);
-        
+
         //5임
         for (int i = WAIT_TIME; i > 0; i--)
         {
             waitPitcherEvent.RaiseEvent(i);
             yield return new WaitForSeconds(1.0f);
         }
+
         
         Vector3 targetPosition = strikeZone.GetZone(4).position; //랜덤넣자
         

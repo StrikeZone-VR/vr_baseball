@@ -1288,7 +1288,7 @@ public class GamePlayManager : GameManager
         float x = Random.Range(-1.0f, 0f);
         float y = 0.5f;
         float z = Random.Range(-1.0f, 0f);
-        float power = Random.Range(10f, 10f);  //50이 홈런
+        float power = Random.Range(5f, 5f);  //50이 홈런
 
         x = -0.5f;
         z = -0.5f;

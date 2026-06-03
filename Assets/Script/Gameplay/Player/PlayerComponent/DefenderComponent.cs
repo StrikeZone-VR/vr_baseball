@@ -89,6 +89,7 @@ public class DefenderComponent : PlayerComponent
     public void ThrowBall(Vector3 position)
     {
         LookAtPlayer(position);
+
         //Debug.Break();
         
         //만약 던졌는데 던진 공이 닿아서 다시 붙여지는 경우
