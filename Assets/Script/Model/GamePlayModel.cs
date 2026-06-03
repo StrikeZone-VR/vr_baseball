@@ -89,7 +89,6 @@ public class GamePlayModel : GameModel
     }
     public BatterComponent RemoveRunner(int base_index)
     {
-        Debug.Log("제거 : " + base_index);
         for (int i = 0; i < runners.Count; i++)
         {
             if (runners[i].BaseIndex == base_index)
@@ -99,7 +98,7 @@ public class GamePlayModel : GameModel
                 return batterComponent;
             }
         }
-        Debug.LogError("제거할 runner가 없는뎁쇼?");
+        Debug.LogError("[Runner] + 제거할 runner가 없는뎁쇼?");
         return null;
     }
 

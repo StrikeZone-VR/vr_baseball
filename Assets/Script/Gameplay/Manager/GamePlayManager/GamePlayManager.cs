@@ -299,7 +299,7 @@ public class GamePlayManager : GameManager
 
     private void SetPlayerMoveMode(bool isMove)
     {
-        GameLog.Run($"Player  : isMove = " + isMove);
+        //GameLog.RunnerLog($"Player  : isMove = " + isMove);
 
 #if  UNITY_EDITOR
         XRDeviceSimulator xr = Object.FindAnyObjectByType<XRDeviceSimulator>();
@@ -845,11 +845,10 @@ public class GamePlayManager : GameManager
             //Debug.LogError("3탄");
             return;
         }
-        //Debug.Log("4탄");
-        //주자를 아웃시켯
-        AddOut();
-
+        //주자 배열을 먼저 제거
         gamePlayModel.RemoveRunner(base_index);
+        AddOut(); //그리고 아웃 카운트
+
 
         //Destroy();
         runner.OutPlayer();
