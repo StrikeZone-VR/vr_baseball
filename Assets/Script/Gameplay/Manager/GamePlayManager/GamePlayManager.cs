@@ -969,8 +969,8 @@ public class GamePlayManager : GameManager
         get { return gamePlayModel.Inning; }
         set
         {
-            //GameReady에서 선택한 이닝 수가 있으면 그걸 우선, 아니면 기본 9이닝(MAX_INNING_COUNT)
-            int maxInning = gameConfigSO != null ? gameConfigSO.MaxInningCount : GamePlayModel.MAX_INNING_COUNT;
+            //GameReady에서 선택한 이닝 수가 있으면 그걸 우선, 아니면 기본 9이닝(DEFAULT_MAX_INNING_COUNT=18)
+            int maxInning = gameConfigSO != null ? gameConfigSO.MaxInningCount : GameConfigSO.DEFAULT_MAX_INNING_COUNT;
             if (value >= maxInning)
             {
                 Debug.Log($"Game Over, back to the menu... (maxInning={maxInning})");

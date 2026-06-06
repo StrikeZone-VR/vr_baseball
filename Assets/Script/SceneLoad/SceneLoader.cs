@@ -88,6 +88,10 @@ public class SceneLoader : MonoBehaviour
             }
 
             currentScene = op;
+            // active scene = ambient/스카이박스/lightmap 출처. 안 바꾸면 새 씬이 어두워짐
+            SceneManager.SetActiveScene(currentScene);
+            // 런타임 active scene 변경 시 ambient probe는 자동으로 안 구워짐 → 직접 재계산(안 하면 그림자가 harsh)
+            DynamicGI.UpdateEnvironment();
             // 필요한 후처리 (씬 활성화, 카메라 설정 등)
             Debug.Log($"씬 준비 완료: {currentScene.name}");
         }
@@ -98,10 +102,18 @@ public class SceneLoader : MonoBehaviour
             // 새로 로드
             scene.LoadSceneAsync(LoadSceneMode.Additive, true).Completed += (AsyncOperationHandle<SceneInstance> op) => 
             {
-                currentScene = op.Result.Scene;
                 if (op.Status == AsyncOperationStatus.Succeeded)
                 {
+                    currentScene = op.Result.Scene;
+                    // active scene = ambient/스카이박스/lightmap 출처. 안 바꾸면 새 씬이 어두워짐
+                    SceneManager.SetActiveScene(currentScene);
+                    // 런타임 active scene 변경 시 ambient probe는 자동으로 안 구워짐 → 직접 재계산(안 하면 그림자가 harsh)
+                    DynamicGI.UpdateEnvironment();
                     Debug.Log($"씬 준비 완료: {currentScene.name}");
+                }
+                else
+                {
+                    Debug.LogError($"씬 로드 실패: {op.OperationException}");
                 }
             };
         

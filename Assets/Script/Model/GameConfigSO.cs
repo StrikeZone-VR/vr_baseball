@@ -7,6 +7,9 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "GameConfigSO", menuName = "Model/GameConfig")]
 public class GameConfigSO : ScriptableObject
 {
+    //config가 없을 때(직접 Gameplay 씬 단독 실행 등)의 내부 이닝 카운터 max (초/말 0~17 → 18)
+    public const int DEFAULT_MAX_INNING_COUNT = 18;
+
     [Header("이닝 설정")]
     [Tooltip("플레이 가능한 총 이닝 수 (1, 3, 6, 9)")]
     [SerializeField] private int selectedInnings = 9;

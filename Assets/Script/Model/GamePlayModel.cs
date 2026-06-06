@@ -37,7 +37,6 @@ public class GamePlayModel : GameModel
     private int before_inning_score = 0; //파울/플라잉아웃 롤백 시 현재 이닝 득점 복원용
 
     //Define
-    public const int MAX_INNING_COUNT = 18;
     public const int MAX_OUT_COUNT = 3;
     public const int MAX_BASE_COUNT = 4;
     public const int MAX_DISPLAY_INNING = 9; //전광판에 표시할 이닝 수(정규이닝)
