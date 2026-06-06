@@ -32,7 +32,10 @@
       "Bash(findstr /s \"outRunnerEvent.RaiseEvent\\\\|outRunnerEvent\\\\.RaiseEvent\" \"D:\\\\Code\\\\Unity Projects\\\\VR_Baseball\\\\Assets\\\\Script\\\\Gameplay\" /C)",
       "WebSearch",
       "Read(//d/Code/Unity Projects/VR_Baseball/**)",
-      "Bash(find . -maxdepth 3 -iname \"before.png\" -o -iname \"after.png\")"
+      "Bash(find . -maxdepth 3 -iname \"before.png\" -o -iname \"after.png\")",
+      "Bash(awk ' *)",
+      "Bash(sed -n '1330,1360p' Stadium.prefab)",
+      "Bash(python -)"
     ]
   },
   "enableAllProjectMcpServers": true,
