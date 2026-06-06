@@ -205,8 +205,8 @@ public class TeamSelectionManager : MonoBehaviour
             scrollRect.horizontalScrollbar.gameObject.SetActive(false);
 
         // 스크롤 설정 - 무한 스크롤을 위해 Unrestricted 사용
-        scrollRect.horizontal = false;
-        scrollRect.vertical = true;
+        scrollRect.horizontal = true;   // 좌우(가로)로 변경
+        scrollRect.vertical = false;
         scrollRect.movementType = ScrollRect.MovementType.Unrestricted; // 무한 스크롤 허용
         scrollRect.inertia = true;
         scrollRect.decelerationRate = 0.135f;
