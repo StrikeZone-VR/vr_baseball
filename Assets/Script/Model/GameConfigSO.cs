@@ -20,6 +20,41 @@ public class GameConfigSO : ScriptableObject
         set => selectedInnings = value;
     }
 
+    [Header("팀 설정 (GameReady에서 설정)")]
+    [Tooltip("플레이어가 선택한 팀 인덱스")]
+    [SerializeField] private int playerTeamIndex = 1;
+    [Tooltip("컴퓨터가 선택한 팀 인덱스")]
+    [SerializeField] private int computerTeamIndex = 0;
+    [Tooltip("플레이어가 홈팀인지 여부 (false면 원정)")]
+    [SerializeField] private bool playerIsHome = true;
+
+    public int PlayerTeamIndex
+    {
+        get => playerTeamIndex;
+        set => playerTeamIndex = value;
+    }
+
+    public int ComputerTeamIndex
+    {
+        get => computerTeamIndex;
+        set => computerTeamIndex = value;
+    }
+
+    /// <summary>
+    /// 플레이어가 홈팀이면 true, 원정팀이면 false.
+    /// </summary>
+    public bool PlayerIsHome
+    {
+        get => playerIsHome;
+        set => playerIsHome = value;
+    }
+
+    /// <summary>홈팀의 팀 인덱스 (플레이어/컴퓨터 중 홈인 쪽).</summary>
+    public int HomeTeamIndex => playerIsHome ? playerTeamIndex : computerTeamIndex;
+
+    /// <summary>원정팀의 팀 인덱스 (플레이어/컴퓨터 중 원정인 쪽).</summary>
+    public int AwayTeamIndex => playerIsHome ? computerTeamIndex : playerTeamIndex;
+
     /// <summary>
     /// 내부 이닝 카운터 최댓값. (초/말 각각 1단위라 × 2)
     /// GamePlayManager의 Inning setter에서 종료 판정에 사용.

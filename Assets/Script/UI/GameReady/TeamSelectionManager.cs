@@ -38,6 +38,22 @@ public class TeamSelectionManager : MonoBehaviour
 
     [Header("팀 교체")]
     [SerializeField] private Button teamSwapButton;
+    [Tooltip("컴퓨터 팀 선택 UI 전체를 감싸는 패널")]
+    [SerializeField] private RectTransform computerPanel;
+    [Tooltip("플레이어 팀 선택 UI 전체를 감싸는 패널")]
+    [SerializeField] private RectTransform playerPanel;
+    [Tooltip("플레이어가 처음에 홈팀인지 여부 (false면 원정)")]
+    [SerializeField] private bool playerStartsAsHome = true;
+    [Tooltip("컴퓨터 패널의 홈/원정 라벨")]
+    [SerializeField] private TextMeshProUGUI computerHomeAwayLabel;
+    [Tooltip("플레이어 패널의 홈/원정 라벨")]
+    [SerializeField] private TextMeshProUGUI playerHomeAwayLabel;
+    [SerializeField] private string homeLabelText = "홈";
+    [SerializeField] private string awayLabelText = "원정";
+    [Tooltip("컴퓨터 패널 식별 이름 (홈/원정 역할과 함께 표시됨)")]
+    [SerializeField] private string computerName = "컴퓨터";
+    [Tooltip("플레이어 패널 식별 이름 (홈/원정 역할과 함께 표시됨)")]
+    [SerializeField] private string playerName = "나";
 
     [Header("게임 시작")]
     [SerializeField] private Button playBallButton;
@@ -68,14 +84,29 @@ public class TeamSelectionManager : MonoBehaviour
     private float lastComputerScrollValue = 1f;
     private float lastPlayerScrollValue = 1f;
 
+    // 플레이어가 현재 홈팀인지 여부. 교체 버튼을 누를 때마다 토글된다.
+    private bool playerIsHome = true;
+
     void Start()
     {
+        playerIsHome = playerStartsAsHome;
         InitializeTeams();
         SetupButtonEvents();
         SetupScrollEvents();
         SetupScrollRects();
         UpdateTeamDisplays();
+        UpdateHomeAwayLabels();
         SetupInningToggles();
+    }
+
+    // 현재 홈/원정 상태에 맞춰 양쪽 패널의 라벨 텍스트를 갱신한다.
+    // 식별자(컴퓨터/나)는 그대로 두고 홈/원정 역할만 함께 표시해 누가 누군지 구분되게 한다.
+    void UpdateHomeAwayLabels()
+    {
+        if (playerHomeAwayLabel != null)
+            playerHomeAwayLabel.text = $"{playerName} ({(playerIsHome ? homeLabelText : awayLabelText)})";
+        if (computerHomeAwayLabel != null)
+            computerHomeAwayLabel.text = $"{computerName} ({(playerIsHome ? awayLabelText : homeLabelText)})";
     }
 
     void SetupInningToggles()
@@ -404,18 +435,22 @@ public class TeamSelectionManager : MonoBehaviour
     {
         if (isAnimating) return;
 
-        // 팀 인덱스 교체
-        int temp = currentComputerTeamIndex;
-        currentComputerTeamIndex = currentPlayerTeamIndex;
-        currentPlayerTeamIndex = temp;
+        if (computerPanel == null || playerPanel == null)
+        {
+            Debug.LogWarning("[GameReady] computerPanel/playerPanel 미할당 → 패널 위치 교체 불가.");
+            return;
+        }
 
-        // 양쪽 모두 애니메이션으로 업데이트
-        StartCoroutine(AnimateTeamChange(true));
-        StartCoroutine(AnimateTeamChange(false));
+        // 부모(TeamSelectionPanel)가 HorizontalLayoutGroup이라 위치는 형제(Sibling) 순서로 결정된다.
+        // 팀 선택은 그대로 두고, 두 섹션의 형제 인덱스만 맞바꿔 좌우(홈/원정) 자리를 교체한다.
+        int computerSiblingIndex = computerPanel.GetSiblingIndex();
+        int playerSiblingIndex = playerPanel.GetSiblingIndex();
+        computerPanel.SetSiblingIndex(playerSiblingIndex);
+        playerPanel.SetSiblingIndex(computerSiblingIndex);
 
-        // 무한 스크롤에서는 스크롤 애니메이션 불필요
-        // StartCoroutine(AnimateScrollToTeam(true));
-        // StartCoroutine(AnimateScrollToTeam(false));
+        // 홈/원정 상태 토글 후 라벨 갱신
+        playerIsHome = !playerIsHome;
+        UpdateHomeAwayLabels();
     }
 
     void UpdateTeamDisplays()
@@ -473,16 +508,20 @@ public class TeamSelectionManager : MonoBehaviour
         Debug.Log("GameStart!");
         Debug.Log($"컴퓨터 팀: {teams[currentComputerTeamIndex].teamName}");
         Debug.Log($"플레이어 팀: {teams[currentPlayerTeamIndex].teamName}");
+        Debug.Log($"플레이어 홈 여부: {playerIsHome}");
         Debug.Log($"선택 이닝: {innings}");
 
-        //선택된 이닝 수를 SO에 저장 → Gameplay 씬에서 읽음
+        //선택된 이닝 수와 팀/홈원정 정보를 SO에 저장 → Gameplay 씬에서 읽음
         if (gameConfigSO != null)
         {
             gameConfigSO.SelectedInnings = innings;
+            gameConfigSO.PlayerTeamIndex = currentPlayerTeamIndex;
+            gameConfigSO.ComputerTeamIndex = currentComputerTeamIndex;
+            gameConfigSO.PlayerIsHome = playerIsHome;
         }
         else
         {
-            Debug.LogWarning("[GameReady] GameConfigSO 미할당 → 이닝 설정이 전달되지 않습니다.");
+            Debug.LogWarning("[GameReady] GameConfigSO 미할당 → 이닝/팀 설정이 전달되지 않습니다.");
         }
 
         // TODO: 게임플레이 씬으로 전환

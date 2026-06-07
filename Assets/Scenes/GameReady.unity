@@ -448,6 +448,13 @@ MonoBehaviour:
   playerDownButton: {fileID: 1085245069}
   playerScrollRect: {fileID: 0}
   teamSwapButton: {fileID: 1414040970}
+  computerPanel: {fileID: 2133110684}
+  playerPanel: {fileID: 1359614616}
+  playerStartsAsHome: 1
+  computerHomeAwayLabel: {fileID: 2096587977}
+  playerHomeAwayLabel: {fileID: 1898810843}
+  homeLabelText: "홈"
+  awayLabelText: "원정"
   playBallButton: {fileID: 863006267}
   inningToggles:
   - {fileID: 507935984}

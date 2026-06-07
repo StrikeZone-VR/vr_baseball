@@ -166,9 +166,15 @@ public class GamePlayManager : GameManager
     
     //1Function
     void Init()
-    { 
+    {
         gamePlayModel.Init();
         battingModel.Init();
+
+        //GameReady에서 선택한 홈/원정 반영. 홈팀이면 말(홀수 이닝)에 공격 → myTeamIndex=1, 원정이면 0
+        if (gameConfigSO != null)
+        {
+            gamePlayModel.MyTeamIndex = gameConfigSO.PlayerIsHome ? 1 : 0;
+        }
         
         _pitcherComponent = GetDefenderComponent(0) as PitcherComponent; 
         SetScore(0, 0);
