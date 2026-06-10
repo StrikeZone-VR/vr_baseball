@@ -28,7 +28,7 @@ public class GamePlayModel : GameModel
     //만약 있다면? 되돌릴때 runners.insert(맨앞)
     //근데 이러면 또 CreateBatter에서 스트라이크 볼 초기화되는 문제가 생기는 구나
 
-    private int myTeamIndex = 0; //0 or 1 => batter 기준
+    [SerializeField] private int playerIsHome;
     [SerializeField] private TeamStatus[] _teamStatus = new TeamStatus[2];
     //사실 점수만 하고 싶은데
 
@@ -40,6 +40,10 @@ public class GamePlayModel : GameModel
     public const int MAX_OUT_COUNT = 3;
     public const int MAX_BASE_COUNT = 4;
     public const int MAX_DISPLAY_INNING = 9; //전광판에 표시할 이닝 수(정규이닝)
+    
+    //팀 설정
+    //todo 나중에 커스텀 팀 설정? 같은거 Team A, Team B => GameReady에 넣을거임
+    
     
     #region PROPERTY
 
@@ -93,8 +97,10 @@ public class GamePlayModel : GameModel
     }
     public BatterComponent RemoveRunner(int base_index)
     {
+        GameLog.Defend("주자 갯수" + runners.Count);
         for (int i = 0; i < runners.Count; i++)
         {
+            GameLog.Defend("주자 인덱스 : " + runners[i].BaseIndex);
             if (runners[i].BaseIndex == base_index)
             {
                 BatterComponent batterComponent = runners[i];

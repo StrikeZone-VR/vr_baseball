@@ -73,8 +73,10 @@ public class CatcherComponent : BasemanComponent
         set
         {
             defendIndex = value;
-            GameLog.Defend("[Catcher] : "  + defendIndex);
+            GameLog.Defend("[Catcher] 수비위치 : "  + defendIndex);
             SwitchingMove(defendIndex);
         }
     }
+    
+    //수비수에게 공 던지는 함수도 있음
 }

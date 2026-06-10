@@ -13,3 +13,6 @@ MonoBehaviour:
   m_Name: GameConfigSO
   m_EditorClassIdentifier: 
   selectedInnings: 9
+  playerIsHome: 0
+  homeTeamIndex: 0
+  awayTeamIndex: 1

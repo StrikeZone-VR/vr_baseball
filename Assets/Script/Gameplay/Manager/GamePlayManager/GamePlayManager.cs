@@ -429,7 +429,7 @@ public class GamePlayManager : GameManager
     /// <returns></returns>
     private BatterComponent CreateBatter(int base_index = 0)
     {
-        Debug.Log("[Batter]  타자 생성");
+        Debug.LogWarning("이게 플레이어가 아웃될때 생성하면 안된다.");
         Player batter = Instantiate(batterPrefab, batterCreatePosition);
         BatterComponent batterComponent = batter.GetComponent<BatterComponent>();
         
@@ -496,6 +496,7 @@ public class GamePlayManager : GameManager
         //되돌아가는데 점수를 얻은 경우
         if (gamePlayModel.BeforeScore != gamePlayModel.GetScore())
         {
+            Debug.LogWarning("이게 플레이어있을때 생성하면 안된다.");
             //runners의 insert 맨 앞 
             gamePlayModel.InsertRunner(CreateBatter(0));
             //어차피 baseindex는 나중에 설정할거임
@@ -636,6 +637,7 @@ public class GamePlayManager : GameManager
         }
     }
     
+    //주자가 돌아오는 함수
     void TransformMyBodyToBatter()
     {
         //만약 플라잉 아웃이든 뭐든 아웃됐다면 타자를 생성할 이유가 없음
@@ -735,27 +737,10 @@ public class GamePlayManager : GameManager
     
     private void BeforePitcherGetBall()
     {
-        //[복귀디버그] 게이트 상태 추적 - 복귀 로직에 들어가기 위한 3가지 조건이 어디서 막히는지. 값 바뀔 때만 출력
-        string gate = $"InGamePlay={_ball.IsInGamePlay}, Defender={(_ball.MyDefenderComponent ? _ball.MyDefenderComponent.name : "null")}, IsZone={_ball.IsZone}";
-        if (gate != _lastGateDebug)
+        //수비수에게 공 던지는 함수 => 복귀 알고리즘 
+        // thinking => 여기서 IsZone을 뺐다. 
+        if (_ball.MyDefenderComponent && _ball.IsInGamePlay)
         {
-            _lastGateDebug = gate;
-            Debug.Log($"<color=yellow>[복귀디버그]게이트</color> {gate}");
-        }
-
-        //Debug.LogWarning("이러면 1루 견제를 하면 못 돌아옴");
-        if (!_ball.IsInGamePlay)
-        {
-            //Debug.LogWarning("인플레이가 아니었다?");
-            _lastDebugRunningIndex = -2; //[복귀디버그] 인플레이 끝나면 리셋해서 다음 타구도 처음부터 찍히게
-            return;
-        }
-
-        //복귀 알고리즘
-        //has ball and ball batting => 포수 방지용으로 존에 들어간 순간부터 하는게 낫지 않을까?
-        if (_ball.MyDefenderComponent && _ball.IsZone)
-        {
-            //[복귀디버그] ThrowBallAlgorithm은 내부에서 송구(부수효과)가 있으니 1번만 호출하고 캐싱
             bool canThrow = ThrowBallAlgorithm();
 
             //던질 곳 없으면 다시 투수 복귀
@@ -764,33 +749,40 @@ public class GamePlayManager : GameManager
                 //어차피 근데 타자모드일때만 이라고 해도 canBackRunner자체가 여기에서만 나올듯
                 //위치를 여기다 둔 이유. 피쳐가 수비하면 타자 복귀가 안됨
                 //안타나 플라잉아웃이면 나중에 복귀
-                if (canBackRunner) 
+                if (canBackRunner)
                 {
                     //일단 여기라인이 떠야함
                     canBackRunner = false;
-                    
+
                     //안타
                     if (!isFlyingOut && !myBody.GetMyBatterComponent().IsOut)
                     {
                         //돌아오시고
                         TransformMyBodyToBatter();
                     }
+
                     StartCoroutine(TranslateBattingView());
                     DebugBaseStatus();
                 }
-                
+
                 //AI투수가 공을 가지고 있다면
                 if (_pitcherComponent && _ball.MyDefenderComponent == _pitcherComponent)
                 {
                     return;
                 }
-                
-                if(canGetBall)
+
+                //돌아오는 함수
+                if (canGetBall)
                 {
-                    Debug.Log("[Baseball] 상태 : " + _ball.CurrentState);
+                    GameLog.BallLog("[Baseball] 상태 : " + _ball.CurrentState);
                     _ball.CurrentState = BallState.Dead; //죽으면 결국 다시 생기지 않나
                     //PitcherGetBall();
                 }
+            }
+            else
+            {
+                GameLog.Defend("2차 허걱 => 던질 곳이 있다고?");
+                DebugRunners();
             }
             //플레이어 투수가 공을 잡은 경우
         }
@@ -950,6 +942,7 @@ public class GamePlayManager : GameManager
         //플레이어 투수인 경우. 어차피 자기가 던지니까
         if (_ball.MyDefenderComponent == myBody.GetMyPitcherComponent())
         {
+            GameLog.Defend("3차 : 설마 이것때문이니?");
             return true;
         }
     
@@ -957,6 +950,8 @@ public class GamePlayManager : GameManager
         //던지기 => 만약 공 mydefender와 index가 같은 경우 => 무조건 자기 베이스로 돌아가야함
         if (ThrowToBase(index))
         {
+            GameLog.Defend("4차 : 그냥 자기 자신에게 패스" + index);
+
             return true;
         }
         return false;
@@ -1247,7 +1242,9 @@ public class GamePlayManager : GameManager
         }
         if (Input.GetKeyDown(KeyCode.C))
         {
-            BallCount++;
+            DebugRunners();
+
+            //BallCount++;
             //OutCount--;
             //AddOut();
 
@@ -1283,6 +1280,17 @@ public class GamePlayManager : GameManager
     {
         gamePlayModel.DebugBaseStatus(isFlyingOut);
 
+    }
+
+    //gamePlayModel에서 현재 주자들의 정보(베이스 인덱스, 이름, 이동 여부)를 가져와 로그로 출력하는 디버깅 함수
+    void DebugRunners()
+    {
+        var runners = gamePlayModel.GetRunners();
+        Debug.Log($"[Runner] 현재 주자 수 : {runners.Count}, RunningIndex : {gamePlayModel.RunningIndex()}");
+        for (int i = 0; i < runners.Count; i++)
+        {
+            Debug.Log($"[Runner] {i} : base={runners[i].BaseIndex}, name={runners[i].name}, isMove={runners[i].IsMove}");
+        }
     }
 
     void DebugHitting()

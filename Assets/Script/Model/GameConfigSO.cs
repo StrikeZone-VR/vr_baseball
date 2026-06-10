@@ -21,24 +21,12 @@ public class GameConfigSO : ScriptableObject
     }
 
     [Header("팀 설정 (GameReady에서 설정)")]
-    [Tooltip("플레이어가 선택한 팀 인덱스")]
-    [SerializeField] private int playerTeamIndex = 1;
-    [Tooltip("컴퓨터가 선택한 팀 인덱스")]
-    [SerializeField] private int computerTeamIndex = 0;
     [Tooltip("플레이어가 홈팀인지 여부 (false면 원정)")]
     [SerializeField] private bool playerIsHome = true;
-
-    public int PlayerTeamIndex
-    {
-        get => playerTeamIndex;
-        set => playerTeamIndex = value;
-    }
-
-    public int ComputerTeamIndex
-    {
-        get => computerTeamIndex;
-        set => computerTeamIndex = value;
-    }
+    [Tooltip("홈팀의 팀 인덱스")]
+    [SerializeField] private int homeTeamIndex = 0;
+    [Tooltip("원정팀의 팀 인덱스")]
+    [SerializeField] private int awayTeamIndex = 1;
 
     /// <summary>
     /// 플레이어가 홈팀이면 true, 원정팀이면 false.
@@ -49,11 +37,25 @@ public class GameConfigSO : ScriptableObject
         set => playerIsHome = value;
     }
 
-    /// <summary>홈팀의 팀 인덱스 (플레이어/컴퓨터 중 홈인 쪽).</summary>
-    public int HomeTeamIndex => playerIsHome ? playerTeamIndex : computerTeamIndex;
+    /// <summary>홈팀의 팀 인덱스.</summary>
+    public int HomeTeamIndex
+    {
+        get => homeTeamIndex;
+        set => homeTeamIndex = value;
+    }
 
-    /// <summary>원정팀의 팀 인덱스 (플레이어/컴퓨터 중 원정인 쪽).</summary>
-    public int AwayTeamIndex => playerIsHome ? computerTeamIndex : playerTeamIndex;
+    /// <summary>원정팀의 팀 인덱스.</summary>
+    public int AwayTeamIndex
+    {
+        get => awayTeamIndex;
+        set => awayTeamIndex = value;
+    }
+
+    /// <summary>플레이어가 선택한 팀 인덱스 (홈/원정 역할에서 역산).</summary>
+    public int PlayerTeamIndex => playerIsHome ? homeTeamIndex : awayTeamIndex;
+
+    /// <summary>컴퓨터가 선택한 팀 인덱스 (홈/원정 역할에서 역산).</summary>
+    public int ComputerTeamIndex => playerIsHome ? awayTeamIndex : homeTeamIndex;
 
     /// <summary>
     /// 내부 이닝 카운터 최댓값. (초/말 각각 1단위라 × 2)

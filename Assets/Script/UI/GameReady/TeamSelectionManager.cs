@@ -515,9 +515,10 @@ public class TeamSelectionManager : MonoBehaviour
         if (gameConfigSO != null)
         {
             gameConfigSO.SelectedInnings = innings;
-            gameConfigSO.PlayerTeamIndex = currentPlayerTeamIndex;
-            gameConfigSO.ComputerTeamIndex = currentComputerTeamIndex;
             gameConfigSO.PlayerIsHome = playerIsHome;
+            //홈/원정 역할에 맞춰 어느 구단이 홈/원정인지 저장 (player/computer는 PlayerIsHome로 역산)
+            gameConfigSO.HomeTeamIndex = playerIsHome ? currentPlayerTeamIndex : currentComputerTeamIndex;
+            gameConfigSO.AwayTeamIndex = playerIsHome ? currentComputerTeamIndex : currentPlayerTeamIndex;
         }
         else
         {
