@@ -62,7 +62,7 @@ public class TeamSelectionManager : MonoBehaviour
     [Tooltip("순서대로 1, 3, 6, 9 이닝에 대응되는 Toggle 4개")]
     [SerializeField] private Toggle[] inningToggles; //0=1이닝, 1=3이닝, 2=6이닝, 3=9이닝
     [SerializeField] private int defaultInningIndex = 3; //기본 9이닝
-    [SerializeField] private GameConfigSO gameConfigSO;
+    [SerializeField] private GamePlayModel gamePlayModel;
 
     private readonly int[] inningValues = { 1, 3, 6, 9 };
 
@@ -512,13 +512,12 @@ public class TeamSelectionManager : MonoBehaviour
         Debug.Log($"선택 이닝: {innings}");
 
         //선택된 이닝 수와 팀/홈원정 정보를 SO에 저장 → Gameplay 씬에서 읽음
-        if (gameConfigSO != null)
+        if (gamePlayModel != null)
         {
-            gameConfigSO.SelectedInnings = innings;
-            gameConfigSO.PlayerIsHome = playerIsHome;
+            gamePlayModel.MaxInning = innings * 2;
+            gamePlayModel.PlayerIsHome = playerIsHome;
             //홈/원정 역할에 맞춰 어느 구단이 홈/원정인지 저장 (player/computer는 PlayerIsHome로 역산)
-            gameConfigSO.HomeTeamIndex = playerIsHome ? currentPlayerTeamIndex : currentComputerTeamIndex;
-            gameConfigSO.AwayTeamIndex = playerIsHome ? currentComputerTeamIndex : currentPlayerTeamIndex;
+            //todo 이거를 따로 팀 SO를 넣어야 한다. => 1번 한화이글스, 2번 LG 트윈스ㄴ
         }
         else
         {

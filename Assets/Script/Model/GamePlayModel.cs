@@ -7,11 +7,11 @@ using UnityEngine;
 public class GamePlayModel : GameModel
 {
     //생각해보니 Result에 전달할 필요가...? 앗 TeamStatus가 있었음
-    
-    public BaseStatusPanel _baseStatusPanel; //debug
+    private BaseStatusPanel _baseStatusPanel; //debug
 
     //0 1 => 1이닝 공격 수비, => 0~17 => 짝수면 원정, 홀수면 홈 
     [SerializeField] private int inning = 0;
+    [SerializeField] private int maxInning = 18;
     [SerializeField] private int out_count = 0;
 
     //베이스에 있는 주자들 : List로 해도 하도 주자가 적어서 동적으로 지워도 된다
@@ -28,7 +28,7 @@ public class GamePlayModel : GameModel
     //만약 있다면? 되돌릴때 runners.insert(맨앞)
     //근데 이러면 또 CreateBatter에서 스트라이크 볼 초기화되는 문제가 생기는 구나
 
-    [SerializeField] private int playerIsHome;
+    [SerializeField] private bool playerIsHome;
     [SerializeField] private TeamStatus[] _teamStatus = new TeamStatus[2];
     //사실 점수만 하고 싶은데
 
@@ -71,6 +71,11 @@ public class GamePlayModel : GameModel
             inning = value;
         }
     }
+    public int MaxInning
+    {
+        get { return maxInning; }
+        set { maxInning = value; }
+    }
 
     public int BeforeScore
     {
@@ -78,15 +83,21 @@ public class GamePlayModel : GameModel
         set { before_score = value; }
     }
 
-    public int MyTeamIndex
+    public bool PlayerIsHome
     {
-        get => myTeamIndex;
-        set => myTeamIndex = value;
+        get => playerIsHome;
+        set => playerIsHome = value;
     }
 
     public int GetScore()
     {
         return _teamStatus[GetTeamIndex()].Score;
+    }
+
+    public bool PlayerIsBatterMode()
+    {
+        //1 true => 타자, 0인데 false  
+        return ((inning % 2 == 1) == playerIsHome);
     }
 
     //[v] 내가 달릴때, [x] 원래는 주자가 달릴때 , [x] 바꿔치기 할때 
@@ -212,10 +223,6 @@ public class GamePlayModel : GameModel
     {
         return inning % 2;
     }
-    public bool IsMyTeamBatting()
-    {
-        return GetTeamIndex() == myTeamIndex;
-    }
 
     public int AddScore(int value)
     {
@@ -249,9 +256,9 @@ public class GamePlayModel : GameModel
         return _teamStatus[teamIndex].Score;
     }
 
-
-    #endregion
-
+    #endregion      /////////////////////////////////////////////// property 상한선
+    
+    
     public void ReplaceLastRunner(BatterComponent batterComponent)
     {
         if (runners.Count == 0)
@@ -265,7 +272,6 @@ public class GamePlayModel : GameModel
     
     public void MoveBaseRunner()
     {
-
         for (int i = 0; i < runners.Count; i++)
         {
             //1 안나오면 참사
@@ -329,8 +335,6 @@ public class GamePlayModel : GameModel
                 inningScores[t, n] = 0;
             }
         }
-
-        myTeamIndex = 0; //0 or 1 => batter 기준
 
         _teamStatus[0].Init();
         _teamStatus[1].Init();

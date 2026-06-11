@@ -3586,7 +3586,6 @@ MonoBehaviour:
   canBackRunner: 0
   gamePlayModel: {fileID: 11400000, guid: 9d46fa24628b5bf4c98e92b0fc1bba4f, type: 2}
   battingModel: {fileID: 11400000, guid: 032757da753c5ab40b7592eec7c2d411, type: 2}
-  gameConfigSO: {fileID: 11400000, guid: 57bfc6f5cac9aee4da4d177286e6ac0d, type: 2}
 --- !u!4 &1232322307 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8112939749161389715, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}

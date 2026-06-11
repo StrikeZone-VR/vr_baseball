@@ -364,140 +364,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &213014271
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 213014272}
-  - component: {fileID: 213014273}
-  m_Layer: 5
-  m_Name: Team Selection Manager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &213014272
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 213014271}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1246968441}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &213014273
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 213014271}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e30d61186e8e1ca459dd87676163f5d4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  teams:
-  - teamName: "\uD55C\uD654 \uC774\uAE00\uC2A4"
-    teamLogo: {fileID: 21300000, guid: 798e88316d6701d468414fcfffc34b47, type: 3}
-  - teamName: "LG \uD2B8\uC708\uC2A4"
-    teamLogo: {fileID: 21300000, guid: 35b6c9dadf8b0124c8dfad990cee36de, type: 3}
-  - teamName: "\uB86F\uB370 \uC790\uC774\uC5B8\uCE20"
-    teamLogo: {fileID: 21300000, guid: af0b3888c4274a645a371a8a8a2033f0, type: 3}
-  - teamName: "KT \uC704\uC988"
-    teamLogo: {fileID: 21300000, guid: 62bb4b59039cd8840818db41f16c7237, type: 3}
-  - teamName: "SSG \uB79C\uB354\uC2A4"
-    teamLogo: {fileID: 21300000, guid: 82b9117e84daa2843abeac950d93f682, type: 3}
-  - teamName: "\uC0BC\uC131 \uB77C\uC774\uC628\uC988"
-    teamLogo: {fileID: 21300000, guid: be8b8ba2a0f5ce540b6cccd1fe7ef7fb, type: 3}
-  - teamName: "KIA \uD0C0\uC774\uAC70\uC988"
-    teamLogo: {fileID: 21300000, guid: 28db0739420e0a64eaf18389173fdfc5, type: 3}
-  - teamName: "NC \uB2E4\uC774\uB178\uC2A4"
-    teamLogo: {fileID: 21300000, guid: 5e0e5de68c7e1c649a12744ac36d4120, type: 3}
-  - teamName: "\uB450\uC0B0 \uBCA0\uC5B4\uC2A4"
-    teamLogo: {fileID: 21300000, guid: bfbf57d3975c62a4b914fbd65a560a05, type: 3}
-  - teamName: "\uD0A4\uC6C0 \uD788\uC5B4\uB85C\uC988"
-    teamLogo: {fileID: 21300000, guid: ca92fcc045e47f3489d017ca9a81a095, type: 3}
-  computerCurrentTeamLogo: {fileID: 2069564384}
-  computerPreviousTeamLogo: {fileID: 279214530}
-  computerNextTeamLogo: {fileID: 2008679073}
-  computerTeamNameText: {fileID: 1046237953}
-  computerUpButton: {fileID: 236949319}
-  computerDownButton: {fileID: 881406739}
-  computerScrollRect: {fileID: 0}
-  playerCurrentTeamLogo: {fileID: 794335630}
-  playerPreviousTeamLogo: {fileID: 1883216462}
-  playerNextTeamLogo: {fileID: 2021846306}
-  playerTeamNameText: {fileID: 125107839}
-  playerUpButton: {fileID: 904847940}
-  playerDownButton: {fileID: 1085245069}
-  playerScrollRect: {fileID: 0}
-  teamSwapButton: {fileID: 1414040970}
-  computerPanel: {fileID: 2133110684}
-  playerPanel: {fileID: 1359614616}
-  playerStartsAsHome: 1
-  computerHomeAwayLabel: {fileID: 2096587977}
-  playerHomeAwayLabel: {fileID: 1898810843}
-  homeLabelText: "\uD648"
-  awayLabelText: "\uC6D0\uC815"
-  computerName: "\uCEF4\uD4E8\uD130"
-  playerName: "\uB098"
-  playBallButton: {fileID: 863006267}
-  inningToggles:
-  - {fileID: 507935984}
-  - {fileID: 393798622}
-  - {fileID: 423493851}
-  - {fileID: 1170258139}
-  defaultInningIndex: 3
-  gameConfigSO: {fileID: 11400000, guid: 57bfc6f5cac9aee4da4d177286e6ac0d, type: 2}
-  scrollAnimationDuration: 0.3
-  scrollAnimationCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  scrollThreshold: 0.1
-  sceneEventSO: {fileID: 11400000, guid: 1614b16f3ac165a4095e5f466b87b7b6, type: 2}
-  gamePlayScene:
-    m_AssetGUID: 68d2e92b0016b5d478424d1178581a03
-    m_SubObjectName: 
-    m_SubObjectType: 
-    m_SubObjectGUID: 
-    m_EditorAssetChanged: 0
 --- !u!21 &233698424
 Material:
   serializedVersion: 8
@@ -3633,7 +3499,6 @@ RectTransform:
   m_LocalScale: {x: 0.002, y: 0.002, z: 0.002}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 213014272}
   - {fileID: 334206719}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -3673,35 +3538,59 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e30d61186e8e1ca459dd87676163f5d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  teams: []
-  computerCurrentTeamLogo: {fileID: 0}
-  computerPreviousTeamLogo: {fileID: 0}
-  computerNextTeamLogo: {fileID: 0}
-  computerTeamNameText: {fileID: 0}
-  computerUpButton: {fileID: 0}
-  computerDownButton: {fileID: 0}
+  teams:
+  - teamName: "\uD55C\uD654 \uC774\uAE00\uC2A4"
+    teamLogo: {fileID: 21300000, guid: 798e88316d6701d468414fcfffc34b47, type: 3}
+  - teamName: "LG \uD2B8\uC708\uC2A4"
+    teamLogo: {fileID: 21300000, guid: 35b6c9dadf8b0124c8dfad990cee36de, type: 3}
+  - teamName: "\uB86F\uB370 \uC790\uC774\uC5B8\uCE20"
+    teamLogo: {fileID: 21300000, guid: af0b3888c4274a645a371a8a8a2033f0, type: 3}
+  - teamName: "KT \uC704\uC988"
+    teamLogo: {fileID: 21300000, guid: 62bb4b59039cd8840818db41f16c7237, type: 3}
+  - teamName: "SSG \uB79C\uB354\uC2A4"
+    teamLogo: {fileID: 21300000, guid: 82b9117e84daa2843abeac950d93f682, type: 3}
+  - teamName: "\uC0BC\uC131 \uB77C\uC774\uC628\uC988"
+    teamLogo: {fileID: 21300000, guid: be8b8ba2a0f5ce540b6cccd1fe7ef7fb, type: 3}
+  - teamName: "KIA \uD0C0\uC774\uAC70\uC988"
+    teamLogo: {fileID: 21300000, guid: 28db0739420e0a64eaf18389173fdfc5, type: 3}
+  - teamName: "NC \uB2E4\uC774\uB178\uC2A4"
+    teamLogo: {fileID: 21300000, guid: 5e0e5de68c7e1c649a12744ac36d4120, type: 3}
+  - teamName: "\uB450\uC0B0 \uBCA0\uC5B4\uC2A4"
+    teamLogo: {fileID: 21300000, guid: bfbf57d3975c62a4b914fbd65a560a05, type: 3}
+  - teamName: "\uD0A4\uC6C0 \uD788\uC5B4\uB85C\uC988"
+    teamLogo: {fileID: 21300000, guid: ca92fcc045e47f3489d017ca9a81a095, type: 3}
+  computerCurrentTeamLogo: {fileID: 2069564384}
+  computerPreviousTeamLogo: {fileID: 279214530}
+  computerNextTeamLogo: {fileID: 2008679073}
+  computerTeamNameText: {fileID: 1046237953}
+  computerUpButton: {fileID: 236949319}
+  computerDownButton: {fileID: 881406739}
   computerScrollRect: {fileID: 0}
-  playerCurrentTeamLogo: {fileID: 0}
-  playerPreviousTeamLogo: {fileID: 0}
-  playerNextTeamLogo: {fileID: 0}
-  playerTeamNameText: {fileID: 0}
-  playerUpButton: {fileID: 0}
-  playerDownButton: {fileID: 0}
+  playerCurrentTeamLogo: {fileID: 794335630}
+  playerPreviousTeamLogo: {fileID: 1883216462}
+  playerNextTeamLogo: {fileID: 2021846306}
+  playerTeamNameText: {fileID: 125107839}
+  playerUpButton: {fileID: 904847940}
+  playerDownButton: {fileID: 1085245069}
   playerScrollRect: {fileID: 0}
-  teamSwapButton: {fileID: 0}
-  computerPanel: {fileID: 0}
-  playerPanel: {fileID: 0}
+  teamSwapButton: {fileID: 1414040970}
+  computerPanel: {fileID: 2133110684}
+  playerPanel: {fileID: 1359614616}
   playerStartsAsHome: 1
-  computerHomeAwayLabel: {fileID: 0}
-  playerHomeAwayLabel: {fileID: 0}
+  computerHomeAwayLabel: {fileID: 2096587977}
+  playerHomeAwayLabel: {fileID: 1898810843}
   homeLabelText: "\uD648"
   awayLabelText: "\uC6D0\uC815"
   computerName: "\uCEF4\uD4E8\uD130"
   playerName: "\uB098"
-  playBallButton: {fileID: 0}
-  inningToggles: []
+  playBallButton: {fileID: 863006267}
+  inningToggles:
+  - {fileID: 507935984}
+  - {fileID: 393798622}
+  - {fileID: 423493851}
+  - {fileID: 1170258139}
   defaultInningIndex: 3
-  gameConfigSO: {fileID: 0}
+  gamePlayModel: {fileID: 11400000, guid: 9d46fa24628b5bf4c98e92b0fc1bba4f, type: 2}
   scrollAnimationDuration: 0.3
   scrollAnimationCurve:
     serializedVersion: 2
@@ -3728,9 +3617,9 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   scrollThreshold: 0.1
-  sceneEventSO: {fileID: 0}
+  sceneEventSO: {fileID: 11400000, guid: 1614b16f3ac165a4095e5f466b87b7b6, type: 2}
   gamePlayScene:
-    m_AssetGUID: 
+    m_AssetGUID: 68d2e92b0016b5d478424d1178581a03
     m_SubObjectName: 
     m_SubObjectType: 
     m_SubObjectGUID: 

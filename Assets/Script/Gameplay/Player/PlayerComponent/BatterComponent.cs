@@ -75,7 +75,7 @@ public class BatterComponent : PlayerComponent
     
     public bool IsIntoBase(FieldBase fieldBase)
     {
-        //GameLog.RunnerLog("흐엉엉 : " + base_index);
+        //GameLog.RunnerLog("IsIntoBase : " + base_index);
         //is same going to the next base index
         //1 => 0 + 1, baseindex가 3인데 베이스가 0으로 간 경우
         if (fieldBase.BaseIndex == base_index + 1 || (fieldBase.BaseIndex == 0 && base_index == 3))

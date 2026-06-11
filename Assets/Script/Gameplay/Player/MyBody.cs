@@ -91,10 +91,13 @@ public class MyBody : Player
     {
         BatterComponent batterComponent = _playerComponent as BatterComponent;
 
+        //왜 없지 스위칭 안했나
         if (!batterComponent)
         {
-            Debug.LogError("batterComponent가 없다.");
-            Debug.Break();
+            if (_playerComponent == null)
+            {
+                Debug.LogError("batterComponent가 없다.");
+            }
             return false;
         }
         

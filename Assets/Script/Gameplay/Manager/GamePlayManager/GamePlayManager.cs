@@ -25,7 +25,7 @@ public class GamePlayManager : GameManager
     [SerializeField] private MyBody myBody; //플레이어 타자
     [SerializeField] private Transform[] rightBatterPositionTemp; //4개
     
-    private PitcherComponent _pitcherComponent;
+    private PitcherComponent _aiPitcherComponent;
     
     [Space]
 
@@ -83,7 +83,6 @@ public class GamePlayManager : GameManager
     
     [SerializeField] private GamePlayModel gamePlayModel;
     [SerializeField] private BattingModel battingModel;
-    [SerializeField] private GameConfigSO gameConfigSO; //GameReady에서 선택한 이닝 수 전달용
 
     private Coroutine waitPitcherCoroutine;
     
@@ -169,14 +168,8 @@ public class GamePlayManager : GameManager
     {
         gamePlayModel.Init();
         battingModel.Init();
-
-        //GameReady에서 선택한 홈/원정 반영. 홈팀이면 말(홀수 이닝)에 공격 → myTeamIndex=1, 원정이면 0
-        if (gameConfigSO != null)
-        {
-            gamePlayModel.MyTeamIndex = gameConfigSO.PlayerIsHome ? 1 : 0;
-        }
         
-        _pitcherComponent = GetDefenderComponent(0) as PitcherComponent; 
+        _aiPitcherComponent = GetDefenderComponent(0) as PitcherComponent; 
         SetScore(0, 0);
         SetScore(1, 0);
         
@@ -210,7 +203,7 @@ public class GamePlayManager : GameManager
         Color defend_color;
         
         //타자
-        if (gamePlayModel.IsMyTeamBatting())
+        if (gamePlayModel.PlayerIsBatterMode())
         {
             defend_color = _yourTeamColor;
         }
@@ -244,13 +237,13 @@ public class GamePlayManager : GameManager
         //디버그 베이스 세팅보여주기
         DebugBaseStatus();
         
-        //batting mode
-        if (gamePlayModel.IsMyTeamBatting())
+        //battingmode
+        if (gamePlayModel.PlayerIsBatterMode())
         {
             waitPitcherCoroutine = StartCoroutine(WaitingBackToPitcher());
             //안에 canGetBall 변수가 있음. 
         }
-        //이게 그러니까 pitchermode
+        //pitchermode
         else
         {
             //주자 생성
@@ -343,7 +336,7 @@ public class GamePlayManager : GameManager
         //debug로 Inning을 넘길 시 AI타자가 돌아다니는 버그
         //만약 current가 AI인 경우
         //ㄴ 원래는 !=로 해야하지만 inning이 바뀐 후라 !를 안 썼다.
-        if (currentBatterComponent && gamePlayModel.IsMyTeamBatting())
+        if (currentBatterComponent && !gamePlayModel.PlayerIsBatterMode())
         {
             currentBatterComponent.OutPlayer();
             currentBatterComponent = null;
@@ -364,7 +357,7 @@ public class GamePlayManager : GameManager
         
         MoveBase();
         
-        if (gamePlayModel.IsMyTeamBatting())
+        if (!gamePlayModel.PlayerIsBatterMode())
         {
             //DebugMoveBase(1);
 
@@ -438,12 +431,12 @@ public class GamePlayManager : GameManager
         batter.SetBall(_ball);
         batterComponent.SetBat(_bat);
 
-        //0 == 0, 타자모드
-        if (gamePlayModel.IsMyTeamBatting())
+        //타자모드
+        if (gamePlayModel.PlayerIsBatterMode())
         {
             batter.SetShirtColor(_myTeamColor);
         }
-        else
+        else //투수모드
         {
             batter.SetShirtColor(_yourTeamColor);
         }
@@ -465,15 +458,16 @@ public class GamePlayManager : GameManager
     {
         //transview 뭐시기
         //주자라면 mybody를 먼저 대체하고 해야하나
-
-        if(gamePlayModel.IsMyTeamBatting())
+        
+        //batting mode
+        if(gamePlayModel.PlayerIsBatterMode())
         {
             //그냥 AI를 생성해서 저쪽에 넣는다.
             gamePlayModel.AddRunner(CreateBatter());
             Strike = 0;
             gamePlayModel.MoveBaseRunner();
         }
-        else
+        else //pitchermode
         {
             gamePlayModel.AddRunner(currentBatterComponent);
             gamePlayModel.MoveBaseRunner(); // 왜 안움직이지
@@ -505,9 +499,11 @@ public class GamePlayManager : GameManager
         currentBatterComponent.IsMove = false;
         gamePlayModel.FoulRollbackBeforeStatus(); //정보만 바뀜
 
-        if (gamePlayModel.IsMyTeamBatting())
+        if (gamePlayModel.PlayerIsBatterMode())
         {
             StartCoroutine(TranslateBattingView());
+            canBackRunner = true;
+            return;
         }
         else //AI타자가 파울이면?
         {
@@ -516,14 +512,7 @@ public class GamePlayManager : GameManager
             gamePlayModel.RemoveLastRunner();
         }
 
-        //내가 타자라면 그냥 페이드아웃
-         if (gamePlayModel.IsMyTeamBatting())
-         {
-             canBackRunner = true;
-             return;
-         }
-         
-         DebugBaseStatus();
+        DebugBaseStatus();
     }
     
     
@@ -539,15 +528,13 @@ public class GamePlayManager : GameManager
         currentBatterComponent.OutPlayer(false); //따로 true때 발동하는 기능은 Strike++에 넣어놨음
         
         //투수모드
-        if (!gamePlayModel.IsMyTeamBatting())
+        if (!gamePlayModel.PlayerIsBatterMode())
         {
             currentBatterComponent = null;
         }
         
         //플레이어는 뭐 화면 깜빡거리면 될거같고
         //아니 만약 current가 플레이어면 안 되는 거 아닌가?
-        
-        
         //타자모드
         // if ()
         // {
@@ -585,7 +572,7 @@ public class GamePlayManager : GameManager
         defenders[0].gameObject.SetActive(true); //pitcher로 하면 mybody도 true가 될 수 있으니까
         
         //투수 AI 세팅
-        _pitcherComponent.IsThrowBallStop = false;
+        _aiPitcherComponent.IsThrowBallStop = false;
         _ball.CurrentState = BallState.Dead;
         
         //GetDefenderComponent(0).SetMyBall(_ball);
@@ -666,7 +653,7 @@ public class GamePlayManager : GameManager
         Debug.Log("<color=green>[GamePlay] : 투수 Mode On</color>");
 
         GetDefenderComponent(0).IsTracking = false;
-        _pitcherComponent.IsThrowBallStop = true;
+        _aiPitcherComponent.IsThrowBallStop = true;
         pitchingController.StartPitchingGame();
         
         _ball.CurrentState = BallState.Dead;
@@ -766,7 +753,7 @@ public class GamePlayManager : GameManager
                 }
 
                 //AI투수가 공을 가지고 있다면
-                if (_pitcherComponent && _ball.MyDefenderComponent == _pitcherComponent)
+                if (_aiPitcherComponent && _ball.MyDefenderComponent == _aiPitcherComponent)
                 {
                     return;
                 }
@@ -907,11 +894,10 @@ public class GamePlayManager : GameManager
         float min = float.MaxValue;
         int index = -1;
         
-        
         for (int i = 0; i < defenders.Length; i++)
         {
             //투수모드인 경우
-            if (!gamePlayModel.IsMyTeamBatting())
+            if (!gamePlayModel.PlayerIsBatterMode())
             {
                 continue;
             }
@@ -971,7 +957,7 @@ public class GamePlayManager : GameManager
         set
         {
             //GameReady에서 선택한 이닝 수가 있으면 그걸 우선, 아니면 기본 9이닝(DEFAULT_MAX_INNING_COUNT=18)
-            int maxInning = gameConfigSO != null ? gameConfigSO.MaxInningCount : GameConfigSO.DEFAULT_MAX_INNING_COUNT;
+            int maxInning = gamePlayModel.MaxInning; 
             if (value >= maxInning)
             {
                 Debug.Log($"Game Over, back to the menu... (maxInning={maxInning})");
@@ -985,10 +971,9 @@ public class GamePlayManager : GameManager
             gamePlayModel.Inning = value;
             ChangedInning();
 
-            int num = value % 2;
-
+            //false
             //change 
-            if (num == gamePlayModel.MyTeamIndex)
+            if (gamePlayModel.PlayerIsBatterMode())
             {
                 StartBatterMode();
             }
@@ -996,7 +981,6 @@ public class GamePlayManager : GameManager
             {
                 StartPitcherMode();
             }
-            
             gamePlayController.SetInningText(value);
         }
     }
@@ -1046,8 +1030,9 @@ public class GamePlayManager : GameManager
 
                 DeleteRunner();
                 AddOut();
+                
                 //batter
-                if (gamePlayModel.IsMyTeamBatting())
+                if (!gamePlayModel.PlayerIsBatterMode())
                 {
                     StartCoroutine(TranslateBattingView());
                 }
@@ -1136,7 +1121,7 @@ public class GamePlayManager : GameManager
         AddScore(gamePlayModel.GetRunnerCount());
         ClearRunners();
 
-        if (gamePlayModel.IsMyTeamBatting())
+        if (gamePlayModel.PlayerIsBatterMode())
         {
             StartCoroutine(TranslateBattingView());
         }
@@ -1231,7 +1216,7 @@ public class GamePlayManager : GameManager
         }
         if (Input.GetKeyDown(KeyCode.Z))
         {
-            if (gamePlayModel.IsMyTeamBatting())
+            if (gamePlayModel.PlayerIsBatterMode())
                 DebugHitting();
             // else
             //     DebugThrowBall();
@@ -1257,17 +1242,17 @@ public class GamePlayManager : GameManager
         }
         if (Input.GetKeyDown(KeyCode.V))
         {
-            if (gamePlayModel.IsMyTeamBatting())
+            if (gamePlayModel.PlayerIsBatterMode())
             {
                 Debug.Log("투수 스토프");
-                _pitcherComponent.IsThrowBallStop = !_pitcherComponent.IsThrowBallStop;
+                _aiPitcherComponent.IsThrowBallStop = !_aiPitcherComponent.IsThrowBallStop;
             }
             else
                 DebugHitting();
         }
         if (Input.GetKeyDown(KeyCode.B))
         {
-            if (!gamePlayModel.IsMyTeamBatting())
+            if (!gamePlayModel.PlayerIsBatterMode())
             {
                 //Player 투수 공 받기
                 myBody.GetMyPitcherComponent().ForceGrab();
@@ -1304,7 +1289,7 @@ public class GamePlayManager : GameManager
         float power = Random.Range(15f, 35f);  //50이 홈런
 
         // 2. 기존 매니저의 투수 및 코루틴 제어 (이건 매니저의 일이 맞음!)
-        _pitcherComponent.StopPitching();
+        _aiPitcherComponent.StopPitching();
         // _ball.RemoveDefender(); => DebugHit
 
         if(waitPitcherCoroutine != null)
