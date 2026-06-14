@@ -310,10 +310,10 @@ public class GamePlayModel : GameModel
         //그리고 주자 맨 뒤는 제거. 혹시 모르니 if문으로 사이즈 오버되면 null처리
         for (int i = 0; i < before_runners.Count; i++)
         {
-            Debug.Log("메세지가 떠야한다");
             runners[i].SetBaseIndexPosition(before_runners[i]);
             runners[i].IsMove = false;
         }
+        //파울 이벤트에 제거될 거임
     }
 
     public override void Init()

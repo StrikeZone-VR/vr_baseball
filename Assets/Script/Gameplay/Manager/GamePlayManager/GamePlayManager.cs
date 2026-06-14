@@ -352,11 +352,11 @@ public class GamePlayManager : GameManager
         CatcherComponent catcherComponent = GetDefenderComponent(4) as CatcherComponent;
         catcherComponent.DefendIndex = 1;
         
+        MoveBase();
+
+
         //타자모드
         //주자들 달리는 신호
-        
-        MoveBase();
-        
         if (!gamePlayModel.PlayerIsBatterMode())
         {
             //DebugMoveBase(1);
@@ -503,15 +503,14 @@ public class GamePlayManager : GameManager
         {
             StartCoroutine(TranslateBattingView());
             canBackRunner = true;
-            return;
         }
         else //AI타자가 파울이면?
         {
-            gamePlayModel.GetLastRunner().SetBaseIndexPosition(0);
-            //맨 뒤 주자 제거
-            gamePlayModel.RemoveLastRunner();
+            gamePlayModel.GetLastRunner().SetBaseIndexPosition(0); //홈으로 이동
         }
 
+        //맨 뒤 주자 제거
+        gamePlayModel.RemoveLastRunner();
         DebugBaseStatus();
     }
     
@@ -1286,8 +1285,10 @@ public class GamePlayManager : GameManager
         float x = Random.Range(-1.0f, 0f);
         float y = 0.5f;
         float z = Random.Range(-1.0f, 0f);
-        float power = Random.Range(15f, 35f);  //50이 홈런
+        float power = Random.Range(15f, 15f);  //50이 홈런
 
+        x *= -1;
+        z *= -1;
         // 2. 기존 매니저의 투수 및 코루틴 제어 (이건 매니저의 일이 맞음!)
         _aiPitcherComponent.StopPitching();
         // _ball.RemoveDefender(); => DebugHit
