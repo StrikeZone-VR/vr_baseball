@@ -15,7 +15,7 @@ MonoBehaviour:
   inning: 2
   maxInning: 18
   out_count: 0
-  playerIsHome: 0
+  playerIsHome: 1
   _teamStatus:
   - score: 0
     batting_order: 0

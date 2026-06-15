@@ -578,10 +578,12 @@ public class GamePlayManager : GameManager
         
         //투수 AI 세팅
         _aiPitcherComponent.IsThrowBallStop = false;
-        _ball.CurrentState = BallState.Dead;
-        
+
         //GetDefenderComponent(0).SetMyBall(_ball);
+        //_ball.CurrentState = Dead가 backToPitcherEvent→PitcherGetBall→WaitingBackToPitcher를 '동기적으로' 호출하고,
+        //그 코루틴이 myBody.GetMyBatterComponent()를 쓴다. 그래서 Dead로 만들기 전에 먼저 타자 역할로 스위칭해야 null(NRE)이 안 난다.
         myBody.SetBatterComponent();
+        _ball.CurrentState = BallState.Dead;
 
         SetPlayerMoveMode(true); //StartPitcherMode에서 false로 잠갔던 걸 복원 (비대칭 방지)
 
