@@ -27,7 +27,7 @@ public class CatcherComponent : BasemanComponent
     {
         if (collision.gameObject.CompareTag("Base") && defendIndex == 1)
         {
-            Debug.LogWarning("[Catcher] : 이거 포수가 수비도중에 중간에 멈추면 이거를 봐라");
+            //Debug.LogWarning("[Catcher] : 이거 포수가 수비도중에 중간에 멈추면 이거를 봐라");
             IsInPosition = false;
         }
     }

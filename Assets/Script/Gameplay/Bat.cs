@@ -158,7 +158,6 @@ public class Bat : MonoBehaviour
             if (progress >= 0.5f && debugCheck)
             {
                 debugCheck = false;
-                Debug.Log("스윙 중간 : ");
                 //Debug.Break();
             }
             

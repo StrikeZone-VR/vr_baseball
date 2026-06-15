@@ -205,6 +205,10 @@ public class MyXROriginManager : MonoBehaviour
 
     private void MoveOrigin(Vector3 vector3)
     {
+        //텔레포트 전에 손에 쥔 것(배트 등) 놓기.
+        //안 놓으면 배트를 잡은 채 이닝 교체/시점 전환되면 배트가 손에 select된 채로 플레이어를 따라 끌려온다.
+        ReleaseRightHandSelection();
+
         //move
         //MoveCameraToWorldLocation은 '카메라(머리)'를 그 좌표에 맞추는 함수라
         //y를 직접 주면 트래킹된 머리 높이와 충돌해 극초반/이후 스폰 높이가 들쭉날쭉(y2/y1)해진다.

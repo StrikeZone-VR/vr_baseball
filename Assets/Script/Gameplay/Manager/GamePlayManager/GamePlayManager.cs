@@ -386,9 +386,9 @@ public class GamePlayManager : GameManager
     }
 
     /// <summary>
-    /// "투수모드"에서 타석에 서있는 AI 타자 생성.
-    /// 아웃, 홈런, 사구 각각 있음
-    /// ㄴ 파울은 아님
+    /// "다음 타자 등장" = 한 타석 시작. 양 모드 공통으로 카운트를 초기화한다.
+    /// 타자모드: 다음 타자 = 플레이어 본인 → 타석으로 시점 복귀(TranslateBattingView).
+    /// 투수모드: 타석에 서있는 AI 타자 생성. 아웃, 홈런, 사구 각각 있음 (ㄴ 파울은 아님)
     /// </summary>
     /// <param name="isAI"></param>
     /// <param name="base_index"></param>
@@ -397,9 +397,15 @@ public class GamePlayManager : GameManager
     {
         //Debug.Log("[Batter] 생성");
         //어차피 아웃되거나 안타 확정될때 초기화 해야함
-        BallCount = 0;
-        Strike = 0;
-        
+        ResetCount();
+
+        //타자모드: AI를 생성하지 않고 플레이어 시점만 타석으로 복귀
+        if (gamePlayModel.PlayerIsBatterMode())
+        {
+            StartCoroutine(TranslateBattingView()); //끝에서 currentBatterComponent = myBody 배터로 세팅됨
+            return myBody.GetMyBatterComponent();
+        }
+
         BatterComponent batter = CreateBatter(base_index);
         
         //타석인가?
@@ -1078,6 +1084,16 @@ public class GamePlayManager : GameManager
         if (addOutEvent != null) addOutEvent.RaiseEvent();
     }
 
+    /// <summary>
+    /// 새 타석 카운트(볼/스트라이크) 초기화. NextBatter("다음 타자 등장")가 양 모드 공통으로 부른다.
+    /// (TranslateBattingView에 넣지 말 것: 파울 롤백도 그 함수를 쓰는데 파울은 카운트를 유지해야 함)
+    /// </summary>
+    private void ResetCount()
+    {
+        BallCount = 0;
+        Strike = 0;
+    }
+
     //대체로 볼넷으로 준 경우 or 주자가 자연스럽게 옮긴 경우 (이거만 유일한 주자 조정 함수임)
     private void AddIsBaseStatus(int index)
     {
@@ -1116,18 +1132,11 @@ public class GamePlayManager : GameManager
     /// </summary>
     protected override void Homerun()
     {
-        Debug.Log("홈런");
         AddScore(gamePlayModel.GetRunnerCount());
         ClearRunners();
 
-        if (gamePlayModel.PlayerIsBatterMode())
-        {
-            StartCoroutine(TranslateBattingView());
-        }
-        else
-        {
-            currentBatterComponent = NextBatter(); //주자 나와야 함
-        }
+        //타자모드면 시점 복귀, 투수모드면 AI 타자 생성(주자 나와야 함). 둘 다 카운트 초기화 포함
+        currentBatterComponent = NextBatter();
         ++HomerunCount;
     }
 
