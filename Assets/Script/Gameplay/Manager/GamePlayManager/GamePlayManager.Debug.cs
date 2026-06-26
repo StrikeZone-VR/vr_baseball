@@ -200,6 +200,8 @@ public partial class GamePlayManager
                 sb.AppendLine($"  base {r.BaseIndex} | {moving} | {r.name}");
             }
         }
+
+        sb.AppendLine($"타석 : {currentBatterComponent}");
     }
 #endif
 
