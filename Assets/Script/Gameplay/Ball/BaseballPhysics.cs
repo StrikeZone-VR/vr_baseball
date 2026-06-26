@@ -43,7 +43,9 @@ public class BaseballPhysics : MonoBehaviour
 
     #region Unity Lifecycle
 
-    private void Start()
+    //Awake에서 캐싱: GamePlayManager.Start()의 첫 공 리셋(SetPosition 등)이
+    //BaseballPhysics보다 먼저 실행돼도 _rigidbody가 null이 아니도록 보장 (Start 순서 race 방지)
+    private void Awake()
     {
         _rigidbody = GetComponent<Rigidbody>();
         _baseball = GetComponent<Baseball>();
@@ -110,8 +112,11 @@ public class BaseballPhysics : MonoBehaviour
         GameLog.BallLog("소리쳐 내이름 : " + collision.transform.name);
         if (collision.collider.CompareTag("Ground") || collision.collider.CompareTag("Base"))
         {
-            //잡지 않았다면
-            if (_baseball.CurrentState != BallState.Grabbed)
+            //잡지 않았다면 + 준비/정지 상태(Idle, Dead)는 제외.
+            //ㄴ 준비 중인 공이 땅/베이스에 살짝 닿아도 FreeBall로 승격돼 표류하는 버그 방지
+            if (_baseball.CurrentState != BallState.Grabbed
+                && _baseball.CurrentState != BallState.Idle
+                && _baseball.CurrentState != BallState.Dead)
             {
                 //파울
                 if ((transform.position.x > 0 || transform.position.z > 0) && _baseball.IsInGamePlay)

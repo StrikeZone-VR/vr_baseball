@@ -337,11 +337,18 @@ public partial class GamePlayManager : GameManager
         
         //debug로 Inning을 넘길 시 AI타자가 돌아다니는 버그
         //만약 current가 AI인 경우
-        //ㄴ 원래는 !=로 해야하지만 inning이 바뀐 후라 !를 안 썼다.
-        if (currentBatterComponent && !gamePlayModel.PlayerIsBatterMode())
+        //ㄴ 원래는 !=로 해야하지만 inning이 바뀐 후라 !를 안 썼다.  &&  !gamePlayModel.PlayerIsBatterMode()
+        
+        if (currentBatterComponent)
         {
+            Debug.Log("아웃이 됐는데?" + currentBatterComponent);
+            //현재 타석 제거
             currentBatterComponent.OutPlayer();
             currentBatterComponent = null;
+        }
+        else
+        {
+            Debug.Log("어 안돼 타석이 아웃안됨");
         }
         gamePlayModel.ClearRunner();
     }
@@ -673,7 +680,8 @@ public partial class GamePlayManager : GameManager
         defenders[0].gameObject.SetActive(false);
         myBody.SetPitcherComponent();
         
-        currentBatterComponent = NextBatter();
+        //일단 주자가 두 번 생기는 오류때문에 막아놓음
+        //currentBatterComponent = NextBatter();
 
         //방망이 위치 Vector3(-0.660000026,1.37,0.150000006) 여기로
         //방망이 중력, rotation position 얼리기

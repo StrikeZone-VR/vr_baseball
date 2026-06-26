@@ -164,7 +164,10 @@ public partial class GamePlayManager
             Vector3 vel = _ball.Velocity;
             sb.AppendLine($"Pos : ({pos.x:F2}, {pos.y:F2}, {pos.z:F2})");
             sb.AppendLine($"Vel : ({vel.x:F2}, {vel.y:F2}, {vel.z:F2})");
+            
+            
             sb.AppendLine($"Speed : {vel.magnitude * 3.6f:F1} km/h"); //m/s → km/h
+            sb.AppendLine($"UseGravity : {_ball.UseGravity}");
         }
         else
         {
