@@ -289,6 +289,10 @@ public class Baseball : MonoBehaviour
         set => isGroundBall = value;
     }
 
+    //디버그용: _physics(private)의 속도/위치를 밖에서 읽기 위한 통로
+    public Vector3 Velocity => _physics != null ? _physics.GetVelocity() : Vector3.zero;
+    public Vector3 PhysicsPosition => _physics != null ? _physics.GetPosition() : transform.position;
+
     public DefenderComponent MyDefenderComponent
     {
         get => myDefenderComponent;

@@ -7,48 +7,49 @@ using UnityEngine.UI;
 //VR 헤드셋 안에서 시야 오른쪽에 게임/볼/주자 상태를 실시간으로 띄우는 디버그 패널.
 //World-Space Canvas + TextMeshPro를 런타임에 코드로 생성해 카메라(HMD)에 붙인다(head-locked).
 //pull(폴링) 방식: 매 프레임 GamePlayManager.BuildDebugStatus()를 읽어와 텍스트만 갱신.
-//Canvas를 손으로 씬에 배치할 필요 없음. Play 누르면 자동으로 뜬다(자동 스폰).
+//PersistentManager 씬의 빈 오브젝트에 이 컴포넌트만 올리면 됨(인스펙터 연결 불필요).
+//VR 카메라는 다른 씬에 있어 드래그 연결이 안 되므로 런타임에 Camera.main으로 찾는다.
 public class DebugStatusPanel : MonoBehaviour
 {
     private static DebugStatusPanel _instance;
 
     //카메라 기준 위치/크기 (보기 불편하면 이 값들만 조절하면 됨)
-    private static readonly Vector3 LocalOffset = new Vector3(0.32f, 0f, 0.8f); //오른쪽 + 앞 0.8m
+    private static readonly Vector3 LocalOffset = new Vector3(0.52f, 0f, 0.8f); //오른쪽 + 앞 0.8m
     private const float CanvasWidth = 420f;
     private const float CanvasHeight = 620f;
     private const float CanvasScale = 0.0008f; //World-Space 캔버스 축소 (약 0.34m 폭)
 
+    private const KeyCode ToggleKey = KeyCode.F1; //F1으로 패널 on/off
+
     private readonly StringBuilder _sb = new StringBuilder();
     private GamePlayManager _gp;
-    private Camera _cam;
+    [SerializeField] private Camera _cam;
     private GameObject _canvasGo;
     private TextMeshProUGUI _text;
     private float _refindTimer;
-
-    //GameBootstrap과 동일하게 씬 로드 후 자기 자신을 띄운다 → 수동 배치 없이도 보임
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-    private static void AutoSpawn()
-    {
-        if (_instance != null) return;
-        var go = new GameObject("[DebugStatusPanel]");
-        go.AddComponent<DebugStatusPanel>();
-        DontDestroyOnLoad(go);
-    }
+    private bool _visible = true;
 
     private void Awake()
     {
-        //수동으로 씬에 올려둔 경우와 자동 스폰이 겹쳐도 중복되지 않게 가드
+        //실수로 두 개 올려도 중복되지 않게 가드
         if (_instance != null && _instance != this)
         {
             Destroy(gameObject);
             return;
         }
         _instance = this;
-        DontDestroyOnLoad(gameObject);
     }
 
     private void Update()
     {
+        //F1으로 패널 켜고 끄기
+        if (Input.GetKeyDown(ToggleKey))
+        {
+            _visible = !_visible;
+            if (_canvasGo != null) _canvasGo.SetActive(_visible);
+        }
+        if (!_visible) return; //꺼져 있으면 갱신/생성 모두 스킵
+
         //매니저는 게임플레이 씬 로드/언로드로 바뀌므로 없을 때만 주기적으로 다시 찾는다
         if (_gp == null)
         {

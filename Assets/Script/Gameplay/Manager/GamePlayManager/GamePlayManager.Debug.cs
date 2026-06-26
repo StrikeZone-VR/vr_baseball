@@ -153,7 +153,18 @@ public partial class GamePlayManager
         if (_ball != null)
         {
             sb.AppendLine($"State : {_ball.CurrentState}");
-            sb.AppendLine($"Pos.y : {_ball.transform.position.y:F2}");
+            sb.AppendLine($"IsInGamePlay : {_ball.IsInGamePlay}");
+            sb.AppendLine($"IsGroundBall : {_ball.IsGroundBall}");
+            sb.AppendLine($"IsZone : {_ball.IsZone}");
+            sb.AppendLine($"IsStrike : {_ball.IsStrike}");
+            sb.AppendLine($"DefenderDis : {_ball.DefenderDis}");
+            sb.AppendLine($"MyDefenderComponent : {_ball.MyDefenderComponent}");
+
+            Vector3 pos = _ball.PhysicsPosition;
+            Vector3 vel = _ball.Velocity;
+            sb.AppendLine($"Pos : ({pos.x:F2}, {pos.y:F2}, {pos.z:F2})");
+            sb.AppendLine($"Vel : ({vel.x:F2}, {vel.y:F2}, {vel.z:F2})");
+            sb.AppendLine($"Speed : {vel.magnitude * 3.6f:F1} km/h"); //m/s → km/h
         }
         else
         {
@@ -163,15 +174,7 @@ public partial class GamePlayManager
         // ===== Game =====
         sb.AppendLine();
         sb.AppendLine("<b>[ GAME ]</b>");
-        int inning = gamePlayModel.Inning;
-        int inningNo = inning / 2 + 1;
-        string half = (inning % 2 == 0) ? "초" : "말"; //짝수=원정 공격(초), 홀수=홈 공격(말)
-        string mode = gamePlayModel.PlayerIsBatterMode() ? "타자" : "투수";
-        sb.AppendLine($"Inning : {inningNo}회 {half}  (raw={inning})");
-        sb.AppendLine($"Mode   : {mode}  (PlayerIsHome={gamePlayModel.PlayerIsHome})");
-        sb.AppendLine($"Out    : {gamePlayModel.OutCount} / {GamePlayModel.MAX_OUT_COUNT}");
-        sb.AppendLine($"S / B  : {baseballModel.Strike} / {baseballModel.BallCount}");
-        sb.AppendLine($"Score  : 원정 {gamePlayModel.GetTeamScore(0)} : {gamePlayModel.GetTeamScore(1)} 홈");
+        sb.AppendLine($" (PlayerIsHome={gamePlayModel.PlayerIsHome})");
         sb.AppendLine($"Before : score={gamePlayModel.BeforeScore}"); //파울/플라잉아웃 롤백 디버그용
 
         // ===== Flags =====
