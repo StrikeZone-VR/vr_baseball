@@ -1,3 +1,4 @@
+using System.Text;
 using UnityEngine;
 
 public partial class GamePlayManager
@@ -140,6 +141,64 @@ public partial class GamePlayManager
     {
         currentBatterComponent.Swing();
     }
+
+#if UNITY_EDITOR
+    //오른쪽 디버그 오버레이(DebugStatusPanel)가 매 프레임 읽어가는 상태 스냅샷.
+    //private 필드들(_ball, baseballModel, gamePlayModel, isFlyingOut, _aiPitcherComponent)에
+    //접근해야 해서 매니저 안에서 문자열을 만들어 넘긴다. richText(<b>) 사용.
+    public void BuildDebugStatus(StringBuilder sb)
+    {
+        // ===== Ball =====
+        sb.AppendLine("<b>[ BALL ]</b>");
+        if (_ball != null)
+        {
+            sb.AppendLine($"State : {_ball.CurrentState}");
+            sb.AppendLine($"Pos.y : {_ball.transform.position.y:F2}");
+        }
+        else
+        {
+            sb.AppendLine("(_ball null)");
+        }
+
+        // ===== Game =====
+        sb.AppendLine();
+        sb.AppendLine("<b>[ GAME ]</b>");
+        int inning = gamePlayModel.Inning;
+        int inningNo = inning / 2 + 1;
+        string half = (inning % 2 == 0) ? "초" : "말"; //짝수=원정 공격(초), 홀수=홈 공격(말)
+        string mode = gamePlayModel.PlayerIsBatterMode() ? "타자" : "투수";
+        sb.AppendLine($"Inning : {inningNo}회 {half}  (raw={inning})");
+        sb.AppendLine($"Mode   : {mode}  (PlayerIsHome={gamePlayModel.PlayerIsHome})");
+        sb.AppendLine($"Out    : {gamePlayModel.OutCount} / {GamePlayModel.MAX_OUT_COUNT}");
+        sb.AppendLine($"S / B  : {baseballModel.Strike} / {baseballModel.BallCount}");
+        sb.AppendLine($"Score  : 원정 {gamePlayModel.GetTeamScore(0)} : {gamePlayModel.GetTeamScore(1)} 홈");
+        sb.AppendLine($"Before : score={gamePlayModel.BeforeScore}"); //파울/플라잉아웃 롤백 디버그용
+
+        // ===== Flags =====
+        sb.AppendLine();
+        sb.AppendLine("<b>[ FLAGS ]</b>");
+        sb.AppendLine($"isFlyingOut     : {isFlyingOut}");
+        sb.AppendLine($"IsThrowBallStop : {(_aiPitcherComponent != null ? _aiPitcherComponent.IsThrowBallStop.ToString() : "null")}");
+
+        // ===== Runners =====
+        sb.AppendLine();
+        var runners = gamePlayModel.GetRunners();
+        sb.AppendLine($"<b>[ RUNNERS ]</b>  count={runners.Count}, running={gamePlayModel.RunningIndex()}");
+        if (runners.Count == 0)
+        {
+            sb.AppendLine("(없음)");
+        }
+        else
+        {
+            for (int i = 0; i < runners.Count; i++)
+            {
+                BatterComponent r = runners[i];
+                string moving = r.IsMove ? "→달림" : "정지 ";
+                sb.AppendLine($"  base {r.BaseIndex} | {moving} | {r.name}");
+            }
+        }
+    }
+#endif
 
     #endregion
 }
