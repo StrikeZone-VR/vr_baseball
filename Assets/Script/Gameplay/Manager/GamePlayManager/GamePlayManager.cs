@@ -341,14 +341,9 @@ public partial class GamePlayManager : GameManager
         
         if (currentBatterComponent)
         {
-            Debug.Log("아웃이 됐는데?" + currentBatterComponent);
             //현재 타석 제거
             currentBatterComponent.OutPlayer();
             currentBatterComponent = null;
-        }
-        else
-        {
-            Debug.Log("어 안돼 타석이 아웃안됨");
         }
         gamePlayModel.ClearRunner();
     }

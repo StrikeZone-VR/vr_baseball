@@ -5,7 +5,7 @@ using UnityEngine;
 //- 상태(StatusSnapshot)는 "변할 때만" 저장(희소). 거의 안 바뀌므로 용량을 크게 아낀다.
 public class ReplayRecorder : MonoBehaviour
 {
-    [Header("Refs (인스펙터에서 연결)")]
+    [Header("Refs (비워두면 런타임에 자동 연결)")]
     [SerializeField] private GamePlayManager manager;
     [SerializeField] private Baseball ball;
     [SerializeField] private Bat bat;
@@ -13,14 +13,57 @@ public class ReplayRecorder : MonoBehaviour
     [SerializeField] private Transform rightHand;
 
     [Header("Recording")]
+    [Tooltip("녹화를 담을 SO. 인스펙터에 .asset을 넣으면 거기에 기록(에디터에선 종료 후에도 유지). 비우면 런타임 임시 인스턴스.")]
+    [SerializeField] private ReplayData data;
     [SerializeField] private bool recordOnEnable = true; //씬 시작하자마자 녹화
+    [SerializeField] private bool debugLog = true;       //1초마다 녹화 상태를 콘솔에 출력(디버깅용)
 
-    public ReplayData Data { get; private set; }
+    public ReplayData Data => data;
     public bool IsRecording { get; private set; }
+    public int FrameCount => data != null ? data.frames.Count : 0;
 
+    private float _logTimer;
+
+    //ReplayPlayer가 고스트를 만들 때 쓰는 "원본" 소스들. 인스펙터 연결 없이 자동으로 채워진다.
+    public GamePlayManager Manager => manager;
+    public Transform BallSource => ball != null ? ball.transform : null;
+    public Transform BatSource => bat != null ? bat.transform : null;
+    public Transform LeftHandSource => leftHand;
+    public Transform RightHandSource => rightHand;
+
+    private MyXROriginManager _xrOrigin;
     private bool _hasLastStatus;
     private GamePlayManager.StatusSnapshot _lastStatus;
     private float _startTime;
+
+    //인스펙터에 비어 있는 참조를 런타임에 찾아 채운다.
+    //- manager/ball/bat : GamePlay 씬 (manager가 ball/bat을 들고 있음)
+    //- 양손/머리 : PersistentManager 씬의 MyXROriginManager (다른 씬이라 드래그 연결 불가)
+    //매니저를 못 찾으면 false(아직 게임플레이 씬 준비 전).
+    public bool EnsureResolved()
+    {
+        if (manager == null) manager = FindAnyObjectByType<GamePlayManager>();
+        if (manager == null) return false;
+
+        if (ball == null) ball = manager.Ball;
+        if (bat == null)  bat  = manager.Bat;
+
+        if (_xrOrigin == null) _xrOrigin = FindAnyObjectByType<MyXROriginManager>();
+        if (_xrOrigin != null)
+        {
+            if (rightHand == null) rightHand = _xrOrigin.RightHand;
+            if (leftHand == null)  leftHand  = _xrOrigin.LeftHand;
+        }
+        return true;
+    }
+
+    //주자 고스트를 복제할 때 쓸 "살아있는 주자" 한 명. 없으면 null(플레이어가 기본 도형으로 대체).
+    public Transform GetRunnerTemplate()
+    {
+        if (manager == null) return null;
+        Transform[] rs = manager.GetRunnerTransforms();
+        return (rs != null && rs.Length > 0) ? rs[0] : null;
+    }
 
     void OnEnable()
     {
@@ -30,7 +73,14 @@ public class ReplayRecorder : MonoBehaviour
 
     public void StartRecording()
     {
-        Data = new ReplayData();
+        if (data == null)
+        {
+            Debug.LogError("[ReplayRecorder] Data(ReplayData SO) 미할당. 인스펙터에 .asset을 넣어줘.");
+            return;
+        }
+        data.frames.Clear();
+        data.statusTrack.Clear();
+        data.events.Clear();
         _hasLastStatus = false;
         _startTime = Time.time;
         IsRecording = true;
@@ -39,12 +89,38 @@ public class ReplayRecorder : MonoBehaviour
     public void StopRecording()
     {
         IsRecording = false;
+        SaveToDisk();
+    }
+
+    //런타임에 SO에 쓴 값은 디스크에 자동 저장되지 않는다. 에디터에서 dirty 표시 후 강제 저장해
+    //플레이 종료/씬 전환 후에도 .asset에 남게 한다. (빌드에선 no-op)
+    private void SaveToDisk()
+    {
+#if UNITY_EDITOR
+        if (data == null) return;
+        UnityEditor.EditorUtility.SetDirty(data);
+        UnityEditor.AssetDatabase.SaveAssets();
+        if (debugLog)
+            Debug.Log($"[ReplayRecorder] 저장됨 → frames={data.frames.Count} status={data.statusTrack.Count}");
+#endif
+    }
+
+    //플레이 종료/씬 언로드 시에도 확실히 디스크에 박는다.
+    void OnDisable()
+    {
+        if (IsRecording) IsRecording = false;
+        SaveToDisk();
     }
 
     void FixedUpdate()
     {
-        if (!IsRecording || manager == null)
+        if (!IsRecording)
             return;
+        if (!EnsureResolved()) //매니저가 아직 없으면(씬 준비 전) 이번 프레임은 건너뜀
+        {
+            LogThrottled("[ReplayRecorder] 대기중 — GamePlayManager 못 찾음(아직 게임플레이 씬 아님?)");
+            return;
+        }
 
         float t = Time.time - _startTime;
 
@@ -71,6 +147,19 @@ public class ReplayRecorder : MonoBehaviour
             _lastStatus = s;
             _hasLastStatus = true;
         }
+
+        LogThrottled($"[ReplayRecorder] 녹화중 frames={Data.frames.Count} status={Data.statusTrack.Count} " +
+                     $"| ball={(ball != null)} bat={(bat != null)} R손={(rightHand != null)} L손={(leftHand != null)} 주자={runnerTs.Length}");
+    }
+
+    //debugLog가 켜져 있으면 1초에 한 번만 콘솔에 출력(매 프레임 스팸 방지).
+    private void LogThrottled(string msg)
+    {
+        if (!debugLog) return;
+        _logTimer += Time.fixedDeltaTime;
+        if (_logTimer < 1f) return;
+        _logTimer = 0f;
+        Debug.Log(msg);
     }
 
     //이벤트 채널(strike/foul/homerun 등)에서 호출해 순간 마커를 남긴다.
