@@ -44,11 +44,12 @@ public struct EventMarker
     public string type;
 }
 
-//한 게임 세션의 리플레이 전체. 직렬화 가능하므로 나중에 JSON 파일로 저장할 수 있다.
-[System.Serializable]
-public class ReplayData
+//한 게임 세션의 리플레이 전체. ScriptableObject라 .asset으로 저장해 다른 씬에서 불러올 수 있다.
+//Project 창 우클릭 → Create > Model > Replay Data 로 .asset 생성.
+[CreateAssetMenu(fileName = "NewReplay", menuName = "Model/Replay Data")]
+public class ReplayData : ScriptableObject
 {
-    public List<TransformFrame> frames = new List<TransformFrame>();   //조밀 — 매 프레임
+    [HideInInspector] public List<TransformFrame> frames = new List<TransformFrame>();   //조밀 — 매 프레임(수천 개 → 인스펙터 숨김)
     public List<StatusKeyframe> statusTrack = new List<StatusKeyframe>(); //희소 — 변할 때만
     public List<EventMarker> events = new List<EventMarker>();         //희소 — 순간 이벤트
 }

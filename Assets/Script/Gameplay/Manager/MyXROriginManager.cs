@@ -22,6 +22,13 @@ public class MyXROriginManager : MonoBehaviour
     [SerializeField] private float groundSettleDuration = 0.5f;
     [SerializeField] private XROrigin _origin;
     [SerializeField] private Transform rightHand;
+    [Tooltip("리플레이 녹화용(선택). 비워두면 왼손 고스트는 생략된다.")]
+    [SerializeField] private Transform leftHand;
+
+    //리플레이 시스템(다른 씬의 GamePlay)이 런타임에 손/머리 카메라를 찾아갈 수 있게 노출한다.
+    public Transform RightHand => rightHand;
+    public Transform LeftHand => leftHand;
+    public Camera HeadCamera => _origin != null ? _origin.Camera : null;
 
     [Header("Debug Swing")]
     [Tooltip("스윙 공전 축. 비워두면 XROrigin의 카메라를 사용한다.")]
