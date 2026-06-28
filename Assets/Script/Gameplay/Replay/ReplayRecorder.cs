@@ -15,7 +15,7 @@ public class ReplayRecorder : MonoBehaviour
     [Header("Recording")]
     [Tooltip("녹화를 담을 SO. 인스펙터에 .asset을 넣으면 거기에 기록(에디터에선 종료 후에도 유지). 비우면 런타임 임시 인스턴스.")]
     [SerializeField] private ReplayData data;
-    [SerializeField] private bool recordOnEnable = true; //씬 시작하자마자 녹화
+    [SerializeField] private bool recordOnEnable; //씬 시작하자마자 녹화
     [SerializeField] private bool debugLog = true;       //1초마다 녹화 상태를 콘솔에 출력(디버깅용)
 
     public ReplayData Data => data;
@@ -23,13 +23,6 @@ public class ReplayRecorder : MonoBehaviour
     public int FrameCount => data != null ? data.frames.Count : 0;
 
     private float _logTimer;
-
-    //ReplayPlayer가 고스트를 만들 때 쓰는 "원본" 소스들. 인스펙터 연결 없이 자동으로 채워진다.
-    public GamePlayManager Manager => manager;
-    public Transform BallSource => ball != null ? ball.transform : null;
-    public Transform BatSource => bat != null ? bat.transform : null;
-    public Transform LeftHandSource => leftHand;
-    public Transform RightHandSource => rightHand;
 
     private MyXROriginManager _xrOrigin;
     private bool _hasLastStatus;
@@ -55,14 +48,6 @@ public class ReplayRecorder : MonoBehaviour
             if (leftHand == null)  leftHand  = _xrOrigin.LeftHand;
         }
         return true;
-    }
-
-    //주자 고스트를 복제할 때 쓸 "살아있는 주자" 한 명. 없으면 null(플레이어가 기본 도형으로 대체).
-    public Transform GetRunnerTemplate()
-    {
-        if (manager == null) return null;
-        Transform[] rs = manager.GetRunnerTransforms();
-        return (rs != null && rs.Length > 0) ? rs[0] : null;
     }
 
     void OnEnable()
@@ -137,6 +122,11 @@ public class ReplayRecorder : MonoBehaviour
         for (int i = 0; i < runnerTs.Length; i++)
             f.runners[i] = new PoseKey(runnerTs[i]);
 
+        Transform[] defenderTs = manager.GetDefenderTransforms(); //수비수(투수=0 포함)
+        f.defenders = new PoseKey[defenderTs.Length];
+        for (int i = 0; i < defenderTs.Length; i++)
+            if (defenderTs[i] != null) f.defenders[i] = new PoseKey(defenderTs[i]);
+
         Data.frames.Add(f);
 
         // 2) status — 변할 때만 (희소)
@@ -149,7 +139,7 @@ public class ReplayRecorder : MonoBehaviour
         }
 
         LogThrottled($"[ReplayRecorder] 녹화중 frames={Data.frames.Count} status={Data.statusTrack.Count} " +
-                     $"| ball={(ball != null)} bat={(bat != null)} R손={(rightHand != null)} L손={(leftHand != null)} 주자={runnerTs.Length}");
+                     $"| ball={(ball != null)} bat={(bat != null)} R손={(rightHand != null)} L손={(leftHand != null)} 주자={runnerTs.Length} 수비={defenderTs.Length}");
     }
 
     //debugLog가 켜져 있으면 1초에 한 번만 콘솔에 출력(매 프레임 스팸 방지).

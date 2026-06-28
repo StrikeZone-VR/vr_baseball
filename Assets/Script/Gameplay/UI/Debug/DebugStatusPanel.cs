@@ -27,7 +27,7 @@ public class DebugStatusPanel : MonoBehaviour
     private GameObject _canvasGo;
     private TextMeshProUGUI _text;
     private float _refindTimer;
-    private bool _visible = true;
+    [SerializeField] private bool _visible = true;
 
     private void Awake()
     {

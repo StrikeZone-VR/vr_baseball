@@ -3467,7 +3467,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1189051022}
-  - component: {fileID: 1189051021}
   - component: {fileID: 1189051020}
   m_Layer: 0
   m_Name: Replay
@@ -3496,31 +3495,6 @@ MonoBehaviour:
   data: {fileID: 11400000, guid: 839a771a53bb40a42a9ba475f4fa347f, type: 2}
   recordOnEnable: 1
   debugLog: 1
---- !u!114 &1189051021
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1189051019}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bad5b30fb98ab1a40a26a8b237f19c5b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  recorder: {fileID: 1189051020}
-  ballGhost: {fileID: 0}
-  batGhost: {fileID: 0}
-  leftHandGhost: {fileID: 0}
-  rightHandGhost: {fileID: 0}
-  runnerGhostPrefab: {fileID: 0}
-  statusText: {fileID: 0}
-  playbackSpeed: 1
-  freezeLiveGameWhileReplaying: 1
-  loop: 0
-  autoBuildGhosts: 1
-  autoBuildStatusPanel: 1
-  hideLiveActorsWhileReplaying: 1
 --- !u!4 &1189051022
 Transform:
   m_ObjectHideFlags: 0

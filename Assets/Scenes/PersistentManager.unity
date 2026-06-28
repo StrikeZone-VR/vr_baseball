@@ -442,6 +442,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _cam: {fileID: 595161626}
+  _visible: 0
 --- !u!1 &370751890 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3127728406573987378, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
@@ -2594,6 +2595,7 @@ MonoBehaviour:
   groundSettleDuration: 0.5
   _origin: {fileID: 2057171112}
   rightHand: {fileID: 453779108}
+  leftHand: {fileID: 0}
   swingAxis: {fileID: 0}
   axisDistance: 0.5
   swingStartAngle: 50

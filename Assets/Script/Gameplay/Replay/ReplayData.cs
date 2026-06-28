@@ -25,6 +25,7 @@ public struct TransformFrame
     public PoseKey leftHand;
     public PoseKey rightHand;
     public PoseKey[] runners;   //gamePlayModel.GetRunners() 순서와 동일
+    public PoseKey[] defenders; //수비수(투수=0 ... 포수=4). GetDefenderTransforms() 순서와 동일
 }
 
 //상태가 "변할 때만" 저장하는 희소(sparse) 키프레임. 깃 커밋처럼 변경분만 쌓인다.

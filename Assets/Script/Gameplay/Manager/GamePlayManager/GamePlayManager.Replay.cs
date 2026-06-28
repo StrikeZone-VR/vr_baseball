@@ -18,4 +18,14 @@ public partial class GamePlayManager
             result[i] = runners[i].transform;
         return result;
     }
+
+    //리플레이 레코더가 매 프레임 수비수들의 transform을 가져갈 수 있게 노출한다.
+    //defenders는 고정 배열이라 순서가 항상 같다(0=투수 ... 4=포수). 투수도 여기에 포함된다.
+    public Transform[] GetDefenderTransforms()
+    {
+        Transform[] result = new Transform[defenders.Length];
+        for (int i = 0; i < defenders.Length; i++)
+            result[i] = defenders[i] != null ? defenders[i].transform : null;
+        return result;
+    }
 }

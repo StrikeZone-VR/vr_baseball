@@ -4,36 +4,35 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-//녹화된 ReplayData를 제3자 시점으로 재생한다.
-//- 격리: 재생 중 Time.timeScale=0으로 라이브 시뮬(물리/AI)을 멈추고, 재생은 unscaledDeltaTime으로 돌린다.
-//- 대상: 라이브 오브젝트는 XR이 계속 건드리므로 별도 "고스트" Transform에 그린다(주자는 프리팹 풀링).
+//녹화된 ReplayData를 단독 ReplayScene에서 제3자 시점으로 재생한다.
+//- 진행: 재생은 unscaledDeltaTime으로 돌린다(라이브 게임이 없는 단독 씬이라 timeScale에 의존하지 않음).
+//- 대상: 씬에 직접 배치한 "고스트" Transform에 그린다(주자는 프리팹 풀링).
 //- 상태: status 트랙에서 현재 시간 이하 마지막 키프레임을 읽어 FormatStatus로 패널에 띄운다.
 //        연속값(ballPos/ballVel)은 희소 status엔 stale이라 transform 트랙에서 패치한다.
 public class ReplayPlayer : MonoBehaviour
 {
     [Header("Source")]
-    [SerializeField] private ReplayRecorder recorder; //PlayLatest() 시 여기서 Data를 가져온다
+    [Tooltip("재생할 .asset. ReplayScene에서 ReplaySO를 직접 물린다.")]
+    [SerializeField] private ReplayData sourceData;
+    [SerializeField] private bool playOnStart = false; //ReplayScene 시작과 동시에 자동 재생
 
-    [Header("Ghosts (비우면 재생 시 라이브 오브젝트를 복제해 자동 생성)")]
+    [Header("Ghosts (씬에 직접 배치한 비주얼을 연결)")]
     [SerializeField] private Transform ballGhost;
     [SerializeField] private Transform batGhost;
     [SerializeField] private Transform leftHandGhost;
     [SerializeField] private Transform rightHandGhost;
-    [SerializeField] private GameObject runnerGhostPrefab; //주자 수만큼 풀링. 비우면 살아있는 주자 복제→없으면 캡슐
+    [SerializeField] private GameObject runnerGhostPrefab; //주자 수만큼 풀링. 비우면 캡슐
+    [SerializeField] private GameObject defenderGhostPrefab; //수비수(투수 포함) 수만큼 풀링. 비우면 캡슐
 
     [Header("Status UI (비우면 자동 생성)")]
     [SerializeField] private TMP_Text statusText;
 
     [Header("Playback")]
     [SerializeField] private float playbackSpeed = 1f;
-    [SerializeField] private bool freezeLiveGameWhileReplaying = true; //Time.timeScale=0
     [SerializeField] private bool loop = false;
 
     [Header("Auto build (씬 수작업 최소화)")]
-    [SerializeField] private bool autoBuildGhosts = true;       //비어있는 고스트를 라이브 복제로 생성
     [SerializeField] private bool autoBuildStatusPanel = true;  //statusText 없으면 머리 고정 패널 생성
-    [Tooltip("재생 중 라이브 액터(공/배트/손/주자)의 렌더러를 꺼서 고스트와 겹쳐 보이지 않게 한다.")]
-    [SerializeField] private bool hideLiveActorsWhileReplaying = true;
 
     public bool IsPlaying { get; private set; }
     public bool IsPaused { get; private set; }
@@ -44,32 +43,17 @@ public class ReplayPlayer : MonoBehaviour
     private ReplayData _data;
     private float _playTime;
     private float _duration;
-    private float _savedTimeScale = 1f;
     private readonly StringBuilder _sb = new StringBuilder();
     private readonly List<Transform> _runnerPool = new List<Transform>();
+    private readonly List<Transform> _defenderPool = new List<Transform>();
 
-    private bool _autoBuilt;                                    //고스트/패널 1회만 생성
+    private bool _autoBuilt;                                    //패널 1회만 생성
     private GameObject _statusCanvasGo;                         //자동 생성한 상태 패널 캔버스
-    private Transform _runnerTemplate;                          //주자 고스트 복제 원본
     private readonly List<GameObject> _builtObjects = new List<GameObject>(); //정리용(씬 언로드 시 파괴)
-    private readonly List<Transform> _hiddenLive = new List<Transform>();     //재생 중 숨긴 라이브 액터(복원용)
 
-    //레코더가 들고 있는 지금까지의 녹화를 즉석 재생한다.
-    //녹화는 멈추지 않는다 — timeScale=0이면 레코더의 FixedUpdate도 멈추므로 재생 중 데이터가 변하지 않고,
-    //Stop()으로 timeScale이 복구되면 이어서 녹화가 계속된다(보다가 라이브로 복귀).
-    public void PlayLatest()
+    private void Start()
     {
-        if (recorder == null) recorder = FindAnyObjectByType<ReplayRecorder>();
-        if (recorder == null)
-        {
-            Debug.LogWarning("[ReplayPlayer] recorder 미연결 (씬에 ReplayRecorder 없음)");
-            return;
-        }
-        recorder.EnsureResolved(); //고스트 생성에 쓸 라이브 소스(공/배트/손) 확보
-        Debug.Log($"[ReplayPlayer] PlayLatest — 녹화 프레임 수={recorder.FrameCount} " +
-                  $"(ball={recorder.BallSource != null} bat={recorder.BatSource != null} " +
-                  $"R손={recorder.RightHandSource != null} L손={recorder.LeftHandSource != null})");
-        Play(recorder.Data);
+        if (playOnStart) Play(sourceData);
     }
 
     public void Play(ReplayData data)
@@ -85,16 +69,9 @@ public class ReplayPlayer : MonoBehaviour
         IsPlaying = true;
         IsPaused = false;
 
-        AutoBuild();          //고스트/상태 패널 1회 생성
+        AutoBuild();          //상태 패널 1회 생성
         SetGhostsActive(true);
         if (_statusCanvasGo != null) _statusCanvasGo.SetActive(true);
-        if (hideLiveActorsWhileReplaying) HideLiveActors();
-
-        if (freezeLiveGameWhileReplaying)
-        {
-            _savedTimeScale = Time.timeScale;
-            Time.timeScale = 0f; //라이브 시뮬 정지. 재생은 unscaledDeltaTime으로 진행
-        }
 
         Apply(_playTime);
     }
@@ -103,23 +80,24 @@ public class ReplayPlayer : MonoBehaviour
     {
         IsPlaying = false;
         IsPaused = false;
-        if (freezeLiveGameWhileReplaying)
-            Time.timeScale = _savedTimeScale;
 
         SetGhostsActive(false);
         if (_statusCanvasGo != null) _statusCanvasGo.SetActive(false);
 
-        //주자 고스트 숨기기
-        for (int i = 0; i < _runnerPool.Count; i++)
-            if (_runnerPool[i] != null) _runnerPool[i].gameObject.SetActive(false);
+        //주자/수비수 고스트 숨기기
+        HidePool(_runnerPool);
+        HidePool(_defenderPool);
+    }
 
-        RestoreLiveActors(); //숨겼던 라이브 액터 렌더러 복원
+    private static void HidePool(List<Transform> pool)
+    {
+        for (int i = 0; i < pool.Count; i++)
+            if (pool[i] != null) pool[i].gameObject.SetActive(false);
     }
 
     private void OnDestroy()
     {
-        //씬 언로드 시 자동 생성물 정리. 고스트는 씬 루트, 패널은 영구 카메라 자식이라 명시적 파괴 필요.
-        RestoreLiveActors();
+        //씬 언로드 시 자동 생성물 정리. 패널은 영구 카메라 자식이라 명시적 파괴 필요.
         for (int i = 0; i < _builtObjects.Count; i++)
             if (_builtObjects[i] != null) Destroy(_builtObjects[i]);
         _builtObjects.Clear();
@@ -138,13 +116,28 @@ public class ReplayPlayer : MonoBehaviour
         Apply(_playTime);
     }
 
+    //녹화 프레임 단위로 한 칸씩 이동(dir = +1 앞, -1 뒤). 스텝은 정지 상태 기준이라 자동 일시정지한다.
+    public void StepFrame(int dir)
+    {
+        if (!IsPlaying || _data == null || _data.frames.Count == 0) return;
+        IsPaused = true; //스텝하는 순간 멈춘 상태로 둔다(Update가 시간 안 흘리도록)
+
+        //현재 시간 이하 마지막 프레임에서 dir칸 이동. 보간 중(프레임 사이)이면 -1은 현재 프레임으로 스냅된다.
+        int i = FindFrameIndex(_playTime);
+        int target = Mathf.Clamp(i + dir, 0, _data.frames.Count - 1);
+        _playTime = _data.frames[target].time;
+        Apply(_playTime);
+    }
+
     private void Update()
     {
 #if UNITY_EDITOR
         //에디터 테스트용 단축키 (패널 F1 / 레코더 키들과 안 겹치게 F2/F3)
-        if (Input.GetKeyDown(KeyCode.F2)) PlayLatest();
-        if (Input.GetKeyDown(KeyCode.F3)) Stop();
-        if (Input.GetKeyDown(KeyCode.F4)) TogglePause();
+        //if (Input.GetKeyDown(KeyCode.F2)) Play(sourceData);
+        //if (Input.GetKeyDown(KeyCode.F3)) Stop();
+        if (Input.GetKeyDown(KeyCode.F2)) TogglePause();
+        if (Input.GetKey(KeyCode.RightArrow)) StepFrame(1);  //→ 한 프레임 앞으로
+        if (Input.GetKey(KeyCode.LeftArrow))  StepFrame(-1); //← 한 프레임 뒤로
 #endif
 
         if (!IsPlaying || _data == null) return;
@@ -191,56 +184,58 @@ public class ReplayPlayer : MonoBehaviour
         SetPose(rightHandGhost, frames[i].rightHand, frames[j].rightHand, a);
 
         ApplyRunners(frames[i], frames[j], a);
+        ApplyDefenders(frames[i], frames[j], a);
     }
 
     private void ApplyRunners(TransformFrame from, TransformFrame to, float a)
+        => ApplyGhostPool(from.runners, to.runners, a, _runnerPool, runnerGhostPrefab, "Runner");
+
+    private void ApplyDefenders(TransformFrame from, TransformFrame to, float a)
+        => ApplyGhostPool(from.defenders, to.defenders, a, _defenderPool, defenderGhostPrefab, "Defender");
+
+    //주자·수비수 공통: 풀을 인원수만큼 확보하고, 인덱스별로 from→to 보간을 적용한다.
+    private void ApplyGhostPool(PoseKey[] from, PoseKey[] to, float a, List<Transform> pool, GameObject prefab, string label)
     {
-        int count = from.runners != null ? from.runners.Length : 0;
-        EnsureRunnerPool(count);
-        for (int k = 0; k < _runnerPool.Count; k++)
+        int count = from != null ? from.Length : 0;
+        EnsureGhostPool(pool, prefab, label, count);
+        for (int k = 0; k < pool.Count; k++)
         {
             bool active = k < count;
-            if (_runnerPool[k] != null) _runnerPool[k].gameObject.SetActive(active);
+            if (pool[k] != null) pool[k].gameObject.SetActive(active);
             if (!active) continue;
 
-            PoseKey f = from.runners[k];
-            //다음 프레임에 같은 인덱스 주자가 있으면 보간, 없으면 스냅
-            if (to.runners != null && k < to.runners.Length)
+            PoseKey f = from[k];
+            //다음 프레임에 같은 인덱스가 있으면 보간, 없으면 스냅
+            if (to != null && k < to.Length)
             {
-                SetPose(_runnerPool[k], f, to.runners[k], a);
+                SetPose(pool[k], f, to[k], a);
             }
             else
             {
-                _runnerPool[k].position = f.pos;
-                _runnerPool[k].rotation = f.rot;
+                pool[k].position = f.pos;
+                pool[k].rotation = f.rot;
             }
         }
     }
 
-    private void EnsureRunnerPool(int count)
+    private void EnsureGhostPool(List<Transform> pool, GameObject prefab, string label, int count)
     {
-        while (_runnerPool.Count < count)
+        while (pool.Count < count)
         {
             GameObject go;
-            if (runnerGhostPrefab != null)
+            if (prefab != null)
             {
-                go = Instantiate(runnerGhostPrefab);
+                go = Instantiate(prefab);
                 StripForGhost(go);
-            }
-            else if (_runnerTemplate != null) //살아있는 주자 복제(가장 그럴듯함)
-            {
-                go = Instantiate(_runnerTemplate.gameObject);
-                StripForGhost(go);
-                go.transform.localScale = _runnerTemplate.lossyScale; //루트로 빠지므로 월드 스케일로 보정
             }
             else //최후의 수단: 캡슐 도형
             {
                 go = GameObject.CreatePrimitive(PrimitiveType.Capsule);
                 Destroy(go.GetComponent<Collider>());
             }
-            go.name = "[ReplayGhost] Runner";
+            go.name = $"[ReplayGhost] {label}";
             _builtObjects.Add(go);
-            _runnerPool.Add(go.transform);
+            pool.Add(go.transform);
         }
     }
 
@@ -248,21 +243,26 @@ public class ReplayPlayer : MonoBehaviour
     {
         if (statusText == null) return;
 
+        _sb.Clear();
+
+        //현재 재생 위치(프레임/시간) 헤더 — status 키프레임 유무와 무관하게 항상 맨 위에 표시
+        int frame = FindFrameIndex(t);
+        _sb.AppendLine($"<b>[ REPLAY ]</b> frame {frame + 1}/{_data.frames.Count} " +
+                       $"({t:F2}/{_duration:F2}s){(IsPaused ? "  [일시정지]" : "")}");
+        _sb.AppendLine();
+
         int k = FindStatusIndex(t);
-        if (k < 0)
+        if (k >= 0)
         {
-            statusText.text = "";
-            return;
+            GamePlayManager.StatusSnapshot s = _data.statusTrack[k].status; //struct 복사 → 원본 불변
+
+            //희소 status엔 연속값이 stale하므로 transform 트랙에서 채워 넣는다
+            if (ballGhost != null) s.ballPos = ballGhost.position;
+            s.ballVel = SampleBallVelocity(t);
+
+            GamePlayManager.FormatStatus(_sb, s);
         }
 
-        GamePlayManager.StatusSnapshot s = _data.statusTrack[k].status; //struct 복사 → 원본 불변
-
-        //희소 status엔 연속값이 stale하므로 transform 트랙에서 채워 넣는다
-        if (ballGhost != null) s.ballPos = ballGhost.position;
-        s.ballVel = SampleBallVelocity(t);
-
-        _sb.Clear();
-        GamePlayManager.FormatStatus(_sb, s);
         statusText.text = _sb.ToString();
     }
 
@@ -314,41 +314,17 @@ public class ReplayPlayer : MonoBehaviour
 
     // ===== 자동 생성 (씬 수작업 최소화) ==========================================
 
-    //비어있는 고스트/상태 패널을 1회 생성한다. 라이브 오브젝트를 복제해 고스트로 쓴다.
+    //비어있는 상태 패널을 1회 생성한다. 고스트는 씬에 직접 배치해 인스펙터로 연결한다.
     private void AutoBuild()
     {
         if (_autoBuilt) return;
         _autoBuilt = true;
-
-        if (recorder == null) recorder = FindAnyObjectByType<ReplayRecorder>();
-
-        if (autoBuildGhosts && recorder != null)
-        {
-            if (ballGhost == null      && recorder.BallSource != null)      ballGhost      = Ghostify(recorder.BallSource, "Ball");
-            if (batGhost == null       && recorder.BatSource != null)       batGhost       = Ghostify(recorder.BatSource, "Bat");
-            if (rightHandGhost == null && recorder.RightHandSource != null) rightHandGhost = Ghostify(recorder.RightHandSource, "RightHand");
-            if (leftHandGhost == null  && recorder.LeftHandSource != null)  leftHandGhost  = Ghostify(recorder.LeftHandSource, "LeftHand");
-            _runnerTemplate = recorder.GetRunnerTemplate();
-        }
 
         if (autoBuildStatusPanel && statusText == null)
             BuildStatusCanvas();
 
         Debug.Log($"[ReplayPlayer] AutoBuild 완료 — ballGhost={ballGhost != null} batGhost={batGhost != null} " +
                   $"R손Ghost={rightHandGhost != null} L손Ghost={leftHandGhost != null} 패널={statusText != null}");
-    }
-
-    //라이브 오브젝트를 복제해 "순수 시각용" 고스트로 만든다(물리/AI/XR 스크립트 비활성).
-    private Transform Ghostify(Transform source, string label)
-    {
-        GameObject g = Instantiate(source.gameObject);
-        g.name = $"[ReplayGhost] {label}";
-        StripForGhost(g);
-        //부모 없이 루트에 두므로 local = world. 원본의 현재 월드 포즈/스케일로 맞춘다.
-        g.transform.SetPositionAndRotation(source.position, source.rotation);
-        g.transform.localScale = source.lossyScale;
-        _builtObjects.Add(g);
-        return g.transform;
     }
 
     //고스트가 스스로 움직이거나 물리에 간섭하지 않도록 시뮬 관련 컴포넌트를 끈다.
@@ -417,41 +393,5 @@ public class ReplayPlayer : MonoBehaviour
         if (leftHandGhost != null)  leftHandGhost.gameObject.SetActive(on);
         if (rightHandGhost != null) rightHandGhost.gameObject.SetActive(on);
         //주자 고스트는 ApplyRunners가 매 프레임 활성/비활성을 관리한다.
-    }
-
-    // ===== 재생 중 라이브 액터 숨김 =============================================
-
-    //재생 중에는 라이브 공/배트/손/주자가 고스트와 겹쳐 보이므로 렌더러를 끈다. Stop에서 복원.
-    private void HideLiveActors()
-    {
-        if (recorder == null) return;
-        _hiddenLive.Clear();
-        HideRenderers(recorder.BallSource);
-        HideRenderers(recorder.BatSource);
-        HideRenderers(recorder.LeftHandSource);
-        HideRenderers(recorder.RightHandSource);
-        if (recorder.Manager != null)
-        {
-            Transform[] rs = recorder.Manager.GetRunnerTransforms();
-            for (int i = 0; i < rs.Length; i++) HideRenderers(rs[i]);
-        }
-    }
-
-    private void HideRenderers(Transform t)
-    {
-        if (t == null) return;
-        foreach (var r in t.GetComponentsInChildren<Renderer>(true)) r.enabled = false;
-        _hiddenLive.Add(t);
-    }
-
-    private void RestoreLiveActors()
-    {
-        for (int i = 0; i < _hiddenLive.Count; i++)
-        {
-            Transform t = _hiddenLive[i];
-            if (t == null) continue;
-            foreach (var r in t.GetComponentsInChildren<Renderer>(true)) r.enabled = true;
-        }
-        _hiddenLive.Clear();
     }
 }
