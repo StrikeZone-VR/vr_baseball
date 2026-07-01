@@ -99,10 +99,10 @@ public partial class GamePlayManager
         Debug.Log("디버깅용 타자 안타 함수 - 강제 타격 실행!");
 
         // 1. 랜덤 속력 계산
-        float x = Random.Range(-1.0f, 0f);
-        float y = 0.5f;
-        float z = Random.Range(-1.0f, 0f);
-        float power = Random.Range(25f, 25f);  //50이 홈런
+        // float x = Random.Range(-1.0f, 0f);
+        // float y = 0.5f;
+        // float z = Random.Range(-1.0f, 0f);
+        //float power = Random.Range(25f, 25f);  //50이 홈런
 
         // 2. 기존 매니저의 투수 및 코루틴 제어 (이건 매니저의 일이 맞음!)
         _aiPitcherComponent.StopPitching();
@@ -112,7 +112,7 @@ public partial class GamePlayManager
             StopCoroutine(waitPitcherCoroutine);
 
         Vector3 targetSpawnPos = batterPosition.position + new Vector3(0, 2.0f, 0);
-        Vector3 targetVelocity = new Vector3(x, y, z) * power;
+        Vector3 targetVelocity = debugShootVector * debugShootPower;
 
         _ball.DebugHit(targetSpawnPos, targetVelocity);
 

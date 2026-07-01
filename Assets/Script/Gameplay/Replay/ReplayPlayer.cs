@@ -135,7 +135,7 @@ public class ReplayPlayer : MonoBehaviour
         //에디터 테스트용 단축키 (패널 F1 / 레코더 키들과 안 겹치게 F2/F3)
         //if (Input.GetKeyDown(KeyCode.F2)) Play(sourceData);
         //if (Input.GetKeyDown(KeyCode.F3)) Stop();
-        if (Input.GetKeyDown(KeyCode.F2)) TogglePause();
+        if (Input.GetKeyDown(KeyCode.Space)) TogglePause();
         if (Input.GetKey(KeyCode.RightArrow)) StepFrame(1);  //→ 한 프레임 앞으로
         if (Input.GetKey(KeyCode.LeftArrow))  StepFrame(-1); //← 한 프레임 뒤로
 #endif

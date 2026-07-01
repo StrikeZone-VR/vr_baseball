@@ -14,6 +14,9 @@ public partial class GamePlayManager : GameManager
     [SerializeField] protected ActionBasedContinuousMoveProvider moveProvider; //debug용
     [SerializeField] private Color _myTeamColor;
     [SerializeField] private Color _yourTeamColor;
+    [SerializeField] private Vector3 debugShootVector;
+    [Tooltip("50이 홈런, 25가 안타, 10이 내야 땅볼")]
+    [SerializeField] private float debugShootPower;
     private float player_y = 1.7f; //1.7
     
     [Space]
@@ -238,6 +241,8 @@ public partial class GamePlayManager : GameManager
 
         //디버그 베이스 세팅보여주기
         DebugBaseStatus();
+        //점수/이닝점수/주자를 한 번에 스냅샷 (before_score만 따로 바꾸면 before_inning_score와 어긋나 이닝 득점이 0으로 롤백됨)
+        gamePlayModel.SaveBeforeStatus();
         
         //battingmode
         if (gamePlayModel.PlayerIsBatterMode())
@@ -497,13 +502,16 @@ public partial class GamePlayManager : GameManager
     private void RollbackBeforeStatus()
     {
         gamePlayModel.DebugBeforeStatus();
-        //되돌아가는데 점수를 얻은 경우
+        
+        //되돌아가는데 점수를 얻은 경우 => 웬만하면 안 생기긴 하는데
         if (gamePlayModel.BeforeScore != gamePlayModel.GetScore())
         {
-            Debug.LogWarning("이게 플레이어있을때 생성하면 안된다.");
-            //runners의 insert 맨 앞 
-            gamePlayModel.InsertRunner(CreateBatter(0));
-            //어차피 baseindex는 나중에 설정할거임
+            if (!gamePlayModel.PlayerIsBatterMode())
+            {
+                //runners의 insert 맨 앞 
+                gamePlayModel.InsertRunner(CreateBatter(0));
+                //어차피 baseindex는 나중에 설정할거임
+            }
         }
         
         currentBatterComponent.IsMove = false;

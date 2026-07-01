@@ -442,7 +442,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _cam: {fileID: 595161626}
-  _visible: 0
+  _visible: 1
 --- !u!1 &370751890 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3127728406573987378, guid: 895f6f3c2d334633b5800312285058d2, type: 3}

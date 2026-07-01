@@ -2034,6 +2034,7 @@ MonoBehaviour:
   leftHandGhost: {fileID: 0}
   rightHandGhost: {fileID: 0}
   runnerGhostPrefab: {fileID: 6807072103778800797, guid: 022e049949df0ed47a134ea64e62c95d, type: 3}
+  defenderGhostPrefab: {fileID: 0}
   statusText: {fileID: 0}
   playbackSpeed: 1
   loop: 1
