@@ -23,6 +23,7 @@ public class DebugStatusPanel : MonoBehaviour
 
     private readonly StringBuilder _sb = new StringBuilder();
     private GamePlayManager _gp;
+    private ReplayPlayer _replay; //리플레이 씬엔 GamePlayManager 대신 이게 있다. 있으면 로그를 대신 띄운다
     [SerializeField] private Camera _cam;
     private GameObject _canvasGo;
     private TextMeshProUGUI _text;
@@ -50,13 +51,14 @@ public class DebugStatusPanel : MonoBehaviour
         }
         if (!_visible) return; //꺼져 있으면 갱신/생성 모두 스킵
 
-        //매니저는 게임플레이 씬 로드/언로드로 바뀌므로 없을 때만 주기적으로 다시 찾는다
-        if (_gp == null)
+        //매니저/리플레이플레이어는 씬 로드/언로드로 바뀌므로 없을 때만 주기적으로 다시 찾는다
+        if (_gp == null || _replay == null)
         {
             _refindTimer -= Time.unscaledDeltaTime;
             if (_refindTimer <= 0f)
             {
-                _gp = FindAnyObjectByType<GamePlayManager>();
+                if (_gp == null)     _gp     = FindAnyObjectByType<GamePlayManager>();
+                if (_replay == null) _replay = FindAnyObjectByType<ReplayPlayer>();
                 _refindTimer = 0.5f;
             }
         }
@@ -77,6 +79,11 @@ public class DebugStatusPanel : MonoBehaviour
         if (_gp != null)
         {
             _gp.BuildDebugStatus(_sb);
+        }
+        else if (_replay != null)
+        {
+            //리플레이 씬: GamePlayManager가 없으므로 녹화된 GameLog를 현재 재생 시점 기준으로 띄운다
+            _replay.BuildLogStatus(_sb);
         }
         else
         {

@@ -30,6 +30,7 @@ public class ReplayPlayer : MonoBehaviour
     [Header("Playback")]
     [SerializeField] private float playbackSpeed = 1f;
     [SerializeField] private bool loop = false;
+    [SerializeField] private int maxLogLines = 12; //패널 하단에 보여줄 최근 로그 줄 수
 
     [Header("Auto build (씬 수작업 최소화)")]
     [SerializeField] private bool autoBuildStatusPanel = true;  //statusText 없으면 머리 고정 패널 생성
@@ -266,6 +267,38 @@ public class ReplayPlayer : MonoBehaviour
         statusText.text = _sb.ToString();
     }
 
+    //오른쪽 DebugStatusPanel이 리플레이 씬에서 pull해가는 로그 텍스트를 채운다(현재 재생 시점 _playTime 기준).
+    //ㄴ 라이브 씬에선 DebugStatusPanel이 GamePlayManager 상태를 띄우지만, GamePlayManager가 없는
+    //   리플레이 씬에선 이걸 대신 읽어 "녹화된 GameLog"를 시간 흐름대로 보여준다.
+    public void BuildLogStatus(StringBuilder sb)
+    {
+        sb.AppendLine("<b>[ REPLAY LOG ]</b>");
+        if (_data == null || !IsPlaying)
+        {
+            sb.AppendLine("(재생 대기중)");
+            return;
+        }
+
+        List<LogEntry> logs = _data.logs;
+        if (logs == null || logs.Count == 0)
+        {
+            sb.AppendLine("(녹화된 로그 없음)");
+            return;
+        }
+
+        int last = FindLogIndex(_playTime); //time <= 현재재생시간 을 만족하는 마지막 인덱스(없으면 -1)
+        if (last < 0)
+        {
+            sb.AppendLine("(아직 로그 없음)");
+            return;
+        }
+
+        //시간이 흐르면 새 로그가 아래로 쌓이고 오래된 건 maxLogLines 만큼만 남아 흘러간다.
+        int start = Mathf.Max(0, last - maxLogLines + 1);
+        for (int i = start; i <= last; i++)
+            sb.AppendLine($"<color=#888888>{logs[i].time:F1}</color> {logs[i].msg}");
+    }
+
     private Vector3 SampleBallVelocity(float t)
     {
         List<TransformFrame> frames = _data.frames;
@@ -307,6 +340,21 @@ public class ReplayPlayer : MonoBehaviour
         {
             int mid = (lo + hi) >> 1;
             if (track[mid].time <= t) { res = mid; lo = mid + 1; }
+            else hi = mid - 1;
+        }
+        return res;
+    }
+
+    //logs[k].time <= t 를 만족하는 가장 큰 k (하나도 없으면 -1 = 아직 아무 로그도 안 나온 시점)
+    private int FindLogIndex(float t)
+    {
+        List<LogEntry> logs = _data.logs;
+        if (logs.Count == 0 || logs[0].time > t) return -1;
+        int lo = 0, hi = logs.Count - 1, res = 0;
+        while (lo <= hi)
+        {
+            int mid = (lo + hi) >> 1;
+            if (logs[mid].time <= t) { res = mid; lo = mid + 1; }
             else hi = mid - 1;
         }
         return res;

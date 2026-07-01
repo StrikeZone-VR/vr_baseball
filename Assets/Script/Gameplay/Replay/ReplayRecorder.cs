@@ -52,8 +52,17 @@ public class ReplayRecorder : MonoBehaviour
 
     void OnEnable()
     {
+        GameLog.OnLog += OnGameLog; //콘솔 로그를 리플레이 로그 트랙에도 남기려고 구독
         if (recordOnEnable)
             StartRecording();
+    }
+
+    //GameLog가 콘솔에 한 줄 찍을 때마다 호출된다. 녹화 중이면 현재 시간과 함께 로그 트랙에 쌓는다.
+    //ㄴ transform/status와 달리 프레임과 무관하게 들어오므로 여기서 바로 append 한다.
+    private void OnGameLog(string line)
+    {
+        if (!IsRecording) return;
+        Data.logs.Add(new LogEntry { time = Time.time - _startTime, msg = line });
     }
 
     public void StartRecording()
@@ -66,6 +75,7 @@ public class ReplayRecorder : MonoBehaviour
         data.frames.Clear();
         data.statusTrack.Clear();
         data.events.Clear();
+        data.logs.Clear();
         _hasLastStatus = false;
         _startTime = Time.time;
         IsRecording = true;
@@ -93,6 +103,7 @@ public class ReplayRecorder : MonoBehaviour
     //플레이 종료/씬 언로드 시에도 확실히 디스크에 박는다.
     void OnDisable()
     {
+        GameLog.OnLog -= OnGameLog; //static 이벤트가 파괴된 레코더를 붙들지 않게 반드시 해제
         if (IsRecording) IsRecording = false;
         SaveToDisk();
     }
