@@ -16,10 +16,10 @@ public static class GameLog
 {
     //카테고리 스위치 - 보고 싶은 것만 true
     private static bool General  = true;
-    private static bool Ball     = false;
-    private static bool Runner   = false;
-    private static bool Hit   = false;
-    private static bool Pitcher  = false;
+    private static bool Ball     = true;
+    private static bool Runner   = true;
+    private static bool Hit   = true;
+    private static bool Pitcher  = true;
     private static bool Defender = true;
     private static bool Return   = true; //공/주자 복귀 알고리즘 추적용
 

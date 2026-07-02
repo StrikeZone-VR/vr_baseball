@@ -71,7 +71,6 @@ public class BaseballPhysics : MonoBehaviour
 
     private void OnTriggerEnter(Collider collider)
     {
-        GameLog.BallLog("소리쳐 내이름 : " + collider.transform.name);
         if (collider.gameObject.CompareTag("VelocityZone"))
         {
             PrintBallVelocity();
@@ -103,13 +102,21 @@ public class BaseballPhysics : MonoBehaviour
         //homerun
         if (collider.CompareTag("Homerun"))
         {
+            //땅볼이면 컷ㅌ
+            if (_baseball.IsGroundBall)
+            {
+                GameLog.BallLog("일단 일단 땅볼 홈런 막았음.");
+                _baseball.CurrentState = BallState.Dead;
+                return;
+            }
+            
+            GameLog.HitLog("홈런 오브젝트 " + collider.transform.name);
             _baseball.Homerun();
         }
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        GameLog.BallLog("소리쳐 내이름 : " + collision.transform.name);
         if (collision.collider.CompareTag("Ground") || collision.collider.CompareTag("Base"))
         {
             //잡지 않았다면 + 준비/정지 상태(Idle, Dead)는 제외.

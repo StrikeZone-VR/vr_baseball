@@ -3493,7 +3493,7 @@ MonoBehaviour:
   leftHand: {fileID: 0}
   rightHand: {fileID: 0}
   data: {fileID: 11400000, guid: 839a771a53bb40a42a9ba475f4fa347f, type: 2}
-  recordOnEnable: 1
+  recordOnEnable: 0
   debugLog: 1
 --- !u!4 &1189051022
 Transform:

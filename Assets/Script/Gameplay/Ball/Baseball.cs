@@ -100,12 +100,12 @@ public class Baseball : MonoBehaviour
             //그냥 홈런 범위를 넘어서면
             else if (transform.position.x < 0 && transform.position.z < 0 )
             {
-                Debug.Log("홈런의 위치가? : " +transform.position.x + " , " + transform.position.z);
+                GameLog.HitLog("홈런의 위치가? : " +transform.position.x + " , " + transform.position.z);
                 Homerun();
             }
             else
             {
-                Debug.Log(" 좀 파울이라고좀 해라 ");
+                GameLog.HitLog("파울의 위치가? : " +transform.position.x + " , " + transform.position.z);
                 Foul();
             }
         }

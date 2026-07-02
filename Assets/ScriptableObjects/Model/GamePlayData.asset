@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: GamePlayData
   m_EditorClassIdentifier: 
   inning: 0
-  maxInning: 18
+  maxInning: 6
   out_count: 0
   playerIsHome: 0
   _teamStatus:

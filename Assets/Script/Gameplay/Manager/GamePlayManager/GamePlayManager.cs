@@ -404,7 +404,6 @@ public partial class GamePlayManager : GameManager
     /// <returns></returns>
     private BatterComponent NextBatter(int base_index = 0)
     {
-        //Debug.Log("[Batter] 생성");
         //어차피 아웃되거나 안타 확정될때 초기화 해야함
         ResetCount();
 
@@ -583,7 +582,7 @@ public partial class GamePlayManager : GameManager
     //주자 돌아가는 함수 => 이게 가장 문제다.
     private void StartBatterMode()
     {
-        Debug.Log("<color=green>[GamePlay] : 타자 Mode On</color>");
+        GameLog.Log("타자 Mode On");
 
         pitchingController.EndPitchingGame();
         defenders[0].gameObject.SetActive(true); //pitcher로 하면 mybody도 true가 될 수 있으니까
@@ -832,7 +831,6 @@ public partial class GamePlayManager : GameManager
 
     private void AddOut()
     {
-        Debug.Log("[Batter] : out");
         OutCount++;
         if (addOutEvent != null) addOutEvent.RaiseEvent();
     }
@@ -857,7 +855,7 @@ public partial class GamePlayManager : GameManager
 
     private void IntoHome()
     {
-        Debug.Log("[Batter] : 점수점수");
+        GameLog.RunnerLog(" 점수점수");
         BatterComponent batterComponent = gamePlayModel.RemoveRunner(3);
         batterComponent.OutPlayer();
         AddScore(1);
@@ -869,7 +867,7 @@ public partial class GamePlayManager : GameManager
         RollbackBeforeStatus();
         ++FoulCount;
 
-        Debug.Log("파울");
+        GameLog.HitLog("파울");
         
         //strike == 2
         if (Strike == BaseballModel.MAX_STRIKE_COUNT - 1)
@@ -885,6 +883,7 @@ public partial class GamePlayManager : GameManager
     /// </summary>
     protected override void Homerun()
     {
+        GameLog.HitLog("홈런");
         AddScore(gamePlayModel.GetRunnerCount());
         ClearRunners();
 
