@@ -65,11 +65,13 @@ public partial class GamePlayManager
                     DebugBaseStatus();
                 }
 
-                //AI투수가 공을 가지고 있다면
-                if (_aiPitcherComponent && _ball.MyDefenderComponent == _aiPitcherComponent)
-                {
-                    return;
-                }
+                // AI투수가 공을 가지고 있다면 => 투수에게 오는 땅볼받는 순간 1루에게 안 던지고 타석에 던질 준비함.
+                // 그러나 dead 로직으로 바꿔서 이제 상관없음.
+                // #1 AI투수가 플라잉 아웃 공을 잡으면 1루 쳐다보는 버그 수정
+                // if (_aiPitcherComponent && _ball.MyDefenderComponent == _aiPitcherComponent)
+                // {
+                //     return;
+                // }
 
                 //돌아오는 함수
                 if (canGetBall)

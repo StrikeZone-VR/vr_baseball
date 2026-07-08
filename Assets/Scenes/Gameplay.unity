@@ -3493,7 +3493,7 @@ MonoBehaviour:
   leftHand: {fileID: 0}
   rightHand: {fileID: 0}
   data: {fileID: 11400000, guid: 839a771a53bb40a42a9ba475f4fa347f, type: 2}
-  recordOnEnable: 0
+  recordOnEnable: 1
   debugLog: 1
 --- !u!4 &1189051022
 Transform:
@@ -3574,7 +3574,7 @@ MonoBehaviour:
   _myTeamColor: {r: 0, g: 0, b: 1, a: 1}
   _yourTeamColor: {r: 1, g: 0, b: 0, a: 1}
   debugShootVector: {x: -0.5, y: 0.5, z: -0.5}
-  debugShootPower: 50
+  debugShootPower: 15
   defenders:
   - {fileID: 698565506}
   - {fileID: 1175599070}
