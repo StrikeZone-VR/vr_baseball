@@ -137,8 +137,18 @@ public class ReplayPlayer : MonoBehaviour
         //if (Input.GetKeyDown(KeyCode.F2)) Play(sourceData);
         //if (Input.GetKeyDown(KeyCode.F3)) Stop();
         if (Input.GetKeyDown(KeyCode.Space)) TogglePause();
-        if (Input.GetKey(KeyCode.RightArrow)) StepFrame(1);  //→ 한 프레임 앞으로
-        if (Input.GetKey(KeyCode.LeftArrow))  StepFrame(-1); //← 한 프레임 뒤로
+        //Ctrl 누른 채면 KeyDown(누르는 순간 1회)으로 정확히 1프레임씩, 아니면 꾹 누르는 동안 연속 스텝
+        bool ctrl = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
+        if (ctrl)
+        {
+            if (Input.GetKeyDown(KeyCode.RightArrow)) StepFrame(1);  //Ctrl+→ 한 프레임 앞으로
+            if (Input.GetKeyDown(KeyCode.LeftArrow))  StepFrame(-1); //Ctrl+← 한 프레임 뒤로
+        }
+        else
+        {
+            if (Input.GetKey(KeyCode.RightArrow)) StepFrame(1);  //→ 한 프레임 앞으로
+            if (Input.GetKey(KeyCode.LeftArrow))  StepFrame(-1); //← 한 프레임 뒤로
+        }
 #endif
 
         if (!IsPlaying || _data == null) return;

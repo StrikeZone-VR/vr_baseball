@@ -91,9 +91,6 @@ public partial class GamePlayManager : GameManager
     
     private bool isFlyingOut = false;
     private bool canGetBall = true; //호출 위치를 어디에 해야할지 모르겠네
-
-    private int _lastDebugRunningIndex = -2; //[복귀디버그] 임시 - 값 바뀔 때만 로그 출력용
-    private string _lastGateDebug = ""; //[복귀디버그] 임시 - 게이트 상태 변화 추적용
     
     //define
     const float WAIT_TIME = 7.0f;  //투수 던지기 전 대기 상태

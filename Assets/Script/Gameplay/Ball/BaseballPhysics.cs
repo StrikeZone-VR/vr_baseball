@@ -205,13 +205,13 @@ public class BaseballPhysics : MonoBehaviour
     public void ThrowBall(Vector3 start, Vector3 target, float velocity_xy)
     {
         Vector3 fw = _baseball.GetSelectedPitchTypeSO().ForceWeight;
-        GameLog.BallLog($"[BaseBall] 요청속력={velocity_xy}km/h, start={start}, target={target}, forceWeight={fw}");
+        //GameLog.BallLog($"[BaseBall] 요청속력={velocity_xy}km/h, start={start}, target={target}, forceWeight={fw}");
 
         Vector3 force = GetVelocityByPitchType(start, target, velocity_xy);
 
-        GameLog.BallLog($"[BaseBall] CalculateVelocity 결과: v=({force.x:F2},{force.y:F2},{force.z:F2}), " +
-                        $"|원래 xz속력|={new Vector2(force.x, force.z).magnitude * 3.6f:F1}km/h, " +
-                        $"|total|={force.magnitude * 3.6f:F1}km/h");
+        //GameLog.BallLog($"[BaseBall] CalculateVelocity 결과: v=({force.x:F2},{force.y:F2},{force.z:F2}), " +
+                        //$"|원래 xz속력|={new Vector2(force.x, force.z).magnitude * 3.6f:F1}km/h, " +
+                        //$"|total|={force.magnitude * 3.6f:F1}km/h");
 
         //rotation zero
         SetVelocity(force); //계산하는 함수

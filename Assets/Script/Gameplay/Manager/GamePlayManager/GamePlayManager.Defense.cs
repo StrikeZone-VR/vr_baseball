@@ -2,7 +2,6 @@ using UnityEngine;
 
 public partial class GamePlayManager
 {
-    #region DEFENSE
     /// <summary>
     /// 트래킹 알고리즘
     /// </summary>
@@ -91,7 +90,7 @@ public partial class GamePlayManager
 
     private void FlyingOut()
     {
-        Debug.Log("[Batting] : 플라잉 아웃");
+        GameLog.Defend("[Batting] : 플라잉 아웃");
 
         //여기에 AddOut을 넣으면 이닝이 바뀌었는데 주자를 제거하고 있음
         isFlyingOut = true;
@@ -181,7 +180,7 @@ public partial class GamePlayManager
 
         if (_ball.MyDefenderComponent)
         {
-            if (index < 0 && 4 <= index) //1루수 ~ 4루수
+            if (index < 0 || 4 <= index) //1루수 ~ 4루수가 아니라면
             {
                 return false;
             }
@@ -191,8 +190,17 @@ public partial class GamePlayManager
             if (_ball.MyDefenderComponent != defenders[index + 1].GetPlayerComponent())
             {
                 _ball.MyDefenderComponent.ThrowBall(bases[index].position + new Vector3(0, 0.5f, 0));
+                return true;
             }
-            return true;
+            //근데 자기 자신에게 있으면
+            //베이스 밖이면 자기 베이스로 복귀시키고 플레이 유지
+            //도착하면 OnTriggerEnter → IsInPosition → OutRunner로 포스아웃 처리됨
+            if (!_ball.MyDefenderComponent.IsInPosition)
+            {
+                _ball.MyDefenderComponent.IsTracking = false; //세터가 defenderTransform으로 MovePlayer 해줌
+                return true;
+            }
+            //이미 베이스 위면 아웃 처리는 트리거 쪽에서 끝났으니 false로 떨어져 플레이 종료
         }
 
         return false;
@@ -262,5 +270,4 @@ public partial class GamePlayManager
         float result = Vector3.Distance(a, b);
         return result;
     }
-    #endregion
 }
