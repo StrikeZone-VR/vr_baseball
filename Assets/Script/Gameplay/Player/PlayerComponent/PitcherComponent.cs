@@ -15,7 +15,9 @@ public class PitcherComponent : DefenderComponent
 
     const int WAIT_TIME = 5; //5.0f
     protected bool isThrowBallStop = false; //debug
-
+    
+    const float ARRIVE_DISTANCE = 0.2f;
+        
     void Awake()
     {
         //투수는 LookAtPlayer로만 회전 제어. nav가 velocity 잔류로 덮어쓰는 거 차단.
@@ -27,7 +29,7 @@ public class PitcherComponent : DefenderComponent
     {
         float dis = Vector3.Distance(defenderTransform.position, transform.position);
 
-        if (dis <= 1.0f)
+        if (dis <= ARRIVE_DISTANCE)
         {
             IsInPosition = true;
         }
@@ -74,6 +76,15 @@ public class PitcherComponent : DefenderComponent
             yield break;
         }
 
+        //원래 isPosition으로 하려고 했지만 
+        //if (Vector3.Distance(transform.position, defenderTransform.position) > ARRIVE_DISTANCE)
+        if(!IsInPosition)
+        {
+            player.MovePlayer(defenderTransform.position);
+            while (!IsInPosition)
+                yield return null;
+        }
+            
         //nav가 회전 덮어쓰지 않도록 정지
         player.StopMove();
         LookAtPlayer(strikeZone.transform.position);
