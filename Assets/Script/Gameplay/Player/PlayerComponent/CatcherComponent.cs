@@ -13,7 +13,11 @@ public class CatcherComponent : BasemanComponent
     
     [Header("Listening to Event")]
     [SerializeField] private VoidEventSO backToPitcherEvent;
-    
+
+    //포수는 B-2(거리 기반 IsInPosition)에서 제외. 아래 트리거 방식(defendIndex==1)을 그대로 쓴다.
+    //ㄴ BasemanComponent.Update가 상속되므로, 거리 판정만 비워서 트리거 판정과 충돌하지 않게 한다.
+    protected override void UpdateInPositionByDistance() { }
+
     protected override void OnTriggerEnter(Collider collision)
     {
         if (collision.gameObject.CompareTag("Base") && defendIndex == 1)

@@ -177,13 +177,23 @@ public partial class GamePlayManager : GameManager
         gamePlayModel.Init();
         battingModel.Init();
         
-        _aiPitcherComponent = GetDefenderComponent(0) as PitcherComponent; 
+        _aiPitcherComponent = GetDefenderComponent(0) as PitcherComponent;
         SetScore(0, 0);
         SetScore(1, 0);
-        
+
         SetMyBodyCamera();
-        
+
         gamePlayModel.SetPanel(_baseStatusPanel);
+
+        //루수(1·2·3루)의 수비 앵커를 해당 베이스 정중앙에 고정한다(B-2).
+        //ㄴ 송구는 항상 베이스 중심(bases[b])으로 오는데, 루수가 큰 베이스 트리거 가장자리에 서서
+        //   못 받던 버그. 서는 곳=던지는 곳이 되도록 앵커를 베이스로 맞춘다. (판정은 BasemanComponent가 거리로)
+        //ㄴ defenders[b+1] = base_index b의 루수 (ThrowToBase 매핑과 동일). 포수(index 4)는 공받기/수비 두 위치라 제외.
+        for (int b = 0; b <= 2; b++)
+        {
+            DefenderComponent dc = GetDefenderComponent(b + 1);
+            if (dc != null) dc.SetDefenseAnchor(bases[b]);
+        }
     }
     
     //2 function

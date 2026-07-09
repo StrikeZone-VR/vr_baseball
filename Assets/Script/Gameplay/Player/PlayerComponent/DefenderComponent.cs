@@ -96,7 +96,14 @@ public class DefenderComponent : PlayerComponent
     {
         _myBall = null;
     }
-    
+
+    //수비 위치 앵커를 런타임에 지정. 루수를 베이스 정중앙에 고정할 때 GamePlayManager가 호출(B-2).
+    //ㄴ 송구는 항상 베이스 중심(bases[index])으로 오므로, 서는 곳=던지는 곳이 되게 앵커를 베이스로 맞춘다.
+    public void SetDefenseAnchor(Transform anchor)
+    {
+        if (anchor != null) defenderTransform = anchor;
+    }
+
     //position => direction
     public void ThrowBall(Vector3 position)
     {
