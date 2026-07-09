@@ -207,6 +207,16 @@ public class ReplayRecorder : MonoBehaviour
             if (a.runners[i].isMove != b.runners[i].isMove) return true;
             if (a.runners[i].name != b.runners[i].name) return true;
         }
+
+        //수비수 상태(추적/포지션)가 바뀌면 키프레임. name은 안 변하므로 비교 생략(희소 압축 유지).
+        int ad = a.defenders != null ? a.defenders.Length : 0;
+        int bd = b.defenders != null ? b.defenders.Length : 0;
+        if (ad != bd) return true;
+        for (int i = 0; i < ad; i++)
+        {
+            if (a.defenders[i].isTracking != b.defenders[i].isTracking) return true;
+            if (a.defenders[i].isInPosition != b.defenders[i].isInPosition) return true;
+        }
         return false;
     }
 }

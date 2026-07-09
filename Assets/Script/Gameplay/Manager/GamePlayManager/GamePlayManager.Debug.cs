@@ -166,6 +166,10 @@ public partial class GamePlayManager
         public int       runningIndex;
         public RunnerSnapshot[] runners;
         public string    batterName;
+        // ===== Defenders =====
+        //수비수별 내부 상태. defenders[] 및 리플레이 defender transform 트랙과 같은 인덱스/순서
+        //(0=투수 ... 4=포수, 그 뒤 외야). "추적은 하는데 포지션 판정이 안 됨" 같은 케이스 판독용.
+        public DefenderStateSnapshot[] defenders;
     }
 
     [System.Serializable]
@@ -174,6 +178,14 @@ public partial class GamePlayManager
         public int    baseIndex;
         public bool   isMove;
         public string name;
+    }
+
+    [System.Serializable]
+    public struct DefenderStateSnapshot
+    {
+        public string name;
+        public bool   isTracking;   //공을 쫓는 중(IsTracking)
+        public bool   isInPosition; //제 수비 위치 도착(IsInPosition) — 외야=거리, 루수/포수=베이스 트리거
     }
 
     //private 필드들(_ball, gamePlayModel, isFlyingOut, _aiPitcherComponent)에 접근해야 해서
@@ -233,6 +245,22 @@ public partial class GamePlayManager
         }
 
         s.batterName = $"{currentBatterComponent}";
+
+        // ===== Defenders =====
+        //IsTracking/IsInPosition 게터는 부수효과 없음(값만 반환) — 읽기 전용으로 안전.
+        s.defenders = new DefenderStateSnapshot[defenders.Length];
+        for (int i = 0; i < defenders.Length; i++)
+        {
+            if (defenders[i] == null) continue;
+            DefenderComponent d = GetDefenderComponent(i);
+            if (d == null) continue;
+            s.defenders[i] = new DefenderStateSnapshot
+            {
+                name = defenders[i].name,
+                isTracking = d.IsTracking,
+                isInPosition = d.IsInPosition
+            };
+        }
 
         return s;
     }
@@ -302,6 +330,17 @@ public partial class GamePlayManager
         }
 
         sb.AppendLine($"타석 : {s.batterName}");
+
+        // ===== Defenders =====
+        sb.AppendLine();
+        int defCount = s.defenders != null ? s.defenders.Length : 0;
+        sb.AppendLine($"<b>[ DEFENDERS ]</b>  count={defCount}");
+        for (int i = 0; i < defCount; i++)
+        {
+            DefenderStateSnapshot d = s.defenders[i];
+            string track = d.isTracking ? "→추적" : "정지 ";
+            sb.AppendLine($"  [{i}] {track} | pos={d.isInPosition} | {d.name}");
+        }
     }
 
 #if UNITY_EDITOR
