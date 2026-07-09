@@ -92,6 +92,47 @@ public partial class GamePlayManager
         _boxSwitchRoutine = null;
     }
 
+    // ===== 주자 레일 (베이스라인 구속) =====================================
+    //달리기 중엔 조이스틱을 정확히 안 밀어도 베이스라인을 따라가도록, XR 오리진을
+    //현재 구간(직전 베이스 → 목표 베이스) 복도에 구속한다. 실제 구속은 MyXROriginManager.LateUpdate.
+    //Update에서 매 프레임 호출된다.
+    private void UpdateRunnerRail()
+    {
+        if (_xrOriginManager == null)
+        {
+            _xrOriginManager = FindAnyObjectByType<MyXROriginManager>();
+            if (_xrOriginManager == null) return;
+        }
+
+        MyBatterComponent mine = myBody != null ? myBody.GetMyBatterComponent() : null;
+
+        //레일 조건: 타자 모드 + 내가 달리는 중 + 타구 인플레이 + 이동 잠금 아님(잠기면 어차피 못 움직임)
+        //ㄴ provider.enabled 게이트가 중요: 아웃/득점 후 타석 복귀(TranslateBattingView) 직후엔
+        //   IsMove가 true로 남는 경우가 있는데, 복귀 시 이동이 잠기므로 레일이 타석의 플레이어를
+        //   베이스라인으로 끌어당기는 사고를 막아준다.
+        bool running = gamePlayModel != null && gamePlayModel.PlayerIsBatterMode()
+                    && mine != null && mine.IsMove && !mine.IsOut
+                    && mine.BaseIndex < bases.Length
+                    && _ball != null && _ball.IsInGamePlay;
+        if (running)
+        {
+            ActionBasedContinuousMoveProvider provider = ResolveMoveProvider();
+            running = provider != null && provider.enabled;
+        }
+
+        if (!running)
+        {
+            _xrOriginManager.ClearMoveRail();
+            return;
+        }
+
+        //구간: BaseIndex 0(아직 1루 전)이면 홈(bases[3])→1루, 그 외엔 직전 베이스→다음 베이스.
+        //bases = 0:1루 1:2루 2:3루 3:홈. BatterComponent.MoveBase의 목표(bases[base_index])와 동일 규칙.
+        Vector3 a = mine.BaseIndex == 0 ? bases[3].position : bases[mine.BaseIndex - 1].position;
+        Vector3 b = bases[mine.BaseIndex].position;
+        _xrOriginManager.SetMoveRail(a, b);
+    }
+
     //조이스틱 액션을 들고 있는 move provider를 찾는다.
     //GamePlayManager의 moveProvider(debug용)가 비어 있으면 MyXROriginManager 것으로 폴백.
     private ActionBasedContinuousMoveProvider ResolveMoveProvider()

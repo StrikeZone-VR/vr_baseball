@@ -139,8 +139,12 @@ public partial class GamePlayManager : GameManager
         
         onCanBackBatterEvent.onEventRaised -= OnCanBackRunner;
         changedBaseStatus.onEventRaised -= DebugBaseStatus;
-        
+
         _ball.OnIsInGameplayChanged -= SetPlayerMoveMode;
+
+        //씬 언로드 후에도 레일이 남아 스테일 좌표로 플레이어를 끌지 않게 해제
+        //(MyXROriginManager는 Persistent 씬이라 이 매니저보다 오래 산다)
+        if (_xrOriginManager != null) _xrOriginManager.ClearMoveRail();
     }
 
     #endregion
@@ -162,6 +166,7 @@ public partial class GamePlayManager : GameManager
         BeforePitcherGetBall(); //갑자기 공 받는데 트래킹 될 수도 있다.
         TrackingBall();
         UpdateBatterBoxSwitch(); //타자 모드: 왼손 조이스틱 플릭으로 좌/우 타석 전환 (GamePlayManager.BatterBox.cs)
+        UpdateRunnerRail();      //주자 달리기: XR 오리진을 베이스라인 복도에 구속 (GamePlayManager.BatterBox.cs)
     }
 
     #region GAMEPLAY

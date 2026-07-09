@@ -32,6 +32,15 @@ public class MyXROriginManager : MonoBehaviour
     //타석 전환(GamePlayManager.BatterBox)이 왼손 조이스틱 값을 읽어갈 수 있게 노출한다.
     public ActionBasedContinuousMoveProvider MoveProvider => moveProvider;
 
+    [Header("주자 레일 (베이스라인 구속)")]
+    [Tooltip("베이스라인에서 좌우로 허용할 반폭(m). 머리 흔들림/실제 걸음은 이 안에서 자유.")]
+    [SerializeField] private float railHalfWidth = 0.5f;
+    [Tooltip("복도 밖으로 벗어났을 때 다시 끌어오는 속도(m/s). 순간이동 대신 미끄러지듯 보정. 이동속도(4.5)보다 커야 벽처럼 막힌다.")]
+    [SerializeField] private float railCorrectionSpeed = 6f;
+
+    private bool _railActive;
+    private Vector3 _railA, _railB; //현재 베이스라인 선분(출발 베이스 → 목표 베이스)
+
     [Header("Debug Swing")]
     [Tooltip("스윙 공전 축. 비워두면 XROrigin의 카메라를 사용한다.")]
     [SerializeField] private Transform swingAxis;
@@ -257,6 +266,56 @@ public class MyXROriginManager : MonoBehaviour
         yield return new WaitForSeconds(groundSettleDuration);
         moveProvider.gravityApplicationMode = ContinuousMoveProviderBase.GravityApplicationMode.AttemptingMove;
         settleRoutine = null;
+    }
+
+    // ===== 주자 레일 =====================================================
+    //주자 달리기 동안 XR 오리진을 베이스라인(a→b) 복도 안으로 구속한다.
+    //조이스틱을 어느 방향으로 밀든 라인 방향 성분만 남고, 수직 이탈은 복도 벽에서 막힌다.
+    //GamePlayManager.UpdateRunnerRail이 매 프레임 갱신/해제한다.
+    public void SetMoveRail(Vector3 a, Vector3 b)
+    {
+        _railActive = true;
+        _railA = a;
+        _railB = b;
+    }
+
+    public void ClearMoveRail()
+    {
+        _railActive = false;
+    }
+
+    //move provider가 Update에서 이동시킨 "후"에 보정해야 해서 LateUpdate.
+    private void LateUpdate()
+    {
+        if (!_railActive || _origin == null) return;
+        Camera cam = _origin.Camera;
+        if (cam == null) return;
+
+        Vector3 p = cam.transform.position;
+
+        //선분 A→B에 대한 XZ 최근접점 계산
+        Vector3 ab = _railB - _railA;
+        ab.y = 0f;
+        float abLen = ab.magnitude;
+        if (abLen < 0.01f) return;
+        Vector3 abn = ab / abLen;
+
+        Vector3 ap = p - _railA;
+        ap.y = 0f;
+        float along = Mathf.Clamp(Vector3.Dot(ap, abn), 0f, abLen); //선분 앞/뒤로는 못 나감(귀루는 선분 안에서 가능)
+        Vector3 closest = _railA + abn * along;
+
+        Vector3 offset = p - closest;
+        offset.y = 0f;
+        float dist = offset.magnitude;
+        if (dist <= railHalfWidth) return; //복도 안 — 자유
+
+        //복도 경계까지만 허용. 초과분은 보정 속도로 미끄러지듯 당긴다(레일 진입 순간 홱 끌리는 것 방지).
+        Vector3 target = closest + offset / dist * railHalfWidth;
+        Vector3 flatP = new Vector3(p.x, 0f, p.z);
+        Vector3 flatT = new Vector3(target.x, 0f, target.z);
+        Vector3 corrected = Vector3.MoveTowards(flatP, flatT, railCorrectionSpeed * Time.deltaTime);
+        _origin.MoveCameraToWorldLocation(new Vector3(corrected.x, p.y, corrected.z));
     }
 
     private void RotateOrigin(Vector3 vector3)
