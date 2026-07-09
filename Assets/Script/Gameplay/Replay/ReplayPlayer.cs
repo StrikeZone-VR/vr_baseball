@@ -342,7 +342,15 @@ public class ReplayPlayer : MonoBehaviour
     {
         if (target == null) return;
         target.position = Vector3.Lerp(from.pos, to.pos, a);
-        target.rotation = Quaternion.Slerp(from.rot, to.rot, a);
+        target.rotation = Quaternion.Slerp(SafeRot(from.rot), SafeRot(to.rot), a);
+    }
+
+    //head 필드가 없던 구버전 녹화는 rot이 제로 쿼터니언(0,0,0,0)으로 역직렬화된다.
+    //그대로 transform에 넣으면 Unity가 변환 에러를 뿜으므로 identity로 대체.
+    private static Quaternion SafeRot(Quaternion q)
+    {
+        if (q.x == 0f && q.y == 0f && q.z == 0f && q.w == 0f) return Quaternion.identity;
+        return q;
     }
 
     //frames[i].time <= t 를 만족하는 가장 큰 i (이진 탐색)
@@ -400,8 +408,27 @@ public class ReplayPlayer : MonoBehaviour
         if (autoBuildStatusPanel && statusText == null)
             BuildStatusCanvas();
 
+        //손/머리 고스트가 인스펙터에 없으면 단순 도형으로 자동 생성.
+        //예쁜 모델을 쓰고 싶으면 씬에 배치해서 인스펙터에 연결하면 그게 우선된다.
+        if (leftHandGhost == null)  leftHandGhost  = BuildPrimitiveGhost("LeftHand",  PrimitiveType.Cube,   0.09f, new Color(0.35f, 0.6f, 1f));
+        if (rightHandGhost == null) rightHandGhost = BuildPrimitiveGhost("RightHand", PrimitiveType.Cube,   0.09f, new Color(1f, 0.55f, 0.3f));
+        if (headGhost == null)      headGhost      = BuildPrimitiveGhost("Head",      PrimitiveType.Sphere, 0.24f, new Color(0.9f, 0.9f, 0.9f));
+
         Debug.Log($"[ReplayPlayer] AutoBuild 완료 — ballGhost={ballGhost != null} batGhost={batGhost != null} " +
-                  $"R손Ghost={rightHandGhost != null} L손Ghost={leftHandGhost != null} 패널={statusText != null}");
+                  $"R손Ghost={rightHandGhost != null} L손Ghost={leftHandGhost != null} 머리Ghost={headGhost != null} 패널={statusText != null}");
+    }
+
+    //인스펙터에 고스트가 비어 있을 때 쓰는 단순 도형 폴백(주자 캡슐 폴백과 같은 철학).
+    private Transform BuildPrimitiveGhost(string label, PrimitiveType type, float size, Color color)
+    {
+        GameObject go = GameObject.CreatePrimitive(type);
+        Destroy(go.GetComponent<Collider>()); //고스트는 물리 간섭 금지
+        go.name = $"[ReplayGhost] {label}";
+        go.transform.localScale = Vector3.one * size;
+        Renderer r = go.GetComponent<Renderer>();
+        if (r != null) r.material.color = color;
+        _builtObjects.Add(go); //씬 언로드 시 정리 목록에 등록
+        return go.transform;
     }
 
     //고스트가 스스로 움직이거나 물리에 간섭하지 않도록 시뮬 관련 컴포넌트를 끈다.
