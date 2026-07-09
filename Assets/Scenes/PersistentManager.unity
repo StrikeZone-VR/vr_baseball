@@ -999,6 +999,11 @@ Material:
     - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
     - _UnderlayColor: {r: 0, g: 0, b: 0, a: 0.5}
   m_BuildTextureStacks: []
+--- !u!4 &1097918894 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 9014170785475729501, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
+  m_PrefabInstance: {fileID: 1132869861}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1132869861
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2595,7 +2600,9 @@ MonoBehaviour:
   groundSettleDuration: 0.5
   _origin: {fileID: 2057171112}
   rightHand: {fileID: 453779108}
-  leftHand: {fileID: 0}
+  leftHand: {fileID: 1097918894}
+  targetEyeHeight: 1.7
+  calibrateEyeHeightAction: {fileID: 3506524725922674550, guid: c348712bda248c246b8c49b3db54643f, type: 3}
   railHalfWidth: 0.5
   railCorrectionSpeed: 6
   swingAxis: {fileID: 0}

@@ -32,6 +32,14 @@ public class MyXROriginManager : MonoBehaviour
     //타석 전환(GamePlayManager.BatterBox)이 왼손 조이스틱 값을 읽어갈 수 있게 노출한다.
     public ActionBasedContinuousMoveProvider MoveProvider => moveProvider;
 
+    [Header("눈높이 캘리브레이션")]
+    [Tooltip("X버튼을 누르면 현재 머리 높이를 이 눈높이로 재정렬한다. 게임 로직 가정(player_y)과 같은 1.7m 권장.")]
+    [SerializeField] private float targetEyeHeight = 1.7f;
+    [Tooltip("재정렬 입력. 비워두면 왼손 X버튼(primaryButton) + 에디터용 H키에 자동 바인딩.")]
+    [SerializeField] private InputActionReference calibrateEyeHeightAction;
+
+    private const string EyeHeightPrefKey = "settings.eyeHeightOffset"; //SettingsController 키 네이밍과 통일
+
     [Header("주자 레일 (베이스라인 구속)")]
     [Tooltip("베이스라인에서 좌우로 허용할 반폭(m). 머리 흔들림/실제 걸음은 이 안에서 자유.")]
     [SerializeField] private float railHalfWidth = 0.5f;
@@ -71,9 +79,31 @@ public class MyXROriginManager : MonoBehaviour
             //'떠 있어도 바로 바닥에 안착'은 MoveOrigin 직후 BeginGroundSettle에서 잠깐만 Immediately로 처리한다.
             moveProvider.gravityApplicationMode = ContinuousMoveProviderBase.GravityApplicationMode.AttemptingMove;
         }
+
+        //눈높이 재정렬 입력 연결. 인스펙터에 액션이 없으면 X버튼(+에디터 H키)으로 자동 바인딩.
+        InputAction calibrate = calibrateEyeHeightAction != null ? calibrateEyeHeightAction.action : null;
+        if (calibrate == null)
+        {
+//             _fallbackCalibrateAction = new InputAction("CalibrateEyeHeight", InputActionType.Button,
+//                 "<XRController>{LeftHand}/primaryButton");
+// #if UNITY_EDITOR
+//             _fallbackCalibrateAction.AddBinding("<Keyboard>/h"); //헤드셋 없이 테스트용
+// #endif
+//             calibrate = _fallbackCalibrateAction;
+        }
+        calibrate.performed += OnCalibrateEyeHeight;
+        calibrate.Enable();
     }
     private void OnDisable()
     {
+        //InputAction calibrate = calibrateEyeHeightAction != null ? calibrateEyeHeightAction.action : _fallbackCalibrateAction;
+        InputAction calibrate = calibrateEyeHeightAction;
+        if (calibrateEyeHeightAction != null)
+        {
+            calibrate.performed -= OnCalibrateEyeHeight;
+            //if (calibrate == _fallbackCalibrateAction) calibrate.Disable(); //에셋 참조 액션은 다른 곳에서 쓸 수 있으니 끄지 않음
+        }
+
         moveOriginEvent.onEventRaised -= MoveOrigin;
         rotateOriginEvent.onEventRaised -= RotateOrigin;
         bodyEvent.onEventRaised -= SetPlayer;
@@ -266,6 +296,71 @@ public class MyXROriginManager : MonoBehaviour
         yield return new WaitForSeconds(groundSettleDuration);
         moveProvider.gravityApplicationMode = ContinuousMoveProviderBase.GravityApplicationMode.AttemptingMove;
         settleRoutine = null;
+    }
+
+    // ===== 눈높이 캘리브레이션 ==============================================
+    //X버튼을 누른 순간의 머리 높이를 targetEyeHeight로 재정렬한다.
+    //원리: Floor 트래킹에서 카메라 높이 = 실제 키 그대로 → CameraFloorOffsetObject의 Y로
+    //      (목표 눈높이 - 측정 눈높이)만큼 보정. 앉아서 눌러도 선 눈높이가 된다.
+    //저장: PlayerPrefs에 오프셋을 남겨 다음 실행에서도 유지.
+    private void Start()
+    {
+        StartCoroutine(ApplySavedEyeHeightRoutine());
+    }
+
+    private IEnumerator ApplySavedEyeHeightRoutine()
+    {
+        float saved = PlayerPrefs.GetFloat(EyeHeightPrefKey, 0f);
+        if (Mathf.Approximately(saved, 0f)) yield break;
+
+        //XROrigin이 Floor 트래킹 초기화 때 floor offset을 0으로 리셋하므로, 그 이후에 적용해야 한다.
+        //트래킹이 살아나(카메라가 바닥에서 떨어짐) 초기화가 끝났다고 볼 수 있을 때까지 잠깐 대기.
+        float waited = 0f;
+        while (waited < 3f)
+        {
+            Camera cam = _origin != null ? _origin.Camera : null;
+            if (cam != null && cam.transform.localPosition.y > 0.2f) break;
+            waited += Time.deltaTime;
+            yield return null;
+        }
+        yield return null; //초기화 리셋과의 순서 경합 방지로 한 프레임 더
+
+        SetEyeHeightOffset(saved);
+        //Debug.Log($"[EyeHeight] 저장된 눈높이 오프셋 적용: {saved:+0.00;-0.00}m");
+    }
+
+    private void OnCalibrateEyeHeight(InputAction.CallbackContext context)
+    {
+        CalibrateEyeHeight();
+    }
+
+    //현재 머리 높이를 측정해 targetEyeHeight가 되도록 floor offset을 조정하고 저장한다.
+    public void CalibrateEyeHeight()
+    {
+        if (_origin == null || _origin.Camera == null) return;
+        GameObject floorOffset = _origin.CameraFloorOffsetObject;
+        if (floorOffset == null) return;
+
+        float currentOffset = floorOffset.transform.localPosition.y;
+        float eyeInOrigin = _origin.CameraInOriginSpaceHeight; //현재 오프셋이 포함된 origin 기준 눈높이
+        float measured = eyeInOrigin - currentOffset;          //순수 실제 키(오프셋 제외)
+        if (measured < 0.3f) return; //트래킹이 죽어 바닥에 붙어있는 값이면 엉뚱하게 보정되니 무시
+
+        float newOffset = currentOffset + (targetEyeHeight - eyeInOrigin);
+        SetEyeHeightOffset(newOffset);
+
+        PlayerPrefs.SetFloat(EyeHeightPrefKey, newOffset);
+        PlayerPrefs.Save();
+        Debug.Log($"[EyeHeight] 재정렬: 측정 {measured:F2}m → 오프셋 {newOffset:+0.00;-0.00}m (목표 {targetEyeHeight}m)");
+    }
+
+    private void SetEyeHeightOffset(float offsetY)
+    {
+        GameObject floorOffset = _origin != null ? _origin.CameraFloorOffsetObject : null;
+        if (floorOffset == null) return;
+        Vector3 lp = floorOffset.transform.localPosition;
+        lp.y = offsetY;
+        floorOffset.transform.localPosition = lp;
     }
 
     // ===== 주자 레일 =====================================================
