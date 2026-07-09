@@ -1713,7 +1713,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4134505312059479865, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.46
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4134505312059479865, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
       propertyPath: m_LocalPosition.z
@@ -2596,6 +2596,8 @@ MonoBehaviour:
   _origin: {fileID: 2057171112}
   rightHand: {fileID: 453779108}
   leftHand: {fileID: 0}
+  railHalfWidth: 0.5
+  railCorrectionSpeed: 6
   swingAxis: {fileID: 0}
   axisDistance: 0.5
   swingStartAngle: 50
