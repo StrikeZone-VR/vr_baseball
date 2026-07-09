@@ -82,7 +82,7 @@ public partial class GamePlayManager : GameManager
     [SerializeField] private VoidEventSO walkEvent;
     [SerializeField] private VoidEventSO addOutEvent;
 
-    [SerializeField] private bool canBackRunner = false;
+    [SerializeField] private bool canBackRunner = false; //이거 안타 말고도 그냥 파울이나 돌아가는 것도 이거 true임
     
     [SerializeField] private GamePlayModel gamePlayModel;
     [SerializeField] private BattingModel battingModel;
@@ -196,8 +196,14 @@ public partial class GamePlayManager : GameManager
         //어차피 OutCount에 Ball, Strike가 초기화...?
         //BallCount = 0;
         //Strike = 0;
-        
+
         ClearRunners();
+
+        //지난 이닝의 복귀 플래그가 새 이닝에서 오발되지 않게 초기화.
+        //반드시 ClearRunners "뒤"에서: ClearRunners → 플레이어 MyBatterComponent.OutPlayer(true)
+        //→ moveBatterEvent → OnCanBackRunner가 canBackRunner를 다시 true로 세운다.
+        canBackRunner = false;
+
         SetColor();
     }
 
@@ -346,7 +352,6 @@ public partial class GamePlayManager : GameManager
         //debug로 Inning을 넘길 시 AI타자가 돌아다니는 버그
         //만약 current가 AI인 경우
         //ㄴ 원래는 !=로 해야하지만 inning이 바뀐 후라 !를 안 썼다.  &&  !gamePlayModel.PlayerIsBatterMode()
-        
         if (currentBatterComponent)
         {
             //현재 타석 제거
@@ -788,12 +793,16 @@ public partial class GamePlayManager : GameManager
 
                 DeleteRunner();
                 AddOut();
-                
+
                 //batter
-                if (!gamePlayModel.PlayerIsBatterMode())
-                {
-                    StartCoroutine(TranslateBattingView());
-                }
+                //투수모드 삼진 때 플레이어(투수)가 타자 시점으로 끌려가는 버그라 제거.
+                //ㄴ 다음 AI 타자는 공 리셋 → PitcherGetBall → NextBatter()가 생성한다.
+                //ㄴ TranslateBattingView는 끝에서 currentBatterComponent를 플레이어로 바꿔버려
+                //   NextBatter 생성 조건(!currentBatterComponent)까지 깨뜨리고 있었다.
+                // if (!gamePlayModel.PlayerIsBatterMode())
+                // {
+                //     StartCoroutine(TranslateBattingView());
+                // }
             }
             else
             {

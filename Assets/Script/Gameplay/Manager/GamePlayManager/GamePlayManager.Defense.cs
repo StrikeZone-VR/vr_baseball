@@ -47,9 +47,14 @@ public partial class GamePlayManager
             if (!canThrow)
             {
                 //어차피 근데 타자모드일때만 이라고 해도 canBackRunner자체가 여기에서만 나올듯
+                //ㄴ 그 가정이 깨졌었음: 타자모드 마지막 플레이(3아웃 플라이아웃)가 세운 canBackRunner가
+                //   소비되기 전에 Inning++ → StartPitcherMode로 넘어가면 true인 채 투수모드로 유입.
+                //   → 투수모드에서 수비가 뜬공을 잡는 순간 이 블록이 발동해 플레이어(투수)가 타석으로 끌려감.
+                //   (투수모드에선 GetMyBatterComponent()가 null이라 안타 케이스 NRE 위험도 있었음)
+                //   그래서 타자모드 가드 추가 + ChangedInning에서 플래그 초기화.
                 //위치를 여기다 둔 이유. 피쳐가 수비하면 타자 복귀가 안됨
                 //안타나 플라잉아웃이면 나중에 복귀
-                if (canBackRunner)
+                if (canBackRunner && gamePlayModel.PlayerIsBatterMode())
                 {
                     //일단 여기라인이 떠야함
                     canBackRunner = false;

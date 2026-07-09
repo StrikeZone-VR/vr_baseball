@@ -160,6 +160,7 @@ public partial class GamePlayManager
         public int[]     awayInnings, homeInnings;   //이닝별 득점(길이 = MAX_DISPLAY_INNING)
         // ===== Flags =====
         public bool      isFlyingOut;
+        public bool      canBackRunner;    //복귀 플래그(썩은 플래그 버그 전과 있음 — 리플레이로 추적 가능하게)
         public string    throwBallStop;    // "true"/"false"/"null"
         // ===== Runners =====
         public int       runningIndex;
@@ -218,6 +219,7 @@ public partial class GamePlayManager
 
         // ===== Flags =====
         s.isFlyingOut   = isFlyingOut;
+        s.canBackRunner = canBackRunner;
         s.throwBallStop = _aiPitcherComponent != null ? _aiPitcherComponent.IsThrowBallStop.ToString() : "null";
 
         // ===== Runners =====
@@ -278,6 +280,7 @@ public partial class GamePlayManager
         sb.AppendLine();
         sb.AppendLine("<b>[ FLAGS ]</b>");
         sb.AppendLine($"isFlyingOut     : {s.isFlyingOut}");
+        sb.AppendLine($"canBackRunner   : {s.canBackRunner}");
         sb.AppendLine($"IsThrowBallStop : {s.throwBallStop}");
 
         // ===== Runners =====
