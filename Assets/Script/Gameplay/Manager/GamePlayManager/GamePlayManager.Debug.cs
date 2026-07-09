@@ -154,6 +154,10 @@ public partial class GamePlayManager
         // ===== Game =====
         public bool      playerIsHome;
         public int       beforeScore;      //파울/플라잉아웃 롤백 디버그용
+        // ===== Scoreboard (전광판 재현용) =====
+        public int       ballCount, strikeCount, outCount, inning;
+        public int       awayScore, homeScore;       //팀0(원정)/팀1(홈) 총점
+        public int[]     awayInnings, homeInnings;   //이닝별 득점(길이 = MAX_DISPLAY_INNING)
         // ===== Flags =====
         public bool      isFlyingOut;
         public string    throwBallStop;    // "true"/"false"/"null"
@@ -196,6 +200,21 @@ public partial class GamePlayManager
         // ===== Game =====
         s.playerIsHome = gamePlayModel.PlayerIsHome;
         s.beforeScore  = gamePlayModel.BeforeScore; //파울/플라잉아웃 롤백 디버그용
+
+        // ===== Scoreboard (전광판 재현용) =====
+        s.ballCount   = baseballModel.BallCount;
+        s.strikeCount = baseballModel.Strike;
+        s.outCount    = gamePlayModel.OutCount;
+        s.inning      = gamePlayModel.Inning;
+        s.awayScore   = gamePlayModel.GetTeamScore(0);
+        s.homeScore   = gamePlayModel.GetTeamScore(1);
+        s.awayInnings = new int[GamePlayModel.MAX_DISPLAY_INNING];
+        s.homeInnings = new int[GamePlayModel.MAX_DISPLAY_INNING];
+        for (int i = 0; i < GamePlayModel.MAX_DISPLAY_INNING; i++)
+        {
+            s.awayInnings[i] = gamePlayModel.GetInningScore(0, i);
+            s.homeInnings[i] = gamePlayModel.GetInningScore(1, i);
+        }
 
         // ===== Flags =====
         s.isFlyingOut   = isFlyingOut;
@@ -250,6 +269,10 @@ public partial class GamePlayManager
         sb.AppendLine("<b>[ GAME ]</b>");
         sb.AppendLine($" (PlayerIsHome={s.playerIsHome})");
         sb.AppendLine($"Before : score={s.beforeScore}"); //파울/플라잉아웃 롤백 디버그용
+        //전광판 요약: n회 초/말 | B/S/O | 원정:홈 점수
+        sb.AppendLine($"{s.inning / 2 + 1}회{(s.inning % 2 == 0 ? "초" : "말")} | " +
+                      $"B{s.ballCount} S{s.strikeCount} O{s.outCount} | " +
+                      $"원정 {s.awayScore} : {s.homeScore} 홈");
 
         // ===== Flags =====
         sb.AppendLine();

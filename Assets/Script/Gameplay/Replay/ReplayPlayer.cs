@@ -21,11 +21,16 @@ public class ReplayPlayer : MonoBehaviour
     [SerializeField] private Transform batGhost;
     [SerializeField] private Transform leftHandGhost;
     [SerializeField] private Transform rightHandGhost;
+    [SerializeField] private Transform headGhost; //플레이어 머리(HMD). 구버전 녹화엔 데이터 없음(원점 고정)
     [SerializeField] private GameObject runnerGhostPrefab; //주자 수만큼 풀링. 비우면 캡슐
     [SerializeField] private GameObject defenderGhostPrefab; //수비수(투수 포함) 수만큼 풀링. 비우면 캡슐
 
     [Header("Status UI (비우면 자동 생성)")]
     [SerializeField] private TMP_Text statusText;
+
+    [Header("Scoreboard (비우면 씬에서 자동 검색)")]
+    [Tooltip("리플레이 씬의 전광판. status 키프레임이 바뀔 때마다 녹화된 점수/카운트로 다시 그린다.")]
+    [SerializeField] private ScoreboardDisplay scoreboard;
 
     [Header("Playback")]
     [SerializeField] private float playbackSpeed = 1f;
@@ -49,6 +54,7 @@ public class ReplayPlayer : MonoBehaviour
     private readonly List<Transform> _defenderPool = new List<Transform>();
 
     private bool _autoBuilt;                                    //패널 1회만 생성
+    private int _lastStatusIndex = -2;                          //전광판 중복 갱신 방지(-2 = 미적용)
     private GameObject _statusCanvasGo;                         //자동 생성한 상태 패널 캔버스
     private readonly List<GameObject> _builtObjects = new List<GameObject>(); //정리용(씬 언로드 시 파괴)
 
@@ -69,6 +75,11 @@ public class ReplayPlayer : MonoBehaviour
         _playTime = 0f;
         IsPlaying = true;
         IsPaused = false;
+        _lastStatusIndex = -2; //전광판 강제 초기 갱신
+
+        //전광판 연결: 모델(SO)은 에셋이라 리플레이 씬 전광판도 라이브 값을 물고 있음 → 폴링 끄고 우리가 그린다
+        if (scoreboard == null) scoreboard = FindAnyObjectByType<ScoreboardDisplay>();
+        if (scoreboard != null) scoreboard.SetReplayDriven(true);
 
         AutoBuild();          //상태 패널 1회 생성
         SetGhostsActive(true);
@@ -193,6 +204,7 @@ public class ReplayPlayer : MonoBehaviour
         SetPose(batGhost, frames[i].bat, frames[j].bat, a);
         SetPose(leftHandGhost, frames[i].leftHand, frames[j].leftHand, a);
         SetPose(rightHandGhost, frames[i].rightHand, frames[j].rightHand, a);
+        SetPose(headGhost, frames[i].head, frames[j].head, a);
 
         ApplyRunners(frames[i], frames[j], a);
         ApplyDefenders(frames[i], frames[j], a);
@@ -252,6 +264,13 @@ public class ReplayPlayer : MonoBehaviour
 
     private void ApplyStatus(float t)
     {
+        //전광판: status 키프레임이 바뀐 순간에만 다시 그린다.
+        //Seek로 과거로 되돌리면 그 시점 키프레임이 다시 적용돼 점수·카운트도 함께 되돌아간다.
+        int sk = FindStatusIndex(t);
+        if (scoreboard != null && sk != _lastStatusIndex && sk >= 0)
+            scoreboard.RenderReplay(_data.statusTrack[sk].status);
+        _lastStatusIndex = sk;
+
         if (statusText == null) return;
 
         _sb.Clear();
@@ -262,7 +281,7 @@ public class ReplayPlayer : MonoBehaviour
                        $"({t:F2}/{_duration:F2}s){(IsPaused ? "  [일시정지]" : "")}");
         _sb.AppendLine();
 
-        int k = FindStatusIndex(t);
+        int k = sk; //위 전광판 갱신 때 이미 탐색함
         if (k >= 0)
         {
             GamePlayManager.StatusSnapshot s = _data.statusTrack[k].status; //struct 복사 → 원본 불변
@@ -450,6 +469,7 @@ public class ReplayPlayer : MonoBehaviour
         if (batGhost != null)       batGhost.gameObject.SetActive(on);
         if (leftHandGhost != null)  leftHandGhost.gameObject.SetActive(on);
         if (rightHandGhost != null) rightHandGhost.gameObject.SetActive(on);
+        if (headGhost != null)      headGhost.gameObject.SetActive(on);
         //주자 고스트는 ApplyRunners가 매 프레임 활성/비활성을 관리한다.
     }
 }

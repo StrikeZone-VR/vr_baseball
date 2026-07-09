@@ -2033,11 +2033,14 @@ MonoBehaviour:
   batGhost: {fileID: 1243084443}
   leftHandGhost: {fileID: 0}
   rightHandGhost: {fileID: 0}
+  headGhost: {fileID: 0}
   runnerGhostPrefab: {fileID: 6807072103778800797, guid: 022e049949df0ed47a134ea64e62c95d, type: 3}
   defenderGhostPrefab: {fileID: 0}
   statusText: {fileID: 0}
+  scoreboard: {fileID: 0}
   playbackSpeed: 1
   loop: 1
+  maxLogLines: 12
   autoBuildStatusPanel: 1
 --- !u!1001 &2001614553
 PrefabInstance:

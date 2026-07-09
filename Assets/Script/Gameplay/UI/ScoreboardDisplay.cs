@@ -48,6 +48,11 @@ public class ScoreboardDisplay : MonoBehaviour
 
     private int _lastHash = int.MinValue;
 
+    //리플레이 재생 모드: true면 라이브 모델 폴링(Update)을 멈추고 RenderReplay가 미는 값만 그린다.
+    //ㄴ 모델(SO)은 에셋이라 리플레이 씬의 전광판도 라이브 값을 물고 있어서, 안 끄면 서로 덮어쓴다.
+    private bool _replayDriven;
+    public void SetReplayDriven(bool on) => _replayDriven = on;
+
     private void OnEnable()
     {
         if (addBallCountEvent != null) addBallCountEvent.onEventRaised += RefreshAll;
@@ -68,6 +73,8 @@ public class ScoreboardDisplay : MonoBehaviour
 
     private void Update()
     {
+        if (_replayDriven) return; //리플레이가 직접 그리는 중 — 라이브 모델 폴링 중지
+
         // 리셋(예: 4볼/3스트라이크 후 0)이나 점수/이닝/주자 변화는 별도 이벤트가 없을 수 있어서 변화 감지로 보완
         int hash = ComputeStateHash();
         if (hash != _lastHash) RefreshAll();
@@ -97,6 +104,7 @@ public class ScoreboardDisplay : MonoBehaviour
 
     private void RefreshAll()
     {
+        if (_replayDriven) return; //리플레이 중엔 이벤트 경유 갱신도 차단(라이브 모델 값으로 덮어쓰기 방지)
         if (baseballModel == null || gamePlayModel == null) return;
 
         // B/S/O 카운트 점
@@ -172,6 +180,62 @@ public class ScoreboardDisplay : MonoBehaviour
             bool occupied = !gamePlayModel.IsEmptyRunner(b);
             img.color = occupied ? baseLitColor : baseEmptyColor;
         }
+    }
+
+    // ───────────────────────────────────────────────────────────────
+    // 리플레이 재생: 녹화된 StatusSnapshot 값으로 전광판을 그린다(모델 안 읽음).
+    // ReplayPlayer가 status 키프레임이 바뀔 때마다 호출 → 점수가 오르면 올라가고
+    // 파울/플라잉아웃 롤백이 녹화돼 있으면 그대로 내려가는 것까지 시간 흐름대로 재현된다.
+    // ───────────────────────────────────────────────────────────────
+    public void RenderReplay(GamePlayManager.StatusSnapshot s)
+    {
+        _replayDriven = true; //혹시 SetReplayDriven을 빼먹어도 라이브 폴링과 안 싸우게
+
+        // B/S/O 카운트 점
+        UpdateDots(ballDots, s.ballCount, ballLitColor);
+        UpdateDots(strikeDots, s.strikeCount, strikeLitColor);
+        UpdateDots(outDots, s.outCount, outLitColor);
+
+        // 팀 이름 + 공격중 표시 (라이브의 GetTeamIndex()와 동일하게 inning % 2)
+        int batting = s.inning % 2;
+        SetTeam(awayTeamText, 0, batting);
+        SetTeam(homeTeamText, 1, batting);
+
+        // 라인스코어 (이닝 배열이 없는 구버전 녹화도 총점은 표시되게 null 허용)
+        int curInning = s.inning / 2;
+        FillCellsFromArray(awayCells, s.awayInnings, s.awayScore, curInning);
+        FillCellsFromArray(homeCells, s.homeInnings, s.homeScore, curInning);
+
+        // 주자 다이아몬드: 스냅샷 주자들의 baseIndex(1~3)로 점유 판정
+        if (runnerBases != null)
+        {
+            for (int b = 1; b <= 3 && b - 1 < runnerBases.Length; b++)
+            {
+                Image img = runnerBases[b - 1];
+                if (img == null) continue;
+                bool occupied = false;
+                if (s.runners != null)
+                    for (int i = 0; i < s.runners.Length; i++)
+                        if (s.runners[i].baseIndex == b) { occupied = true; break; }
+                img.color = occupied ? baseLitColor : baseEmptyColor;
+            }
+        }
+    }
+
+    // 라인스코어를 배열 값으로 채움(리플레이용). FillCells와 같은 규칙: 진행된 이닝만 숫자, 미래 이닝은 빈칸.
+    private void FillCellsFromArray(TMP_Text[] cells, int[] innings, int total, int curInning)
+    {
+        if (cells == null) return;
+        for (int n = 0; n < DISPLAY_INNING && n < cells.Length; n++)
+        {
+            if (cells[n] == null) continue;
+            bool played = n <= curInning && innings != null && n < innings.Length;
+            cells[n].text = played ? innings[n].ToString() : "";
+        }
+        // 마지막 칸 = 총점(R)
+        int totalIdx = DISPLAY_INNING;
+        if (totalIdx < cells.Length && cells[totalIdx] != null)
+            cells[totalIdx].text = total.ToString();
     }
 
 #if UNITY_EDITOR

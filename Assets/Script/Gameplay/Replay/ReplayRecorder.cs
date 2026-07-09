@@ -11,6 +11,7 @@ public class ReplayRecorder : MonoBehaviour
     [SerializeField] private Bat bat;
     [SerializeField] private Transform leftHand;
     [SerializeField] private Transform rightHand;
+    [SerializeField] private Transform head; //HMD 카메라. 비우면 MyXROriginManager에서 자동 연결
 
     [Header("Recording")]
     [Tooltip("녹화를 담을 SO. 인스펙터에 .asset을 넣으면 거기에 기록(에디터에선 종료 후에도 유지). 비우면 런타임 임시 인스턴스.")]
@@ -46,6 +47,7 @@ public class ReplayRecorder : MonoBehaviour
         {
             if (rightHand == null) rightHand = _xrOrigin.RightHand;
             if (leftHand == null)  leftHand  = _xrOrigin.LeftHand;
+            if (head == null && _xrOrigin.HeadCamera != null) head = _xrOrigin.HeadCamera.transform;
         }
         return true;
     }
@@ -127,6 +129,7 @@ public class ReplayRecorder : MonoBehaviour
         if (bat != null)       f.bat       = new PoseKey(bat.transform);
         if (leftHand != null)  f.leftHand  = new PoseKey(leftHand);
         if (rightHand != null) f.rightHand = new PoseKey(rightHand);
+        if (head != null)      f.head      = new PoseKey(head);
 
         Transform[] runnerTs = manager.GetRunnerTransforms();
         f.runners = new PoseKey[runnerTs.Length];
@@ -150,7 +153,7 @@ public class ReplayRecorder : MonoBehaviour
         }
 
         LogThrottled($"[ReplayRecorder] 녹화중 frames={Data.frames.Count} status={Data.statusTrack.Count} " +
-                     $"| ball={(ball != null)} bat={(bat != null)} R손={(rightHand != null)} L손={(leftHand != null)} 주자={runnerTs.Length} 수비={defenderTs.Length}");
+                     $"| ball={(ball != null)} bat={(bat != null)} R손={(rightHand != null)} L손={(leftHand != null)} 머리={(head != null)} 주자={runnerTs.Length} 수비={defenderTs.Length}");
     }
 
     //debugLog가 켜져 있으면 1초에 한 번만 콘솔에 출력(매 프레임 스팸 방지).
@@ -186,6 +189,10 @@ public class ReplayRecorder : MonoBehaviour
         if (a.playerIsHome != b.playerIsHome) return true;
         if (a.beforeScore != b.beforeScore) return true;
         if (a.isFlyingOut != b.isFlyingOut) return true;
+        //전광판 상태 — 이닝별 득점 배열은 총점과 항상 함께 변하므로(AddScore/롤백 둘 다) 스칼라만 비교
+        if (a.ballCount != b.ballCount || a.strikeCount != b.strikeCount ||
+            a.outCount != b.outCount || a.inning != b.inning) return true;
+        if (a.awayScore != b.awayScore || a.homeScore != b.homeScore) return true;
         if (a.throwBallStop != b.throwBallStop) return true;
         if (a.runningIndex != b.runningIndex) return true;
         if (a.batterName != b.batterName) return true;
