@@ -221,8 +221,9 @@ public partial class GamePlayManager
 
         for (int i = 0; i < defenders.Length; i++)
         {
-            //투수모드인 경우
-            if (!gamePlayModel.PlayerIsBatterMode())
+            //투수모드의 투수는 패스. 혹시 투수가 못해서 공을 못 잡을 수 있으니
+            // 다른 수비수가 잡을 수 있도록 한다.
+            if (i == 0 && !gamePlayModel.PlayerIsBatterMode())
             {
                 continue;
             }
