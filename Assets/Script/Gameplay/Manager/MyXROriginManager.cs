@@ -29,6 +29,8 @@ public class MyXROriginManager : MonoBehaviour
     public Transform RightHand => rightHand;
     public Transform LeftHand => leftHand;
     public Camera HeadCamera => _origin != null ? _origin.Camera : null;
+    //타석 전환(GamePlayManager.BatterBox)이 왼손 조이스틱 값을 읽어갈 수 있게 노출한다.
+    public ActionBasedContinuousMoveProvider MoveProvider => moveProvider;
 
     [Header("Debug Swing")]
     [Tooltip("스윙 공전 축. 비워두면 XROrigin의 카메라를 사용한다.")]
@@ -212,9 +214,21 @@ public class MyXROriginManager : MonoBehaviour
 
     private void MoveOrigin(Vector3 vector3)
     {
+        MoveOriginCore(vector3, releaseHeld: true);
+    }
+
+    //좌/우 타석 전환처럼 배트를 쥔 채로 이동해야 할 때 쓰는 공개 버전(selection 해제 없음).
+    public void MoveOriginKeepingHeld(Vector3 vector3)
+    {
+        MoveOriginCore(vector3, releaseHeld: false);
+    }
+
+    private void MoveOriginCore(Vector3 vector3, bool releaseHeld)
+    {
         //텔레포트 전에 손에 쥔 것(배트 등) 놓기.
         //안 놓으면 배트를 잡은 채 이닝 교체/시점 전환되면 배트가 손에 select된 채로 플레이어를 따라 끌려온다.
-        ReleaseRightHandSelection();
+        if (releaseHeld)
+            ReleaseRightHandSelection();
 
         //move
         //MoveCameraToWorldLocation은 '카메라(머리)'를 그 좌표에 맞추는 함수라

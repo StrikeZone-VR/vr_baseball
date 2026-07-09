@@ -161,6 +161,7 @@ public partial class GamePlayManager : GameManager
 
         BeforePitcherGetBall(); //갑자기 공 받는데 트래킹 될 수도 있다.
         TrackingBall();
+        UpdateBatterBoxSwitch(); //타자 모드: 왼손 조이스틱 플릭으로 좌/우 타석 전환 (GamePlayManager.BatterBox.cs)
     }
 
     #region GAMEPLAY
@@ -606,22 +607,20 @@ public partial class GamePlayManager : GameManager
         yield return new WaitForSeconds(FADE_WAIT_TIME);
 
         //Vector3 movePosition = new Vector3(0, player_y, 0);
-        Vector3 movePosition = Vector3.zero;
-        for (int i = 0; i < rightBatterPositionTemp.Length; i++)
-        {
-            movePosition += rightBatterPositionTemp[i].position;
-        }
-        movePosition /= rightBatterPositionTemp.Length;
-        movePosition.y = player_y; 
-        Vector3 rotateVector = new Vector3(-1, 0, -1);
+        //좌/우 타석 선택(_isLeftBatterBox)을 반영해 위치·시선 계산 (GamePlayManager.BatterBox.cs)
+        //ㄴ 우타석이면 기존과 동일하게 rightBatterPositionTemp 평균, 좌타석이면 홈→2루 축 반사
+        GetBatterBoxPose(_isLeftBatterBox, out Vector3 movePosition, out Vector3 rotateVector);
         MovePlayer(movePosition);
         RotatePlayer(rotateVector);
 
         fadeEvent.FadeIn(FADE_WAIT_TIME); //이동하고 나서
         currentBatterComponent = myBody.GetMyBatterComponent();
-        
+
         //타석에는 움직이지 마라 todo
         //SetPlayerMoveMode(false);
+        SetPlayerMoveMode(false); //↑ todo 구현: 타석 도착 → 자유 이동 잠금. 타구가 인플레이 되면
+                                  //  OnIsInGameplayChanged → SetPlayerMoveMode(true)로 자동 해제된다.
+                                  //  타석 전환은 왼손 조이스틱 플릭(UpdateBatterBoxSwitch)으로만.
     }
     
     //override
