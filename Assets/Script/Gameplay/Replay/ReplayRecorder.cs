@@ -189,6 +189,7 @@ public class ReplayRecorder : MonoBehaviour
         if (a.playerIsHome != b.playerIsHome) return true;
         if (a.beforeScore != b.beforeScore) return true;
         if (a.isFlyingOut != b.isFlyingOut) return true;
+        if (a.canBackRunner != b.canBackRunner) return true; //썩은 플래그 추적용 — 서고 내리는 순간이 키프레임에 남아야 함
         //전광판 상태 — 이닝별 득점 배열은 총점과 항상 함께 변하므로(AddScore/롤백 둘 다) 스칼라만 비교
         if (a.ballCount != b.ballCount || a.strikeCount != b.strikeCount ||
             a.outCount != b.outCount || a.inning != b.inning) return true;
