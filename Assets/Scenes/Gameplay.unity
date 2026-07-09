@@ -3575,7 +3575,7 @@ MonoBehaviour:
   _myTeamColor: {r: 0, g: 0, b: 1, a: 1}
   _yourTeamColor: {r: 1, g: 0, b: 0, a: 1}
   debugShootVector: {x: -0.5, y: 0.5, z: -0.5}
-  debugShootPower: 15
+  debugShootPower: 35
   defenders:
   - {fileID: 698565506}
   - {fileID: 1175599070}

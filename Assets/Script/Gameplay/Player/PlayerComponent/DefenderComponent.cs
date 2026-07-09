@@ -20,15 +20,20 @@ public class DefenderComponent : PlayerComponent
     
     private const float BALL_DISTANCE = 0.5f;
     private const float ISINPOSITION_RANGE = 10.0f;
+    private const float PICKUP_RANGE = 0.8f; //잠든 공 폴백 픽업 거리(XZ). 머뭇거리면 1.0~1.2로
 
     protected virtual void Update()
     {
-        
+
         if (_myBall)
         {
             FrontBall();
         }
-        
+        else if (isTracking) //공 쫓아가는 수비수(한 명)만 검사 — 나머지는 비용 0
+        {
+            TryPickupGroundBall();
+        }
+
         //defend my position
         // if (!IsTracking)
         // {
@@ -39,6 +44,30 @@ public class DefenderComponent : PlayerComponent
         //     }
         //     //defend pos
         // }
+    }
+
+    //잠든 공 폴백 픽업.
+    //공이 멀리 굴러가 멈추면 rigidbody가 sleep 상태가 되는데, NavMeshAgent는 transform을
+    //직접 움직여서 잠든 공을 깨우지 못한다 → 수비수가 공을 밟고 서 있어도 OnCollisionEnter가
+    //영영 안 온다(ReplaySO_dontcatch: 외야수가 공과 같은 좌표에 서 있는데 픽업 실패).
+    //그래서 추적 중엔 거리로도 픽업을 판정한다. 공중 공(플라이)은 기존 충돌 판정 그대로.
+    private void TryPickupGroundBall()
+    {
+        Baseball ball = player.GetBaseBall();
+        if (ball == null) return;
+        if (ball.MyDefenderComponent != null) return; //이미 다른 수비수 소유
+        if (!ball.IsInGamePlay) return;               //인플레이 타구만 (데드볼 줍기 방지)
+        if (!ball.IsGroundBall) return;               //공중 공은 기존 충돌(캐치) 판정만 — 플라이아웃 유지
+
+        //XZ 평면 거리만 비교 — 공(y≈0.19)과 수비수 원점(발밑 y≈0.04)의 높이차로 판정이 늦어지지 않게
+        Vector3 toBall = ball.transform.position - transform.position;
+        toBall.y = 0f;
+        if (toBall.sqrMagnitude > PICKUP_RANGE * PICKUP_RANGE) return;
+
+        //여기부터는 기존 OnCollisionEnter 성공 경로와 동일하게 처리
+        SetMyBall(ball);
+        isTracking = false;
+        OutRunner(); //isGroundBall이 true라 플라이아웃은 발동 안 함(가드 통과용 동일 처리)
     }
 
     protected void LookAtPlayer(Vector3 targetPosition)
