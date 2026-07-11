@@ -50,6 +50,8 @@ public class ReplayPlayer : MonoBehaviour
     private float _playTime;
     private float _duration;
     private readonly StringBuilder _sb = new StringBuilder();
+    private readonly StringBuilder _sbRight = new StringBuilder(); //자동 생성 패널 오른단용
+    private TMP_Text _statusTextRight; //자동 생성 패널의 오른단(RUNNERS/DEFENDERS). 씬 연결 statusText면 null 유지
     private readonly List<Transform> _runnerPool = new List<Transform>();
     private readonly List<Transform> _defenderPool = new List<Transform>();
 
@@ -290,7 +292,19 @@ public class ReplayPlayer : MonoBehaviour
             if (ballGhost != null) s.ballPos = ballGhost.position;
             s.ballVel = SampleBallVelocity(t);
 
-            GamePlayManager.FormatStatus(_sb, s);
+            //자동 생성 패널은 2단: 왼단 BALL/GAME/FLAGS, 오른단 RUNNERS/DEFENDERS (한 판엔 다 안 들어가 잘림).
+            //씬에서 statusText를 직접 연결한 경우(오른단 없음)엔 기존처럼 한 판에 다 쓴다.
+            if (_statusTextRight != null)
+            {
+                GamePlayManager.FormatBallGameStatus(_sb, s);
+                _sbRight.Clear();
+                GamePlayManager.FormatFieldStatus(_sbRight, s);
+                _statusTextRight.text = _sbRight.ToString();
+            }
+            else
+            {
+                GamePlayManager.FormatStatus(_sb, s);
+            }
         }
 
         statusText.text = _sb.ToString();
@@ -443,6 +457,8 @@ public class ReplayPlayer : MonoBehaviour
     }
 
     //DebugStatusPanel과 같은 방식의 머리 고정 월드 캔버스를 만들어 statusText로 쓴다(왼쪽에 배치).
+    //내용(약 40줄)이 한 판(약 22줄)에 다 안 들어가 잘리므로 2단으로:
+    //왼단 BALL/GAME/FLAGS, 오른단 RUNNERS/DEFENDERS. 폰트 크기는 유지(VR 가독성).
     private void BuildStatusCanvas()
     {
         Camera cam = ResolveHeadCamera();
@@ -457,7 +473,7 @@ public class ReplayPlayer : MonoBehaviour
         canvas.renderMode = RenderMode.WorldSpace;
         canvas.worldCamera = cam;
         var rt = canvas.GetComponent<RectTransform>();
-        rt.sizeDelta = new Vector2(420f, 620f);
+        rt.sizeDelta = new Vector2(820f, 660f); //2단 폭(410x2) + 왼단 최대 줄 수 여유
         rt.localScale = Vector3.one * 0.0008f;
 
         var bgGo = new GameObject("BG");
@@ -468,7 +484,15 @@ public class ReplayPlayer : MonoBehaviour
         bgRt.anchorMin = Vector2.zero; bgRt.anchorMax = Vector2.one;
         bgRt.offsetMin = Vector2.zero; bgRt.offsetMax = Vector2.zero;
 
-        var textGo = new GameObject("Text");
+        statusText = BuildStatusColumn("TextLeft", new Vector2(0f, 0f), new Vector2(0.5f, 1f));
+        _statusTextRight = BuildStatusColumn("TextRight", new Vector2(0.5f, 0f), new Vector2(1f, 1f));
+        _builtObjects.Add(_statusCanvasGo);
+    }
+
+    //2단 패널의 한 단(TMP 텍스트)을 만든다. anchor로 왼/오 반쪽을 지정.
+    private TMP_Text BuildStatusColumn(string name, Vector2 anchorMin, Vector2 anchorMax)
+    {
+        var textGo = new GameObject(name);
         textGo.transform.SetParent(_statusCanvasGo.transform, false);
         var tmp = textGo.AddComponent<TextMeshProUGUI>();
         tmp.fontSize = 22f;
@@ -476,11 +500,9 @@ public class ReplayPlayer : MonoBehaviour
         tmp.alignment = TextAlignmentOptions.TopLeft;
         tmp.richText = true;
         var trt = tmp.rectTransform;
-        trt.anchorMin = Vector2.zero; trt.anchorMax = Vector2.one;
+        trt.anchorMin = anchorMin; trt.anchorMax = anchorMax;
         trt.offsetMin = new Vector2(14f, 14f); trt.offsetMax = new Vector2(-14f, -14f);
-
-        statusText = tmp;
-        _builtObjects.Add(_statusCanvasGo);
+        return tmp;
     }
 
     private Camera ResolveHeadCamera()

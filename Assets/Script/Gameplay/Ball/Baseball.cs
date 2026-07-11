@@ -201,14 +201,14 @@ public class Baseball : MonoBehaviour
         else if (bat && bat.IsSwing()) //스윙여부 == true => 스윙했는데 방망이를 건들지 않은 경우
         {
             playAudioClipEvent.RaiseEvent(3);
-            GameLog.BallLog("[Game] : 스트라이크1");
+            GameLog.BallLog("[Game] : 헛스윙 스트라이크");
             addStrikeEvent.RaiseEvent();
             //backToPitcherEvent.RaiseEvent();
         }
         else if(IsStrike) //스윙 안했는데 스트라이크존에 들어간 경우
         {
             playAudioClipEvent.RaiseEvent(3);
-            GameLog.BallLog("[Game] : 스트라이크2");
+            GameLog.BallLog("[Game] : 루킹 스트라이크");
             addStrikeEvent.RaiseEvent();
             //backToPitcherEvent.RaiseEvent();
         }

@@ -266,7 +266,16 @@ public partial class GamePlayManager
     }
 
     //상태 스냅샷을 디버그 패널 텍스트로 변환. richText(<b>) 사용. 라이브/리플레이 공용이라 static.
+    //리플레이 왼쪽 패널이 2단(BALL/GAME/FLAGS | RUNNERS/DEFENDERS)으로 나눠 쓸 수 있게 반쪽 둘로 분리.
+    //둘을 이어 부르면 기존 출력과 동일 → 라이브 씬 DebugStatusPanel은 그대로.
     public static void FormatStatus(StringBuilder sb, StatusSnapshot s)
+    {
+        FormatBallGameStatus(sb, s);
+        FormatFieldStatus(sb, s);
+    }
+
+    //앞 반쪽: BALL / GAME / FLAGS
+    public static void FormatBallGameStatus(StringBuilder sb, StatusSnapshot s)
     {
         // ===== Ball =====
         sb.AppendLine("<b>[ BALL ]</b>");
@@ -310,7 +319,11 @@ public partial class GamePlayManager
         sb.AppendLine($"isFlyingOut     : {s.isFlyingOut}");
         sb.AppendLine($"canBackRunner   : {s.canBackRunner}");
         sb.AppendLine($"IsThrowBallStop : {s.throwBallStop}");
+    }
 
+    //뒤 반쪽: RUNNERS / 타석 / DEFENDERS
+    public static void FormatFieldStatus(StringBuilder sb, StatusSnapshot s)
+    {
         // ===== Runners =====
         sb.AppendLine();
         int runnerCount = s.runners != null ? s.runners.Length : 0;

@@ -763,6 +763,12 @@ public partial class GamePlayManager : GameManager
         get { return gamePlayModel.OutCount; }
         set
         {
+            //판독용 카운트 전이 로그: 아래 BallCount/Strike 리셋보다 먼저 찍어 원인→결과 순서 유지
+            if (gamePlayModel.OutCount != value)
+            {
+                GameLog.BallLog($"[Count] O{gamePlayModel.OutCount}→{value}" +
+                                (value >= GamePlayModel.MAX_OUT_COUNT ? " 공수교대" : ""));
+            }
             BallCount = 0;
             Strike = 0;
 
@@ -799,6 +805,8 @@ public partial class GamePlayManager : GameManager
             //out
             if (value >= BaseballModel.MAX_STRIKE_COUNT)
             {
+                //판독용 카운트 전이 로그: 리플레이에서 "왜 아웃?"이 로그만으로 읽히게
+                GameLog.BallLog($"[Count] S{baseballModel.Strike}→{value} 삼진 아웃");
                 value = 0;
 
                 DeleteRunner();
@@ -817,6 +825,10 @@ public partial class GamePlayManager : GameManager
             else
             {
                 //아니 근데 여기서 달리기를 되돌리는건 좀
+                if (baseballModel.Strike != value) //리셋 스팸(0→0) 방지
+                {
+                    GameLog.BallLog($"[Count] S{baseballModel.Strike}→{value}");
+                }
             }
             //상태저장
             baseballModel.Strike = value;
@@ -835,12 +847,17 @@ public partial class GamePlayManager : GameManager
             //4볼
             if (value >= BaseballModel.MAX_BALL_COUNT)
             {
+                GameLog.BallLog($"[Count] B{baseballModel.BallCount}→{value} 볼넷");
                 value = 0;
 
                 //AddBaseStatus();
                 MoveOneBase();
                 gamePlayModel.SaveBeforeStatus();
                 if (walkEvent != null) walkEvent.RaiseEvent();
+            }
+            else if (baseballModel.BallCount != value) //리셋 스팸(0→0) 방지
+            {
+                GameLog.BallLog($"[Count] B{baseballModel.BallCount}→{value}");
             }
 
             baseballModel.BallCount = value;
