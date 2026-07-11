@@ -17,6 +17,9 @@ public class DefenderComponent : PlayerComponent
     [SerializeField] private bool isTracking = false;
     [SerializeField] protected bool isInPosition = false;
     [SerializeField] protected TrajectoryBaseBallData _trajectoryBaseBallData;
+
+    [Tooltip("이 속력(m/s)을 넘는 인플레이 뜬공은 잡지 못하고 튕겨나간다. 총알 라이너를 자동 캐치(플라잉아웃)하던 걸 방지. 타구 최대는 60m/s(216km/h). 0 이하면 속도 무시하고 항상 잡음.")]
+    [SerializeField] protected float maxCatchableSpeed = 35f; //≈126km/h
     
     private const float BALL_DISTANCE = 0.5f;
     private const float ISINPOSITION_RANGE = 10.0f;
@@ -79,15 +82,27 @@ public class DefenderComponent : PlayerComponent
     void OnCollisionEnter(Collision collision)
     {
         //Catch
-        if (collision.gameObject.CompareTag("Ball") 
+        if (collision.gameObject.CompareTag("Ball")
             && player.GetBallDefender() == null)
         {
             Baseball baseball = collision.gameObject.GetComponent<Baseball>();
+
+            //너무 빠른 타구는 못 잡고 튕겨나간다(현실이면 못 잡을 총알 라이너).
+            //ㄴ 인플레이 뜬공(플라잉아웃 후보)에만 적용. 투구 포구(!IsInGamePlay)/땅볼 처리는 그대로.
+            //ㄴ collision.relativeVelocity = 충돌 순간 상대 속도(≈타구 속력). 잡기 실패 시
+            //   return하면 콜라이더에 튕겨 기존 파울 경로(Foul존/땅 판정)로 흘러가 자연스럽게 처리됨.
+            if (maxCatchableSpeed > 0f
+                && baseball.IsInGamePlay && !baseball.IsGroundBall
+                && collision.relativeVelocity.magnitude > maxCatchableSpeed)
+            {
+                return;
+            }
+
             //owner ball
             SetMyBall(baseball);
             isTracking = false;
-            
-            OutRunner(); //flyout 
+
+            OutRunner(); //flyout
         }
     }
 
