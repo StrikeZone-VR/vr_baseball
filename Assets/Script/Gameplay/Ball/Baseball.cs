@@ -260,6 +260,7 @@ public class Baseball : MonoBehaviour
                     break;
                 case BallState.Thrown:
                     _physics.SetGravity(true);
+                    _physics.SetRigidbodyMode(true); //Grabbed가 꺼놓은 Discrete를 물려받아 고속 송구가 수비수/바닥을 뚫던 것 방지
                     break;
                 case BallState.Grabbed: //그 전에 무조건 MyDefender를 설정해야 한다
                     DefenderDis = 0;
@@ -472,7 +473,7 @@ public class Baseball : MonoBehaviour
         }
 
         // XR 이벤트 연결
-        
+
         grabInteractable.selectExited.AddListener(OnRelease);
         grabInteractable.selectEntered.AddListener(OnGrab); // **잡을 때 이벤트 추가!**
     }
