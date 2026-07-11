@@ -11,12 +11,19 @@ public class Player : MonoBehaviour
     
     [SerializeField] protected Baseball ball;
 
+    [Tooltip("이동속도(m/s). NavMeshAgent의 Speed를 이 값으로 덮어쓴다. 인스펙터에서 개별 조정.")]
+    [SerializeField] private float moveSpeed = 3.5f;
+
     protected NavMeshAgent nav;
 
     // Start is called before the first frame update
     protected virtual void Awake()
     {
         nav = GetComponent<NavMeshAgent>();
+        if (nav)
+        {
+            nav.speed = moveSpeed;
+        }
     }
     public void SetActiveRole(PlayerComponent newRole)
     {
