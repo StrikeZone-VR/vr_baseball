@@ -24,6 +24,9 @@ public class BatterComponent : PlayerComponent
 
     [SerializeField] protected bool isMove = false;
 
+    [Tooltip("추가 진루 판단 거리(m). 베이스 도착 시 '다음 베이스~공 현재 위치'가 이보다 멀면 계속 진루. AI 전용(플레이어는 항상 안착).")]
+    [SerializeField] private float extraBaseDistance = 25f;
+
     private void OnTriggerEnter(Collider collision)
     {
         if (collision.gameObject.CompareTag("Base"))
@@ -37,8 +40,20 @@ public class BatterComponent : PlayerComponent
             
             if(IsIntoBase(fieldBase))
             {
+                //홈 도착이면 BaseIndex setter가 이미 득점 처리(addScore → IntoHome → 제거)함. 이동 상태는 안 건드림
+                if (fieldBase.BaseIndex == 0)
+                {
+                    return;
+                }
+
                 //수비수와 공 거리가 10f 이하면 가지마라
-                if (player.GetBallDistance() <= 10.0f)
+                //ㄴ 이 조건만으로 정지를 걸던 게 '베이스 위 + 달리는 중' 림보(뜬금 포스아웃)의 원인.
+                //   도착하면 반드시 진루(true) 또는 안착(false) 중 하나를 대입한다 — 아무것도 안 하는 경로 금지.
+                if (TryExtraBase())
+                {
+                    IsMove = true; //IsIntoBase가 BaseIndex를 이미 +1 → setter의 MoveBase가 다음 베이스로 재출발
+                }
+                else
                 {
                     IsMove = false; //일단 움직임을 멈춰야 debug에 찍힘
                 }
@@ -91,6 +106,28 @@ public class BatterComponent : PlayerComponent
         }
         
         return false;
+    }
+
+    /// <summary>
+    /// 베이스 도착 시 추가 진루 판단. true = 다음 베이스로 재출발, false = 안착.
+    /// 플레이어(MyBatterComponent)는 본인이 직접 뛰므로 항상 false로 오버라이드.
+    /// </summary>
+    protected virtual bool TryExtraBase()
+    {
+        Baseball ball = player.GetBaseBall();
+        if (ball == null || !ball.IsInGamePlay) return false; //플레이가 끝난 공이면 정지
+        if (ball.MyDefenderComponent != null) return false;   //수비수가 이미 공을 잡았으면 정지
+        if (base_index >= bases.Length) return false;         //홈 득점 처리 후
+
+        //'다음 목표 베이스'와 공의 실시간 거리로 판단.
+        //DefenderDis(공 낙하지점~최근접 수비수)는 트래킹 시점 스냅샷이라 stale할 수 있어 쓰지 않는다.
+        float dis = Vector3.Distance(ball.transform.position, bases[base_index].position);
+        bool go = dis > extraBaseDistance;
+        if (go)
+        {
+            GameLog.RunnerLog($"[진루] {name} → base{base_index} 재출발 (공~베이스 {dis:F1}m)");
+        }
+        return go;
     }
 
     //타석 대기

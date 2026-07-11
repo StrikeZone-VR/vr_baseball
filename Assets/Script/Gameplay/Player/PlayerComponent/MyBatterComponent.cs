@@ -74,6 +74,10 @@ public class MyBatterComponent : BatterComponent
         if (isMove)
             moveBatterEvent.RaiseEvent(); 
     }
+    //플레이어 본인은 자동 진루하지 않는다 — XR로 직접 뛰는 것이 곧 진루 판단.
+    //ㄴ base가 true를 리턴하면 베이스 위에서 '달리는 중'으로 마킹돼 포스아웃 대상이 되므로 반드시 차단.
+    protected override bool TryExtraBase() => false;
+
     public bool IsOut
     {
         get => isOut;
