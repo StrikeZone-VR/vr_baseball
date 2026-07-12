@@ -149,63 +149,107 @@ public partial class GamePlayManager : GameManager
 
     #endregion
 
+    //todo 저거 프로퍼티에서 함수 꼬이는 것좀 어떻게 개선좀 시키자
+    //여기라인부터는 메인함수만 Start, Update, Dead함수 이후
+    //내가 이 Start, Update만 봐도 구조를 이해하게 코드를 짜야한다.
     protected override void Start()
     {
         base.Start();
         
         Init();
-        Inning = 0;
+        Inning = 0; //changed
     }
 
-    private void Update()
-    {
-#if UNITY_EDITOR
-        DebugInput();
-#endif
+    #region START
 
-        BeforePitcherGetBall(); //갑자기 공 받는데 트래킹 될 수도 있다.
-        TrackingBall();
-        UpdateBatterBoxSwitch(); //타자 모드: 왼손 조이스틱 플릭으로 좌/우 타석 전환 (GamePlayManager.BatterBox.cs)
-        UpdateRunnerRail();      //주자 달리기: XR 오리진을 베이스라인 복도에 구속 (GamePlayManager.BatterBox.cs)
-    }
-
-    #region GAMEPLAY
-    
-    //1Function
+    /// <summary>
+    /// 초기 설정
+    /// </summary>
     void Init()
     {
         gamePlayModel.Init();
         battingModel.Init();
         
         _aiPitcherComponent = GetDefenderComponent(0) as PitcherComponent;
+        
         SetScore(0, 0);
         SetScore(1, 0);
 
         SetMyBodyCamera();
 
         gamePlayModel.SetPanel(_baseStatusPanel);
-
+        
         //루수(1·2·3루)의 수비 앵커를 해당 베이스 정중앙에 고정한다(B-2).
         //ㄴ 송구는 항상 베이스 중심(bases[b])으로 오는데, 루수가 큰 베이스 트리거 가장자리에 서서
         //   못 받던 버그. 서는 곳=던지는 곳이 되도록 앵커를 베이스로 맞춘다. (판정은 BasemanComponent가 거리로)
         //ㄴ defenders[b+1] = base_index b의 루수 (ThrowToBase 매핑과 동일). 포수(index 4)는 공받기/수비 두 위치라 제외.
-        for (int b = 0; b <= 2; b++)
-        {
-            DefenderComponent dc = GetDefenderComponent(b + 1);
-            if (dc != null) dc.SetDefenseAnchor(bases[b]);
-        }
+        // for (int b = 0; b <= 2; b++)
+        // {
+        //     DefenderComponent dc = GetDefenderComponent(b + 1);
+        //     if (dc != null) dc.SetDefenseAnchor(bases[b]);
+        // }
+    }
+
+    #endregion
+    
+    private void Update()
+    {
+#if UNITY_EDITOR
+        DebugInput();
+#endif
+        
+        //수비
+        BeforePitcherGetBall(); 
+        TrackingBall(); 
+            
+        //(GamePlayManager.BatterBox.cs)
+        UpdateBatterBoxSwitch(); //타자 모드: 왼손 조이스틱 플릭으로 좌/우 타석 전환 
+        UpdateRunnerRail();      //주자 달리기: XR 오리진을 베이스라인 복도에 구속
     }
     
-    //2 function
+    //Dead 함수
+    //backToPitcherEvent => 이거 던질 곳 없거나 안타치는 순간 겹친다 그냥
+    /// <summary>
+    /// 애초에 공을 받는 함수. **직접 호출하지 마라** _ball.Dead함수로 호출해라
+    /// 메인함수
+    /// </summary>
+    protected override void PitcherGetBall()
+    {
+        canGetBall = false;
+        isFlyingOut = false;
+        GameLog.Defend($"[Game] : ResetBall");
+        
+        //포수 위치 변환
+        CatcherComponent catcherComponent = GetDefenderComponent(4) as CatcherComponent;
+        catcherComponent.DefendIndex = 0;
+
+        //디버그 베이스 세팅보여주기
+        DebugBaseStatus();
+        gamePlayModel.SaveBeforeStatus();
+        
+        if (gamePlayModel.PlayerIsBatterMode())
+            PitcherGetBall_BatterMode();
+        else
+            PitcherGetBall_PitcherMode();
+    }
+    
+    //플레이어 주자가 베이스를 밟은 경우 =>
+    //todo : 최대한 발생하는 함수를 여기에 적자. ex) 방망이로 히트한 경우, 
+    //근데 파울마냥 너무 짜잘한 거는 아래에 넣고
+    
+    
+    //아래 함수는 최대한 안 보는게 목적 느낌으로 => 이름만 봐도 구조를 알수있게
+    #region GAMEPLAY
+    
     /// <summary>
     /// 매 이닝 초기화될 때마다 실행되는 함수
     /// </summary>
     private void ChangedInning()
     {
-        OutCount = 0;
         //어차피 OutCount에 Ball, Strike가 초기화...?
-        //BallCount = 0;
-        //Strike = 0;
+        OutCount = 0;
+        //ㄴ BallCount = 0;
+        //ㄴ Strike = 0;
 
         ClearRunners();
 
@@ -214,14 +258,25 @@ public partial class GamePlayManager : GameManager
         //→ moveBatterEvent → OnCanBackRunner가 canBackRunner를 다시 true로 세운다.
         canBackRunner = false;
 
-        SetColor();
+        ChangedColor();
+        
+        //false
+        //change 
+        if (gamePlayModel.PlayerIsBatterMode())
+        {
+            StartBatterMode();
+        }
+        else
+        {
+            StartPitcherMode();
+        }
     }
 
     
     /// <summary>
     /// 이닝 바뀔때 색 설정
     /// </summary>
-    private void SetColor()
+    private void ChangedColor()
     {
         //색 설정
         Color defend_color;
@@ -244,69 +299,6 @@ public partial class GamePlayManager : GameManager
         }
     }
 
-    //backToPitcherEvent => 이거 던질 곳 없거나 안타치는 순간 겹친다 그냥
-    /// <summary>
-    /// 애초에 공을 받는 함수. **직접 호출하지 마라** _ball.Dead함수로 호출해라
-    /// 이거 제외한 함수에 투수에게 직접 공 주는 함수가 있다면 제거해라
-    /// </summary>
-    protected override void PitcherGetBall()
-    {
-        canGetBall = false;
-        isFlyingOut = false;
-        GameLog.Defend($"[Game] : ResetBall");
-        //포수 위치 변환
-        CatcherComponent catcherComponent = GetDefenderComponent(4) as CatcherComponent;
-        catcherComponent.DefendIndex = 0;
-
-        //디버그 베이스 세팅보여주기
-        DebugBaseStatus();
-        //점수/이닝점수/주자를 한 번에 스냅샷 (before_score만 따로 바꾸면 before_inning_score와 어긋나 이닝 득점이 0으로 롤백됨)
-        gamePlayModel.SaveBeforeStatus();
-        
-        //battingmode
-        if (gamePlayModel.PlayerIsBatterMode())
-        {
-            waitPitcherCoroutine = StartCoroutine(WaitingBackToPitcher());
-            //안에 canGetBall 변수가 있음. 
-        }
-        //pitchermode
-        else
-        {
-            //주자 생성
-            //기본 조건 : 투수모드
-            //그냥 주자가 안 움직이고 index가 1 이상이면 Next?
-            //또는 current가 Null이면
-            if (!currentBatterComponent 
-                || (!currentBatterComponent.IsMove && currentBatterComponent.BaseIndex >= 1))
-            {
-                currentBatterComponent = NextBatter();
-            }
-            pitchingController.PlayerPitcherResetBall();
-            canGetBall = true;
-        }
-    }
-    
-    //공 가져오는 함수
-    IEnumerator WaitingBackToPitcher()
-    {
-        //StartCoroutine(BackPitching());
-
-        //배터
-        currentBatterComponent = myBody.GetMyBatterComponent();
-        myBody.GetMyBatterComponent().IsOut = false;
-        
-        //yield return new WaitForSeconds(WAIT_TIME);
-        yield return null; //빠른 테스트를 위해
-        canGetBall = true;
-        
-        //만약 돌아올때 비활성화 된 경우
-        if (defenders[0].gameObject.activeSelf)
-        {
-            //canBackRunner
-            battingController.PitcherGetBall(); //투수가 공 받는 함수
-        }
-    }
-    
     void MovePlayer(Vector3 position)
     {
         moveOriginEvent.RaiseEvent(position);
@@ -619,6 +611,38 @@ public partial class GamePlayManager : GameManager
         StartCoroutine(TranslateBattingView());
         //TranslateBattingView();
     }
+    
+    //battingmode
+    private void PitcherGetBall_BatterMode()
+    {
+        waitPitcherCoroutine = StartCoroutine(WaitingBackToAIPitcher());
+        //안에 canGetBall 변수가 있음.
+    }
+
+    /// <summary>
+    /// BatterMode에서 공 가져오는 함수
+    /// </summary>
+    /// <returns></returns>
+    IEnumerator WaitingBackToAIPitcher()
+    {
+        //StartCoroutine(BackPitching());
+
+        //배터
+        currentBatterComponent = myBody.GetMyBatterComponent();
+        myBody.GetMyBatterComponent().IsOut = false;
+        
+        //yield return new WaitForSeconds(WAIT_TIME);
+        yield return null; //빠른 테스트를 위해
+        canGetBall = true;
+        
+        //만약 돌아올때 비활성화 된 경우
+        if (defenders[0].gameObject.activeSelf)
+        {
+            //canBackRunner
+            battingController.PitcherGetBall(); //투수가 공 받는 함수
+        }
+    }
+    
 
     //타석 이동
     IEnumerator TranslateBattingView()
@@ -647,6 +671,7 @@ public partial class GamePlayManager : GameManager
     protected override void SetVelocityToText(float velocity)
     {
         battingController.SetVelocityToText(velocity);
+        pitchingController.SetVelocityUI(velocity); 
     }
     
     protected override void WaitPitchingToText(int time)
@@ -708,6 +733,22 @@ public partial class GamePlayManager : GameManager
         StartCoroutine(TranslatePitchingView());
     }
     
+    //pitchermode
+    private void PitcherGetBall_PitcherMode()
+    {
+        //주자 생성
+        //기본 조건 : 투수모드
+        //그냥 주자가 안 움직이고 index가 1 이상이면 Next?
+        //또는 current가 Null이면
+        if (!currentBatterComponent
+            || (!currentBatterComponent.IsMove && currentBatterComponent.BaseIndex >= 1))
+        {
+            currentBatterComponent = NextBatter();
+        }
+        pitchingController.PlayerPitcherResetBall(); //AI투수에게 공 주는 함수
+        canGetBall = true;
+    }
+    
     IEnumerator TranslatePitchingView()
     {
         fadeEvent.FadeOut(FADE_WAIT_TIME);
@@ -733,27 +774,14 @@ public partial class GamePlayManager : GameManager
             int maxInning = gamePlayModel.MaxInning; 
             if (value >= maxInning)
             {
-                Debug.Log($"Game Over, back to the menu... (maxInning={maxInning})");
-
-                sceneEventSO.RaiseEvent(gameResultScene);
-
-                //정보 전달해야함
+                sceneEventSO.RaiseEvent(gameResultScene); //최종 결과씬 이동
+                //todo 정보 전달해야함 => 어 근데 이미 전달한 거 아닌가?
                 return;
             }
             
             gamePlayModel.Inning = value;
             ChangedInning();
 
-            //false
-            //change 
-            if (gamePlayModel.PlayerIsBatterMode())
-            {
-                StartBatterMode();
-            }
-            else
-            {
-                StartPitcherMode();
-            }
             gamePlayController.SetInningText(value);
         }
     }
@@ -763,25 +791,8 @@ public partial class GamePlayManager : GameManager
         get { return gamePlayModel.OutCount; }
         set
         {
-            //판독용 카운트 전이 로그: 아래 BallCount/Strike 리셋보다 먼저 찍어 원인→결과 순서 유지
-            if (gamePlayModel.OutCount != value)
-            {
-                GameLog.BallLog($"[Count] O{gamePlayModel.OutCount}→{value}" +
-                                (value >= GamePlayModel.MAX_OUT_COUNT ? " 공수교대" : ""));
-            }
-            BallCount = 0;
-            Strike = 0;
-
-            // //debug
-            // if (currentBatterComponent)
-            // {
-            //     Debug.Log("[Batter] 아웃 주자 있음 : " + currentBatterComponent.name);
-            // }
-            // else
-            // {
-            //     Debug.Log("[Batter] 주자 없음 : ");
-            // }
-            
+            GameLog.BallLog("아웃");
+            ResetCount();
             
             //change inning
             if (value >= GamePlayModel.MAX_OUT_COUNT)
@@ -797,6 +808,12 @@ public partial class GamePlayManager : GameManager
         }
     }
     
+    private void AddOut()
+    {
+        OutCount++;
+        if (addOutEvent != null) addOutEvent.RaiseEvent();
+    }
+    
     public override int Strike //나중에 battingSystem에서는 override
     {
         get { return baseballModel.Strike; }
@@ -806,7 +823,7 @@ public partial class GamePlayManager : GameManager
             if (value >= BaseballModel.MAX_STRIKE_COUNT)
             {
                 //판독용 카운트 전이 로그: 리플레이에서 "왜 아웃?"이 로그만으로 읽히게
-                GameLog.BallLog($"[Count] S{baseballModel.Strike}→{value} 삼진 아웃");
+                GameLog.BallLog("삼진 아웃");
                 value = 0;
 
                 DeleteRunner();
@@ -822,14 +839,8 @@ public partial class GamePlayManager : GameManager
                 //     StartCoroutine(TranslateBattingView());
                 // }
             }
-            else
-            {
-                //아니 근데 여기서 달리기를 되돌리는건 좀
-                if (baseballModel.Strike != value) //리셋 스팸(0→0) 방지
-                {
-                    GameLog.BallLog($"[Count] S{baseballModel.Strike}→{value}");
-                }
-            }
+            
+            GameLog.BallLog("스트라이크");
             //상태저장
             baseballModel.Strike = value;
             
@@ -847,7 +858,7 @@ public partial class GamePlayManager : GameManager
             //4볼
             if (value >= BaseballModel.MAX_BALL_COUNT)
             {
-                GameLog.BallLog($"[Count] B{baseballModel.BallCount}→{value} 볼넷");
+                GameLog.BallLog("볼넷");
                 value = 0;
 
                 //AddBaseStatus();
@@ -855,10 +866,8 @@ public partial class GamePlayManager : GameManager
                 gamePlayModel.SaveBeforeStatus();
                 if (walkEvent != null) walkEvent.RaiseEvent();
             }
-            else if (baseballModel.BallCount != value) //리셋 스팸(0→0) 방지
-            {
-                GameLog.BallLog($"[Count] B{baseballModel.BallCount}→{value}");
-            }
+            
+            GameLog.BallLog("볼.");
 
             baseballModel.BallCount = value;
             gamePlayController.SetUIGameStatusIndex(0, value);
@@ -866,11 +875,6 @@ public partial class GamePlayManager : GameManager
         }
     }
 
-    private void AddOut()
-    {
-        OutCount++;
-        if (addOutEvent != null) addOutEvent.RaiseEvent();
-    }
 
     /// <summary>
     /// 새 타석 카운트(볼/스트라이크) 초기화. NextBatter("다음 타자 등장")가 양 모드 공통으로 부른다.
@@ -892,7 +896,7 @@ public partial class GamePlayManager : GameManager
 
     private void IntoHome()
     {
-        GameLog.RunnerLog(" 점수점수");
+        GameLog.RunnerLog("밟아서 홈인, 점수 얻음");
         BatterComponent batterComponent = gamePlayModel.RemoveRunner(3);
         batterComponent.OutPlayer();
         AddScore(1);
