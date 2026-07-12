@@ -308,10 +308,6 @@ public partial class GamePlayManager
         sb.AppendLine("<b>[ GAME ]</b>");
         sb.AppendLine($" (PlayerIsHome={s.playerIsHome})");
         sb.AppendLine($"Before : score={s.beforeScore}"); //파울/플라잉아웃 롤백 디버그용
-        //전광판 요약: n회 초/말 | B/S/O | 원정:홈 점수
-        sb.AppendLine($"{s.inning / 2 + 1}회{(s.inning % 2 == 0 ? "초" : "말")} | " +
-                      $"B{s.ballCount} S{s.strikeCount} O{s.outCount} | " +
-                      $"원정 {s.awayScore} : {s.homeScore} 홈");
 
         // ===== Flags =====
         sb.AppendLine();

@@ -97,11 +97,11 @@ public partial class GamePlayManager
 
         //여기에 AddOut을 넣으면 이닝이 바뀌었는데 주자를 제거하고 있음
         isFlyingOut = true;
-        gamePlayModel.RemoveLastRunner(); //RemoveRunner로 하면 baseindex = 1이 두명이고 앞선 주자가 아웃이 된다.
+        //RemoveRunner로 하면 baseindex = 1이 두명이고 앞선 주자가 아웃이 된다.
+        //ㄴ RemoveLastRunner 대신 RetireBatter의 인스턴스 제거로 대체 — '마지막'이 아니어도 정확히 그 주자를 뺀다
 
         //Destroy();
-        currentBatterComponent.OutPlayer(true);
-        currentBatterComponent = null;
+        RetireBatter(currentBatterComponent); //리스트 제거 + current 해제 + 파괴. 이미 파괴된 참조여도 안전 → 아래 AddOut 유실 방지 (ReplaySO_1_6 84.46초)
 
         //되돌아가자
         ReverseMoveBase();
@@ -147,12 +147,10 @@ public partial class GamePlayManager
             return;
         }
         //주자 배열을 먼저 제거
-        gamePlayModel.RemoveRunner(base_index);
+        //Destroy();
+        RetireBatter(runner); //단일 창구: 리스트 제거 + current 참조 해제 + 파괴. 아웃 카운트보다 먼저 (3아웃 캐스케이드가 ClearRunners를 불러도 안전)
         AddOut(); //그리고 아웃 카운트
 
-
-        //Destroy();
-        runner.OutPlayer();
         DebugBaseStatus();
     }
 

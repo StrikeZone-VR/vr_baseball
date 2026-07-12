@@ -132,6 +132,13 @@ public class GamePlayModel : GameModel
         }
         runners.RemoveAt(runners.Count - 1);
     }
+
+    //인스턴스로 제거. 파괴된(fake-null) 참조여도 동작하고(List.Remove는 순수 C#), 없으면 no-op
+    //GamePlayManager.RetireBatter(파괴 단일 창구) 전용
+    public void RemoveRunnerInstance(BatterComponent batterComponent)
+    {
+        runners.Remove(batterComponent);
+    }
     
     public BatterComponent GetRunner(int base_index)
     {

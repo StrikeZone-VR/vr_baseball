@@ -235,9 +235,11 @@ public partial class GamePlayManager : GameManager
     
     //플레이어 주자가 베이스를 밟은 경우 =>
     //todo : 최대한 발생하는 함수를 여기에 적자. ex) 방망이로 히트한 경우, 
+    //! Defense의 OutRunner => 베이스 아웃 기준 (116줄)
+    
+    
     //근데 파울마냥 너무 짜잘한 거는 아래에 넣고
-    
-    
+
     //아래 함수는 최대한 안 보는게 목적 느낌으로 => 이름만 봐도 구조를 알수있게
     #region GAMEPLAY
     
@@ -339,7 +341,22 @@ public partial class GamePlayManager : GameManager
     #endregion
     
     #region BATTER
-    
+
+    /// <summary>
+    /// 주자/타자 파괴 단일 창구: 리스트 제거 → current 참조 해제 → 파괴.
+    /// Destroy는 프레임 끝까지 지연되므로 파괴 '전에' 참조를 정리해야
+    /// 같은 프레임의 PitcherGetBall_PitcherMode 타자 생성 판단이 안 깨진다. (ReplaySO_1_6 66.024초 타자 미생성 버그)
+    /// ㄴ currentBatterComponent == batter 비교가 "타석 출신 주자인가" 판단을 겸한다.
+    ///    전제: currentBatterComponent는 항상 가장 최근 타자를 가리킨다 (RunRunner가 리스트에 넣어도 유지).
+    /// </summary>
+    private void RetireBatter(BatterComponent batter, bool isMove = true)
+    {
+        gamePlayModel.RemoveRunnerInstance(batter); //파괴된 참조가 리스트에 남아있는 경우도 여기서 정리
+        if (currentBatterComponent == batter) currentBatterComponent = null;
+        if (!batter) return; //이미 파괴됐으면 참조 정리까지만 (이중 파괴 예외 → 후속 AddOut 유실 방지)
+        batter.OutPlayer(isMove);
+    }
+
     /// <summary> runner clear </summary>
     private void ClearRunners()
     {
@@ -738,12 +755,17 @@ public partial class GamePlayManager : GameManager
     {
         //주자 생성
         //기본 조건 : 투수모드
-        //그냥 주자가 안 움직이고 index가 1 이상이면 Next?
+        //그냥 주자가 안 움직이고 index가 1 이상이면 Next? => 타석 생성
         //또는 current가 Null이면
         if (!currentBatterComponent
-            || (!currentBatterComponent.IsMove && currentBatterComponent.BaseIndex >= 1))
+            || (!currentBatterComponent.IsMove && currentBatterComponent.BaseIndex >= 1)) 
+            //파울이나 스트라이크 방지용 (즉, 초반이나 아웃일때만 생성)
         {
             currentBatterComponent = NextBatter();
+        }
+        else
+        {
+            GameLog.RunnerLog("주자가 남아있! : " + currentBatterComponent);
         }
         pitchingController.PlayerPitcherResetBall(); //AI투수에게 공 주는 함수
         canGetBall = true;
@@ -898,7 +920,7 @@ public partial class GamePlayManager : GameManager
     {
         GameLog.RunnerLog("밟아서 홈인, 점수 얻음");
         BatterComponent batterComponent = gamePlayModel.RemoveRunner(3);
-        batterComponent.OutPlayer();
+        RetireBatter(batterComponent); //current 참조 해제 + null 가드 포함 (파괴 단일 창구)
         AddScore(1);
     }
 
