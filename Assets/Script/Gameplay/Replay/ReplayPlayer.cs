@@ -162,6 +162,17 @@ public class ReplayPlayer : MonoBehaviour
             if (Input.GetKey(KeyCode.RightArrow)) StepFrame(1);  //→ 한 프레임 앞으로
             if (Input.GetKey(KeyCode.LeftArrow))  StepFrame(-1); //← 한 프레임 뒤로
         }
+
+        //숫자키 0~9: 녹화 전체 길이의 해당 비율 지점으로 즉시 점프 (유튜브식 스크럽. 5 = 절반, 0 = 처음)
+        //ㄴ 게임플레이 씬의 DebugInput(Alpha1~3)과 겹치지 않게 재생 중에만 반응
+        if (IsPlaying)
+        {
+            for (int n = 0; n <= 9; n++)
+            {
+                if (Input.GetKeyDown(KeyCode.Alpha0 + n) || Input.GetKeyDown(KeyCode.Keypad0 + n))
+                    Seek(n * 0.1f);
+            }
+        }
 #endif
 
         if (!IsPlaying || _data == null) return;
