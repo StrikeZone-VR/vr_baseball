@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Unity.XR.CoreUtils;
 using UnityEngine;
@@ -632,6 +633,24 @@ public partial class GamePlayManager : GameManager
     //battingmode
     private void PitcherGetBall_BatterMode()
     {
+        //안전망: 플레이가 비정상 경로(땅볼 홈런존, 디버그 킬, 이벤트 미발송 홈런 등)로 죽어
+        //정상 복귀 루트(BeforePitcherGetBall의 canBackRunner 블록)를 우회하면 플레이어가 주자로 남는다.
+        //ㄴ 리셋 시점 불변식: "플레이어는 주자가 아니다". 깨져 있으면 가던 베이스 안착 인정 후 타석 복귀. (ReplaySO_1_6 145.8초 버그)
+        MyBatterComponent myBatter = myBody.GetMyBatterComponent();
+        if (gamePlayModel.GetRunners().Contains(myBatter))
+        {
+            myBatter.IsMove = false;
+            int settledBase = myBatter.BaseIndex + 1; //가던 베이스 안착 인정
+            myBatter.BaseIndex = settledBase; //4(홈인)면 setter가 득점 처리 (IntoHome→RetireBatter가 리스트 정리까지)
+            if (settledBase < 4)
+            {
+                TransformMyBodyToBatter(); //AI 대체 주자 생성 + 리스트 교체 + myBatter.BaseIndex=0
+                //대체 주자는 플레이어의 현재 위치(베이스라인 중간)가 아니라 안착한 베이스 위로
+                gamePlayModel.GetLastRunner().SetBaseIndexPosition(settledBase);
+            }
+            StartCoroutine(TranslateBattingView()); //타석 시점 복귀
+        }
+
         waitPitcherCoroutine = StartCoroutine(WaitingBackToAIPitcher());
         //안에 canGetBall 변수가 있음.
     }
@@ -753,6 +772,17 @@ public partial class GamePlayManager : GameManager
     //pitchermode
     private void PitcherGetBall_PitcherMode()
     {
+        //안전망: 비정상 경로(땅볼 홈런존, 디버그 킬 등)로 플레이가 죽어 달리던 AI 주자가 남아있으면 가던 베이스에 안착 인정
+        //ㄴ 복사본 순회: 홈 안착(득점)이면 BaseIndex setter→IntoHome→RetireBatter가 원본 리스트를 수정하기 때문
+        //ㄴ 아래 타자 생성 판단보다 먼저: 타자 주자가 여기서 안착(IsMove=false, BaseIndex>=1)되면 새 타자 생성 조건에 걸린다
+        foreach (BatterComponent r in new List<BatterComponent>(gamePlayModel.GetRunners()))
+        {
+            if (r && r.IsMove)
+            {
+                r.SetBaseIndexPosition(r.BaseIndex + 1);
+            }
+        }
+
         //주자 생성
         //기본 조건 : 투수모드
         //그냥 주자가 안 움직이고 index가 1 이상이면 Next? => 타석 생성
