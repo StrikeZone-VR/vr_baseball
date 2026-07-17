@@ -92,6 +92,13 @@ public class BasemanComponent : DefenderComponent
     public bool IsInBase
     {
         get => isInBase;
-        set => isInBase = value;
+        set
+        {
+            isInBase = value;
+            if (isInBase && _myBall)
+            {
+                OutRunner();
+            }
+        }
     }
 }
