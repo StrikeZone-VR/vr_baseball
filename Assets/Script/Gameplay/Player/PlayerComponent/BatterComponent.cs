@@ -122,7 +122,7 @@ public class BatterComponent : PlayerComponent
         //'다음 목표 베이스'와 공의 실시간 거리로 판단.
         //DefenderDis(공 낙하지점~최근접 수비수)는 트래킹 시점 스냅샷이라 stale할 수 있어 쓰지 않는다.
         float dis = Vector3.Distance(ball.transform.position, bases[base_index].position);
-        bool go = dis > extraBaseDistance;
+        bool go = dis > extraBaseDistance && ball.CurrentState != BallState.Thrown; //패스중이라면 가지마라
         if (go)
         {
             GameLog.RunnerLog($"[진루] {name} → base{base_index} 재출발 (공~베이스 {dis:F1}m)");

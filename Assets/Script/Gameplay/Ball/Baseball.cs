@@ -28,6 +28,9 @@ public class Baseball : MonoBehaviour
 
     [SerializeField] private BallState _currentState = default;
     private bool hasPassedStrikeZone = true;
+    //수비가 이번 플레이에서 한번이라도 송구(Thrown)했는지. 던진 뒤엔 이미 페어로 확정된 플레이라
+    //뒤늦게 굴러간 공이 Foul 콜라이더에 닿아도 무시해야 함 (안 그러면 이미 베이스 밟은 주자가 삭제됨)
+    private bool _wasThrownByDefenseThisPlay = false;
 
     public event Action<bool> OnIsInGameplayChanged;
     
@@ -162,6 +165,18 @@ public class Baseball : MonoBehaviour
         {
             return;
         }
+        //수비 송구 보호: MyPitcherComponent.ThrowBall(베이스 송구)의 SelectExit도 OnRelease를 타고
+        //0.05초 뒤 여기까지 오는데, 그 시점 상태는 Thrown. 송구를 투구(Pitched)로 덮어쓰지 않게 차단
+        if (_currentState == BallState.Thrown)
+        {
+            return;
+        }
+        //ForceGrab 보호: 잡은 공을 SelectExit→재SelectEnter 하는 경로(B버튼 등)에서도 OnRelease가 뜨는데,
+        //0.05초 뒤에도 여전히 손에 들려 있다면 투구가 아니므로 무시
+        if (grabInteractable != null && grabInteractable.isSelected)
+        {
+            return;
+        }
         CurrentState = BallState.Pitched;
         pitchEvent.RaiseEvent();
         
@@ -261,6 +276,7 @@ public class Baseball : MonoBehaviour
                 case BallState.Thrown:
                     _physics.SetGravity(true);
                     _physics.SetRigidbodyMode(true); //Grabbed가 꺼놓은 Discrete를 물려받아 고속 송구가 수비수/바닥을 뚫던 것 방지
+                    _wasThrownByDefenseThisPlay = true; //수비가 한번이라도 송구했으면 이미 페어로 확정된 플레이 → 뒤늦은 파울 콜라이더 접촉 무시용
                     break;
                 case BallState.Grabbed: //그 전에 무조건 MyDefender를 설정해야 한다
                     DefenderDis = 0;
@@ -276,6 +292,7 @@ public class Baseball : MonoBehaviour
                     HasPassedStrikeZone = false;
                     IsGroundBall = false;
                     IsInGamePlay = false;
+                    _wasThrownByDefenseThisPlay = false; //다음 플레이를 위해 리셋
                     _physics.SetRigidbodyMode(false);
 
                     backToPitcherEvent.RaiseEvent();
@@ -524,6 +541,13 @@ public class Baseball : MonoBehaviour
         //todo 페어볼은 아직 안함
         if (IsInGamePlay)
         {
+            //수비가 이미 한번이라도 송구했다면 => 이미 페어로 확정되어 진행중인 플레이.
+            //뒤늦게 공이 굴러가다 Foul 콜라이더에 닿아도 무시 (안 그러면 RollbackBeforeStatus가 이미 베이스 밟은 주자를 삭제함)
+            if (_wasThrownByDefenseThisPlay)
+            {
+                return;
+            }
+
             foulEvent.RaiseEvent();
 
             if (_currentState != BallState.Dead)

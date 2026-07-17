@@ -7,8 +7,10 @@ public class BasemanComponent : DefenderComponent
 {
     [SerializeField] private int base_index; //1 2 3 4
     [SerializeField] private IntEventSO outRunnerEvent;
-    [Tooltip("베이스 중심(defenderTransform)에서 이 거리 안이면 '제자리'로 본다. 큰 베이스 트리거 대신 씀(B-2).")]
-    [SerializeField] private float inPositionRange = 0.6f;
+    
+    //IsInPosition 인정 베이스 범위
+    private float inPositionRange = 0.1f;
+    private bool isInBase = false;
 
 
     private GamePlayModel _gamePlayModel;
@@ -31,6 +33,7 @@ public class BasemanComponent : DefenderComponent
     protected virtual void UpdateInPositionByDistance()
     {
         if (defenderTransform == null) return;
+        
         bool now = Vector3.Distance(transform.position, defenderTransform.position) <= inPositionRange;
         if (now != isInPosition) IsInPosition = now; //변할 때만 → IsInPosition setter의 OutRunner 중복 호출 방지
     }
@@ -39,19 +42,21 @@ public class BasemanComponent : DefenderComponent
     {
         //B-2: 루수 IsInPosition은 이제 거리 기반(UpdateInPositionByDistance)이라 트리거로 안 켠다.
         //ㄴ 메서드는 CatcherComponent(포수)가 override해서 자기 트리거 방식으로 쓰므로 남겨둔다.
-        // if (collision.gameObject.CompareTag("Base"))
-        // {
-        //     IsInPosition = true;
-        // }
+        if (collision.gameObject.CompareTag("Base"))
+        {
+            //IsInPosition = true; => 이거 아님
+            IsInBase = true;
+        }
     }
 
     protected virtual void OnTriggerExit(Collider collision)
     {
         //B-2: 위와 동일 — 루수는 거리 기반이라 트리거로 IsInPosition을 끄지 않는다.
-        // if (collision.gameObject.CompareTag("Base"))
-        // {
-        //     IsInPosition = false;
-        // }
+        if (collision.gameObject.CompareTag("Base"))
+        {
+            //IsInPosition = false;
+            IsInBase = false;
+        }
     }
 
     //공을 잡은 케이스에만 생김, 만약 공 잡고 베이스 가면 아웃이 안됨
@@ -82,5 +87,11 @@ public class BasemanComponent : DefenderComponent
             //어차피 플라잉 아웃은 그 전에 된 게 아닐까
             OutRunner();
         }
+    }
+
+    public bool IsInBase
+    {
+        get => isInBase;
+        set => isInBase = value;
     }
 }

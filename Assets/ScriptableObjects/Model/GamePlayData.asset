@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   inning: 1
   maxInning: 6
-  out_count: 0
+  out_count: 2
   playerIsHome: 1
   _teamStatus:
   - score: 0

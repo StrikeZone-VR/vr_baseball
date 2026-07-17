@@ -120,7 +120,7 @@ public partial class GamePlayManager
         //수비수 : 1 2 3 4
 
         // 기본적으로 공을 가지고있는 상태
-        if (!_ball.IsInGamePlay || !GetDefenderComponent(base_index + 1).IsInPosition)
+        if (!_ball.IsInGamePlay || !((GetDefenderComponent(base_index + 1) as BasemanComponent).IsInBase))
         {
             //Debug.LogError("1탄 : " + _ball.IsBatTouch + ", " + GetDefenderComponent(base_index + 1).IsInPosition);
             return;

@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit;
 
 //todo : 던지면 그 _rigidbody.interpolation 를 조절하는 거를 목표로
 public class BaseballPhysics : MonoBehaviour
@@ -34,12 +35,20 @@ public class BaseballPhysics : MonoBehaviour
     [Tooltip("플레이어 던지기 속력 배율 — UI 슬라이더로 런타임 조절")]
     [SerializeField, Range(0.5f, 5f)] private float speedWeight = 2.0f;
 
-    //이런 것도 있구나
-    //AnimationCurve ㅇㅇ =  AnimationCurve.Linear(0, 0, 1, 1);
-
     //커브나 다른 무언가 사용하기 위해 만든 변수
     private Vector3 velocityXY; // 실제 목표 위치
     private float beforeTime = 0f;
+
+    //피크 속도 추적: XRI ThrowOnDetach의 0.25초 가중평균은 릴리스가 팔로스루까지 늦으면
+    //와인드업/감속 구간에 피크가 묻혀 구속이 뭉개진다(리플레이 판독: 손 피크 21m/s → 릴리스 8.4m/s).
+    //잡고 있는 동안 손(attach) 속도를 링버퍼로 기록해두고 릴리스 시 평균 대신 최근 피크를 쓴다.
+    private const int THROW_SAMPLE_COUNT = 15; //물리 50Hz 기준 최근 0.3초
+    private const float MAX_SAMPLE_SPEED = 40f; //m/s. 사람 팔 속도 상한 — 텔레포트/트래킹 점프 샘플 컷용
+    private readonly Vector3[] _throwSamples = new Vector3[THROW_SAMPLE_COUNT];
+    private int _throwSampleHead; //링버퍼에서 다음에 쓸 위치
+    private int _throwSampleCount; //쌓인 유효 샘플 수 (최대 THROW_SAMPLE_COUNT)
+    private Vector3 _prevAttachPos;
+    private bool _wasHeld;
 
     #region Unity Lifecycle
 
@@ -63,6 +72,86 @@ public class BaseballPhysics : MonoBehaviour
     {
         CheckStrikeZoneTunneling();
         ApplyPitchMovement();
+        SampleThrowVelocity();
+    }
+
+    /// <summary>
+    /// 플레이어가 공을 잡고 있는 동안(XRI isSelected) 매 물리 틱 손(attach) 속도를 링버퍼에 기록.
+    /// 공 transform은 잡힌 동안 틱 2개당 1번만 갱신되는 앨리어싱이 있어(리플레이 판독으로 확인)
+    /// 공 위치가 아니라 잡고 있는 인터랙터의 attach 지점을 잰다.
+    /// 배트/AI 수비수는 공을 XRI로 잡지 않으므로 타격·수비 흐름에는 아무 영향 없음.
+    /// </summary>
+    private void SampleThrowVelocity()
+    {
+        XRGrabInteractable grab = _baseball ? _baseball.GrabInteractable : null;
+        bool isHeld = grab && grab.isSelected;
+
+        if (isHeld)
+        {
+            Vector3 attachPos = grab.interactorsSelecting[0].GetAttachTransform(grab).position;
+
+            if (!_wasHeld)
+            {
+                //방금 잡은 순간 → 이전 투구의 잔여 샘플 제거 (안 하면 예전 스윙 피크가 새 투구에 섞임)
+                _throwSampleHead = 0;
+                _throwSampleCount = 0;
+            }
+            else
+            {
+                Vector3 v = (attachPos - _prevAttachPos) / Time.fixedDeltaTime;
+                //텔레포트/트래킹 점프로 생긴 비정상 샘플은 버림 (배트 MAX_HIT_SPEED 상한과 같은 목적의 안전망)
+                if (v.sqrMagnitude <= MAX_SAMPLE_SPEED * MAX_SAMPLE_SPEED)
+                {
+                    _throwSamples[_throwSampleHead] = v;
+                    _throwSampleHead = (_throwSampleHead + 1) % THROW_SAMPLE_COUNT;
+                    if (_throwSampleCount < THROW_SAMPLE_COUNT)
+                    {
+                        _throwSampleCount++;
+                    }
+                }
+            }
+            _prevAttachPos = attachPos;
+        }
+
+        _wasHeld = isHeld;
+    }
+
+    /// <summary>
+    /// 릴리스 시 호출: 버퍼에서 최고 속력 샘플(피크)을 찾아 앞뒤 이웃과 평균(= 피크 중심 0.06초 스무딩).
+    /// max 하나만 쓰면 1프레임 트래킹 스파이크가 그대로 구속이 되므로 이웃 평균으로 완화한다.
+    /// 샘플이 없으면 기존 방식(XRI가 넣어준 _rigidbody.velocity)으로 폴백.
+    /// </summary>
+    public Vector3 GetPeakThrowVelocity()
+    {
+        if (_throwSampleCount == 0)
+        {
+            return _rigidbody.velocity;
+        }
+
+        //링버퍼를 시간순으로 훑어 피크 위치 탐색
+        int oldest = (_throwSampleHead - _throwSampleCount + THROW_SAMPLE_COUNT) % THROW_SAMPLE_COUNT;
+        int peakK = 0;
+        float peakSq = -1f;
+        for (int k = 0; k < _throwSampleCount; k++)
+        {
+            float sq = _throwSamples[(oldest + k) % THROW_SAMPLE_COUNT].sqrMagnitude;
+            if (sq > peakSq)
+            {
+                peakSq = sq;
+                peakK = k;
+            }
+        }
+
+        // 가장 높은 값과 양옆 구하기
+        //피크 ± 1 이웃 평균 (버퍼 양끝이면 있는 쪽만)
+        Vector3 sum = Vector3.zero;
+        int n = 0;
+        for (int k = Mathf.Max(0, peakK - 1); k <= Mathf.Min(_throwSampleCount - 1, peakK + 1); k++)
+        {
+            sum += _throwSamples[(oldest + k) % THROW_SAMPLE_COUNT];
+            n++;
+        }
+        return sum / n;
     }
 
     #endregion
@@ -223,7 +312,8 @@ public class BaseballPhysics : MonoBehaviour
 
     public void ThrowPlayerBall(Vector3 targetPos, PitchType pitchType)
     {
-        SetVelocity(CalculateAssistedVelocity(_rigidbody.velocity, targetPos, pitchType));
+        //XRI 스무딩 평균(_rigidbody.velocity) 대신 잡는 동안 기록해둔 피크 속도 사용
+        SetVelocity(CalculateAssistedVelocity(GetPeakThrowVelocity(), targetPos, pitchType));
     }
 
     private void ApplyPitchMovement() //FixedUpdated
