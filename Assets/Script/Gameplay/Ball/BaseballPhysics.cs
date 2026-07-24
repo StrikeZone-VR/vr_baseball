@@ -27,6 +27,7 @@ public class BaseballPhysics : MonoBehaviour
     private float flightTime = 0;
     private float ball_accuracy_weight = 0.0f; //0~1, 1일수록 보정값이 매우 높음
     private bool _canMeasureVelocity = true; //velocity 측정
+    private bool _wasPredicting = false; //직전 프레임에 궤적 예측을 돌렸는지 (비행 종료 시 1회만 정리하려고)
 
     //거리/시간으로 속력 측정용: Pitched 상태 진입 시점에 기록
     private float _pitchStartTime = 0f;
@@ -64,6 +65,38 @@ public class BaseballPhysics : MonoBehaviour
 
     private void Update()
     {
+        UpdateTrajectoryPrediction();
+    }
+
+    /// <summary>
+    /// 궤적 예측은 공이 실제로 날아가는 상태에서만 돌린다.
+    /// PredictTrajectory는 스텝마다 Physics.Linecast를 쏘는 160스텝 루프라, 매 프레임 무조건 호출하면
+    /// 공이 손에 들려 있거나 Dead로 멈춰 있는 대기 시간에도 프레임당 최대 160회 Linecast를 태운다.
+    /// ㄴ 소비처: 수비 AI(FindClosestDefenderIndex / DefenderComponent.IsTracking)는 IsInGamePlay 중에만
+    ///    착지점을 읽고, 그 시점 공 상태는 FreeBall(타구·굴러가는 중) 또는 Thrown(베이스 송구)이다.
+    ///    Pitched는 스트라이크존 통과점(디버그 기즈모)용으로 유지.
+    ///    Idle/Grabbed/Dead에서 예측 결과를 읽는 코드는 없다.
+    /// </summary>
+    private void UpdateTrajectoryPrediction()
+    {
+        bool isFlying = _baseball
+                        && (_baseball.CurrentState == BallState.Pitched
+                            || _baseball.CurrentState == BallState.Thrown
+                            || _baseball.CurrentState == BallState.FreeBall);
+
+        if (!isFlying)
+        {
+            //비행이 끝난 뒤 마지막 궤적이 기즈모에 계속 남지 않도록 한 번만 비운다.
+            //ㄴ Init()은 landingPoint를 지우지 않으므로 수비 AI가 읽는 착지점은 그대로 보존된다.
+            if (_wasPredicting)
+            {
+                _wasPredicting = false;
+                if (_trajectoryBaseBallData) _trajectoryBaseBallData.Init();
+            }
+            return;
+        }
+
+        _wasPredicting = true;
         PredictTrajectory(GetPosition());
     }
 
