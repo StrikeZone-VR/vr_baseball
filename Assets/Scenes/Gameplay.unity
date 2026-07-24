@@ -517,7 +517,6 @@ MonoBehaviour:
   maxCatchableSpeed: 35
   base_index: 2
   outRunnerEvent: {fileID: 11400000, guid: a7e00550afa182d4594b424474b58e00, type: 2}
-  inPositionRange: 0.6
 --- !u!1 &109569373 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2209532862828005672, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
@@ -2791,7 +2790,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8547017398472936520, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -47.7
+      value: -77
       objectReference: {fileID: 0}
     - target: {fileID: 8547017398472936520, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
       propertyPath: m_LocalPosition.y
@@ -2799,7 +2798,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8547017398472936520, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -18.9
+      value: -22
       objectReference: {fileID: 0}
     - target: {fileID: 8547017398472936520, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
       propertyPath: m_LocalRotation.w
@@ -3424,7 +3423,6 @@ MonoBehaviour:
   maxCatchableSpeed: 35
   base_index: 1
   outRunnerEvent: {fileID: 11400000, guid: a7e00550afa182d4594b424474b58e00, type: 2}
-  inPositionRange: 0.6
 --- !u!1 &1175599068 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2209532862828005672, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
@@ -3870,7 +3868,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8547017398472936520, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -19.2
+      value: -21
       objectReference: {fileID: 0}
     - target: {fileID: 8547017398472936520, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
       propertyPath: m_LocalPosition.y
@@ -3878,7 +3876,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8547017398472936520, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -55.7
+      value: -73
       objectReference: {fileID: 0}
     - target: {fileID: 8547017398472936520, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
       propertyPath: m_LocalRotation.w
@@ -4781,7 +4779,6 @@ MonoBehaviour:
   maxCatchableSpeed: 35
   base_index: 3
   outRunnerEvent: {fileID: 11400000, guid: a7e00550afa182d4594b424474b58e00, type: 2}
-  inPositionRange: 0.6
 --- !u!1 &1531484985 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2209532862828005672, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
@@ -7480,7 +7477,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8547017398472936520, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -38.8
+      value: -68
       objectReference: {fileID: 0}
     - target: {fileID: 8547017398472936520, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
       propertyPath: m_LocalPosition.y
@@ -7488,7 +7485,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8547017398472936520, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -37.1
+      value: -66
       objectReference: {fileID: 0}
     - target: {fileID: 8547017398472936520, guid: c8d7949722d2525459cfef0304b099a3, type: 3}
       propertyPath: m_LocalRotation.w
