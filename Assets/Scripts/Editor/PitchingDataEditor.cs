@@ -384,28 +384,86 @@ public class PitchingDataEditor : Editor
 
     private void DrawButtons(SerializedProperty zone)
     {
-        autoNormalize = EditorGUILayout.ToggleLeft("값을 고칠 때마다 자동으로 100% 맞추기", autoNormalize);
+        // ── 확률 분배 ─────────────────────────────
+        EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+        SectionHeader("확률 분배");
+
+        autoNormalize = EditorGUILayout.ToggleLeft(
+            new GUIContent("값을 고칠 때마다 자동으로 100% 맞추기",
+                "끄면 아래 '지금 재분배'를 눌렀을 때만 합계를 맞춥니다."),
+            autoNormalize);
+
+        EditorGUILayout.Space(3);
+        EditorGUILayout.BeginHorizontal();
+        if (ActionButton("지금 재분배",
+                "고정 안 된 칸들의 비율을 유지한 채 합계를 100%로 맞춥니다.",
+                "Refresh", NEUTRAL_TINT))
+        {
+            Normalize(zone, -1);
+        }
+        if (ActionButton("균등 분배",
+                "고정 안 된 칸을 전부 같은 값으로 덮어씁니다. 처음 세팅할 때 쓰세요.",
+                null, NEUTRAL_TINT))
+        {
+            DistributeEvenly(zone);
+        }
+        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.EndVertical();
+
+        EditorGUILayout.Space(4);
+
+        // ── 칸 고정 ───────────────────────────────
+        EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+        SectionHeader($"칸 고정      {LockedCount()} / {ZONE_TOTAL} 칸");
 
         EditorGUILayout.BeginHorizontal();
-        if (GUILayout.Button("지금 재분배")) Normalize(zone, -1);
-        if (GUILayout.Button("균등 분배")) DistributeEvenly(zone);
+        if (ActionButton("전체 고정",
+                "25칸을 모두 고정합니다. 이 상태에선 재분배가 아무것도 못 바꿉니다.",
+                null, LOCK_TINT))
+        {
+            SetAllLocked(true);
+        }
+        if (ActionButton("전체 해제",
+                "모든 고정을 풉니다.",
+                null, NEUTRAL_TINT))
+        {
+            SetAllLocked(false);
+        }
         EditorGUILayout.EndHorizontal();
-
-        EditorGUILayout.BeginHorizontal();
-        if (GUILayout.Button("전체 고정")) SetAllLocked(true);
-        if (GUILayout.Button("전체 고정 해제")) SetAllLocked(false);
-        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.EndVertical();
     }
 
     private void DrawArrayButtons()
     {
+        EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+        SectionHeader($"구종 관리      {_pitchingData.arraySize}개 등록됨");
+
         EditorGUILayout.BeginHorizontal();
-        if (GUILayout.Button("구종 추가")) AddPitchingData();
+
+        if (ActionButton("구종 추가",
+                "새 구종 데이터를 만들고 그 탭으로 이동합니다.",
+                "Toolbar Plus", ADD_TINT))
+        {
+            AddPitchingData();
+        }
 
         GUI.enabled = _pitchingData.arraySize > 0;
-        if (GUILayout.Button("현재 구종 삭제")) RemovePitchingData();
+        if (ActionButton("현재 구종 삭제",
+                "지금 선택된 탭의 구종 데이터를 지웁니다.",
+                "TreeEditor.Trash", DELETE_TINT))
+        {
+            if (EditorUtility.DisplayDialog(
+                    "구종 삭제",
+                    $"'{CurrentTabLabel()}' 구종 데이터를 삭제할까요?\n\n되돌리려면 Ctrl+Z 를 누르세요.",
+                    "삭제", "취소"))
+            {
+                RemovePitchingData();
+            }
+        }
         GUI.enabled = true;
+
         EditorGUILayout.EndHorizontal();
+        EditorGUILayout.EndVertical();
     }
 
     private void AddPitchingData()
@@ -420,6 +478,88 @@ public class PitchingDataEditor : Editor
         _pitchingData.DeleteArrayElementAtIndex(_tab);
         _tab = Mathf.Clamp(_tab, 0, Mathf.Max(0, _pitchingData.arraySize - 1));
         _cachedLockTab = -1;
+    }
+
+    #endregion
+
+    #region UI STYLE HELPER
+
+    private const float BTN_H = 24f;
+
+    private static readonly Color NEUTRAL_TINT = Color.white;
+    private static readonly Color ADD_TINT = new Color(0.62f, 0.95f, 0.68f);
+    private static readonly Color DELETE_TINT = new Color(1f, 0.58f, 0.52f);
+    private static readonly Color LOCK_TINT = new Color(1f, 0.86f, 0.45f);
+
+    /// <summary> 박스 안 소제목 + 밑줄 </summary>
+    private static void SectionHeader(string title)
+    {
+        EditorGUILayout.LabelField(title, EditorStyles.miniBoldLabel);
+
+        Rect line = GUILayoutUtility.GetRect(1f, 1f, GUILayout.ExpandWidth(true));
+        EditorGUI.DrawRect(line, EditorGUIUtility.isProSkin
+            ? new Color(1f, 1f, 1f, 0.12f)
+            : new Color(0f, 0f, 0f, 0.15f));
+
+        EditorGUILayout.Space(3);
+    }
+
+    /// <summary>
+    /// 아이콘 + 툴팁 + 색조가 붙은 버튼.
+    /// 유니티 버전마다 내장 아이콘 이름이 달라서, 못 찾으면 조용히 글자만 있는 버튼이 된다.
+    /// </summary>
+    private static bool ActionButton(string text, string tooltip, string iconName, Color tint)
+    {
+        GUIContent content = new GUIContent(text, tooltip);
+
+        if (!string.IsNullOrEmpty(iconName))
+        {
+            try
+            {
+                GUIContent icon = EditorGUIUtility.IconContent(iconName);
+                if (icon != null && icon.image != null)
+                {
+                    content = new GUIContent(" " + text, icon.image, tooltip);
+                }
+            }
+            catch
+            {
+                //무시하고 글자 버튼으로 폴백
+            }
+        }
+
+        Color prev = GUI.backgroundColor;
+        GUI.backgroundColor = tint;
+        bool clicked = GUILayout.Button(content, GUILayout.Height(BTN_H));
+        GUI.backgroundColor = prev;
+
+        return clicked;
+    }
+
+    private int LockedCount()
+    {
+        int n = 0;
+        for (int i = 0; i < ZONE_TOTAL; i++)
+        {
+            if (IsLocked(i)) n++;
+        }
+        return n;
+    }
+
+    private string CurrentTabLabel()
+    {
+        if (_pitchingData == null || _pitchingData.arraySize == 0) return "-";
+
+        SerializedProperty pt = _pitchingData
+            .GetArrayElementAtIndex(Mathf.Clamp(_tab, 0, _pitchingData.arraySize - 1))
+            .FindPropertyRelative("pitchType");
+
+        if (pt != null && pt.enumDisplayNames.Length > 0)
+        {
+            int e = Mathf.Clamp(pt.enumValueIndex, 0, pt.enumDisplayNames.Length - 1);
+            return pt.enumDisplayNames[e];
+        }
+        return "#" + _tab;
     }
 
     #endregion
