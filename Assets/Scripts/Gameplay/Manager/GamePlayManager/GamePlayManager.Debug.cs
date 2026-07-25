@@ -190,7 +190,7 @@ public partial class GamePlayManager
 
     //private 필드들(_ball, gamePlayModel, isFlyingOut, _aiPitcherComponent)에 접근해야 해서
     //매니저 안에서 현재 상태를 스냅샷 구조체로 채운다. (라이브 패널/리플레이 레코더 공용)
-    public StatusSnapshot CaptureStatus()
+    public override StatusSnapshot CaptureStatus()
     {
         StatusSnapshot s = new StatusSnapshot();
 

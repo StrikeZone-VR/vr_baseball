@@ -3,10 +3,14 @@ using UnityEngine;
 //게임플레이 씬 시작과 동시에 녹화를 시작한다.
 //- transform(ball/bat/양손/주자)은 매 FixedUpdate마다 저장(연속 데이터).
 //- 상태(StatusSnapshot)는 "변할 때만" 저장(희소). 거의 안 바뀌므로 용량을 크게 아낀다.
+//
+//매니저 타입은 GameManager 기준이다(GamePlayManager / BattingManager / PitchingManager 공통 부모).
+//ㄴ 예전엔 GamePlayManager를 직접 찾아서 단독 씬에선 한 프레임도 녹화되지 않았다.
+//   단독 씬은 주자/수비가 없어 그 트랙만 비고, 공·배트·양손·머리·볼카운트는 그대로 기록된다.
 public class ReplayRecorder : MonoBehaviour
 {
     [Header("Refs (비워두면 런타임에 자동 연결)")]
-    [SerializeField] private GamePlayManager manager;
+    [SerializeField] private GameManager manager;
     [SerializeField] private Baseball ball;
     [SerializeField] private Bat bat;
     [SerializeField] private Transform leftHand;
@@ -31,12 +35,12 @@ public class ReplayRecorder : MonoBehaviour
     private float _startTime;
 
     //인스펙터에 비어 있는 참조를 런타임에 찾아 채운다.
-    //- manager/ball/bat : GamePlay 씬 (manager가 ball/bat을 들고 있음)
+    //- manager/ball/bat : 씬에 있는 GameManager (manager가 ball/bat을 들고 있음)
     //- 양손/머리 : PersistentManager 씬의 MyXROriginManager (다른 씬이라 드래그 연결 불가)
-    //매니저를 못 찾으면 false(아직 게임플레이 씬 준비 전).
+    //매니저를 못 찾으면 false(아직 씬 준비 전).
     public bool EnsureResolved()
     {
-        if (manager == null) manager = FindAnyObjectByType<GamePlayManager>();
+        if (manager == null) manager = FindAnyObjectByType<GameManager>();
         if (manager == null) return false;
 
         if (ball == null) ball = manager.Ball;
@@ -116,7 +120,7 @@ public class ReplayRecorder : MonoBehaviour
             return;
         if (!EnsureResolved()) //매니저가 아직 없으면(씬 준비 전) 이번 프레임은 건너뜀
         {
-            LogThrottled("[ReplayRecorder] 대기중 — GamePlayManager 못 찾음(아직 게임플레이 씬 아님?)");
+            LogThrottled("[ReplayRecorder] 대기중 — GameManager 못 찾음(아직 씬 준비 전?)");
             return;
         }
 
