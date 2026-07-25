@@ -15,8 +15,14 @@ public class PitchSelectionUI : MonoBehaviour
     public Canvas pitchSelectionCanvas;
     public Button[] pitchButtons = new Button[4];
     public Image[] pitchButtonImages; 
-    [SerializeField] private Color defaultPitchColor; 
-    [SerializeField] private Color selectedPitchColor; 
+    [SerializeField] private Color defaultPitchColor = new Color(1f, 1f, 1f, 0.051f);
+    [SerializeField] private Color selectedPitchColor = new Color(0.239f, 0.855f, 0.851f, 0.149f);
+
+    [SerializeField] private Color defaultTextColor = new Color(0.9176f, 0.9098f, 0.9686f, 1f);
+    [SerializeField] private Color selectedTextColor = new Color(0.2392f, 0.8588f, 0.851f, 1f);
+
+    //버튼별 라벨 캐시. 인스펙터 배열을 또 늘리면 채우는 걸 잊기 쉬워서 SetupUI에서 자식으로부터 1회 수집한다.
+    private TextMeshProUGUI[] pitchButtonTexts;
 
     [Header("실시간 투구 결과 패널")]
     public TextMeshProUGUI strikeCountText;      // "스트라이크: 2"
@@ -59,6 +65,8 @@ public class PitchSelectionUI : MonoBehaviour
 
     private void SetupUI()
     {
+        pitchButtonTexts = new TextMeshProUGUI[pitchButtons.Length];
+
         // 버튼 인덱스 → PitchType 매핑 (enum 선언 순서: FastBall=0, Curve=1, Slider=2, ForkBall=3)
         for (int i = 0; i < pitchButtons.Length; i++)
         {
@@ -72,7 +80,10 @@ public class PitchSelectionUI : MonoBehaviour
                 // 버튼 색상 설정
                 if (pitchButtonImages[i] != null)
                     pitchButtonImages[i].color = defaultPitchColor;
-                
+
+                // 버튼 라벨 캐시 (자식의 Text (TMP)). 비활성 자식도 잡히도록 includeInactive
+                pitchButtonTexts[i] = pitchButtons[i].GetComponentInChildren<TextMeshProUGUI>(true);
+
                 // XR Interactable 추가 (VR 버튼 상호작용을 위해)
                 XRSimpleInteractable xrInteractable = pitchButtons[i].GetComponent<XRSimpleInteractable>();
                 if (xrInteractable == null)
@@ -251,9 +262,15 @@ public class PitchSelectionUI : MonoBehaviour
 
                 // 버튼 크기 조정
                 pitchButtons[i].transform.localScale = isSelected ? Vector3.one * 1.1f : Vector3.one;
-                
+
                 //색 변경
-                pitchButtonImages[i].color = isSelected ? selectedPitchColor : defaultPitchColor; 
+                //ㄴ 인스펙터 배열 길이가 어긋나도 예외로 루프가 끊기지 않도록 범위/널 확인
+                if (pitchButtonImages != null && i < pitchButtonImages.Length && pitchButtonImages[i] != null)
+                    pitchButtonImages[i].color = isSelected ? selectedPitchColor : defaultPitchColor;
+
+                //라벨 색 변경. 배경은 알파가 낮아 틴트가 옅으니 텍스트까지 같이 전환해야 선택이 보인다
+                if (pitchButtonTexts != null && i < pitchButtonTexts.Length && pitchButtonTexts[i] != null)
+                    pitchButtonTexts[i].color = isSelected ? selectedTextColor : defaultTextColor;
             }
         }
     }
