@@ -14,8 +14,15 @@ public class PitcherComponent : DefenderComponent
     //_myBall
 
     //이 투수가 어떤 구종을 어디로 얼마나 빠르게 던지는지에 대한 데이터.
-    //비워두면 예전처럼 정 가운데(zone 4)로 velocityXZ 속력으로만 던진다.
-    [SerializeField] private PitcherSO pitcherSO;
+    //인스펙터로 박지 않고 BattingController가 넣어준다 (선수 교체를 씬 수정 없이 하려고).
+    //비어 있으면 예전처럼 정 가운데(zone 4)로 velocityXZ 속력으로만 던진다.
+    private PitcherSO pitcherSO;
+
+    public PitcherSO PitcherData
+    {
+        get => pitcherSO;
+        set => pitcherSO = value;
+    }
 
     const int WAIT_TIME = 5; //5.0f
     protected bool isThrowBallStop = false; //debug
@@ -111,9 +118,9 @@ public class PitcherComponent : DefenderComponent
     /// </summary>
     private void ThrowByPitcherData()
     {
-        //기본값 = 정 가운데 (zones[4] = MiddleCenter)
-        Vector3 targetPosition = strikeZone.ZoneCount > 4
-            ? strikeZone.GetZone(4).position //랜덤넣자
+        //기본값 = 정 가운데 (zones[12] = MiddleCenter)
+        Vector3 targetPosition = strikeZone.ZoneCount > StrikeZone.CENTER_ZONE_INDEX
+            ? strikeZone.GetZone(StrikeZone.CENTER_ZONE_INDEX).position //랜덤넣자
             : strikeZone.transform.position;
 
         float speed = velocityXZ;
@@ -128,9 +135,13 @@ public class PitcherComponent : DefenderComponent
             _myBall.SetPitchType(data.Type);
 
             int zoneIndex = data.PickZoneIndex();
-            if (zoneIndex >= 0 && zoneIndex < strikeZone.ZoneCount)
+            Transform zone = (zoneIndex >= 0 && zoneIndex < strikeZone.ZoneCount)
+                ? strikeZone.GetZone(zoneIndex)
+                : null;
+
+            if (zone != null)
             {
-                targetPosition = strikeZone.GetZone(zoneIndex).position;
+                targetPosition = zone.position;
             }
 
             //구속을 입력 안 한 구종은 0을 돌려주므로 그때는 velocityXZ를 그대로 쓴다
@@ -140,7 +151,14 @@ public class PitcherComponent : DefenderComponent
                 speed = picked;
             }
 
-            GameLog.Pitch($"[Pitcher] {data.Type} → zone {zoneIndex}, {speed:F1}km/h");
+            //존 이름과 스트라이크 여부는 씬 오브젝트에서 직접 읽는다.
+            //ㄴ 실제 판정도 BaseballPhysics가 같은 "StrikeZone" 태그를 보므로,
+            //   상수를 따로 두는 것보다 로그와 실제 판정이 어긋날 일이 없다.
+            string zoneName = zone != null ? zone.name : "없음";
+            string judge = (zone != null && zone.CompareTag("StrikeZone")) ? "스트라이크존" : "볼존";
+
+            GameLog.Pitch(
+                $"[Pitcher] 구종 {data.Type} / 구속 {speed:F1}km/h / 코스 [{zoneIndex}] {zoneName} ({judge})");
         }
 
         _myBall.ThrowBall(

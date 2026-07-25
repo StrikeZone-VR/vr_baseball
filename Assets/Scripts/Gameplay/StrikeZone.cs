@@ -106,4 +106,24 @@ public class StrikeZone : MonoBehaviour
 
     /// <summary> 등록된 존 개수. 인덱스를 밖에서 뽑을 때 범위 확인용 </summary>
     public int ZoneCount => zones != null ? zones.Length : 0;
+
+    //zones 배열은 화면에 보이는 배치와 같은 순서(위→아래, 왼→오른)로 넣는다.
+    //그래서 index = 행*5 + 열 이고, 안쪽 3x3이 스트라이크존(6~8, 11~13, 16~18)이 된다.
+    //ㄴ 순서가 틀어졌으면 메뉴 Tools > Baseball > StrikeZone 존 배열 정렬 을 실행할 것
+    public const int GRID_COLS = 5;
+    public const int GRID_ROWS = 5;
+    public const int CENTER_ZONE_INDEX = 12; //한가운데 (행2, 열2)
+
+    /// <summary>
+    /// 인덱스가 안쪽 3x3(스트라이크존)인지.
+    /// 실제 스트라이크 판정은 콜라이더 태그로 하므로 이건 표시/디버그용이다.
+    /// </summary>
+    public static bool IsStrikeZoneIndex(int index)
+    {
+        if (index < 0 || index >= GRID_ROWS * GRID_COLS) return false;
+
+        int row = index / GRID_COLS;
+        int col = index % GRID_COLS;
+        return row >= 1 && row <= 3 && col >= 1 && col <= 3;
+    }
 }

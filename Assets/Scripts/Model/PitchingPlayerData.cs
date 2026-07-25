@@ -47,7 +47,7 @@ public class PitchingPlayerData
         return WeightedRandom.Pick(correctZone.Length, i => correctZone[i]);
     }
 
-    //구속 분포의 뾰족한 정도. 올리면 가운데에 더 몰리고, 1로 내리면 균등 분포가 된다.
+    //구속 분포의 뾰족한 정도. 올리면 가운데에 더 몰리고, 1로 내리면 균등 분포가 된다. 3정도가 정규 분포
     private const int VELOCITY_SAMPLE_COUNT = 3;
 
     /// <summary>

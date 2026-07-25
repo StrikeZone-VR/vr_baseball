@@ -9,7 +9,12 @@ public class BattingController : GameController
 {
     [SerializeField] private PitcherComponent pitcherComponent;
     [SerializeField] private Baseball ball;
-    
+
+    [Header("투수 데이터")]
+    //지금 마운드에 선 투수. 여기서 받아서 PitcherComponent로 내려보낸다.
+    //ㄴ 컴포넌트가 직접 물고 있으면 선수를 바꿀 때마다 씬 오브젝트를 만져야 해서 컨트롤러가 쥔다.
+    [SerializeField] private PitcherSO pitcherSO;
+
     [Header("UI")]
     [SerializeField] private TextMeshProUGUI hitText;
     [SerializeField] private TextMeshProUGUI groundBallText;
@@ -29,7 +34,32 @@ public class BattingController : GameController
 
     public void PitcherGetBall()
     {
+        //공을 넘기기 전에 투수 데이터를 먼저 내려보낸다.
+        //ㄴ Init()이 아니라 여기에 두는 이유: 통합 씬의 GamePlayManager는 Init()을 안 부르고
+        //   PitcherGetBall()만 부른다. 여기 두어야 단독 씬/통합 씬 양쪽에 다 걸린다.
+        ApplyPitcherData();
+
         pitcherComponent.SetMyBall(ball);
+    }
+
+    /// <summary>
+    /// 현재 투수 데이터를 PitcherComponent로 주입한다.
+    /// </summary>
+    private void ApplyPitcherData()
+    {
+        if (pitcherComponent != null)
+        {
+            pitcherComponent.PitcherData = pitcherSO;
+        }
+    }
+
+    /// <summary>
+    /// 런타임에 투수를 갈아끼울 때 사용 (선수 교체, 이닝 교대 등).
+    /// </summary>
+    public void SetPitcherData(PitcherSO data)
+    {
+        pitcherSO = data;
+        ApplyPitcherData();
     }
     
     public void WaitPitchingToText(int time)

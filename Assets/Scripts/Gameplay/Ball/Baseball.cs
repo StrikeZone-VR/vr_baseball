@@ -615,7 +615,7 @@ public class Baseball : MonoBehaviour
         pitchEvent.RaiseEvent();
         
         //정면
-        Vector3 targetPosition = strikeZone.GetZone(4).position;
+        Vector3 targetPosition = strikeZone.GetZone(StrikeZone.CENTER_ZONE_INDEX).position;
 
         IsZone = false;
         IsStrike = false;

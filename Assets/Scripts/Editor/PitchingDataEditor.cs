@@ -22,39 +22,34 @@ public class PitchingDataEditor : Editor
 {
     #region ZONE LAYOUT
 
-    //StrikeZone 프리팹의 zones 배열(25칸)을 화면 배치로 옮긴 표.
-    //프리팹의 m_LocalPosition을 그대로 읽어서 만든 것 — x: -0.334~0.334, y: 0.66~-0.66 의 5x5 격자였다.
-    //안쪽 3x3(0~8)이 스트라이크존, 바깥 링(9~24)이 볼존.
-    //ㄴ 좌우가 뒤집혀 보이면 각 행의 순서만 뒤집으면 된다.
-    private const int ZONE_TOTAL = 25;
-    private const int ZONE_ROWS = 5;
-    private const int ZONE_COLS = 5;
-    private const int STRIKE_ZONE_COUNT = 9;
+    //zones 배열은 화면 배치와 같은 순서(위→아래, 왼→오른)로 정렬되어 있다고 본다.
+    //그래서 인덱스가 곧 격자 좌표다: index = 행*5 + 열. 별도 매핑표가 필요 없다.
+    //ㄴ 순서가 틀어졌으면 메뉴 Tools > Baseball > StrikeZone 존 배열 정렬 을 실행할 것
+    private const int ZONE_ROWS = StrikeZone.GRID_ROWS;
+    private const int ZONE_COLS = StrikeZone.GRID_COLS;
+    private const int ZONE_TOTAL = ZONE_ROWS * ZONE_COLS;
 
-    private static readonly int[,] GRID =
-    {
-        {  9, 10, 11, 12, 13 },
-        { 14,  0,  1,  2, 15 },
-        { 16,  3,  4,  5, 17 },
-        { 18,  6,  7,  8, 19 },
-        { 20, 21, 22, 23, 24 },
-    };
+    /// <summary> 격자 (행, 열) → zones 배열 인덱스 </summary>
+    private static int ZoneIndexAt(int row, int col) => row * ZONE_COLS + col;
 
+    //정렬된 순서 기준 이름. 툴팁용이라 틀려도 동작에는 영향이 없다.
     private static readonly string[] ZONE_NAMES =
     {
-        "TopLeft", "TopCenter", "TopRight",
-        "MiddleLeft", "MiddleCenter", "MiddleRight",
-        "BottomLeft", "BottomCenter", "BottomRight",
         "BallZone_TopLeft_Out", "BallZone_TopLeft_Mid", "BallZone_TopCenter_Out",
         "BallZone_TopRight_Mid", "BallZone_TopRight_Out",
-        "BallZone_MiddleLeft_Out", "BallZone_MiddleRight_Out",
-        "BallZone_CenterLeft_Out", "BallZone_CenterRight_Out",
-        "BallZone_BottomLeft_Out", "BallZone_BottomRight_Out",
+
+        "BallZone_MiddleLeft_Out", "TopLeft", "TopCenter", "TopRight", "BallZone_MiddleRight_Out",
+
+        "BallZone_CenterLeft_Out", "MiddleLeft", "MiddleCenter", "MiddleRight", "BallZone_CenterRight_Out",
+
+        "BallZone_BottomLeft_Out", "BottomLeft", "BottomCenter", "BottomRight", "BallZone_BottomRight_Out",
+
         "BallZone_BottomLeft_Out2", "BallZone_BottomLeft_Mid", "BallZone_BottomCenter_Out",
         "BallZone_BottomRight_Mid", "BallZone_BottomRight_Out2",
     };
 
-    private static bool IsStrikeZone(int index) => index >= 0 && index < STRIKE_ZONE_COUNT;
+    //안쪽 3x3 = 6~8 / 11~13 / 16~18. 판정 규칙은 StrikeZone에 한 벌만 둔다.
+    private static bool IsStrikeZone(int index) => StrikeZone.IsStrikeZoneIndex(index);
 
     #endregion
 
@@ -126,6 +121,7 @@ public class PitchingDataEditor : Editor
         EditorGUILayout.Space(8);
         EditorGUILayout.LabelField("존별 투구 확률 (%)", EditorStyles.boldLabel);
         EditorGUILayout.LabelField("가운데 3x3 = 스트라이크존 / 바깥 링 = 볼존", EditorStyles.miniLabel);
+        EditorGUILayout.LabelField("칸 우측 하단의 작은 숫자 = zones 배열 인덱스 (스트라이크존 = 6~8, 11~13, 16~18)", EditorStyles.miniLabel);
         EditorGUILayout.Space(2);
 
         DrawGrid(zone);
@@ -216,7 +212,7 @@ public class PitchingDataEditor : Editor
                     block.y + row * (CELL_H + PAD),
                     cellW, CELL_H);
 
-                DrawCell(cell, zone, GRID[row, col], maxWeight);
+                DrawCell(cell, zone, ZoneIndexAt(row, col), maxWeight);
             }
         }
     }
@@ -241,7 +237,13 @@ public class PitchingDataEditor : Editor
         }
 
         Rect fieldRect = new Rect(cell.x + 3f, cell.y + 3f, cell.width - 6f, 18f);
-        Rect lockRect = new Rect(cell.x + 3f, cell.y + 22f, cell.width - 6f, 15f);
+        Rect lockRect = new Rect(cell.x + 3f, cell.y + 22f, cell.width - 28f, 15f);
+        Rect indexRect = new Rect(cell.xMax - 25f, cell.y + 22f, 22f, 15f);
+
+        //칸마다 zones 배열 인덱스를 작게 찍어둔다.
+        //ㄴ 화면에 보이는 5x5 순번(0~24)과 배열 인덱스가 다르기 때문에, 표시가 없으면
+        //   "가운데가 12번인가 4번인가" 하고 헷갈린다. GetZone()에 넣는 값은 이 숫자다.
+        GUI.Label(indexRect, index.ToString(), IndexStyle);
 
         //DelayedFloatField: 타이핑 도중이 아니라 Enter/포커스 이동 시점에만 반영된다.
         //ㄴ 즉시 반영이면 "1"을 치는 순간 재분배가 돌아서 값을 못 넣는다.
@@ -496,6 +498,25 @@ public class PitchingDataEditor : Editor
     private static readonly Color ADD_TINT = new Color(0.62f, 0.95f, 0.68f);
     private static readonly Color DELETE_TINT = new Color(1f, 0.58f, 0.52f);
     private static readonly Color LOCK_TINT = new Color(1f, 0.86f, 0.45f);
+
+    private static GUIStyle _indexStyle;
+
+    /// <summary> 칸 우측 하단에 찍는 zones 배열 인덱스용 스타일 </summary>
+    private static GUIStyle IndexStyle
+    {
+        get
+        {
+            if (_indexStyle == null)
+            {
+                _indexStyle = new GUIStyle(EditorStyles.miniLabel);
+                _indexStyle.alignment = TextAnchor.MiddleRight;
+                _indexStyle.normal.textColor = EditorGUIUtility.isProSkin
+                    ? new Color(1f, 1f, 1f, 0.45f)
+                    : new Color(0f, 0f, 0f, 0.45f);
+            }
+            return _indexStyle;
+        }
+    }
 
     /// <summary> 박스 안 소제목 + 밑줄 </summary>
     private static void SectionHeader(string title)
