@@ -174,10 +174,12 @@ public class PitchingDataEditor : Editor
         SerializedProperty pitchType = element.FindPropertyRelative("pitchType");
         SerializedProperty min = element.FindPropertyRelative("min_velocity");
         SerializedProperty max = element.FindPropertyRelative("max_velocity");
+        SerializedProperty weight = element.FindPropertyRelative("weight");
 
         if (pitchType != null) EditorGUILayout.PropertyField(pitchType, new GUIContent("구종"));
         if (min != null) EditorGUILayout.PropertyField(min, new GUIContent("구속 최소 (km/h)"));
         if (max != null) EditorGUILayout.PropertyField(max, new GUIContent("구속 최대 (km/h)"));
+        if (weight != null) EditorGUILayout.PropertyField(weight, new GUIContent("확률 가중치"));
 
         if (min != null && max != null && min.floatValue > max.floatValue)
         {
@@ -407,6 +409,7 @@ public class PitchingDataEditor : Editor
         {
             DistributeEvenly(zone);
         }
+        GUILayout.FlexibleSpace();
         EditorGUILayout.EndHorizontal();
         EditorGUILayout.EndVertical();
 
@@ -429,6 +432,7 @@ public class PitchingDataEditor : Editor
         {
             SetAllLocked(false);
         }
+        GUILayout.FlexibleSpace();
         EditorGUILayout.EndHorizontal();
         EditorGUILayout.EndVertical();
     }
@@ -450,7 +454,7 @@ public class PitchingDataEditor : Editor
         GUI.enabled = _pitchingData.arraySize > 0;
         if (ActionButton("현재 구종 삭제",
                 "지금 선택된 탭의 구종 데이터를 지웁니다.",
-                "TreeEditor.Trash", DELETE_TINT))
+                "TreeEditor.Trash", DELETE_TINT, 132f)) //글자가 길어서 조금 넓게
         {
             if (EditorUtility.DisplayDialog(
                     "구종 삭제",
@@ -462,6 +466,7 @@ public class PitchingDataEditor : Editor
         }
         GUI.enabled = true;
 
+        GUILayout.FlexibleSpace();
         EditorGUILayout.EndHorizontal();
         EditorGUILayout.EndVertical();
     }
@@ -485,6 +490,7 @@ public class PitchingDataEditor : Editor
     #region UI STYLE HELPER
 
     private const float BTN_H = 24f;
+    private const float BTN_W = 116f; //인스펙터 폭 전체로 늘어나지 않게 고정 폭을 준다
 
     private static readonly Color NEUTRAL_TINT = Color.white;
     private static readonly Color ADD_TINT = new Color(0.62f, 0.95f, 0.68f);
@@ -508,7 +514,7 @@ public class PitchingDataEditor : Editor
     /// 아이콘 + 툴팁 + 색조가 붙은 버튼.
     /// 유니티 버전마다 내장 아이콘 이름이 달라서, 못 찾으면 조용히 글자만 있는 버튼이 된다.
     /// </summary>
-    private static bool ActionButton(string text, string tooltip, string iconName, Color tint)
+    private static bool ActionButton(string text, string tooltip, string iconName, Color tint, float width = BTN_W)
     {
         GUIContent content = new GUIContent(text, tooltip);
 
@@ -530,7 +536,7 @@ public class PitchingDataEditor : Editor
 
         Color prev = GUI.backgroundColor;
         GUI.backgroundColor = tint;
-        bool clicked = GUILayout.Button(content, GUILayout.Height(BTN_H));
+        bool clicked = GUILayout.Button(content, GUILayout.Height(BTN_H), GUILayout.Width(width));
         GUI.backgroundColor = prev;
 
         return clicked;

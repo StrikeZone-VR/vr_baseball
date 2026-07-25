@@ -12,5 +12,125 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 32290eedba3cc724595e0902d36f7f1f, type: 3}
   m_Name: DefaultPlayer
   m_EditorClassIdentifier: 
-  player_name: "\uB514\uD3F4\uC774"
-  pitchingData: []
+  player_name: "\uC544\uB9C8\uCD94\uC5B4_\uB514\uD3F4\uC774"
+  pitchingData:
+  - pitchType: 0
+    min_velocity: 60
+    max_velocity: 70
+    weight: 25
+    correctZone:
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+  - pitchType: 1
+    min_velocity: 50
+    max_velocity: 60
+    weight: 0
+    correctZone:
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+  - pitchType: 2
+    min_velocity: 50
+    max_velocity: 60
+    weight: 25
+    correctZone:
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+    - 4
+  - pitchType: 3
+    min_velocity: 50
+    max_velocity: 60
+    weight: 25
+    correctZone:
+    - 2
+    - 2
+    - 2
+    - 6
+    - 6
+    - 6
+    - 6
+    - 6
+    - 6
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 2
+    - 2
+    - 6
+    - 6
+    - 6
+    - 6
+    - 6
+    - 6
+    - 6
+    - 6
+    - 6

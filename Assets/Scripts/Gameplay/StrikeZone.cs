@@ -103,4 +103,7 @@ public class StrikeZone : MonoBehaviour
     {
         return zones[index];
     }
+
+    /// <summary> 등록된 존 개수. 인덱스를 밖에서 뽑을 때 범위 확인용 </summary>
+    public int ZoneCount => zones != null ? zones.Length : 0;
 }
