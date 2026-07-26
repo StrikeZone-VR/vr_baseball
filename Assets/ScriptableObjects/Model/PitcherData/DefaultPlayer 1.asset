@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 32290eedba3cc724595e0902d36f7f1f, type: 3}
   m_Name: DefaultPlayer 1
   m_EditorClassIdentifier: 
-  player_name: "\uC544\uB9C8\uCD94\uC5B4_\uB514\uD3F4\uC774"
+  player_name: "\uD504\uB85C_\uB514\uD3F4\uC774"
   pitchingData:
   - pitchType: 0
     min_velocity: 150

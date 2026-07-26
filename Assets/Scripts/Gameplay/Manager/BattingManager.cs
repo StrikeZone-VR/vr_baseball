@@ -17,6 +17,8 @@ public class BattingManager : GameManager
 
     const float WAIT_TIME = 2.0f; //원래 7임
     [SerializeField] private BattingModel battingModel;
+    [SerializeField] private Vector3 battingPosition; // 0.6f, 1.3f, -0.98f
+    [SerializeField] private Vector3 battingRotation;
     
     protected override void OnEnable()
     {
@@ -35,8 +37,8 @@ public class BattingManager : GameManager
     protected override void Start()
     {
         base.Start();
-        moveOriginEvent.RaiseEvent(new Vector3(0.6f, 1.3f, -0.98f));
-        rotateOriginEvent.RaiseEvent(new Vector3(0, -135f, 0));
+        moveOriginEvent.RaiseEvent(battingPosition);
+        rotateOriginEvent.RaiseEvent(battingRotation);
 
         battingController.Init();
 
