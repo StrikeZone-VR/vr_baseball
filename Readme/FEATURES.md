@@ -1,21 +1,38 @@
-# 게임 플레이
 이 문서는 게임플레이 위주로 정리했다.
 
+# 목차
+1. [UI](#UI)
+2. [투수](#투수)
+
+
+
 ---
-## 게임 메뉴
+# UI
 <img width="1920" height="936" alt="StrikeZone VR Test1 0-8 screenshot" src="https://github.com/user-attachments/assets/eba5864b-f2ac-4c5c-96d5-7124865ba189" /><br>
+<img width="508" height="410" alt="image" src="https://github.com/user-attachments/assets/2838e9fb-5d7f-4bd6-acc2-d0455433a833" /><br>
+<img width="296" height="242" alt="image" src="https://github.com/user-attachments/assets/d56015f9-bd6b-4a08-a99d-14007d6a09ba" /><br>
+
+- [ ] todo : settingPanel, GameResult, MainMenu 씬의 UI를 개선하자.
+
 메뉴에는 각자 게임 씬으로 들어갈 수 있는 버튼과 오른쪽에는 KBO 실시간 정보를 보여주는 UI 창을 띄웠다. <br>
+전체적으로 UI 분위기는 귀여운 로우파이느낌을 살릴 수 있게 둥글게 구현했다.
 
-----
+---
+# 투수
+<img width="506" height="438" alt="image" src="https://github.com/user-attachments/assets/8887898f-9d5b-4ebe-b9fb-cc774a2e854d" /><br>
+기본적으로 AI투수가 던지는 투구, 플레이어가 직접 던지는 투구가 있다.
 
-## 투수
-<img width="1920" height="936" alt="StrikeZone VR Test1 1-4 screenshot" src="https://github.com/user-attachments/assets/0e1eb183-8819-484a-8124-4015f0de891a" /><br>
-
+## 플레이어 투구
+### 기본 투구
+초반 플레이어가 던지는 난이도를 줄이기 위해 가중치라는 시스템이 존재한다.
 ![bandicam 2026-01-05 00-29-14-325 (1)](https://github.com/user-attachments/assets/ba506b70-37ba-4156-a176-8fa42a2e1112)<br>
-- 기본 투구 <br>
+기본 투구<br><br>
 
 ![bandicam 2026-01-05 00-29-14-325](https://github.com/user-attachments/assets/47c6d653-cee9-46fc-843a-c2b8506b25cf)<br>
-- 가중치 추가한 버전<br>
+- 가중치 추가한 버전<br><br>
+
+- [ ] todo : 플레이어가 던지는 슬라이더, 커브, 포크볼도 gif 만들어주자.
+
 
 ### AI 투수
 ![bandicam 2025-12-24 22-04-35-245](https://github.com/user-attachments/assets/119d3df8-a414-411b-9f38-a48cb139c3d4)
