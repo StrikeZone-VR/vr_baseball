@@ -4,7 +4,7 @@
 ---
 ## 게임 메뉴
 <img width="1920" height="936" alt="StrikeZone VR Test1 0-8 screenshot" src="https://github.com/user-attachments/assets/eba5864b-f2ac-4c5c-96d5-7124865ba189" /><br>
-메뉴에는 각자 게임 씬으로 들어갈 수 있는 버튼과 오른쪽에는 KBO 실시간 정보를 보여주는 UI 창을 띄웠습니다. <br>
+메뉴에는 각자 게임 씬으로 들어갈 수 있는 버튼과 오른쪽에는 KBO 실시간 정보를 보여주는 UI 창을 띄웠다. <br>
 
 ----
 
@@ -44,11 +44,11 @@ public Vector3 CalculateSimpleVelocity(Vector3 start, Vector3 target, float velo
 ### 커브
 ![bandicam 2025-12-24 22-11-19-358](https://github.com/user-attachments/assets/36571b80-12b0-46dc-89c9-7caa7fe25e4c)
 - 커브
-기존의 직구에서 마그누스 효과를 적용했습니다. 속력이 클수록 마그누스 힘을 증가시켜 실제 커브처럼 날카롭게 떨어지는 움직임을 구현했습니다.
+기존의 직구에서 마그누스 효과를 적용했다. 속력이 클수록 마그누스 힘을 증가시켜 실제 커브처럼 날카롭게 떨어지는 움직임을 구현했다.
 
 ### 슬라이더
 <img width="400" height="184" alt="bandicam 2026-05-25 22-53-03-233" src="https://github.com/user-attachments/assets/69a46cbc-35ad-4690-b767-6673622ab612" /><br>
-x값에 가중치를 둬서 옆으로 휘어지게 만들었습니다.
+x값에 가중치를 둬서 옆으로 휘어지게 만들었다.
 
 ```
 /// <summary>
@@ -294,7 +294,7 @@ void DrawDashedSegment(Vector3 a, Vector3 b, float dashLen, float stepLen)
 # 경기
 ### 수비
 ![defense](https://github.com/user-attachments/assets/93d01c32-d9cb-48ec-a5c7-99ef37b08529)<br>
-공의 궤적을 보고 자연스럽게 수비수가 따라갑니다.
+공의 궤적을 보고 자연스럽게 수비수가 따라간다.
 
 
 ### 주자
@@ -304,10 +304,10 @@ base_index<br><br>
 <img width="1083" height="397" alt="image" src="https://github.com/user-attachments/assets/26dba83f-9f7a-4b47-8fd2-017a2f13dd4d" /><br>
 - 주자 시점
 - 주자 유니폼
-  - 수비와 주자 모두 유니폼을 입혀 쉽게 구분하게 만들었습니다. 방망이로 치면 주자는 이동할 수 있고 베이스에 있는 주자도 베이스를 향해 뛸 수 있습니다.
+  - 수비와 주자 모두 유니폼을 입혀 쉽게 구분하게 만들었습니다. 방망이로 치면 주자는 이동할 수 있고 베이스에 있는 주자도 베이스를 향해 뛸 수 있다.
 
 ## 파울, 플라잉 아웃
-경기 중에 파울이나 플라잉 아웃을 하면 전 베이스로 돌아가야 합니다. 그래서 기존의 정보를 저장하는 기능과 복귀하는 과정을 구현했습니다.
+경기 중에 파울이나 플라잉 아웃을 하면 전 베이스로 돌아가야 합니다. 그래서 기존의 정보를 저장하는 기능과 복귀하는 과정을 구현했다.
 
 ### 기존 상태 저장
 ```
@@ -372,5 +372,5 @@ public void FlyingOutRollbackBeforeStatus()
     }
 }
 ```
-플라잉 아웃이 되면 주자들이 알아서 돌아갑니다.
+플라잉 아웃이 되면 주자들이 알아서 돌아간다.
 
