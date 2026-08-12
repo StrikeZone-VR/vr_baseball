@@ -39,25 +39,6 @@
 - 직구
 시작 위치, 도착 위치, 투수 구속을 매개변수로 넣으면 시작 공 속력을 반환한다. <br>
 
-
-```
-public Vector3 CalculateSimpleVelocity(Vector3 start, Vector3 target, float velocityXZ)
-{
-    velocityXZ /= 3.6f; //시속 평준화
-    float g = Mathf.Abs(Physics.gravity.y); // 9.81 (양수)
-    Vector3 dis = target - start;
-
-    float mytime = dis.magnitude / velocityXZ;
-
-    float velocityY = mytime / 2 * g;
-    Vector3 velocityXZ_normal = dis.normalized;
-    velocityXZ_normal *= velocityXZ;
-
-    Vector3 result = velocityXZ_normal + new Vector3(0, velocityY, 0);
-    return result;
-}
-```
-
 ### 커브
 ![bandicam 2025-12-24 22-11-19-358](https://github.com/user-attachments/assets/36571b80-12b0-46dc-89c9-7caa7fe25e4c)
 - 커브
