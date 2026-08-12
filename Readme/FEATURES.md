@@ -24,7 +24,7 @@
 
 ## 플레이어 투구
 ### 기본 투구
-초반 플레이어가 던지는 난이도를 줄이기 위해 가중치라는 시스템이 존재한다.
+초반 플레이어가 던지는 난이도를 줄이기 위해 가중치라는 시스템이 존재한다.<br>
 ![bandicam 2026-01-05 00-29-14-325 (1)](https://github.com/user-attachments/assets/ba506b70-37ba-4156-a176-8fa42a2e1112)<br>
 기본 투구<br><br>
 
@@ -34,7 +34,7 @@
 - [ ] todo : 플레이어가 던지는 슬라이더, 커브, 포크볼도 gif 만들어주자.
 
 
-### AI 투수
+## AI 투수
 ![bandicam 2025-12-24 22-04-35-245](https://github.com/user-attachments/assets/119d3df8-a414-411b-9f38-a48cb139c3d4)
 - 직구
 시작 위치, 도착 위치, 투수 구속을 매개변수로 넣으면 시작 공 속력을 반환한다. <br>
@@ -68,52 +68,24 @@ public Vector3 CalculateSimpleVelocity(Vector3 start, Vector3 target, float velo
 x값에 가중치를 둬서 옆으로 휘어지게 만들었다.
 
 ```
-/// <summary>
-/// 통합 계산 단위 => 직구, 슬라이더, 커브 통합
-/// </summary>
-/// <param name="start"></param>
-/// <param name="target"></param>
-/// <param name="velocity_xy">km/h단위</param>
-/// <returns></returns>
-public Vector3 CalculateVelocity(Vector3 start, Vector3 target
-    , float velocity_xy, Vector3 piterTypeForce)
+//직구, 커브, 슬라이더 통합 계산 코드
+public Vector3 CalculateVelocity(Vector3 start, Vector3 target, float speed, Vector3 pitchForce)
 {
-    velocity_xy /= 3.6f;
-    float g = Mathf.Abs(Physics.gravity.y); // 9.81 (양수)
-    //g -= piterTypeForce.y;
-
+    speed /= 3.6f;
+    float g = Mathf.Abs(Physics.gravity.y);
     Vector3 diff = target - start;
-    Vector3 dirXZ = new Vector3(diff.x, 0, diff.z).normalized;
-    float d = new Vector2(diff.x, diff.z).magnitude; // 수평 거리
-    float h = diff.y; // 높이차
+    float t = new Vector2(diff.x, diff.z).magnitude / speed;
 
-    // 비행 시간 계산: t = d / velocity_xy
-    float t = d / velocity_xy;
-    flightTime = t;
+    // 힘이 속도에 의존하므로 근사 → 재계산 2단계로 구한다
+    float vSqApprox = speed * speed;
+    Vector3 devApprox = -0.5f * vSqApprox * t * pitchForce;
+    float vSq = vSqApprox + (devApprox.x * devApprox.x + devApprox.z * devApprox.z) / 3f;
+    Vector3 accel = vSq * pitchForce;
 
-    float vSq = velocity_xy * velocity_xy; //제곱
-    float aX_rough = vSq * piterTypeForce.x;
-    float aZ_rough = vSq * piterTypeForce.z;
-    float vxComp = -0.5f * aX_rough * t;
-    float vzComp = -0.5f * aZ_rough * t;
-    float vSqAdjusted = vSq + (vxComp * vxComp + vzComp * vzComp) / 3f;
-
-    float aX = vSqAdjusted * piterTypeForce.x;
-    float aY = vSqAdjusted * piterTypeForce.y; // 보통 음수 (아래로 휨)
-    float aZ = vSqAdjusted * piterTypeForce.z;
-
-    // y방향 초기 속도 Vy = (h + 0.5 * g * t^2) / t
-    // 유효 중력 = g - aY (forceWeight.y < 0 이면 더 빨리 떨어짐)
-    float effectiveG = g - aY;
-    float vy = (h + 0.5f * effectiveG * t * t) / t;
-
-    // 최종 속도 벡터
-    Vector3 velocity = dirXZ * velocity_xy;
-    // x/z 옆 휨 보정: 0.5*a*t² 만큼 휘므로 초기 방향을 반대로 살짝 틀어준다
-    velocity.x -= 0.5f * aX * t;
-    velocity.z -= 0.5f * aZ * t;
-    velocity.y = vy;
-
+    Vector3 velocity = new Vector3(diff.x, 0, diff.z).normalized * speed;
+    velocity.x -= 0.5f * accel.x * t;
+    velocity.z -= 0.5f * accel.z * t;
+    velocity.y = (diff.y + 0.5f * (g - accel.y) * t * t) / t;
     return velocity;
 }
 ```
@@ -303,9 +275,15 @@ void DrawDashedSegment(Vector3 a, Vector3 b, float dashLen, float stepLen)
 }
 ```
 
+
+
 ### 주자
 <img width="291" height="283" alt="image" src="https://github.com/user-attachments/assets/4969c1cf-6cb4-4d9d-9453-e71f1704e6af" /><br>
 - 주자 현황을 보여주는 디버깅 UI
+
+### 리플레이
+<img width="400" height="185" alt="bandicam 2026-06-30 20-30-16-705" src="https://github.com/user-attachments/assets/2d5425a5-13d1-4162-8375-8b8183a4a38a" />
+- [ ] todo 리플레이 테스트하는 영상? 링크
 
 ---
 # 경기
