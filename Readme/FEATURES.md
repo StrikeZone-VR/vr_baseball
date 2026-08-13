@@ -6,7 +6,7 @@
 3. [타자](#타자)
 4. [경기](#경기)
 5. [디버깅](#디버깅)
-6. [개발 예정](#개발-예정)
+
 
 ---
 
@@ -20,6 +20,7 @@
 <img width="300" alt="KBO 정보 패널 확대" src="https://github.com/user-attachments/assets/d56015f9-bd6b-4a08-a99d-14007d6a09ba" /><br>
 
 전체적인 UI 분위기는 귀여운 로우파이 느낌을 살릴 수 있게 둥글게 구현했다.
+- [ ] SettingPanel, GameResult, MainMenu 씬의 UI 개선
 
 ---
 
@@ -35,11 +36,12 @@
 
 <img width="400" alt="기본 투구" src="https://github.com/user-attachments/assets/ba506b70-37ba-4156-a176-8fa42a2e1112" /><br>
 
-*기본 투구.*
+기본 투구
 
 <img width="400" alt="가중치 적용 투구" src="https://github.com/user-attachments/assets/47c6d653-cee9-46fc-843a-c2b8506b25cf" /><br>
 
-*가중치를 추가한 버전. 같은 구속에서도 코스가 미세하게 흔들려 실제 투구에 가까워진다.*
+가중치를 추가한 버전. 같은 구속에서도 코스가 미세하게 흔들려 실제 투구에 가까워진다.
+- [ ] 플레이어가 던지는 슬라이더·커브·포크볼 gif 추가
 
 ## AI 투수
 
@@ -68,8 +70,6 @@ x값에 가중치를 둬서 옆으로 휘어지게 만들었다.
 | 직구 | (0, 0, 0) | 힘 없음, 순수 포물선 |
 | 커브 | y축 성분 | 더 크게 떨어짐 |
 | 슬라이더 | x축 성분 | 옆으로 휘어짐 |
-
-힘이 최종 속도에 의존하는 순환 구조라, 대략적인 속도로 편차를 먼저 추정한 뒤 그 값으로 힘을 다시 계산하는 2단계 근사를 쓴다.
 
 <details>
 <summary>코드 보기 — CalculateVelocity</summary>
@@ -114,7 +114,8 @@ public Vector3 CalculateVelocity(Vector3 start, Vector3 target, float speed, Vec
 <img width="400" alt="AI 타자 스윙" src="https://github.com/user-attachments/assets/71151cb2-ec3a-46d3-b553-86b3932204df" /><br>
 <img width="500" alt="스윙 궤도 상세" src="https://github.com/user-attachments/assets/372a2084-9629-4876-812c-414d1ed7bdd2" /><br>
 
-스윙은 배트를 축(`axis`) 기준 원형 궤도 위에서 각도(`batAngle`)를 프레임마다 갱신하며 움직인다. 위치와 회전을 같은 각도값으로 함께 계산해야 배트가 궤도를 미끄러지지 않고 자연스럽게 따라간다.
+스윙은 배트를 축(`axis`) 기준 원형 궤도 위에서 각도(`batAngle`)를 프레임마다 갱신하며 움직인다.
+<br> 위치와 회전을 같은 각도값으로 함께 계산해야 배트가 궤도를 미끄러지지 않고 자연스럽게 따라간다.
 
 <details>
 <summary>코드 보기 — Swing()</summary>
@@ -159,17 +160,17 @@ IEnumerator Swing()
 
 <img width="400" alt="수비 동작" src="https://github.com/user-attachments/assets/93d01c32-d9cb-48ec-a5c7-99ef37b08529" /><br>
 
-*공의 궤적을 보고 자연스럽게 수비수가 따라간다.*
+공의 궤적을 보고 자연스럽게 수비수가 따라간다.
 
 ## 주자
 
 <img width="300" alt="주자 base_index 구조" src="https://github.com/user-attachments/assets/0941e6a1-bc85-419c-bb0a-08aaea00674d" /><br>
 
-*`BaseIndex`로 각 주자의 현재 위치를 관리한다.*
+`BaseIndex`로 각 주자의 현재 위치를 관리한다.
 
 <img width="500" alt="주자 유니폼" src="https://github.com/user-attachments/assets/26dba83f-9f7a-4b47-8fd2-017a2f13dd4d" /><br>
 
-*수비와 주자에게 서로 다른 유니폼을 입혀 시야에서 바로 구분되도록 했다.*
+수비와 주자에게 서로 다른 유니폼을 입혀 시야에서 바로 구분되도록 했다.
 
 타격이 성공하면 주자가 진루하고, 이미 베이스에 있던 주자도 함께 다음 베이스로 뛴다.
 
@@ -231,24 +232,16 @@ public void FlyingOutRollbackBeforeStatus()
 
 <img width="500" alt="공 궤적 표시" src="https://github.com/user-attachments/assets/b5eb6f85-514b-4eae-a53e-46f592b799ac" /><br>
 
-*예측 궤적을 점선으로 그려 스트라이크 존 통과 여부와 최종 낙구 지점을 눈으로 확인한다.*
+예측 궤적을 점선으로 그려 스트라이크 존 통과 여부와 최종 낙구 지점을 눈으로 확인한다.
 
 공의 궤적을 체크하기 위해 만든 기능이다. 이 계산은 시각화뿐 아니라 타자의 배트 위치 결정과 수비수 이동 목표 산출에도 그대로 재사용된다.
 
 ## 주자 현황판
 
 <img width="300" alt="주자 현황 디버깅 UI" src="https://github.com/user-attachments/assets/4969c1cf-6cb4-4d9d-9453-e71f1704e6af" /><br>
+주자 현황을 보여주는 디버깅 UI
 
-*주자 현황을 보여주는 디버깅 UI.*
-
----
-
-# 개발 예정
-
-- [ ] SettingPanel, GameResult, MainMenu 씬의 UI 개선
-- [ ] 플레이어가 던지는 슬라이더·커브·포크볼 gif 추가
-
-### 리플레이
+## 리플레이
 
 <img width="400" alt="리플레이 (진행 중)" src="https://github.com/user-attachments/assets/2d5425a5-13d1-4162-8375-8b8183a4a38a" /><br>
 
