@@ -14,12 +14,7 @@
 <img width="300" alt="image" src="https://github.com/user-attachments/assets/676a56ab-6dd4-4a22-add2-e8d1b42d13f1" /><br>
 <img width="300" alt="image" src="https://github.com/user-attachments/assets/d933394b-13ed-4f86-a46d-49dbc7da4e1a" /><br>
 <img width="300"  alt="image" src="https://github.com/user-attachments/assets/79f9de37-85e7-43bd-a8fe-4f0d156d419d" /><br>
-
-
-
-
 <img width="300" alt="메뉴 버튼 확대" src="https://github.com/user-attachments/assets/2838e9fb-5d7f-4bd6-acc2-d0455433a833" /><br>
-<img width="300" alt="KBO 정보 패널 확대" src="https://github.com/user-attachments/assets/d56015f9-bd6b-4a08-a99d-14007d6a09ba" /><br>
 
 전체적인 UI 분위기는 귀여운 로우파이 느낌을 살릴 수 있게 둥글게 구현했다.
 - [ ] SettingPanel, GameResult, MainMenu 씬의 UI 개선
