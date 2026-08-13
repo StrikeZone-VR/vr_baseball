@@ -11,8 +11,10 @@ public class SettingsController : MonoBehaviour
 {
     private const string LanguagePrefKey = "settings.language";
     private const string VolumePrefKey = "settings.volume";
+    private const string VibratePrefKey = "settings.vibrate";
     private const string DefaultLocaleCode = "ko";
     private const float DefaultVolume = 1.0f;
+    private const float DefaultVibrate = 0.5f;
 
     [Header("UI 패널")]
     [SerializeField] private GameObject settingsPanel;
@@ -22,6 +24,10 @@ public class SettingsController : MonoBehaviour
     [SerializeField] private Slider vibrateSlider;
     [SerializeField] private TMP_Text vibrateValueText;
     [SerializeField] private TMP_Dropdown languageDropdown;
+    [Tooltip("SettingPanel/Footer/ResetButton")]
+    [SerializeField] private Button resetButton;
+    [Tooltip("SettingPanel/Footer/SaveButton")]
+    [SerializeField] private Button saveButton;
 
     [Header("오디오 연결")]
     [SerializeField] private AudioManager audioManager;
@@ -52,6 +58,7 @@ public class SettingsController : MonoBehaviour
         WarnIfMissingReferences();
         CacheOriginalTransform();
         InitializeVolume();
+        InitializeVibrate();
         if (settingsPanel != null) settingsPanel.SetActive(false);
 
         yield return LocalizationSettings.InitializationOperation;
@@ -82,8 +89,17 @@ public class SettingsController : MonoBehaviour
         if (volumeSlider != null)
             volumeSlider.onValueChanged.AddListener(OnVolumeChanged);
 
+        if (vibrateSlider != null)
+            vibrateSlider.onValueChanged.AddListener(OnVibrateChanged);
+
         if (languageDropdown != null)
             languageDropdown.onValueChanged.AddListener(OnLanguageChanged);
+
+        if (resetButton != null)
+            resetButton.onClick.AddListener(OnResetClicked);
+
+        if (saveButton != null)
+            saveButton.onClick.AddListener(OnSaveClicked);
     }
 
     private void OnDisable()
@@ -100,8 +116,17 @@ public class SettingsController : MonoBehaviour
         if (volumeSlider != null)
             volumeSlider.onValueChanged.RemoveListener(OnVolumeChanged);
 
+        if (vibrateSlider != null)
+            vibrateSlider.onValueChanged.RemoveListener(OnVibrateChanged);
+
         if (languageDropdown != null)
             languageDropdown.onValueChanged.RemoveListener(OnLanguageChanged);
+
+        if (resetButton != null)
+            resetButton.onClick.RemoveListener(OnResetClicked);
+
+        if (saveButton != null)
+            saveButton.onClick.RemoveListener(OnSaveClicked);
     }
 
     private void Update()
@@ -121,6 +146,8 @@ public class SettingsController : MonoBehaviour
         if (audioManager == null) Debug.LogWarning("[SettingsController] audioManager 미할당 — 볼륨 변경이 적용되지 않음.", this);
         if (languageDropdown == null) Debug.LogWarning("[SettingsController] languageDropdown 미할당.", this);
         if (quitButton == null) Debug.LogWarning("[SettingsController] quitButton 미할당.", this);
+        if (resetButton == null) Debug.LogWarning("[SettingsController] resetButton 미할당 — Footer/ResetButton을 연결해야 '기본값으로'가 동작함.", this);
+        if (saveButton == null) Debug.LogWarning("[SettingsController] saveButton 미할당 — Footer/SaveButton을 연결해야 '저장'이 동작함.", this);
     }
 
     private void CacheOriginalTransform()
@@ -167,6 +194,71 @@ public class SettingsController : MonoBehaviour
     {
         if (volumeValueText != null)
             volumeValueText.text = Mathf.RoundToInt(value01 * 100f) + "%";
+    }
+
+    //진동 세기는 아직 소비하는 쪽이 없다. 값 저장 + 표시까지만 담당한다.
+    //ㄴ 안 그러면 설정 패널의 "진동 %" 가 영원히 0% 로 남는다 (슬라이더만 있고 리스너가 없었음)
+    private void InitializeVibrate()
+    {
+        float saved = PlayerPrefs.GetFloat(VibratePrefKey, DefaultVibrate);
+
+        if (vibrateSlider != null)
+            vibrateSlider.SetValueWithoutNotify(saved);
+
+        UpdateVibrateText(saved);
+    }
+
+    private void OnVibrateChanged(float value)
+    {
+        value = Mathf.Clamp01(value);
+
+        UpdateVibrateText(value);
+
+        PlayerPrefs.SetFloat(VibratePrefKey, value);
+        PlayerPrefs.Save();
+    }
+
+    private void UpdateVibrateText(float value01)
+    {
+        if (vibrateValueText != null)
+            vibrateValueText.text = Mathf.RoundToInt(value01 * 100f) + "%";
+    }
+
+    /// <summary>
+    /// 볼륨/진동/언어를 기본값으로. 슬라이더는 Notify 를 태워서 오디오까지 즉시 반영시킨다.
+    /// </summary>
+    private void OnResetClicked()
+    {
+        if (volumeSlider != null) volumeSlider.value = DefaultVolume;
+        else OnVolumeChanged(DefaultVolume);
+
+        if (vibrateSlider != null) vibrateSlider.value = DefaultVibrate;
+        else OnVibrateChanged(DefaultVibrate);
+
+        if (LocalizationSettings.AvailableLocales != null)
+        {
+            var locale = LocalizationSettings.AvailableLocales.GetLocale(DefaultLocaleCode);
+            if (locale != null)
+            {
+                SetLocale(locale);
+
+                var locales = LocalizationSettings.AvailableLocales.Locales;
+                if (languageDropdown != null && locales != null)
+                {
+                    var index = locales.IndexOf(locale);
+                    if (index >= 0) languageDropdown.SetValueWithoutNotify(index);
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// 각 설정은 바뀔 때마다 이미 저장된다. 이 버튼은 확정 + 패널 닫기 용도.
+    /// </summary>
+    private void OnSaveClicked()
+    {
+        PlayerPrefs.Save();
+        ClosePanel();
     }
 
     private void OpenPanel()
