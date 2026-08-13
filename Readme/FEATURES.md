@@ -11,10 +11,8 @@
 ---
 
 # UI
+<img width="300" alt="image" src="https://github.com/user-attachments/assets/676a56ab-6dd4-4a22-add2-e8d1b42d13f1" />
 
-<img width="500" alt="메인 메뉴 화면" src="https://github.com/user-attachments/assets/eba5864b-f2ac-4c5c-96d5-7124865ba189" /><br>
-
-*메뉴에는 각 게임 씬으로 들어가는 버튼과, 오른쪽에 KBO 실시간 정보를 보여주는 UI 창을 띄웠다.*
 
 <img width="300" alt="메뉴 버튼 확대" src="https://github.com/user-attachments/assets/2838e9fb-5d7f-4bd6-acc2-d0455433a833" /><br>
 <img width="300" alt="KBO 정보 패널 확대" src="https://github.com/user-attachments/assets/d56015f9-bd6b-4a08-a99d-14007d6a09ba" /><br>
