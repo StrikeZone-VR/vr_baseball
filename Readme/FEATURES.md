@@ -11,8 +11,10 @@
 ---
 
 # UI
-<img width="300" alt="image" src="https://github.com/user-attachments/assets/676a56ab-6dd4-4a22-add2-e8d1b42d13f1" />
-<img width="300" alt="image" src="https://github.com/user-attachments/assets/d933394b-13ed-4f86-a46d-49dbc7da4e1a" />
+<img width="300" alt="image" src="https://github.com/user-attachments/assets/676a56ab-6dd4-4a22-add2-e8d1b42d13f1" /><br>
+<img width="300" alt="image" src="https://github.com/user-attachments/assets/d933394b-13ed-4f86-a46d-49dbc7da4e1a" /><br>
+<img width="300"  alt="image" src="https://github.com/user-attachments/assets/79f9de37-85e7-43bd-a8fe-4f0d156d419d" /><br>
+
 
 
 
