@@ -137,90 +137,73 @@ IEnumerator Swing()
 - 주자 현황을 보여주는 디버깅 UI
 
 ### 리플레이
-<img width="400" height="185" alt="bandicam 2026-06-30 20-30-16-705" src="https://github.com/user-attachments/assets/2d5425a5-13d1-4162-8375-8b8183a4a38a" />
+<img width="400" height="185" alt="bandicam 2026-06-30 20-30-16-705" src="https://github.com/user-attachments/assets/2d5425a5-13d1-4162-8375-8b8183a4a38a" /><br>
 - [ ] todo 리플레이 테스트하는 영상? 링크
 
 ---
 # 경기
-### 수비
+## 수비
 ![defense](https://github.com/user-attachments/assets/93d01c32-d9cb-48ec-a5c7-99ef37b08529)<br>
-공의 궤적을 보고 자연스럽게 수비수가 따라간다.
-
+공의 궤적을 보고 자연스럽게 수비수가 따라간다.<br>
 
 ### 주자
+
 <img width="441" height="414" alt="image" src="https://github.com/user-attachments/assets/0941e6a1-bc85-419c-bb0a-08aaea00674d" /><br>
-base_index<br><br>
+
+*`BaseIndex`로 각 주자의 현재 위치를 관리한다.*
 
 <img width="1083" height="397" alt="image" src="https://github.com/user-attachments/assets/26dba83f-9f7a-4b47-8fd2-017a2f13dd4d" /><br>
-- 주자 시점
-- 주자 유니폼
-  - 수비와 주자 모두 유니폼을 입혀 쉽게 구분하게 만들었다. 방망이로 치면 주자는 이동할 수 있고 베이스에 있는 주자도 베이스를 향해 뛸 수 있다.
 
-## 파울, 플라잉 아웃
-경기 중에 파울이나 플라잉 아웃을 하면 전 베이스로 돌아가야 합니다. 그래서 기존의 정보를 저장하는 기능과 복귀하는 과정을 구현했다.
+*수비와 주자에게 서로 다른 유니폼을 입혀 시야에서 바로 구분되도록 했다.*
 
-### 기존 상태 저장
-```
-//runners, score
+타격이 성공하면 주자가 진루하고, 이미 베이스에 있던 주자도 함께 다음 베이스로 뛴다.
+
+### 파울·플라잉 아웃 — 상태 롤백
+
+타격 시점에 주자는 이미 뛰기 시작하고 득점까지 반영된다. 그런데 이후 파울이나 뜬공 아웃이 확정되면 **전부 타격 직전 상태로 되돌려야 한다.** 판정을 기다렸다가 움직이면 반응이 굼떠 보이므로, 먼저 움직이고 나중에 되돌리는 방식을 택했다.
+
+방법은 타격 직전 점수·주자 위치를 스냅샷으로 저장해뒀다가, 판정에 따라 다르게 복원하는 것이다.
+
+| 판정 | 복원 방식 |
+|---|---|
+| 파울 | 위치를 즉시 원위치로 되돌린다 (`IsMove = false`) |
+| 뜬공 아웃 | 한 베이스 뒤로 실제로 뛰어서 돌아간다 (`IsMove = true`) |
+| 득점 후 파울 | 늘어난 주자 수만큼 다시 채워 넣는다 |
+
+<details>
+<summary>코드 보기 — 저장 및 롤백</summary>
+
+```csharp
+// 타격 직전 스냅샷
 public void SaveBeforeStatus()
 {
     before_score = _teamStatus[GetTeamIndex()].Score;
-    
     before_runners.Clear();
-    for (int i = 0; i < runners.Count; i++)
-    {
-        before_runners.Add(runners[i].BaseIndex);
-    }
+    foreach (var r in runners) before_runners.Add(r.BaseIndex);
 }
-```
 
-득점 후 파울 판정 시, 주자 리셋
-```
-if (gamePlayModel.BeforeScore != gamePlayModel.GetScore())
-{
-    //runners의 맨 앞으로 이동
-    gamePlayModel.InsertRunner(CreateBatter(false, 0));
-}
-```
-
-### 파울 롤백
-```
-//foul
+// 파울 — 즉시 원위치
 public void FoulRollbackBeforeStatus()
 {
     _teamStatus[GetTeamIndex()].Score = before_score;
-
-    //그리고 주자 맨 뒤는 제거. 혹시 모르니 if문으로 사이즈 오버되면 null처리
     for (int i = 0; i < before_runners.Count; i++)
     {
         runners[i].SetBaseIndexPosition(before_runners[i]);
         runners[i].IsMove = false;
     }
 }
-```
 
-### 득점 취소 후 이전 베이스로 주자 재배치
-```
-int n = gamePlayModel.GetScore() - gamePlayModel.BeforeScore;
-for (int i = 0; i < n; i++)
-{
-    gamePlayModel.InsertRunner(CreateBatter(false, 0));
-}
-```
-
-### 뜬공 아웃 시 주자의 귀루 시스템
-```
+// 뜬공 아웃 — 한 베이스 뒤로 귀루
 public void FlyingOutRollbackBeforeStatus()
 {
     _teamStatus[GetTeamIndex()].Score = before_score;
-
     for (int i = 0; i < before_runners.Count; i++)
     {
-        //되돌아가는 기능
         runners[i].BaseIndex = before_runners[i] - 1;
         runners[i].IsMove = true;
     }
 }
 ```
-플라잉 아웃이 되면 주자들이 알아서 돌아간다.
+</details>
 
+> 득점 후 파울처럼 이미 반영된 점수를 취소할 때는, 줄어든 점수 수만큼 주자를 다시 채워 넣어 인원을 맞춘다.
