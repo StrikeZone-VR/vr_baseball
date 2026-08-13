@@ -70,99 +70,54 @@ public Vector3 CalculateVelocity(Vector3 start, Vector3 target, float speed, Vec
     return velocity;
 }
 ```
----
 
-## 타자
+---
+# 타자
 ![bandicam 2025-11-14 14-04-26-322](https://github.com/user-attachments/assets/c843d020-e9be-4904-9b7b-d8df1b67220b)
 - 타격
 
 <img width="905" height="398" alt="image" src="https://github.com/user-attachments/assets/9875f4a7-16ac-4562-8afb-0a47ed262a90" /><br>
 - 구속 설정과 타격 지표 스텟 확인할 수 있는 UI
 
-### AI 타자
+## AI 타자
 ![debughitting](https://github.com/user-attachments/assets/71151cb2-ec3a-46d3-b553-86b3932204df) <br>
 <img width="1177" height="575" alt="image" src="https://github.com/user-attachments/assets/372a2084-9629-4876-812c-414d1ed7bdd2" /><br>
-- 자동으로 스윙하는 함수<br>
+스윙은 배트를 축(`axis`) 기준 원형 궤도 위에서 각도(`batAngle`)를 프레임마다 갱신하며 움직인다. <br>
+위치와 회전을 같은 각도값으로 함께 계산해야 배트가 궤도를 미끄러지지 않고 자연스럽게 따라간다.<br>
 
+### 코드
 ```
 IEnumerator Swing()
 {
-    Quaternion start_rotation;
-    Quaternion current_rotation;
-    Quaternion end_rotation;
+    Vector3 orbitYAxis = axis.transform.up;
+    Quaternion zTilt = Quaternion.AngleAxis(axis.localEulerAngles.z - 90f, axis.transform.forward);
 
-    Vector3 start_pos;
-    Vector3 current_pos;
-    Vector3 end_pos;
+    void ApplyPose(float progress)
+    {
+        float batAngle = startBatAngle + totalOrbitAngle * progress;
+        float rad = batAngle * Mathf.Deg2Rad;
 
-    float prevCurve = 0f;
+        transform.position = axis.transform.position
+            + xWorld * (Mathf.Cos(rad) * AXIS_DISTANCE)
+            + zWorld * (-Mathf.Sin(rad) * AXIS_DISTANCE);
+        transform.localRotation = Quaternion.AngleAxis(batAngle, orbitYAxis) * zTilt;
+    }
 
-    Vector3 orbitYAxis = axis.transform.up; // axis의 로컬 Y축을 월드로 
-    Vector3 orbitZAxis = axis.transform.forward;
-
-    //zWorld * sin, xWorld * cos
-    start_pos = axis.transform.position 
-        + xWorld * (Mathf.Cos(startBatAngle * Mathf.Deg2Rad) * AXIS_DISTANCE)
-        + zWorld * (-Mathf.Sin(startBatAngle * Mathf.Deg2Rad) * AXIS_DISTANCE);
-
-    //zWorld * sin, xWorld * cos
-    end_pos = axis.transform.position
-        + xWorld * (Mathf.Cos((startBatAngle + totalOrbitAngle) * Mathf.Deg2Rad) * AXIS_DISTANCE)
-        + zWorld * (-Mathf.Sin((startBatAngle + totalOrbitAngle) * Mathf.Deg2Rad) * AXIS_DISTANCE);
-
-    start_rotation = Quaternion.AngleAxis(startBatAngle, orbitYAxis);
-    end_rotation = Quaternion.AngleAxis(startBatAngle + totalOrbitAngle, orbitYAxis);
-
-    //z축 기준으로 90도
-    Quaternion zRotateQuaternion = Quaternion.AngleAxis(axis.localEulerAngles.z -90f, orbitZAxis);
-    start_rotation *= zRotateQuaternion;
-    end_rotation *= zRotateQuaternion; 
-
-    transform.position = start_pos;
-    transform.localRotation = start_rotation;  //rotation
-
-    //프레임마다 회전한다.
+    ApplyPose(0f);
     while (elapsed < ROTATION_TIME)
     {
         elapsed += Time.deltaTime;
-        float progress = elapsed / ROTATION_TIME;
-        
-        ////각도만 추가하자
-        float batAngle = startBatAngle + totalOrbitAngle * progress;
-
-        if (progress >= 0.5f && debugCheck)
-        {
-            debugCheck = false;
-            Debug.Log("스윙 중간 : ");
-            //Debug.Break();
-        }
-        
-        //Debug.Log("hit time : (" +Time.time + ") : " + batAngle);
-        // if (-190f <= batAngle && batAngle <= -170f)
-        // {
-        //     Debug.Log("real hit time : (" +Time.time + ")"+ batAngle + "도");
-        // }
-        
-        //pos
-        current_pos = axis.transform.position
-            + xWorld * (Mathf.Cos(batAngle * Mathf.Deg2Rad) * AXIS_DISTANCE)
-            + zWorld * (-Mathf.Sin(batAngle * Mathf.Deg2Rad) * AXIS_DISTANCE);
-        
-        //rotation
-        current_rotation = Quaternion.AngleAxis(batAngle, orbitYAxis);
-        current_rotation *= zRotateQuaternion; //기울어라 => 계산 순서는 -90 -45
-
-        transform.position = current_pos;
-        transform.localRotation = current_rotation;
+        ApplyPose(elapsed / ROTATION_TIME);
         yield return null;
     }
 
     isSwing = false;
     elapsed = 0;
-    transform.position = end_pos;
-    transform.localRotation = end_rotation;
+    ApplyPose(1f);
 }
 ```
+
+
 
 ---
 
@@ -170,91 +125,10 @@ IEnumerator Swing()
 ### 야구공 궤적 표시
 <img width="803" height="253" alt="image" src="https://github.com/user-attachments/assets/b5eb6f85-514b-4eae-a53e-46f592b799ac" /><br>
 공의 궤적을 체크하기 위해 만든 기능이다.<br>
+예측 궤적을 점선으로 그려 스트라이크 존 통과 여부와 최종 낙구 지점을 눈으로 확인한다. <br>
 공의 궤적을 계산해서 노란색 실선으로 그려주는 역할을 한다.<br><br>
 
-```
-void CalTrajectory(bool isDebug = false)
-{
-    Vector3 predictedStrikePos;
-    float dashLength = 0.1f; // 그려지는 짧은 선 길이
-    float gapLength  = 0.1f; // 대시 사이 공백
-    
-    int steps = 160;
-    float dt = 0.05f;
-    
-    if(isDebug)
-        Gizmos.color = Color.yellow;
 
-    Vector3 p = transform.position;
-    
-    Vector3 g = Physics.gravity;
-    Vector3 v;
-    if (_rigidbody == null)
-    {
-        v = new Vector3(1, 0, 1).normalized * _debugVelocity / 3.6f;
-    }
-    else
-    {
-        v = _rigidbody.velocity;
-    }
-    
-    float stepLen = dashLength + Mathf.Max(0f, gapLength);
-
-    for (int i = 0; i < steps; i++)
-    {
-        //중력 적용
-        v += g * dt;
-        Vector3 nextP = p + v * dt;
-
-        // p -> nextP 구간을 대시로 쪼개서 그리기
-        if(isDebug)
-            DrawDashedSegment(p, nextP, dashLength, stepLen);
-
-        // 수정된 완벽한 충돌 감지 로직
-        if (Physics.Linecast(p, nextP, out var hit, -1, QueryTriggerInteraction.Collide))
-        {
-            // 1. 만약 부딪힌 게 Trigger(스트라이크 존 등)라면?
-            if (hit.collider.isTrigger && (hit.collider.CompareTag("BallZone") || hit.collider.CompareTag("StrikeZone")))
-            {
-                // 존을 관통하는 위치만 쓱 기록하고 break는 하지 않음! (궤적 통과)
-                if (!hasPassedStrikeZone) 
-                {
-                    predictedStrikePos = hit.point; // 관통한 정확한 좌표
-                    hasPassedStrikeZone = true;
-                    bat.MoveAxis(predictedStrikePos);
-                }
-            }
-            // 2. 만약 부딪힌 게 진짜 물리적인 벽이나 땅이라면?
-            else if(!hit.collider.isTrigger)
-            {
-                if(isDebug) 
-                    Gizmos.DrawWireSphere(hit.point, 0.2f);
-        
-                _targetPosition = hit.point; // 최종 도착 지점 기록
-                break; // 여기서 궤적 그리기 종료
-            }
-        }
-
-        p = nextP;
-    }
-}
-
-void DrawDashedSegment(Vector3 a, Vector3 b, float dashLen, float stepLen)
-{
-    Vector3 ab = b - a;
-    float len = ab.magnitude;
-    if (len < 0.00001f) return;
-
-    Vector3 dir = ab / len;
-
-    for (float t = 0f; t < len; t += stepLen)
-    {
-        float t0 = t;
-        float t1 = Mathf.Min(t + dashLen, len);
-        Gizmos.DrawLine(a + dir * t0, a + dir * t1);
-    }
-}
-```
 
 
 
