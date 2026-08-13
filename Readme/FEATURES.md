@@ -44,22 +44,13 @@
 - [ ] 플레이어가 던지는 슬라이더·커브·포크볼 gif 추가
 
 ## AI 투수
-
-<img width="400" alt="직구" src="https://github.com/user-attachments/assets/119d3df8-a414-411b-9f38-a48cb139c3d4" /><br>
-
-시작 위치, 도착 위치, 투수 구속을 매개변수로 넣으면 시작 공 속력을 반환한다.
-
-### 커브
-
-<img width="400" alt="커브" src="https://github.com/user-attachments/assets/36571b80-12b0-46dc-89c9-7caa7fe25e4c" /><br>
-
-기존의 직구에서 마그누스 효과를 적용했다. 속력이 클수록 마그누스 힘을 증가시켜 실제 커브처럼 날카롭게 떨어지는 움직임을 구현했다.
-
-### 슬라이더
-
-<img width="400" alt="슬라이더" src="https://github.com/user-attachments/assets/69a46cbc-35ad-4690-b767-6673622ab612" /><br>
-
-x값에 가중치를 둬서 옆으로 휘어지게 만들었다.
+<table>
+<tr>
+<td><img width="400" src="https://github.com/user-attachments/assets/119d3df8-a414-411b-9f38-a48cb139c3d4" /><br>직구</td>
+<td><img width="400" src="https://github.com/user-attachments/assets/36571b80-12b0-46dc-89c9-7caa7fe25e4c" /><br>커브</td>
+<td><img width="400" src="https://github.com/user-attachments/assets/69a46cbc-35ad-4690-b767-6673622ab612" /><br>슬라이더</td>
+</tr>
+</table>
 
 ### 구종 통합 계산
 
