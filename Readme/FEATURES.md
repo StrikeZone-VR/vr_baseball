@@ -12,6 +12,8 @@
 
 # UI
 <img width="300" alt="image" src="https://github.com/user-attachments/assets/676a56ab-6dd4-4a22-add2-e8d1b42d13f1" />
+<img width="300" alt="image" src="https://github.com/user-attachments/assets/d933394b-13ed-4f86-a46d-49dbc7da4e1a" />
+
 
 
 <img width="300" alt="메뉴 버튼 확대" src="https://github.com/user-attachments/assets/2838e9fb-5d7f-4bd6-acc2-d0455433a833" /><br>
