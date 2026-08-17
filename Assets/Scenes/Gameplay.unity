@@ -1880,7 +1880,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
   m_PrefabInstance: {fileID: 9125010748214181292}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9125010748214181293}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: da16bbf45d769d64a83046e0ce1c89ae, type: 3}
@@ -7842,122 +7842,26 @@ PrefabInstance:
       propertyPath: defaultParentBaseball
       value: 
       objectReference: {fileID: 1128552219}
-    - target: {fileID: 1437758103643086679, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: m_UseGravity
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1437758103643086679, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: m_CollisionDetection
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4046299293835020439, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: m_UseDynamicAttach
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4046299293835020439, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: m_MatchAttachRotation
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4046299293835020439, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: m_SnapToColliderVolume
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4046299293835020439, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: m_InteractionLayers.m_Bits
-      value: 4294967295
-      objectReference: {fileID: 0}
-    - target: {fileID: 4046299293835020439, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: m_ReinitializeDynamicAttachEverySingleGrab
-      value: 0
-      objectReference: {fileID: 0}
+    - target: {fileID: 7729385384776017324, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
+      propertyPath: strikeZone
+      value: 
+      objectReference: {fileID: 2031423781}
     - target: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
       propertyPath: bat
       value: 
       objectReference: {fileID: 877522169}
     - target: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: isZone
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: _physics
-      value: 
-      objectReference: {fileID: 9125010748214181301}
-    - target: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: foulEvent
-      value: 
-      objectReference: {fileID: 11400000, guid: 92f9d4b8ff2a53147a913724e0def414, type: 2}
-    - target: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: isPassing
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: paulEvent
-      value: 
-      objectReference: {fileID: 11400000, guid: 92f9d4b8ff2a53147a913724e0def414, type: 2}
-    - target: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
       propertyPath: strikeZone
       value: 
       objectReference: {fileID: 2031423781}
-    - target: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: homerunEvent
-      value: 
-      objectReference: {fileID: 11400000, guid: 2c50fa93d15b0bd469de3b987b91d592, type: 2}
-    - target: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: _debugVelocity
-      value: 60
-      objectReference: {fileID: 0}
-    - target: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: addStrikeEvent
-      value: 
-      objectReference: {fileID: 11400000, guid: 7980c5f1d20201f48891aba9f1727e76, type: 2}
-    - target: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: runSignalEvent
-      value: 
-      objectReference: {fileID: 11400000, guid: 2f8b5c598135ebb49bd8c25de9d4678c, type: 2}
-    - target: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: setBeforeEvent
-      value: 
-      objectReference: {fileID: 11400000, guid: 64ab46ed3c98c004293ba3d5a15135dd, type: 2}
-    - target: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: _debugVelocity.x
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: addBallCountEvent
-      value: 
-      objectReference: {fileID: 11400000, guid: 60c42e35457ecd34d8efad8431a9dc85, type: 2}
-    - target: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: selectedPitchType
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 8364105362300272789, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
       propertyPath: m_Name
       value: Baseball
-      objectReference: {fileID: 0}
-    - target: {fileID: 8364105362300272789, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: m_Layer
-      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 8458786125471442576, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
       propertyPath: strikeZone
       value: 
       objectReference: {fileID: 2031423781}
-    - target: {fileID: 9040452230717059448, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 9040452230717059448, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 9040452230717059448, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 5
-      objectReference: {fileID: 0}
     - target: {fileID: 9040452230717059448, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
       propertyPath: m_LocalPosition.x
       value: -15
@@ -8001,44 +7905,14 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 8364105362300272789, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 9125010748214181300}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
---- !u!1 &9125010748214181293 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8364105362300272789, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-  m_PrefabInstance: {fileID: 9125010748214181292}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &9125010748214181300
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9125010748214181293}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8de035fd49bbf1e408c657cfb30c0835, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _trajectoryData: {fileID: 11400000, guid: 1e6a5c4765370894cad39e6faf3c4015, type: 2}
-  strikeZone: {fileID: 2031423781}
-  swingKey: 40
-  swingStartEuler: {x: 0, y: 0, z: 0}
-  swingEndEuler: {x: 0, y: 0, z: 0}
-  swingDuration: 0.25
-  ball: {fileID: 0}
-  interactionManager: {fileID: 0}
-  debugSwingEvent: {fileID: 0}
-  rightHandName: 
 --- !u!114 &9125010748214181301 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: -4336775324136577172, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
   m_PrefabInstance: {fileID: 9125010748214181292}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9125010748214181293}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e5c0ef1d98d03844982fca185c66ea93, type: 3}

@@ -169,6 +169,17 @@ MonoBehaviour:
   pitchSelectionUI: {fileID: 1260030965}
   _ball: {fileID: 2044365753}
   ballResetPosition: {fileID: 1464780507}
+--- !u!114 &111137988 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6879684877519474270, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
+  m_PrefabInstance: {fileID: 1496257331}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 019fbe4d8ddc3a54cab87bcba6387fd2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &160044178 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2738806996419530495, guid: 6b632a987658c784fb8d018000345df0, type: 3}
@@ -1900,17 +1911,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
---- !u!114 &1496257332 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6879684877519474270, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
-  m_PrefabInstance: {fileID: 1496257331}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 019fbe4d8ddc3a54cab87bcba6387fd2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &1496257333 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 317811069959420000, guid: 00aef29ed841ec242ab6c6b1d0391e0f, type: 3}
@@ -2171,101 +2171,17 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 248055998}
     m_Modifications:
-    - target: {fileID: -4336775324136577172, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: defaultParentBaseball
-      value: 
-      objectReference: {fileID: 248055998}
-    - target: {fileID: 1437758103643086679, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: m_UseGravity
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5989334004148865900, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: triggerAction
-      value: 
-      objectReference: {fileID: 3279264004350380116, guid: 187f6be54103f91438c4d84bc74196dd, type: 3}
-    - target: {fileID: 6078606214894840668, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: m_Convex
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
       propertyPath: bat
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: _physics
-      value: 
-      objectReference: {fileID: 2044365755}
-    - target: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: foulEvent
-      value: 
-      objectReference: {fileID: 11400000, guid: 38591f4b3ef079940be5f6a3e91e74ce, type: 2}
-    - target: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: paulEvent
-      value: 
-      objectReference: {fileID: 11400000, guid: 38591f4b3ef079940be5f6a3e91e74ce, type: 2}
-    - target: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
       propertyPath: strikeZone
       value: 
-      objectReference: {fileID: 1496257332}
-    - target: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: addStrikeEvent
-      value: 
-      objectReference: {fileID: 11400000, guid: 7980c5f1d20201f48891aba9f1727e76, type: 2}
-    - target: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: inplayGameEvent
-      value: 
-      objectReference: {fileID: 11400000, guid: d31ece9de1f0ded4e95897cfa47eaa57, type: 2}
-    - target: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: addBallCountEvent
-      value: 
-      objectReference: {fileID: 11400000, guid: 60c42e35457ecd34d8efad8431a9dc85, type: 2}
-    - target: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: backToPitcherEvent
-      value: 
-      objectReference: {fileID: 11400000, guid: 38591f4b3ef079940be5f6a3e91e74ce, type: 2}
-    - target: {fileID: 8324867596943280312, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: getVelocityEventSO
-      value: 
-      objectReference: {fileID: 11400000, guid: c2305552fa4ae3741985e7e98ca99b92, type: 2}
+      objectReference: {fileID: 111137988}
     - target: {fileID: 8364105362300272789, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
       propertyPath: m_Name
       value: Baseball
-      objectReference: {fileID: 0}
-    - target: {fileID: 8364105362300272789, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8458786125471442576, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: ball
-      value: 
-      objectReference: {fileID: 2044365758}
-    - target: {fileID: 8458786125471442576, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: strikeZone
-      value: 
-      objectReference: {fileID: 1496257332}
-    - target: {fileID: 8458786125471442576, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: rightHandName
-      value: Right Controller
-      objectReference: {fileID: 0}
-    - target: {fileID: 8458786125471442576, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: swingEndEuler.x
-      value: 15
-      objectReference: {fileID: 0}
-    - target: {fileID: 8458786125471442576, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: swingStartEuler.x
-      value: -20
-      objectReference: {fileID: 0}
-    - target: {fileID: 9040452230717059448, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 9040452230717059448, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 9040452230717059448, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 9040452230717059448, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2337,17 +2253,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e5c0ef1d98d03844982fca185c66ea93, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &2044365758 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4046299293835020439, guid: 9ebf85fb2176f2d40874a5072ad96fba, type: 3}
-  m_PrefabInstance: {fileID: 2044365752}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0ad34abafad169848a38072baa96cdb2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1001 &5629718977804022449
