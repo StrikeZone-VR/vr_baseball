@@ -38,7 +38,15 @@
 <img width="400" alt="가중치 적용 투구" src="https://github.com/user-attachments/assets/47c6d653-cee9-46fc-843a-c2b8506b25cf" /><br>
 
 가중치를 추가한 버전. 같은 구속에서도 코스가 미세하게 흔들려 실제 투구에 가까워진다.
-- [ ] 플레이어가 던지는 슬라이더·커브·포크볼 gif 추가
+
+<table>
+<tr>
+<td><img width="400" src="https://github.com/user-attachments/assets/ba506b70-37ba-4156-a176-8fa42a2e1112" /><br>직구</td>
+<td><img width="400" src="https://github.com/user-attachments/assets/e1af0306-e79c-4f71-8ab6-33c8035e10b8" /><br>커브</td>
+<td><img width="400" src="https://github.com/user-attachments/assets/3211ba0b-3881-422a-b733-c50828265582" /><br>슬라이더</td>
+<td><img width="400" src="https://github.com/user-attachments/assets/18e4750a-bda6-4ca7-addd-68eca0d074c7" /><br>포크볼</td>
+</tr>
+</table>
 
 ## AI 투수
 <table>
