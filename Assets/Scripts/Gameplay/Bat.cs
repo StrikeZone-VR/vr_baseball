@@ -18,6 +18,11 @@ public class Bat : MonoBehaviour
     private float currentSwingSpeed;
     private bool isSwing = false;
 
+    //isSwing은 '지금 이 순간 배트가 SwingZone 안에 있나'라서 스윙이 끝나면 바로 false로 돌아간다.
+    //그런데 판정(Baseball.PitchResult)은 공이 포수/땅에 닿은 뒤에야 돌아서, 배트가 이미 존을 빠져나간
+    //경우 헛스윙인데도 스윙을 안 한 걸로 읽혔다. → 투구 단위로 래치를 걸어 기억한다.
+    private bool swungThisPitch = false;
+
     public float ROTATION_TIME = 0.125f; //0.25
     const float AXIS_DISTANCE = 0.5f;
     float elapsed = 0f;
@@ -51,6 +56,7 @@ public class Bat : MonoBehaviour
         if (other.CompareTag("SwingZone"))
         {
             isSwing = true;
+            swungThisPitch = true; //존을 빠져나가도 이번 투구 동안은 유지
         }
 
         // if (other.CompareTag("BallZone") || other.CompareTag("StrikeZone"))
@@ -67,9 +73,17 @@ public class Bat : MonoBehaviour
         }
     }
 
+    //판정용: 이번 투구에 한 번이라도 스윙했는가. (배트가 지금 존 안인지가 아님)
     public bool IsSwing()
     {
-        return isSwing;
+        return swungThisPitch || isSwing;
+    }
+
+    //새 투구가 시작될 때 래치를 푼다. 안 풀면 직전 타석의 스윙이 다음 공의 헛스윙으로 잡힌다.
+    //ㄴ 대기 중 연습 스윙이 다음 투구에 묻어가는 것도 여기서 끊긴다.
+    public void ResetSwing()
+    {
+        swungThisPitch = false;
     }
     public float GetSwingSpeed()
     {
@@ -101,7 +115,8 @@ public class Bat : MonoBehaviour
         // 
 
         isSwing = true;
-        
+        swungThisPitch = true;
+
         //Debug.LogWarning("Swing. 그러나 임시로 막아둠");
         StartCoroutine(Swing());
     }

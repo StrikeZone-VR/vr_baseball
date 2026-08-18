@@ -250,8 +250,15 @@ public class BaseballPhysics : MonoBehaviour
                 //파울
                 if ((transform.position.x > 0 || transform.position.z > 0) && _baseball.IsInGamePlay)
                 {
-                    _baseball.Foul();
-                    return;
+                    //Foul()이 실제로 파울 처리했을 때만 여기서 끝낸다.
+                    //ㄴ 이미 수비가 송구한 플레이(_wasThrownByDefenseThisPlay)면 Foul()은 아무것도 안 하고 false를 준다.
+                    //   그때 그냥 return하면 아래 FreeBall 승격이 통째로 스킵돼 공이 Thrown에 갇히고,
+                    //   Player.IsPassingBall()이 계속 true라 IsTracking 세터가 추적을 즉시 꺼버려
+                    //   송구 미스로 파울 지역에 떨어진 공을 아무도 주우러 가지 않는다. (ReplaySO: 20초부터 경기 정지)
+                    if (_baseball.Foul())
+                    {
+                        return;
+                    }
                 }
                 _baseball.PitchResult();
 
@@ -324,12 +331,18 @@ public class BaseballPhysics : MonoBehaviour
 
     #region Pitching
 
-    public void ThrowBall(Vector3 start, Vector3 target, float velocity_xy)
+    //isPitcher=false(수비 송구)면 구종 힘을 궤적 계산에서 빼야 한다.
+    //ㄴ ApplyPitchMovement가 CurrentState == Pitched일 때만 마그누스를 걸어주므로,
+    //   Thrown(송구)은 실제로는 순수 중력으로만 날아간다. 그런데 CalculateVelocity가
+    //   직전 투구의 ForceWeight(selectedPitchType은 다음 투구 전까지 안 바뀜)로
+    //   effectiveG = g - aY 를 키워 vy를 부풀리면, 커브(-0.05)는 목표를 1.8배,
+    //   포크(-0.1)는 더 크게 오버슛한다. (Replay_갑자기 송구를: 23.9m 목표를 45m로 날림)
+    public void ThrowBall(Vector3 start, Vector3 target, float velocity_xy, bool isPitcher)
     {
-        Vector3 fw = _baseball.GetSelectedPitchTypeSO().ForceWeight;
+        Vector3 fw = isPitcher ? _baseball.GetSelectedPitchTypeSO().ForceWeight : Vector3.zero;
         //GameLog.BallLog($"[BaseBall] 요청속력={velocity_xy}km/h, start={start}, target={target}, forceWeight={fw}");
 
-        Vector3 force = GetVelocityByPitchType(start, target, velocity_xy);
+        Vector3 force = GetVelocityByPitchType(start, target, velocity_xy, isPitcher);
 
         //GameLog.BallLog($"[BaseBall] CalculateVelocity 결과: v=({force.x:F2},{force.y:F2},{force.z:F2}), " +
                         //$"|원래 xz속력|={new Vector2(force.x, force.z).magnitude * 3.6f:F1}km/h, " +
@@ -473,10 +486,11 @@ public class BaseballPhysics : MonoBehaviour
     /// <param name="target"></param>
     /// <param name="velocityXZ"></param>
     /// <param name="pitchType"></param>
+    /// <param name="applyPitchType">false면 구종 힘 무시(수비 송구용). 비행 중 마그누스가 안 걸리는 경로는 계산에서도 빼야 착지점이 맞는다.</param>
     /// <returns></returns>
-    public Vector3 GetVelocityByPitchType(Vector3 start, Vector3 target, float velocityXZ)
+    public Vector3 GetVelocityByPitchType(Vector3 start, Vector3 target, float velocityXZ, bool applyPitchType = true)
     {
-        Vector3 piterTypeForce = _baseball.GetSelectedPitchTypeSO().ForceWeight;
+        Vector3 piterTypeForce = applyPitchType ? _baseball.GetSelectedPitchTypeSO().ForceWeight : Vector3.zero;
         return CalculateVelocity(start, target, velocityXZ, piterTypeForce);
     }
 

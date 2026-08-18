@@ -145,7 +145,7 @@ public class Baseball : MonoBehaviour
         {
             CurrentState = BallState.Thrown;
         }
-        _physics.ThrowBall(start, target, velocity_xy);
+        _physics.ThrowBall(start, target, velocity_xy, isPitcher);
 
         //잠깐. AI 투수가 던지는데 이걸 활성화 하는 판단이 맞을까?
         // if (isPitcher)
@@ -272,6 +272,7 @@ public class Baseball : MonoBehaviour
                     _physics.CanMeasureVelocity = true;
                     _physics.RecordPitchStart(); //거리/시간 속력 측정용 시작 시점 기록
                     _physics.SetRigidbodyMode(true);
+                    if (bat) bat.ResetSwing(); //새 투구 = 스윙 래치 초기화. 판정은 PitchResult에서 bat.IsSwing()으로 읽는다
                     break;
                 case BallState.Thrown:
                     _physics.SetGravity(true);
@@ -535,7 +536,8 @@ public class Baseball : MonoBehaviour
         }
     }
 
-    public void Foul()
+    /// <returns>실제로 파울로 처리했으면 true. false면 호출한 쪽이 플레이를 계속 진행시켜야 한다.</returns>
+    public bool Foul()
     {
         //  && !IsGroundBall 그냥 제거함
         //todo 페어볼은 아직 안함
@@ -545,7 +547,7 @@ public class Baseball : MonoBehaviour
             //뒤늦게 공이 굴러가다 Foul 콜라이더에 닿아도 무시 (안 그러면 RollbackBeforeStatus가 이미 베이스 밟은 주자를 삭제함)
             if (_wasThrownByDefenseThisPlay)
             {
-                return;
+                return false;
             }
 
             foulEvent.RaiseEvent();
@@ -554,8 +556,11 @@ public class Baseball : MonoBehaviour
             {
                 CurrentState = BallState.Dead;
             }
+
+            return true;
         }
 
+        return false;
     }
 
     public void Hit()

@@ -62,6 +62,13 @@ public class MyXROriginManager : MonoBehaviour
 
     private bool swingActive;
     private Coroutine settleRoutine;
+    private Coroutine moveLockRoutine;
+
+    //적용해야 할 눈높이 오프셋. XROrigin이 0으로 되돌려도 LateUpdate(EnforceEyeHeightOffset)가 이 값으로 복구한다.
+    private float _desiredEyeOffset = 0f;
+
+    //이동 잠금 시 locomotionPhase가 Idle로 내려오길 기다리는 최대 시간. (DisableMoveWhenSettled)
+    private const float MOVE_LOCK_SETTLE_TIMEOUT = 0.5f;
 
     private void OnEnable()
     {
@@ -356,11 +363,34 @@ public class MyXROriginManager : MonoBehaviour
 
     private void SetEyeHeightOffset(float offsetY)
     {
+        _desiredEyeOffset = offsetY; //XROrigin이 0으로 되돌려도 LateUpdate가 이 값으로 되돌린다
+
         GameObject floorOffset = _origin != null ? _origin.CameraFloorOffsetObject : null;
         if (floorOffset == null) return;
         Vector3 lp = floorOffset.transform.localPosition;
         lp.y = offsetY;
         floorOffset.transform.localPosition = lp;
+    }
+
+    //눈높이 오프셋은 한 번 넣어두면 끝이 아니다. Floor 트래킹에서 XROrigin.MoveOffsetHeight()는
+    //CameraFloorOffsetObject의 Y를 무조건 0으로 되돌리는데(XROrigin.cs, TrackingOriginModeFlags.Floor → MoveOffsetHeight(0f)),
+    //이게 XR 런타임이 trackingOriginUpdated를 쏠 때마다(리센터/트래킹 원점 갱신) 다시 불린다.
+    //ㄴ ApplySavedEyeHeightRoutine은 Start에서 딱 한 번만 도니까, 한 번 지워지면 영영 안 돌아온다.
+    //   → 씬 전환(GameResult 등) 시점에 갑자기 실제 키로 떨어지던 증상. (보정 +0.3m가 날아가면 1.7m가 1.4m처럼 느껴짐)
+    //그래서 매 프레임 값이 살아있는지 확인하고 되돌린다. 비용은 float 비교 하나.
+    private void EnforceEyeHeightOffset()
+    {
+        if (Mathf.Approximately(_desiredEyeOffset, 0f)) return; //보정 안 한 상태면 건드릴 것 없음
+
+        GameObject floorOffset = _origin != null ? _origin.CameraFloorOffsetObject : null;
+        if (floorOffset == null) return;
+
+        Vector3 lp = floorOffset.transform.localPosition;
+        if (Mathf.Abs(lp.y - _desiredEyeOffset) < 0.0001f) return;
+
+        lp.y = _desiredEyeOffset;
+        floorOffset.transform.localPosition = lp;
+        Debug.Log($"[EyeHeight] 오프셋이 초기화돼 복구함: {_desiredEyeOffset:+0.00;-0.00}m (XROrigin이 Floor 모드에서 0으로 되돌림)");
     }
 
     // ===== 주자 레일 =====================================================
@@ -382,6 +412,9 @@ public class MyXROriginManager : MonoBehaviour
     //move provider가 Update에서 이동시킨 "후"에 보정해야 해서 LateUpdate.
     private void LateUpdate()
     {
+        //레일보다 먼저. 아래 early return에 걸리면 안 된다.
+        EnforceEyeHeightOffset();
+
         if (!_railActive || _origin == null) return;
         Camera cam = _origin.Camera;
         if (cam == null) return;
@@ -425,7 +458,47 @@ public class MyXROriginManager : MonoBehaviour
     
     private void SetPlayerMoveMode(bool isMove)
     {
-        moveProvider.enabled = isMove;
-    } 
+        if (moveProvider == null) return;
+
+        if (moveLockRoutine != null)
+        {
+            StopCoroutine(moveLockRoutine);
+            moveLockRoutine = null;
+        }
+
+        if (isMove)
+        {
+            moveProvider.enabled = true;
+            return;
+        }
+
+        if (!moveProvider.enabled) return; //이미 잠김
+
+        moveLockRoutine = StartCoroutine(DisableMoveWhenSettled());
+    }
+
+    //이동 중에 provider를 그냥 꺼버리면 안 된다.
+    //ㄴ ContinuousMoveProviderBase.Update()가 매 프레임 m_IsMovingXROrigin을 false로 리셋한 뒤
+    //   MoveRig가 돌면 true로 세우고, 그 값으로 locomotionPhase를 Moving↔Done↔Idle로 굴린다.
+    //   즉 phase를 내려주는 건 Update() 하나뿐이라, 달리는 중(phase == Moving)에 enabled = false를 하면
+    //   Update가 멈춰 phase가 Moving에 영구히 고정된다.
+    //   → LocomotionVignetteProvider가 계속 '이동 중'으로 보고 TunnelingVignette를 닫아둠
+    //     (달리다가 아웃돼서 타석 이동 잠금이 걸리면 주변 시야가 까맣게 남던 버그).
+    //   가만히 서서 아웃되면 phase가 이미 Idle이라 멀쩡했던 것도 같은 이유.
+    //그래서 Update()가 Moving → Done → Idle 까지 내려온 걸 확인하고 끈다(보통 2프레임).
+    private IEnumerator DisableMoveWhenSettled()
+    {
+        float elapsed = 0f;
+        while (moveProvider.locomotionPhase != LocomotionPhase.Idle && elapsed < MOVE_LOCK_SETTLE_TIMEOUT)
+        {
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        //타임아웃(조이스틱을 계속 밀고 있는 경우)이어도 잠그는 건 잠근다.
+        //이땐 phase가 Moving으로 남지만, 다음 SetPlayerMoveMode(true)에서 Update가 재개되며 스스로 풀린다.
+        moveProvider.enabled = false;
+        moveLockRoutine = null;
+    }
     
 }
