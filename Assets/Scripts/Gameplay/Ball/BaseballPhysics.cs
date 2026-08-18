@@ -263,7 +263,20 @@ public class BaseballPhysics : MonoBehaviour
                 _baseball.PitchResult();
 
                 //혹여나 송구미스
-                _baseball.CurrentState = BallState.FreeBall;
+                //ㄴ 단, PitchResult가 이 안에서 플레이를 이미 끝냈으면 덮어쓰면 안 된다.
+                //   PitchResult는 투구 판정(헛스윙/루킹/볼) 끝에 CurrentState = Dead를 세우고,
+                //   Dead 케이스가 backToPitcherEvent → ResetBall로 공을 마운드에 Idle로 갖다 놓는다.
+                //   그 캐스케이드가 끝나고 돌아온 여기서 FreeBall을 씌우면, 마운드에 대기 중인 공이
+                //   살아있는 상태로 방치된다(FreeBall은 CurrentState 세터에 케이스가 없어 물리도 방치).
+                //   ㄴ ReplaySO 156.27초: 헛스윙 삼진인데 공이 땅에 먼저 닿아서(포수 미포구) 이 경로를 탔고,
+                //     Idle까지 갔다가 마지막에 FreeBall로 덮여 13.6초간 FreeBall로 남았다.
+                //   포수가 잡은 경우(Grabbed)는 위 가드에서 걸러져 이 문제가 안 보였던 것.
+                //송구미스(Thrown)는 PitchResult가 맨 앞에서 return하므로 상태가 그대로 → 아래 조건을 통과한다.
+                if (_baseball.CurrentState != BallState.Idle
+                    && _baseball.CurrentState != BallState.Dead)
+                {
+                    _baseball.CurrentState = BallState.FreeBall;
+                }
 
                 if (_baseball.IsInGamePlay)
                 {
