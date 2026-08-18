@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6538953854137074354}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: touch
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -42,7 +42,7 @@ GameObject:
   - component: {fileID: 5240538323715969024}
   - component: {fileID: 4390533242543245235}
   - component: {fileID: 4717716284276179080}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: BaseBall_Bat_LOD_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -123,7 +123,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8595610330102084804}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: batPos
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -156,7 +156,7 @@ GameObject:
   - component: {fileID: 3315998133253396017}
   - component: {fileID: 8614590578284690001}
   - component: {fileID: 2327442893436008988}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: BaseBall_Bat_LOD_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -239,7 +239,7 @@ GameObject:
   - component: {fileID: 3846376468458867424}
   - component: {fileID: 6048336861323788233}
   - component: {fileID: 5250699490050836012}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: BaseBall_Bat_LOD_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -340,9 +340,9 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6739404497294416181}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.334, y: 0.92, z: -0.295}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4396219608449463687}
@@ -433,10 +433,10 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 1
+  m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 126
   m_CollisionDetection: 2
 --- !u!114 &5227407209185059354
 MonoBehaviour:
@@ -452,6 +452,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   topBatPos: {fileID: 8595610330102084804}
   axis: {fileID: 0}
+  _strikeZone: {fileID: 0}
+  ROTATION_TIME: 0.125
   rotationCurve:
     serializedVersion: 2
     m_Curve:
@@ -494,7 +496,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   m_InteractionLayers:
-    m_Bits: 1
+    m_Bits: 4294967295
   m_DistanceCalculationMode: 1
   m_SelectMode: 1
   m_FocusMode: 1
@@ -639,7 +641,7 @@ GameObject:
   - component: {fileID: 3322790869130092853}
   - component: {fileID: 3590524572613356439}
   - component: {fileID: 170634541000478401}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: BaseBall_Bat_LOD_4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -722,7 +724,7 @@ GameObject:
   - component: {fileID: 4396219608449463687}
   - component: {fileID: 2720163201879599333}
   - component: {fileID: 767714192076995491}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: BaseBall_Bat_LOD_0
   m_TagString: Untagged
   m_Icon: {fileID: 0}

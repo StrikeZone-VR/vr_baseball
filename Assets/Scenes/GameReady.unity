@@ -3539,26 +3539,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   teams:
-  - teamName: "\uD55C\uD654 \uC774\uAE00\uC2A4"
-    teamLogo: {fileID: 21300000, guid: 798e88316d6701d468414fcfffc34b47, type: 3}
-  - teamName: "LG \uD2B8\uC708\uC2A4"
-    teamLogo: {fileID: 21300000, guid: 35b6c9dadf8b0124c8dfad990cee36de, type: 3}
-  - teamName: "\uB86F\uB370 \uC790\uC774\uC5B8\uCE20"
-    teamLogo: {fileID: 21300000, guid: af0b3888c4274a645a371a8a8a2033f0, type: 3}
-  - teamName: "KT \uC704\uC988"
-    teamLogo: {fileID: 21300000, guid: 62bb4b59039cd8840818db41f16c7237, type: 3}
-  - teamName: "SSG \uB79C\uB354\uC2A4"
-    teamLogo: {fileID: 21300000, guid: 82b9117e84daa2843abeac950d93f682, type: 3}
-  - teamName: "\uC0BC\uC131 \uB77C\uC774\uC628\uC988"
-    teamLogo: {fileID: 21300000, guid: be8b8ba2a0f5ce540b6cccd1fe7ef7fb, type: 3}
-  - teamName: "KIA \uD0C0\uC774\uAC70\uC988"
-    teamLogo: {fileID: 21300000, guid: 28db0739420e0a64eaf18389173fdfc5, type: 3}
-  - teamName: "NC \uB2E4\uC774\uB178\uC2A4"
-    teamLogo: {fileID: 21300000, guid: 5e0e5de68c7e1c649a12744ac36d4120, type: 3}
-  - teamName: "\uB450\uC0B0 \uBCA0\uC5B4\uC2A4"
-    teamLogo: {fileID: 21300000, guid: bfbf57d3975c62a4b914fbd65a560a05, type: 3}
-  - teamName: "\uD0A4\uC6C0 \uD788\uC5B4\uB85C\uC988"
-    teamLogo: {fileID: 21300000, guid: ca92fcc045e47f3489d017ca9a81a095, type: 3}
+  - teamName: "\uC8FC\uD669 \uC774\uAE00\uC2A4"
+    teamLogo: {fileID: 21300000, guid: 484826638ed67d34188fb3aef18ac04f, type: 3}
+  - teamName: "\uC9C4\uD64D \uD2B8\uC708\uC2A4"
+    teamLogo: {fileID: 21300000, guid: 4cb59e3feeaaf20428ca513137215d69, type: 3}
+  - teamName: "\uCCAD\uB85D \uC790\uC774\uC5B8\uCE20"
+    teamLogo: {fileID: 21300000, guid: f3388e43083b3fe499bda1ebfb907cd6, type: 3}
+  - teamName: "\uAC80\uC815 \uC704\uC988"
+    teamLogo: {fileID: 21300000, guid: be1ccde79a078d74892ad6cc8bdcb746, type: 3}
+  - teamName: "\uCD08\uB85D \uB79C\uB354\uC2A4"
+    teamLogo: {fileID: 21300000, guid: f9fabaa8dd166394683979e239688c94, type: 3}
+  - teamName: "\uD558\uB298 \uB77C\uC774\uC628\uC988"
+    teamLogo: {fileID: 21300000, guid: 1e4113392bfbbde40b0f995923e275ce, type: 3}
+  - teamName: "\uC790\uC8FC \uD0C0\uC774\uAC70\uC988"
+    teamLogo: {fileID: 21300000, guid: c7ed1e2d265b4dc499fdf334c7eb4d31, type: 3}
+  - teamName: "\uAE08\uC0C9 \uB2E4\uC774\uB178\uC2A4"
+    teamLogo: {fileID: 21300000, guid: a3d4603a7271d2d46b00d89774271578, type: 3}
+  - teamName: "\uB0A8\uC0C9 \uBCA0\uC5B4\uC2A4"
+    teamLogo: {fileID: 21300000, guid: a0ff8740faf1f034f8a337cf73652f0d, type: 3}
+  - teamName: "\uBCF4\uB77C \uD788\uC5B4\uB85C\uC988"
+    teamLogo: {fileID: 21300000, guid: bea117b52309ebb408963d60bbe44e22, type: 3}
   computerCurrentTeamLogo: {fileID: 2069564384}
   computerPreviousTeamLogo: {fileID: 279214530}
   computerNextTeamLogo: {fileID: 2008679073}
