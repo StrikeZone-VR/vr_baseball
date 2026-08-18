@@ -781,6 +781,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "SetHeight",
+                    "type": "Button",
+                    "id": "a3e82b8f-ef71-480e-9105-1c96c5965887",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -946,6 +955,17 @@
                     "processors": "ScaleVector2(x=0),StickDeadzone",
                     "groups": "Generic XR Controller",
                     "action": "Scale Delta",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9196999b-1fe7-4c52-9e4b-137b792e7b49",
+                    "path": "<XRController>{LeftHand}/{PrimaryButton}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SetHeight",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
@@ -2728,6 +2748,34 @@
                     "action": "Touch Release",
                     "isComposite": false,
                     "isPartOfComposite": true
+                }
+            ]
+        },
+        {
+            "name": "Setting",
+            "id": "f553b6b8-f429-4dad-9590-62812e93b6b4",
+            "actions": [
+                {
+                    "name": "onSetting",
+                    "type": "Button",
+                    "id": "b0c43fce-f229-4173-8603-87d143a5584a",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "f55c9533-a0de-4aee-9350-fb20dcdba16c",
+                    "path": "<XRController>{LeftHand}/{MenuButton}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "onSetting",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         }

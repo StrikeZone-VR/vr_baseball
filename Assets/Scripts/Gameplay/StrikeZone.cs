@@ -1,0 +1,129 @@
+/// <summary>
+/// 🎯 스트라이크 존 충돌 감지 스크립트 - 공이 닿으면 스트라이크 판정 처리
+/// </summary>
+
+using UnityEngine;
+using UnityEngine.UI;
+
+public class StrikeZone : MonoBehaviour
+{
+    //이거 사운드 설정 안할거임
+    
+    [Header("스트라이크 존 설정")]
+    [SerializeField] private Transform[] zones; 
+    public Vector3 zoneSize = new Vector3(0.5f, 1.0f, 0.1f);
+    
+    private Renderer zoneRenderer;
+    private Collider zoneCollider;
+    private Material zoneMaterial;
+
+    public System.Action<bool> OnPitchResult; // true = strike, false = ball
+
+    [Header("Listening to events")] 
+    [SerializeField] private VoidEventSO strikeEvent; //from GameManager 
+    
+    void Start()
+    {
+        //SetupStrikeZone();
+    }
+
+    //무슨 이상한 핑크색 타일 만듬  
+    private void SetupStrikeZone()
+    {
+        // 태그 설정
+        //gameObject.tag = "StrikeZone";
+
+        // 컴포넌트 가져오기/추가
+        zoneRenderer = GetComponent<Renderer>();
+        if (zoneRenderer == null)
+        {
+            zoneRenderer = gameObject.AddComponent<MeshRenderer>();
+            MeshFilter meshFilter = gameObject.AddComponent<MeshFilter>();
+            meshFilter.mesh = CreateStrikeZoneMesh();
+        }
+
+        zoneCollider = GetComponent<Collider>();
+        if (zoneCollider == null)
+        {
+            BoxCollider boxCollider = gameObject.AddComponent<BoxCollider>();
+            boxCollider.size = zoneSize;
+            boxCollider.isTrigger = false; // 물리적 충돌로 변경!
+
+            // Physics Material 추가 - 공이 튕기지 않고 즉시 멈추도록
+            PhysicMaterial noBounceMaterial = new PhysicMaterial("StrikeZone_NoBounce");
+            noBounceMaterial.bounciness = 0f;
+            noBounceMaterial.dynamicFriction = 1f;
+            noBounceMaterial.staticFriction = 1f;
+            boxCollider.material = noBounceMaterial;
+        }
+        // 재질 설정
+        //SetupMaterial();
+    }
+    private Mesh CreateStrikeZoneMesh()
+    {
+        Mesh mesh = new Mesh();
+
+        // 스트라이크 존 크기에 맞는 박스 메시 생성
+        Vector3[] vertices = new Vector3[8];
+        Vector3 halfSize = zoneSize * 0.5f;
+
+        // 앞면 4개 꼭짓점
+        vertices[0] = new Vector3(-halfSize.x, -halfSize.y, halfSize.z);  // 왼쪽 아래 앞
+        vertices[1] = new Vector3(halfSize.x, -halfSize.y, halfSize.z);   // 오른쪽 아래 앞
+        vertices[2] = new Vector3(halfSize.x, halfSize.y, halfSize.z);    // 오른쪽 위 앞
+        vertices[3] = new Vector3(-halfSize.x, halfSize.y, halfSize.z);   // 왼쪽 위 앞
+
+        // 뒷면 4개 꼭짓점
+        vertices[4] = new Vector3(-halfSize.x, -halfSize.y, -halfSize.z); // 왼쪽 아래 뒤
+        vertices[5] = new Vector3(halfSize.x, -halfSize.y, -halfSize.z);  // 오른쪽 아래 뒤
+        vertices[6] = new Vector3(halfSize.x, halfSize.y, -halfSize.z);   // 오른쪽 위 뒤
+        vertices[7] = new Vector3(-halfSize.x, halfSize.y, -halfSize.z);  // 왼쪽 위 뒤
+
+        // 삼각형 인덱스 (앞면만 표시)
+        int[] triangles = new int[]
+        {
+            0, 2, 1, 0, 3, 2  // 앞면
+        };
+
+        mesh.vertices = vertices;
+        mesh.triangles = triangles;
+        mesh.RecalculateNormals();
+
+        return mesh;
+    }
+
+    private bool IsPositionInStrikeZone(Vector3 position)
+    {
+        // 스트라이크 존 범위 체크
+        Bounds bounds = new Bounds(transform.position, zoneSize);
+        return bounds.Contains(position);
+    }
+
+    public Transform GetZone(int index)
+    {
+        return zones[index];
+    }
+
+    /// <summary> 등록된 존 개수. 인덱스를 밖에서 뽑을 때 범위 확인용 </summary>
+    public int ZoneCount => zones != null ? zones.Length : 0;
+
+    //zones 배열은 화면에 보이는 배치와 같은 순서(위→아래, 왼→오른)로 넣는다.
+    //그래서 index = 행*5 + 열 이고, 안쪽 3x3이 스트라이크존(6~8, 11~13, 16~18)이 된다.
+    //ㄴ 순서가 틀어졌으면 메뉴 Tools > Baseball > StrikeZone 존 배열 정렬 을 실행할 것
+    public const int GRID_COLS = 5;
+    public const int GRID_ROWS = 5;
+    public const int CENTER_ZONE_INDEX = 12; //한가운데 (행2, 열2)
+
+    /// <summary>
+    /// 인덱스가 안쪽 3x3(스트라이크존)인지.
+    /// 실제 스트라이크 판정은 콜라이더 태그로 하므로 이건 표시/디버그용이다.
+    /// </summary>
+    public static bool IsStrikeZoneIndex(int index)
+    {
+        if (index < 0 || index >= GRID_ROWS * GRID_COLS) return false;
+
+        int row = index / GRID_COLS;
+        int col = index % GRID_COLS;
+        return row >= 1 && row <= 3 && col >= 1 && col <= 3;
+    }
+}

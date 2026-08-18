@@ -1,0 +1,561 @@
+using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+using System.Collections.Generic;
+using System.Collections;
+using UnityEngine.AddressableAssets;
+using UnityEngine.EventSystems;
+
+public class TeamSelectionManager : MonoBehaviour
+{
+    [System.Serializable]
+    public class TeamData
+    {
+        public string teamName;
+        public Sprite teamLogo;
+    }
+
+    [Header("팀 데이터")]
+    [SerializeField] private List<TeamData> teams = new List<TeamData>();
+
+    [Header("컴퓨터 팀 선택 UI")]
+    [SerializeField] private Image computerCurrentTeamLogo;      // 현재 선택된 팀
+    [SerializeField] private Image computerPreviousTeamLogo;    // 이전 팀 
+    [SerializeField] private Image computerNextTeamLogo;        // 다음 팀 
+    [SerializeField] private TextMeshProUGUI computerTeamNameText;
+    [SerializeField] private Button computerUpButton;
+    [SerializeField] private Button computerDownButton;
+    [SerializeField] private ScrollRect computerScrollRect;
+
+    [Header("플레이어 팀 선택 UI")]
+    [SerializeField] private Image playerCurrentTeamLogo;       // 현재 선택된 팀 
+    [SerializeField] private Image playerPreviousTeamLogo;      // 이전 팀 
+    [SerializeField] private Image playerNextTeamLogo;          // 다음 팀 
+    [SerializeField] private TextMeshProUGUI playerTeamNameText;
+    [SerializeField] private Button playerUpButton;
+    [SerializeField] private Button playerDownButton;
+    [SerializeField] private ScrollRect playerScrollRect;
+
+    [Header("팀 교체")]
+    [SerializeField] private Button teamSwapButton;
+    [Tooltip("컴퓨터 팀 선택 UI 전체를 감싸는 패널")]
+    [SerializeField] private RectTransform computerPanel;
+    [Tooltip("플레이어 팀 선택 UI 전체를 감싸는 패널")]
+    [SerializeField] private RectTransform playerPanel;
+    [Tooltip("플레이어가 처음에 홈팀인지 여부 (false면 원정)")]
+    [SerializeField] private bool playerStartsAsHome = true;
+    [Tooltip("컴퓨터 패널의 홈/원정 라벨")]
+    [SerializeField] private TextMeshProUGUI computerHomeAwayLabel;
+    [Tooltip("플레이어 패널의 홈/원정 라벨")]
+    [SerializeField] private TextMeshProUGUI playerHomeAwayLabel;
+    [SerializeField] private string homeLabelText = "홈";
+    [SerializeField] private string awayLabelText = "원정";
+    [Tooltip("컴퓨터 패널 식별 이름 (홈/원정 역할과 함께 표시됨)")]
+    [SerializeField] private string computerName = "컴퓨터";
+    [Tooltip("플레이어 패널 식별 이름 (홈/원정 역할과 함께 표시됨)")]
+    [SerializeField] private string playerName = "나";
+
+    [Header("게임 시작")]
+    [SerializeField] private Button playBallButton;
+
+    [Header("이닝 선택 (라디오)")]
+    [Tooltip("순서대로 1, 3, 6, 9 이닝에 대응되는 Toggle 4개")]
+    [SerializeField] private Toggle[] inningToggles; //0=1이닝, 1=3이닝, 2=6이닝, 3=9이닝
+    [SerializeField] private int defaultInningIndex = 3; //기본 9이닝
+    [SerializeField] private GamePlayModel gamePlayModel;
+
+    private readonly int[] inningValues = { 1, 3, 6, 9 };
+
+    [Header("애니메이션 설정")]
+    [SerializeField] private float scrollAnimationDuration = 0.3f;
+    [SerializeField] private AnimationCurve scrollAnimationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+    [SerializeField] private float scrollThreshold = 0.1f; // 스크롤 감지 민감도
+    
+    [Header("Listening to Event")]
+    [SerializeField] private SceneEventSO sceneEventSO;
+
+    [Header("Scene")]
+    [SerializeField] private AssetReference gamePlayScene;
+    
+    
+    private int currentComputerTeamIndex = 0;
+    private int currentPlayerTeamIndex = 1;
+    private bool isAnimating = false;
+    private float lastComputerScrollValue = 1f;
+    private float lastPlayerScrollValue = 1f;
+
+    // 플레이어가 현재 홈팀인지 여부. 교체 버튼을 누를 때마다 토글된다.
+    private bool playerIsHome = true;
+
+    void Start()
+    {
+        playerIsHome = playerStartsAsHome;
+        InitializeTeams();
+        SetupButtonEvents();
+        SetupScrollEvents();
+        SetupScrollRects();
+        UpdateTeamDisplays();
+        UpdateHomeAwayLabels();
+        SetupInningToggles();
+    }
+
+    // 현재 홈/원정 상태에 맞춰 양쪽 패널의 라벨 텍스트를 갱신한다.
+    // 식별자(컴퓨터/나)는 그대로 두고 홈/원정 역할만 함께 표시해 누가 누군지 구분되게 한다.
+    void UpdateHomeAwayLabels()
+    {
+        if (playerHomeAwayLabel != null)
+            playerHomeAwayLabel.text = $"{playerName} ({(playerIsHome ? homeLabelText : awayLabelText)})";
+        if (computerHomeAwayLabel != null)
+            computerHomeAwayLabel.text = $"{computerName} ({(playerIsHome ? awayLabelText : homeLabelText)})";
+    }
+
+    void SetupInningToggles()
+    {
+        if (inningToggles == null || inningToggles.Length == 0) return;
+
+        //라디오 동작: 최초 한 개만 켜져 있도록 초기화
+        int initIdx = Mathf.Clamp(defaultInningIndex, 0, inningToggles.Length - 1);
+        for (int i = 0; i < inningToggles.Length; i++)
+        {
+            if (inningToggles[i] == null) continue;
+            inningToggles[i].isOn = (i == initIdx);
+
+            //하나만 켜지도록(같은 ToggleGroup에 묶이지 않은 경우 대비) 직접 처리
+            int captured = i;
+            inningToggles[i].onValueChanged.AddListener(isOn =>
+            {
+                if (!isOn) return;
+                for (int j = 0; j < inningToggles.Length; j++)
+                {
+                    if (j != captured && inningToggles[j] != null && inningToggles[j].isOn)
+                        inningToggles[j].isOn = false;
+                }
+            });
+        }
+    }
+
+    int GetSelectedInningValue()
+    {
+        if (inningToggles != null)
+        {
+            for (int i = 0; i < inningToggles.Length; i++)
+            {
+                if (inningToggles[i] != null && inningToggles[i].isOn && i < inningValues.Length)
+                    return inningValues[i];
+            }
+        }
+        return inningValues[Mathf.Clamp(defaultInningIndex, 0, inningValues.Length - 1)];
+    }
+
+    void InitializeTeams()
+    {
+        // 팀 데이터가 비어있으면 기본값으로 초기화
+        if (teams.Count == 0)
+        {
+            teams = new List<TeamData>
+            {
+                new TeamData { teamName = "한화 이글스", teamLogo = null },
+                new TeamData { teamName = "KIA 타이거즈", teamLogo = null },
+                new TeamData { teamName = "LG 트윈스", teamLogo = null },
+                new TeamData { teamName = "두산 베어스", teamLogo = null },
+                new TeamData { teamName = "키움 히어로즈", teamLogo = null },
+                new TeamData { teamName = "SSG 랜더스", teamLogo = null },
+                new TeamData { teamName = "롯데 자이언츠", teamLogo = null },
+                new TeamData { teamName = "KT 위즈", teamLogo = null },
+                new TeamData { teamName = "삼성 라이온즈", teamLogo = null },
+                new TeamData { teamName = "NC 다이노스", teamLogo = null }
+            };
+        }
+    }
+
+    void SetupButtonEvents()
+    {
+        // 컴퓨터 팀 선택 버튼
+        if (computerUpButton != null)
+            computerUpButton.onClick.AddListener(() => ChangeTeam(true, -1));
+
+        if (computerDownButton != null)
+            computerDownButton.onClick.AddListener(() => ChangeTeam(true, 1));
+
+        // 플레이어 팀 선택 버튼
+        if (playerUpButton != null)
+            playerUpButton.onClick.AddListener(() => ChangeTeam(false, -1));
+
+        if (playerDownButton != null)
+            playerDownButton.onClick.AddListener(() => ChangeTeam(false, 1));
+
+        // 팀 교체 버튼
+        if (teamSwapButton != null)
+            teamSwapButton.onClick.AddListener(SwapTeams);
+
+        // 플레이 볼 버튼
+        if (playBallButton != null)
+            playBallButton.onClick.AddListener(OnPlayBallClicked);
+    }
+
+    void SetupScrollEvents()
+    {
+        // 컴퓨터 팀 스크롤
+        if (computerScrollRect != null)
+        {
+            computerScrollRect.onValueChanged.AddListener((Vector2 value) => OnScrollValueChanged(true, value));
+        }
+
+        // 플레이어 팀 스크롤
+        if (playerScrollRect != null)
+        {
+            playerScrollRect.onValueChanged.AddListener((Vector2 value) => OnScrollValueChanged(false, value));
+        }
+    }
+
+    void SetupScrollRects()
+    {
+        // 컴퓨터 팀 스크롤 설정
+        if (computerScrollRect != null)
+        {
+            SetupScrollRect(computerScrollRect);
+            computerScrollRect.verticalNormalizedPosition = 0.5f; // 중앙부터 시작
+            lastComputerScrollValue = 0.5f;
+        }
+
+        // 플레이어 팀 스크롤 설정
+        if (playerScrollRect != null)
+        {
+            SetupScrollRect(playerScrollRect);
+            playerScrollRect.verticalNormalizedPosition = 0.5f; // 중앙부터 시작  
+            lastPlayerScrollValue = 0.5f;
+        }
+    }
+
+    void SetupScrollRect(ScrollRect scrollRect)
+    {
+        // 스크롤바 숨기기
+        if (scrollRect.verticalScrollbar != null)
+            scrollRect.verticalScrollbar.gameObject.SetActive(false);
+        if (scrollRect.horizontalScrollbar != null)
+            scrollRect.horizontalScrollbar.gameObject.SetActive(false);
+
+        // 스크롤 설정 - 무한 스크롤을 위해 Unrestricted 사용
+        scrollRect.horizontal = true;   // 좌우(가로)로 변경
+        scrollRect.vertical = false;
+        scrollRect.movementType = ScrollRect.MovementType.Unrestricted; // 무한 스크롤 허용
+        scrollRect.inertia = true;
+        scrollRect.decelerationRate = 0.135f;
+        scrollRect.scrollSensitivity = 1f;
+    }
+
+    void ChangeTeam(bool isComputer, int direction)
+    {
+        if (isAnimating) return;
+
+        if (isComputer)
+        {
+            currentComputerTeamIndex = (currentComputerTeamIndex + direction + teams.Count) % teams.Count;
+        }
+        else
+        {
+            currentPlayerTeamIndex = (currentPlayerTeamIndex + direction + teams.Count) % teams.Count;
+        }
+
+        StartCoroutine(AnimateTeamChange(isComputer));
+        // 무한 스크롤에서는 스크롤 애니메이션 불필요
+        // StartCoroutine(AnimateScrollToTeam(isComputer));
+    }
+
+    void OnScrollValueChanged(bool isComputer, Vector2 scrollValue)
+    {
+        if (isAnimating) return;
+
+        ScrollRect targetScrollRect = isComputer ? computerScrollRect : playerScrollRect;
+        if (targetScrollRect == null) return;
+
+        float currentScrollValue = targetScrollRect.verticalNormalizedPosition;
+        float lastScrollValue = isComputer ? lastComputerScrollValue : lastPlayerScrollValue;
+
+        // 스크롤 변화가 임계값보다 클 때만 처리
+        if (Mathf.Abs(currentScrollValue - lastScrollValue) < scrollThreshold) return;
+
+        int currentIndex = isComputer ? currentComputerTeamIndex : currentPlayerTeamIndex;
+
+        // 스크롤 방향 감지
+        float scrollDelta = currentScrollValue - lastScrollValue;
+
+        if (scrollDelta > scrollThreshold) // 위로 스크롤 (이전 팀)
+        {
+            int newIndex = (currentIndex - 1 + teams.Count) % teams.Count;
+            if (isComputer)
+            {
+                currentComputerTeamIndex = newIndex;
+                lastComputerScrollValue = currentScrollValue;
+            }
+            else
+            {
+                currentPlayerTeamIndex = newIndex;
+                lastPlayerScrollValue = currentScrollValue;
+            }
+            UpdateTeamDisplays();
+        }
+        else if (scrollDelta < -scrollThreshold) // 아래로 스크롤 (다음 팀)
+        {
+            int newIndex = (currentIndex + 1) % teams.Count;
+            if (isComputer)
+            {
+                currentComputerTeamIndex = newIndex;
+                lastComputerScrollValue = currentScrollValue;
+            }
+            else
+            {
+                currentPlayerTeamIndex = newIndex;
+                lastPlayerScrollValue = currentScrollValue;
+            }
+            UpdateTeamDisplays();
+        }
+
+        // 스크롤 위치 리셋 (무한 스크롤 효과)
+        if (currentScrollValue > 1.5f)
+        {
+            targetScrollRect.verticalNormalizedPosition = 0.5f;
+            if (isComputer)
+                lastComputerScrollValue = 0.5f;
+            else
+                lastPlayerScrollValue = 0.5f;
+        }
+        else if (currentScrollValue < -0.5f)
+        {
+            targetScrollRect.verticalNormalizedPosition = 0.5f;
+            if (isComputer)
+                lastComputerScrollValue = 0.5f;
+            else
+                lastPlayerScrollValue = 0.5f;
+        }
+    }
+
+    IEnumerator AnimateTeamChange(bool isComputer)
+    {
+        isAnimating = true;
+
+        Image currentLogo = isComputer ? computerCurrentTeamLogo : playerCurrentTeamLogo;
+        Image previousLogo = isComputer ? computerPreviousTeamLogo : playerPreviousTeamLogo;
+        Image nextLogo = isComputer ? computerNextTeamLogo : playerNextTeamLogo;
+        TextMeshProUGUI targetText = isComputer ? computerTeamNameText : playerTeamNameText;
+
+        // 모든 로고들 페이드 아웃
+        float startAlpha = 1f;
+        for (float t = 0; t < scrollAnimationDuration / 2; t += Time.deltaTime)
+        {
+            float alpha = Mathf.Lerp(startAlpha, 0f, scrollAnimationCurve.Evaluate(t / (scrollAnimationDuration / 2)));
+
+            SetImageAlpha(currentLogo, alpha);
+            SetImageAlpha(previousLogo, alpha * 0.5f);  // 이전/다음은 더 흐리게
+            SetImageAlpha(nextLogo, alpha * 0.5f);
+
+            if (targetText != null)
+            {
+                Color textColor = targetText.color;
+                textColor.a = alpha;
+                targetText.color = textColor;
+            }
+
+            yield return null;
+        }
+
+        // 팀 정보 업데이트
+        UpdateTeamDisplays();
+
+        // 모든 로고들 페이드 인
+        for (float t = 0; t < scrollAnimationDuration / 2; t += Time.deltaTime)
+        {
+            float alpha = Mathf.Lerp(0f, 1f, scrollAnimationCurve.Evaluate(t / (scrollAnimationDuration / 2)));
+
+            SetImageAlpha(currentLogo, alpha);
+            SetImageAlpha(previousLogo, alpha * 0.5f);  // 이전/다음은 더 흐리게
+            SetImageAlpha(nextLogo, alpha * 0.5f);
+
+            if (targetText != null)
+            {
+                Color textColor = targetText.color;
+                textColor.a = alpha;
+                targetText.color = textColor;
+            }
+
+            yield return null;
+        }
+
+        // 최종 알파값 설정
+        SetImageAlpha(currentLogo, 1f);
+        SetImageAlpha(previousLogo, 0.5f); // 이전/다음은 반투명
+        SetImageAlpha(nextLogo, 0.5f);
+
+        if (targetText != null)
+        {
+            Color textColor = targetText.color;
+            textColor.a = 1f;
+            targetText.color = textColor;
+        }
+
+        isAnimating = false;
+    }
+
+    IEnumerator AnimateScrollToTeam(bool isComputer)
+    {
+        ScrollRect targetScrollRect = isComputer ? computerScrollRect : playerScrollRect;
+        if (targetScrollRect == null) yield break;
+
+        int targetIndex = isComputer ? currentComputerTeamIndex : currentPlayerTeamIndex;
+        float targetScrollValue = 1f - (float)targetIndex / (teams.Count - 1);
+
+        float startScrollValue = targetScrollRect.verticalNormalizedPosition;
+        float animationTime = 0f;
+
+        while (animationTime < scrollAnimationDuration)
+        {
+            animationTime += Time.deltaTime;
+            float normalizedTime = animationTime / scrollAnimationDuration;
+            float evaluatedTime = scrollAnimationCurve.Evaluate(normalizedTime);
+
+            targetScrollRect.verticalNormalizedPosition = Mathf.Lerp(startScrollValue, targetScrollValue, evaluatedTime);
+
+            yield return null;
+        }
+
+        targetScrollRect.verticalNormalizedPosition = targetScrollValue;
+    }
+
+    void SetImageAlpha(Image image, float alpha)
+    {
+        if (image != null)
+        {
+            Color color = image.color;
+            color.a = alpha;
+            image.color = color;
+        }
+    }
+
+    void SwapTeams()
+    {
+        if (isAnimating) return;
+
+        if (computerPanel == null || playerPanel == null)
+        {
+            Debug.LogWarning("[GameReady] computerPanel/playerPanel 미할당 → 패널 위치 교체 불가.");
+            return;
+        }
+
+        // 부모(TeamSelectionPanel)가 HorizontalLayoutGroup이라 위치는 형제(Sibling) 순서로 결정된다.
+        // 팀 선택은 그대로 두고, 두 섹션의 형제 인덱스만 맞바꿔 좌우(홈/원정) 자리를 교체한다.
+        int computerSiblingIndex = computerPanel.GetSiblingIndex();
+        int playerSiblingIndex = playerPanel.GetSiblingIndex();
+        computerPanel.SetSiblingIndex(playerSiblingIndex);
+        playerPanel.SetSiblingIndex(computerSiblingIndex);
+
+        // 홈/원정 상태 토글 후 라벨 갱신
+        playerIsHome = !playerIsHome;
+        UpdateHomeAwayLabels();
+    }
+
+    void UpdateTeamDisplays()
+    {
+        UpdateTeamLogos(true);   // 컴퓨터 팀
+        UpdateTeamLogos(false);  // 플레이어 팀
+    }
+
+    void UpdateTeamLogos(bool isComputer)
+    {
+        int currentIndex = isComputer ? currentComputerTeamIndex : currentPlayerTeamIndex;
+        Image currentLogo = isComputer ? computerCurrentTeamLogo : playerCurrentTeamLogo;
+        Image previousLogo = isComputer ? computerPreviousTeamLogo : playerPreviousTeamLogo;
+        Image nextLogo = isComputer ? computerNextTeamLogo : playerNextTeamLogo;
+        TextMeshProUGUI teamNameText = isComputer ? computerTeamNameText : playerTeamNameText;
+
+        // 현재 팀 로고 (크고 선명)
+        SetTeamLogo(currentLogo, currentIndex, 1f, Vector3.one);
+
+        // 이전 팀 로고 (작고 흐림)
+        int previousIndex = (currentIndex - 1 + teams.Count) % teams.Count;
+        SetTeamLogo(previousLogo, previousIndex, 0.5f, Vector3.one * 0.8f);
+
+        // 다음 팀 로고 (작고 흐림)
+        int nextIndex = (currentIndex + 1) % teams.Count;
+        SetTeamLogo(nextLogo, nextIndex, 0.5f, Vector3.one * 0.8f);
+
+        // 팀 이름 텍스트 업데이트
+        if (teamNameText != null)
+            teamNameText.text = teams[currentIndex].teamName;
+    }
+
+    void SetTeamLogo(Image logoImage, int teamIndex, float alpha, Vector3 scale)
+    {
+        if (logoImage != null && teamIndex < teams.Count)
+        {
+            // 로고 스프라이트 설정
+            logoImage.sprite = teams[teamIndex].teamLogo;
+            logoImage.enabled = teams[teamIndex].teamLogo != null;
+
+            // 알파값 설정
+            Color color = logoImage.color;
+            color.a = alpha;
+            logoImage.color = color;
+
+            // 크기 설정
+            logoImage.transform.localScale = scale;
+        }
+    }
+
+    void OnPlayBallClicked()
+    {
+        int innings = GetSelectedInningValue();
+
+        Debug.Log("GameStart!");
+        Debug.Log($"컴퓨터 팀: {teams[currentComputerTeamIndex].teamName}");
+        Debug.Log($"플레이어 팀: {teams[currentPlayerTeamIndex].teamName}");
+        Debug.Log($"플레이어 홈 여부: {playerIsHome}");
+        Debug.Log($"선택 이닝: {innings}");
+
+        //선택된 이닝 수와 팀/홈원정 정보를 SO에 저장 → Gameplay 씬에서 읽음
+        if (gamePlayModel != null)
+        {
+            gamePlayModel.MaxInning = innings * 2;
+            gamePlayModel.PlayerIsHome = playerIsHome;
+            //홈/원정 역할에 맞춰 어느 구단이 홈/원정인지 저장 (player/computer는 PlayerIsHome로 역산)
+            //todo 이거를 따로 팀 SO를 넣어야 한다. => 1번 한화이글스, 2번 LG 트윈스ㄴ
+        }
+        else
+        {
+            Debug.LogWarning("[GameReady] GameConfigSO 미할당 → 이닝/팀 설정이 전달되지 않습니다.");
+        }
+
+        // TODO: 게임플레이 씬으로 전환
+        sceneEventSO.RaiseEvent(gamePlayScene);
+    }
+
+    // 현재 선택된 팀 정보를 가져오는 메서드들 
+    public string GetSelectedComputerTeam()
+    {
+        return teams[currentComputerTeamIndex].teamName;
+    }
+
+    public string GetSelectedPlayerTeam()
+    {
+        return teams[currentPlayerTeamIndex].teamName;
+    }
+
+    public int GetComputerTeamIndex()
+    {
+        return currentComputerTeamIndex;
+    }
+
+    public int GetPlayerTeamIndex()
+    {
+        return currentPlayerTeamIndex;
+    }
+
+    public TeamData GetComputerTeamData()
+    {
+        return teams[currentComputerTeamIndex];
+    }
+
+    public TeamData GetPlayerTeamData()
+    {
+        return teams[currentPlayerTeamIndex];
+    }
+}
