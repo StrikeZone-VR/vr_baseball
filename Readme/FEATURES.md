@@ -11,13 +11,10 @@
 ---
 
 # UI
-
-<img width="500" alt="메인 메뉴 화면" src="https://github.com/user-attachments/assets/eba5864b-f2ac-4c5c-96d5-7124865ba189" /><br>
-
-*메뉴에는 각 게임 씬으로 들어가는 버튼과, 오른쪽에 KBO 실시간 정보를 보여주는 UI 창을 띄웠다.*
-
+<img width="300" alt="image" src="https://github.com/user-attachments/assets/676a56ab-6dd4-4a22-add2-e8d1b42d13f1" /><br>
+<img width="300" alt="image" src="https://github.com/user-attachments/assets/d933394b-13ed-4f86-a46d-49dbc7da4e1a" /><br>
+<img width="300"  alt="image" src="https://github.com/user-attachments/assets/79f9de37-85e7-43bd-a8fe-4f0d156d419d" /><br>
 <img width="300" alt="메뉴 버튼 확대" src="https://github.com/user-attachments/assets/2838e9fb-5d7f-4bd6-acc2-d0455433a833" /><br>
-<img width="300" alt="KBO 정보 패널 확대" src="https://github.com/user-attachments/assets/d56015f9-bd6b-4a08-a99d-14007d6a09ba" /><br>
 
 전체적인 UI 분위기는 귀여운 로우파이 느낌을 살릴 수 있게 둥글게 구현했다.
 - [ ] SettingPanel, GameResult, MainMenu 씬의 UI 개선
@@ -41,7 +38,15 @@
 <img width="400" alt="가중치 적용 투구" src="https://github.com/user-attachments/assets/47c6d653-cee9-46fc-843a-c2b8506b25cf" /><br>
 
 가중치를 추가한 버전. 같은 구속에서도 코스가 미세하게 흔들려 실제 투구에 가까워진다.
-- [ ] 플레이어가 던지는 슬라이더·커브·포크볼 gif 추가
+
+<table>
+<tr>
+<td><img width="400" src="https://github.com/user-attachments/assets/ba506b70-37ba-4156-a176-8fa42a2e1112" /><br>직구</td>
+<td><img width="400" src="https://github.com/user-attachments/assets/e1af0306-e79c-4f71-8ab6-33c8035e10b8" /><br>커브</td>
+<td><img width="400" src="https://github.com/user-attachments/assets/3211ba0b-3881-422a-b733-c50828265582" /><br>슬라이더</td>
+<td><img width="400" src="https://github.com/user-attachments/assets/18e4750a-bda6-4ca7-addd-68eca0d074c7" /><br>포크볼</td>
+</tr>
+</table>
 
 ## AI 투수
 <table>
