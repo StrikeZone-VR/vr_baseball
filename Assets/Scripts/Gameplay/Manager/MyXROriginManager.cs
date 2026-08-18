@@ -64,8 +64,6 @@ public class MyXROriginManager : MonoBehaviour
     private Coroutine settleRoutine;
     private Coroutine moveLockRoutine;
 
-    //이동 잠금 시 locomotionPhase가 Idle로 내려오길 기다리는 최대 시간. (DisableMoveWhenSettled)
-    private const float MOVE_LOCK_SETTLE_TIMEOUT = 0.5f;
 
     private void OnEnable()
     {
@@ -213,46 +211,64 @@ public class MyXROriginManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 오른손 컨트롤러의 XR Interactor가 잡고 있는 모든 것을 SelectExit로 해제.
+    /// 텔레포트 전에 양손(리그 안의 모든 XR Interactor)이 잡고 있는 것을 전부 SelectExit로 해제.
     /// 잡힌 게 없으면 no-op. 공의 경우 Baseball.OnRelease가 자동으로 ThrowPlayerBall을 호출.
+    /// </summary>
+    private void ReleaseAllHeldObjects()
+    {
+        //rightHand 참조에서 '첫 번째로 찾은' interactor 하나만 풀던 걸 리그 전체 훑기로 바꿨다.
+        //ㄴ 예전 방식은 조용히 새는 경로가 있었다: rightHand 미연결 / 배트를 왼손으로 잡음 /
+        //   Ray와 Direct가 각각 뭔가를 잡고 있어 배트 쥔 쪽이 두 번째로 발견됨.
+        //   → 투수 모드 전환에서 배트가 손에 붙은 채 딸려오던 증상.
+        //리그(_origin) 밑에 양손 컨트롤러가 다 들어있으므로 여기 한 번만 훑으면 된다.
+        int released = _origin != null ? ReleaseSelectionUnder(_origin.transform) : 0;
+
+        Debug.Log($"[XROrigin] 텔레포트 전 잡은 것 해제: {released}개");
+    }
+
+    /// <summary>
+    /// 오른손이 잡은 것만 해제. 투구 스윙의 릴리즈 지점용 —
+    /// 여기서 양손을 놓으면 왼손에 든 것까지 같이 떨어진다.
     /// </summary>
     private void ReleaseRightHandSelection()
     {
-        if (rightHand == null) return;
-
-        //GetComponentInChildren는 첫 매칭 하나만 반환 → Ray/Direct interactor 중 selection 없는 게 먼저 잡힐 수 있음
-        //자식 트리 + 부모 트리 다 훑어서 hasSelection 인 놈을 찾자
-        XRBaseInteractor interactor = FindInteractorWithSelection(rightHand);
-        if (interactor == null)
-        {
-            return;
-        }
-
-        var manager = interactor.interactionManager;
-        if (manager == null) return;
-
-        //역순 순회: SelectExit가 리스트를 수정해도 안전하도록
-        var items = interactor.interactablesSelected;
-        for (int i = items.Count - 1; i >= 0; i--)
-        {
-            manager.SelectExit((IXRSelectInteractor)interactor, items[i]);
-        }
+        ReleaseSelectionUnder(rightHand);
     }
 
-    //자식과 부모에서 오브젝트 선택한 interactor 찾기
-    private static XRBaseInteractor FindInteractorWithSelection(Transform root)
+    //root 아래(및 위) 모든 interactor의 selection을 해제하고, 해제한 개수를 돌려준다.
+    private static int ReleaseSelectionUnder(Transform root)
     {
-        var children = root.GetComponentsInChildren<XRBaseInteractor>(true);
-        for (int i = 0; i < children.Length; i++)
+        if (root == null) return 0;
+
+        int count = 0;
+        foreach (XRBaseInteractor interactor in CollectInteractors(root))
         {
-            if (children[i] != null && children[i].hasSelection) return children[i];
+            if (interactor == null || !interactor.hasSelection) continue;
+
+            var manager = interactor.interactionManager;
+            if (manager == null) continue;
+
+            //역순 순회: SelectExit가 리스트를 수정해도 안전하도록
+            var items = interactor.interactablesSelected;
+            for (int i = items.Count - 1; i >= 0; i--)
+            {
+                manager.SelectExit((IXRSelectInteractor)interactor, items[i]);
+                count++;
+            }
         }
-        var parents = root.GetComponentsInParent<XRBaseInteractor>(true);
-        for (int i = 0; i < parents.Length; i++)
+        return count;
+    }
+
+    //자식과 부모에서 interactor 전부 모으기 (첫 매칭 하나만 보면 다른 손/다른 interactor를 놓친다)
+    private static List<XRBaseInteractor> CollectInteractors(Transform root)
+    {
+        var list = new List<XRBaseInteractor>();
+        list.AddRange(root.GetComponentsInChildren<XRBaseInteractor>(true));
+        foreach (XRBaseInteractor p in root.GetComponentsInParent<XRBaseInteractor>(true))
         {
-            if (parents[i] != null && parents[i].hasSelection) return parents[i];
+            if (!list.Contains(p)) list.Add(p);
         }
-        return null;
+        return list;
     }
 
     private void MoveOrigin(Vector3 vector3)
@@ -280,7 +296,7 @@ public class MyXROriginManager : MonoBehaviour
         //텔레포트 전에 손에 쥔 것(배트 등) 놓기.
         //안 놓으면 배트를 잡은 채 이닝 교체/시점 전환되면 배트가 손에 select된 채로 플레이어를 따라 끌려온다.
         if (releaseHeld)
-            ReleaseRightHandSelection();
+            ReleaseAllHeldObjects();
 
         //move
         //MoveCameraToWorldLocation은 '카메라(머리)'를 그 좌표에 맞추는 함수라
@@ -435,7 +451,20 @@ public class MyXROriginManager : MonoBehaviour
 
     private void RotateOrigin(Vector3 vector3)
     {
-        _origin.MatchOriginUpCameraForward(Vector3.up, vector3);
+        //MatchOriginUpCameraForward는 '카메라(머리)의 forward'를 목표 방향에 맞춘다.
+        //ㄴ 즉 호출 순간 고개가 돌아가 있으면 그만큼 리그 전체가 통째로 돌아간다.
+        //   타석 복귀/이닝 교체마다 조금씩 누적돼 "타석이 점점 돌아간다"로 체감된다.
+        //그래서 리그 자체의 yaw를 목표 방향의 절대값으로 맞춘다 → 몇 번을 불러도 결과가 같다(누적 없음).
+        if (_origin == null || _origin.Origin == null) return;
+
+        Vector3 flat = new Vector3(vector3.x, 0f, vector3.z);
+        if (flat.sqrMagnitude < 0.0001f) return;
+
+        float currentYaw = _origin.Origin.transform.eulerAngles.y;
+        float targetYaw = Quaternion.LookRotation(flat.normalized, Vector3.up).eulerAngles.y;
+
+        //카메라 위치를 축으로 돌려서 머리(=플레이어)가 타석 밖으로 밀려나지 않게 한다. (XROrigin 내부와 동일한 방식)
+        _origin.RotateAroundCameraPosition(Vector3.up, Mathf.DeltaAngle(currentYaw, targetYaw));
     }
 
     private void SetPlayer(MyBody body)
@@ -455,6 +484,7 @@ public class MyXROriginManager : MonoBehaviour
 
         if (isMove)
         {
+            moveProvider.moveSpeed = playerMoveSpeed; //잠금 대기 중 0으로 내려놨을 수 있으니 복구
             moveProvider.enabled = true;
             return;
         }
@@ -470,22 +500,29 @@ public class MyXROriginManager : MonoBehaviour
     //   즉 phase를 내려주는 건 Update() 하나뿐이라, 달리는 중(phase == Moving)에 enabled = false를 하면
     //   Update가 멈춰 phase가 Moving에 영구히 고정된다.
     //   → LocomotionVignetteProvider가 계속 '이동 중'으로 보고 TunnelingVignette를 닫아둠
-    //     (달리다가 아웃돼서 타석 이동 잠금이 걸리면 주변 시야가 까맣게 남던 버그).
+    //     (달리다가 아웃/홈런 나서 타석 이동 잠금이 걸리면 주변 시야가 까맣게 남던 버그).
     //   가만히 서서 아웃되면 phase가 이미 Idle이라 멀쩡했던 것도 같은 이유.
-    //그래서 Update()가 Moving → Done → Idle 까지 내려온 걸 확인하고 끈다(보통 2프레임).
+    //그래서 순서를 나눈다: ① 속도만 0으로 내려 '실제 이동'을 즉시 막고
+    //                     ② Update()가 Moving → Done → Idle 까지 내려오면 그때 컴포넌트를 끈다.
+    //ㄴ ①이 있으니 스틱을 계속 밀고 있어도 플레이어는 못 움직인다 → 시간 제한 없이 안전하게 기다릴 수 있다.
+    //  (예전엔 타임아웃 후 Moving인 채로 꺼서, 스틱을 밀고 있으면 여전히 까맣게 남았다)
     private IEnumerator DisableMoveWhenSettled()
     {
-        float elapsed = 0f;
-        while (moveProvider.locomotionPhase != LocomotionPhase.Idle && elapsed < MOVE_LOCK_SETTLE_TIMEOUT)
+        moveProvider.moveSpeed = 0f;
+
+        while (moveProvider.locomotionPhase != LocomotionPhase.Idle)
         {
-            elapsed += Time.deltaTime;
             yield return null;
         }
 
-        //타임아웃(조이스틱을 계속 밀고 있는 경우)이어도 잠그는 건 잠근다.
-        //이땐 phase가 Moving으로 남지만, 다음 SetPlayerMoveMode(true)에서 Update가 재개되며 스스로 풀린다.
+        //여기 왔다는 건 phase가 Idle까지 내려왔다는 뜻 → 이제 꺼도 비네트가 닫힌 채로 얼지 않는다.
         moveProvider.enabled = false;
+        moveProvider.moveSpeed = playerMoveSpeed; //다음에 다시 켤 때를 위해 복구
         moveLockRoutine = null;
     }
+
+    //이동 잠금 상태(잠금 대기 중 포함). 주자 레일이 "잠겼으면 레일 끄기" 판단에 쓴다.
+    //ㄴ 잠금은 phase가 Idle이 될 때까지 지연되므로, enabled만 보면 그 사이 레일이 살아있게 된다.
+    public bool IsMoveLocked => moveProvider == null || !moveProvider.enabled || moveLockRoutine != null;
     
 }

@@ -107,18 +107,16 @@ public partial class GamePlayManager
         MyBatterComponent mine = myBody != null ? myBody.GetMyBatterComponent() : null;
 
         //레일 조건: 타자 모드 + 내가 달리는 중 + 타구 인플레이 + 이동 잠금 아님(잠기면 어차피 못 움직임)
-        //ㄴ provider.enabled 게이트가 중요: 아웃/득점 후 타석 복귀(TranslateBattingView) 직후엔
+        //ㄴ 이동 잠금 게이트가 중요: 아웃/득점 후 타석 복귀(TranslateBattingView) 직후엔
         //   IsMove가 true로 남는 경우가 있는데, 복귀 시 이동이 잠기므로 레일이 타석의 플레이어를
         //   베이스라인으로 끌어당기는 사고를 막아준다.
+        //ㄴ provider.enabled 대신 IsMoveLocked를 본다: 잠금은 locomotionPhase가 Idle이 될 때까지
+        //   지연되므로(비네트 고착 방지), 그 대기 구간에도 레일이 살아있으면 안 된다.
         bool running = gamePlayModel != null && gamePlayModel.PlayerIsBatterMode()
                     && mine != null && mine.IsMove && !mine.IsOut
                     && mine.BaseIndex < bases.Length
-                    && _ball != null && _ball.IsInGamePlay;
-        if (running)
-        {
-            ActionBasedContinuousMoveProvider provider = ResolveMoveProvider();
-            running = provider != null && provider.enabled;
-        }
+                    && _ball != null && _ball.IsInGamePlay
+                    && !_xrOriginManager.IsMoveLocked;
 
         if (!running)
         {
