@@ -2,9 +2,8 @@
 VR 컨트롤러 기반 야구 시뮬레이션 게임입니다.
 
 ---
-
-<img width="320" height="180" alt="image" src="https://github.com/user-attachments/assets/65e2b988-e8d3-455f-ba4c-1b6c49c360da" /><br>
-[유튜브 링크](https://youtu.be/OSQ_ilQuzXA?si=yBa4ve-0OWmFHTI8)<br>
+<img width="320" height="180" alt="image" src="https://github.com/user-attachments/assets/c4a65970-2a21-479c-8324-90bd057f5f7a" /><br>
+[유튜브 링크](https://youtu.be/qdCS4XW5icY)<br>
 
 ## 기간
 - 2025년 7월 7일 ~ 2025년 9월 25일 (2개월)
@@ -29,8 +28,10 @@ VR 기기의 특성을 극대화하여 실제 마운드와 타석에서의 현�
 ---
 
 # 유튜브
+- [1.3 버전 - 게임 플레이](https://youtu.be/OSQ_ilQuzXA?si=yBa4ve-0OWmFHTI8)<br>
 - [1.3 버전 - 타자시점](https://youtu.be/xZLIFKc64FI)
 - [1.4 버전 - 투수시점](https://youtu.be/RwI4wwKEAyw)
+- [1.4.2 버전 - 게임플레이](https://youtu.be/qdCS4XW5icY)
 
 
 ![KakaoTalk_20250926_101553358](https://github.com/user-attachments/assets/3f574b02-7ca5-47e5-a029-1ac3980ef263)
