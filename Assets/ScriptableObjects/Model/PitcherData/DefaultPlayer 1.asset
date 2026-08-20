@@ -15,8 +15,8 @@ MonoBehaviour:
   player_name: "\uD504\uB85C_\uB514\uD3F4\uC774"
   pitchingData:
   - pitchType: 0
-    min_velocity: 150
-    max_velocity: 70
+    min_velocity: 145
+    max_velocity: 152
     weight: 25
     correctZone:
     - 4
@@ -45,9 +45,9 @@ MonoBehaviour:
     - 4
     - 4
   - pitchType: 1
-    min_velocity: 50
-    max_velocity: 60
-    weight: 0
+    min_velocity: 115
+    max_velocity: 128
+    weight: 25
     correctZone:
     - 4
     - 4
@@ -75,8 +75,8 @@ MonoBehaviour:
     - 4
     - 4
   - pitchType: 2
-    min_velocity: 50
-    max_velocity: 60
+    min_velocity: 128
+    max_velocity: 138
     weight: 25
     correctZone:
     - 4
@@ -105,19 +105,10 @@ MonoBehaviour:
     - 4
     - 4
   - pitchType: 3
-    min_velocity: 50
-    max_velocity: 60
+    min_velocity: 133
+    max_velocity: 138
     weight: 25
     correctZone:
-    - 2
-    - 2
-    - 2
-    - 6
-    - 6
-    - 6
-    - 6
-    - 6
-    - 6
     - 0
     - 0
     - 0
@@ -125,12 +116,21 @@ MonoBehaviour:
     - 0
     - 2
     - 2
-    - 6
-    - 6
-    - 6
-    - 6
-    - 6
-    - 6
-    - 6
-    - 6
-    - 6
+    - 2
+    - 2
+    - 2
+    - 3
+    - 3
+    - 3
+    - 3
+    - 3
+    - 7.5
+    - 7.5
+    - 7.5
+    - 7.5
+    - 7.5
+    - 7.5
+    - 7.5
+    - 7.5
+    - 7.5
+    - 7.5

@@ -23,6 +23,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Debug/PitcherScene.unity
     guid: 3b5d8c8385c8d38428656cd2b65c73e6
+  - enabled: 1
+    path: Assets/Scenes/GameResult.unity
+    guid: b4930f947697e6e458557fa92b0fe141
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 9d486d4a7e222004598cd45ed7f62fd9, type: 2}
     com.unity.addressableassets: {fileID: 11400000, guid: 29c09c0c41b08d341b891378a92097e6, type: 2}

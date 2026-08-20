@@ -1360,7 +1360,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pitcherComponent: {fileID: 7423472532717417012}
   ball: {fileID: 2060382667}
-  pitcherSO: {fileID: 11400000, guid: 8f13849a08d59444295a90385342b822, type: 2}
+  pitcherSO: {fileID: 11400000, guid: 6c314ed4149718b40a17ec308ab619cc, type: 2}
   hitText: {fileID: 1783615860}
   groundBallText: {fileID: 138329563}
   foulText: {fileID: 1782404898}
@@ -1726,8 +1726,8 @@ MonoBehaviour:
   rightHand: {fileID: 0}
   head: {fileID: 0}
   data: {fileID: 11400000, guid: 839a771a53bb40a42a9ba475f4fa347f, type: 2}
-  recordOnEnable: 1
-  debugLog: 1
+  recordOnEnable: 0
+  debugLog: 0
 --- !u!4 &1865367757
 Transform:
   m_ObjectHideFlags: 0
