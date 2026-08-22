@@ -4,6 +4,7 @@ VR 컨트롤러 기반 야구 시뮬레이션 게임입니다.
 ---
 <img width="320" height="180" alt="image" src="https://github.com/user-attachments/assets/c4a65970-2a21-479c-8324-90bd057f5f7a" /><br>
 [유튜브 링크](https://youtu.be/qdCS4XW5icY)<br>
+[리플레이 영상](https://youtu.be/v7R1rVlPwF4)
 
 ## 기간
 - 2025년 7월 7일 ~ 2025년 9월 25일 (2개월)
