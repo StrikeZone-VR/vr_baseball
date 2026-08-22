@@ -240,5 +240,4 @@ public void FlyingOutRollbackBeforeStatus()
 ## 리플레이
 
 <img width="400" alt="리플레이 (진행 중)" src="https://github.com/user-attachments/assets/2d5425a5-13d1-4162-8375-8b8183a4a38a" /><br>
-
-- [ ] 리플레이 테스트 영상 링크 추가
+[리플레이 영상](https://youtu.be/v7R1rVlPwF4)
