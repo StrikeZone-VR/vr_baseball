@@ -275,6 +275,7 @@ public class ReplayPlayer : MonoBehaviour
         }
     }
 
+    //상태 적용
     private void ApplyStatus(float t)
     {
         //전광판: status 키프레임이 바뀐 순간에만 다시 그린다.

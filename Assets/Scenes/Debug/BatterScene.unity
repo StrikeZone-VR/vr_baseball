@@ -1360,7 +1360,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pitcherComponent: {fileID: 7423472532717417012}
   ball: {fileID: 2060382667}
-  pitcherSO: {fileID: 11400000, guid: 6c314ed4149718b40a17ec308ab619cc, type: 2}
+  pitcherSO: {fileID: 11400000, guid: dcd07d50f61e30c44913e59e3d65584e, type: 2}
   hitText: {fileID: 1783615860}
   groundBallText: {fileID: 138329563}
   foulText: {fileID: 1782404898}

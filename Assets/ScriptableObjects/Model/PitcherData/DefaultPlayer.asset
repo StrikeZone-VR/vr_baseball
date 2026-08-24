@@ -15,8 +15,8 @@ MonoBehaviour:
   player_name: "\uC544\uB9C8\uCD94\uC5B4_\uB514\uD3F4\uC774"
   pitchingData:
   - pitchType: 0
-    min_velocity: 50
-    max_velocity: 60
+    min_velocity: 52
+    max_velocity: 72
     weight: 50
     correctZone:
     - 4
@@ -47,7 +47,7 @@ MonoBehaviour:
   - pitchType: 1
     min_velocity: 40
     max_velocity: 50
-    weight: 20
+    weight: 0
     correctZone:
     - 4
     - 4
@@ -75,9 +75,9 @@ MonoBehaviour:
     - 4
     - 4
   - pitchType: 2
-    min_velocity: 40
+    min_velocity: 46
     max_velocity: 50
-    weight: 20
+    weight: 50
     correctZone:
     - 4
     - 4
@@ -107,7 +107,7 @@ MonoBehaviour:
   - pitchType: 3
     min_velocity: 35
     max_velocity: 40
-    weight: 10
+    weight: 0
     correctZone:
     - 2
     - 2
