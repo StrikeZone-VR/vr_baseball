@@ -266,6 +266,6 @@ public void FlyingOutRollbackBeforeStatus()
 주자 현황을 보여주는 디버깅 UI
 
 ## 리플레이
-
+플레이 중 발생하는 버그를 정확히 재현하고 원인을 추적하기 위해 경기 상황을 기록하고 반복 재생할 수 있는 디버깅용 리플레이 기능을 구현했습니다.<br>
 <img width="400" alt="리플레이 (진행 중)" src="https://github.com/user-attachments/assets/2d5425a5-13d1-4162-8375-8b8183a4a38a" /><br>
 [리플레이 영상](https://youtu.be/v7R1rVlPwF4)
